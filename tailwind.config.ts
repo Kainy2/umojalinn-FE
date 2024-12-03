@@ -19,20 +19,32 @@ export default {
         { letterSpacing: "-2%", fontWeight: "400", lineHeight: "5.625rem" },
       ],
       lg: [
-        "3rem",
-        { letterSpacing: "-2%", fontWeight: "400", lineHeight: "3.75rem" },
-      ],
-      md: [
-        "2.25rem",
-        { letterSpacing: "-2%", fontWeight: "400", lineHeight: "2.75rem" },
-      ],
-      sm: [
         "1.875rem",
         { letterSpacing: "-2%", fontWeight: "400", lineHeight: "2.375rem" },
+      ],
+      md: [
+        "1rem",
+        { letterSpacing: "-2%", fontWeight: "400", lineHeight: "1.5rem" },
+      ],
+      sm: [
+        "0.875rem",
+        { letterSpacing: "-2%", fontWeight: "400", lineHeight: "0.055rem" },
       ],
       xs: [
         "1.5rem",
         { letterSpacing: "-2%", fontWeight: "400", lineHeight: "2rem" },
+      ],
+      base: [
+        "1rem",
+        { letterSpacing: "-2%", fontWeight: "400", lineHeight: "1.5rem" },
+      ],
+      body: [
+        "1rem",
+        { letterSpacing: "-2%", fontWeight: "400", lineHeight: "1.5rem" },
+      ],
+      label: [
+        "0.875rem",
+        { letterSpacing: "-2%", fontWeight: "400", lineHeight: "1.25rem" },
       ],
     },
     extend: {
@@ -51,7 +63,12 @@ export default {
       },
       colors: {
         background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+
+        foreground: {
+          DEFAULT: "hsl(var(--foreground))",
+          body: "hsl(var(--foregroundBody))",
+          label: "hsl(var(--foregroundLabel))",
+        },
         primary: {
           "25": "#FEFDF0",
           "50": "#FEFBEB",

@@ -9,13 +9,16 @@ body {
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    --backgroundComma: 0, 0%, 100%;
+    --foreground: 221 43% 11%;
+    --foregroundBody: 215 18% 34%;
+    --foregroundLabel: 217 23% 27%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
+    --primary: 43 93% 47%;
+    --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
     --muted: 0 0% 96.1%;
@@ -26,7 +29,7 @@ body {
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
+    --ring: 43 93% 47%;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
@@ -36,13 +39,16 @@ body {
   }
   .dark {
     --background: 0 0% 3.9%;
+    --backgroundComma: 0, 0%, 3.9%;
     --foreground: 0 0% 98%;
+    --foregroundBody: 0 0% 90%;
+    --foregroundLabel: 0 0% 85%;
     --card: 0 0% 3.9%;
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
+    --primary: 43 93% 47%;
+    --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 14.9%;
     --secondary-foreground: 0 0% 98%;
     --muted: 0 0% 14.9%;
@@ -53,7 +59,7 @@ body {
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
+    --ring: 43 93% 47%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -67,6 +73,32 @@ body {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground-body;
   }
+  .icon-button {
+    @apply cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-full;
+  }
+}
+
+.bg-auth {
+  background-image: url("/img/png/pattern.png");
+  position: relative;
+  min-height: max(100vh, 500px);
+  display: grid;
+  align-items: center;
+  justify-content: center;
+}
+
+.bg-auth::before {
+  content: "";
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(
+    to bottom,
+    hsla(var(--backgroundComma), 0%) 0%,
+    hsl(var(--background)) 15%,
+    hsl(var(--background)) 85%,
+    hsla(var(--backgroundComma), 0%) 100%
+  );
 }
