@@ -2,6 +2,12 @@ import { z } from "zod";
 
 export const registrationFormSchema = z
   .object({
+    firstName: z.string().min(1, {
+      message: "Please provide valid name.",
+    }),
+    lastName: z.string().min(1, {
+      message: "Please provide valid name.",
+    }),
     email: z.string().email({
       message: "Please provide valid email.",
     }),
@@ -14,7 +20,7 @@ export const registrationFormSchema = z
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
-    path: ["confirmPassword", "password"],
+    path: ["confirmPassword"],
   });
 
 export const loginFormSchema = z.object({

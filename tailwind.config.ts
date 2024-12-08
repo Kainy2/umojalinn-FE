@@ -6,46 +6,20 @@ export default {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/section/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     fontSize: {
-      "2xl": [
-        "4.5rem",
-        { letterSpacing: "-2%", fontWeight: "400", lineHeight: "5.625rem" },
-      ],
-      xl: [
-        "3.75rem",
-        { letterSpacing: "-2%", fontWeight: "400", lineHeight: "5.625rem" },
-      ],
-      lg: [
-        "1.875rem",
-        { letterSpacing: "-2%", fontWeight: "400", lineHeight: "2.375rem" },
-      ],
-      md: [
-        "1rem",
-        { letterSpacing: "-2%", fontWeight: "400", lineHeight: "1.5rem" },
-      ],
-      sm: [
-        "0.875rem",
-        { letterSpacing: "-2%", fontWeight: "400", lineHeight: "0.055rem" },
-      ],
-      xs: [
-        "1.5rem",
-        { letterSpacing: "-2%", fontWeight: "400", lineHeight: "2rem" },
-      ],
-      base: [
-        "1rem",
-        { letterSpacing: "-2%", fontWeight: "400", lineHeight: "1.5rem" },
-      ],
-      body: [
-        "1rem",
-        { letterSpacing: "-2%", fontWeight: "400", lineHeight: "1.5rem" },
-      ],
-      label: [
-        "0.875rem",
-        { letterSpacing: "-2%", fontWeight: "400", lineHeight: "1.25rem" },
-      ],
+      "2xl": ["4.5rem", { lineHeight: "5.625rem" }],
+      xl: ["3.75rem", { lineHeight: "4.5rem" }],
+      lg: ["1.875rem", { lineHeight: "2.375rem" }],
+      subtitle: ["1.2rem", { lineHeight: "1.875rem" }],
+      md: ["1rem", { lineHeight: "1.5rem" }],
+      sm: ["0.875rem", { lineHeight: "0.055rem" }],
+      xs: ["1.5rem", { lineHeight: "2rem" }],
+      base: ["1rem", { lineHeight: "1.5rem" }],
+      label: ["0.875rem", { lineHeight: "1.25rem" }],
     },
     extend: {
       container: {
@@ -168,5 +142,15 @@ export default {
       },
     },
   },
-  plugins: [TailwindCSSAnimate],
+  plugins: [
+    TailwindCSSAnimate,
+    function ({
+      addVariant,
+    }: {
+      addVariant: (props: string, props2: string) => void;
+    }) {
+      addVariant?.("child", "& > *");
+      addVariant?.("child-hover", "& > *:hover");
+    },
+  ],
 } satisfies Config;

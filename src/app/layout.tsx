@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+
 import "./globals.css";
+import "react-international-phone/style.css";
 
 import { Inter } from "next/font/google";
 

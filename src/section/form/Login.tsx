@@ -1,16 +1,14 @@
 "use client";
-import { FormTextField } from "@/components/custom/TextField";
-import { Form, FormField } from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { loginFormSchema } from "@/lib/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeClosed } from "lucide-react";
 import React, { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
-import { LoginSchemaProps, PasswordFieldKeys } from "@/types/form";
-import { isPasswordField } from "@/lib/utils";
+import { LoginSchemaProps } from "@/types/form";
 import { loginFormTemplate } from "@/lib/formTemplate";
 import SocialsForm from "./Socials";
 import { Button } from "@/components/ui/button";
+import NestedFormItem from "@/components/custom/NestedFormItem";
 
 function onSubmit(values: LoginSchemaProps) {
   // Do something with the form values.
@@ -39,45 +37,14 @@ const LoginForm = () => {
   return (
     <Form {...form}>
       <form
-        className="flex flex-col gap-4"
+        className="flex flex-col gap-4 "
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        {loginFormTemplate.map((formItem) => {
+        {loginFormTemplate.map((formItem, index) => {
           return (
-            <FormField
-              control={form.control}
-              name={formItem.name}
-              key={formItem.name}
-              render={({ field }) => (
-                <FormTextField
-                  {...formItem}
-                  {...field}
-                  type={
-                    isPasswordField(formItem.name)
-                      ? visible[formItem.name as PasswordFieldKeys]
-                        ? "text"
-                        : "password"
-                      : undefined
-                  }
-                  endAdornment={
-                    isPasswordField(formItem.name) && (
-                      <button
-                        type="button"
-                        className="icon-button"
-                        onClick={() =>
-                          handleToggle(formItem.name as PasswordFieldKeys)
-                        }
-                      >
-                        {visible[formItem.name as PasswordFieldKeys] ? (
-                          <EyeClosed />
-                        ) : (
-                          <Eye />
-                        )}
-                      </button>
-                    )
-                  }
-                />
-              )}
+            <NestedFormItem
+              key={index}
+              {...{ formItem, form, handleToggle, visible }}
             />
           );
         })}

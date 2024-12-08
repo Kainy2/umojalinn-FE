@@ -73,32 +73,64 @@ body {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground-body;
+    @apply bg-background text-foreground-body text-base;
   }
-  .icon-button {
-    @apply cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-full;
+
+  button,
+  a {
+    @apply cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+  }
+  .icon-wrapper,
+  .icon-wrapper.primary {
+    @apply border-8 border-primary-50 bg-primary-100 h-14 w-14 shrink-0 rounded-full flex items-center justify-center text-primary;
+  }
+
+  .icon-wrapper.success {
+    @apply border-success-50 bg-success-100 text-success;
+  }
+
+  .icon-wrapper.error {
+    @apply border-error-50 bg-error-100 text-error;
+  }
+
+  .bg-auth {
+    @apply bg-[url("/img/png/pattern.png")] overflow-scroll relative h-dvh min-h-[500px] grid items-center justify-center;
+  }
+
+  .bg-auth > div {
+    @apply relative w-dvw;
+  }
+
+  .bg-auth::before {
+    @apply content-[''] fixed h-full w-full;
+    background: linear-gradient(
+      to bottom,
+      hsla(var(--backgroundComma), 60%) 0%,
+      hsl(var(--background)) 15%,
+      hsl(var(--background)) 85%,
+      hsla(var(--backgroundComma), 60%) 100%
+    );
+  }
+
+  .bg-auth.second::before {
+    background: linear-gradient(
+      to bottom,
+      hsla(var(--backgroundComma), 60%) 0%,
+      hsl(var(--background)) 15%,
+      hsl(var(--background)) 85%,
+      hsl(var(--background)) 100%
+    );
   }
 }
 
-.bg-auth {
-  background-image: url("/img/png/pattern.png");
-  position: relative;
-  min-height: max(100vh, 500px);
-  display: grid;
-  align-items: center;
-  justify-content: center;
-}
-
-.bg-auth::before {
-  content: "";
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  background: linear-gradient(
-    to bottom,
-    hsla(var(--backgroundComma), 0%) 0%,
-    hsl(var(--background)) 15%,
-    hsl(var(--background)) 85%,
-    hsla(var(--backgroundComma), 0%) 100%
-  );
+@media screen and (max-width: 768px) {
+  .bg-auth::before {
+    background: linear-gradient(
+      to bottom,
+      hsla(var(--backgroundComma), 60%) 0%,
+      hsl(var(--background)) 15%,
+      hsl(var(--background)) 85%,
+      hsl(var(--background)) 100%
+    );
+  }
 }

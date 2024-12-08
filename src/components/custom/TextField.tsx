@@ -1,22 +1,29 @@
 import React from "react";
-import { Input, InputProps } from "../ui/input";
-import { Label } from "../ui/label";
+import { Input, InputProps } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   FormControl,
   FormDescription,
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form";
+} from "@/components/ui/form";
 import { cn } from "@/lib/utils";
+import { ClassValue } from "clsx";
 
-export type TextFieldProps = InputProps &
+export type FieldProps = Partial<{
+  label: React.ComponentProps<"label"> | string;
+  hint: string;
+}>;
+
+export type FormFieldProps = FieldProps &
   Partial<{
-    label: React.ComponentProps<"label"> | string;
-    hint: string;
+    containerClassName: ClassValue;
+    label: string;
   }>;
-export type FormTextFieldProps = InputProps &
-  Partial<{ label: string; hint: string }>;
+
+export type TextFieldProps = InputProps & FieldProps;
+export type FormTextFieldProps = InputProps & FormFieldProps;
 
 const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
   ({ label, hint, ...inputProps }, ref) => {
@@ -38,9 +45,9 @@ const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
 TextField.displayName = "TextField";
 
 const FormTextField = React.forwardRef<HTMLInputElement, FormTextFieldProps>(
-  ({ label, hint, ...inputProps }, ref) => {
+  ({ label, hint, containerClassName, ...inputProps }, ref) => {
     return (
-      <FormItem>
+      <FormItem className={(containerClassName || "") + ""}>
         {label && <FormLabel>{label}</FormLabel>}
         <FormControl>
           <Input ref={ref} {...inputProps} />
