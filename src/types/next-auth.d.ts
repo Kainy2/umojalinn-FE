@@ -3,7 +3,6 @@ import {
   UmojaLinnLoginResponse,
   UmojaLinnUser,
   UmojaLinnUserRole,
-  UmojaLinnUserRoleProfile,
 } from "./user";
 
 interface UmojaLinnNextAuthSession {
@@ -31,26 +30,3 @@ declare module "next-auth" {
   }
   export interface User extends UmojaLinnLoginResponse {}
 }
-
-// declare module "next-auth" {
-//   /**
-//    * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
-//    */
-//   export type Session = {
-//     accessToken: string;
-//     user: UmojaLinnLoginResponse["user"];
-//   };
-//   export interface AdapterUser extends UmojaLinnLoginResponse {}
-//   export interface User extends UmojaLinnLoginResponse {}
-//   export interface JWT extends Partial<UmojaLinnLoginResponse> {}
-// }
-
-// declare module "next-auth/jwt" {
-//   /** Returned by the `jwt` callback and `getToken`, when using JWT sessions */
-//   export interface JWT {
-//     accessToken: string;
-//   }
-//   export interface Session extends UmojaLinnNextAuthSession {}
-//   export interface AdapterUser extends UmojaLinnLoginResponse {}
-//   export interface User extends UmojaLinnLoginResponse {}
-// }
