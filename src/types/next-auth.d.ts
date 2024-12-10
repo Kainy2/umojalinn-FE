@@ -1,9 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-import {
-  UmojaLinnLoginResponse,
-  UmojaLinnUser,
-  UmojaLinnUserRole,
-} from "./user";
+import { UmojaLinnLoginResponse, UmojaLinnUserRole } from "./user";
 
 declare module "next-auth/jwt" {
   export type JWT = {
