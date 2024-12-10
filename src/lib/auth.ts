@@ -39,10 +39,6 @@ export const authOptions: NextAuthOptions = {
           response_type: "code",
         },
       },
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      async profile(profile, _tokens) {
-        return profile;
-      },
     }),
     CredentialProvider({
       // ** The name to display on the sign in form (e.g. 'Sign in with...')
@@ -117,7 +113,6 @@ export const authOptions: NextAuthOptions = {
      */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async jwt({ token, trigger, user, session, profile, account }) {
-      // console.log("JWT", token, session, user, trigger);
       if (trigger === "update") {
         token.user = {
           ...(token.user || {}),
@@ -133,17 +128,27 @@ export const authOptions: NextAuthOptions = {
       // TODO: Fix user details retrieval for google auth
       if (account?.provider === "google" && !token.accessToken) {
         // token.accessToken = profile?.email || "";
-        const res = await retrieveUserInfoFromGoogle(profile!);
-        token.accessToken = res?.data?.data?.authToken || "";
-        token.user = {
-          hasOnboarded:
-            !!res?.data?.data?.user?.buyerProfile ||
-            !!res?.data?.data?.user?.designerProfile,
-          profileRole:
-            (!!res?.data?.data?.user?.buyerProfile && "BUYER") ||
-            (!!res?.data?.data?.user?.designerProfile && "DESIGNER") ||
-            null,
-        };
+        const res = await retrieveUserInfoFromGoogle({
+          firstName: profile?.given_name,
+          lastName: profile?.family_name,
+          email: profile?.email,
+        });
+
+        if (res) {
+          token.accessToken = res?.data?.data?.authToken || "";
+          token.user = {
+            hasOnboarded:
+              !!res?.data?.data?.user?.buyerProfile ||
+              !!res?.data?.data?.user?.designerProfile,
+            profileRole:
+              (!!res?.data?.data?.user?.buyerProfile && "BUYER") ||
+              (!!res?.data?.data?.user?.designerProfile && "DESIGNER") ||
+              null,
+          };
+
+          console.log(token, "<<< TOKEN");
+          return token;
+        }
       }
 
       if (user) {
@@ -165,7 +170,6 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, trigger, newSession }) {
-      // console.log("Session", token, session, trigger, newSession);
       if (trigger === "update") {
         if (newSession.user) return session;
       }
@@ -174,12 +178,6 @@ export const authOptions: NextAuthOptions = {
       }
 
       return session;
-    },
-    async signIn({ account, profile }) {
-      if (account?.provider === "google") {
-        return profile?.email?.endsWith("@example.com") || false;
-      }
-      return true; // Do different verification for other providers that don't have `email_verified`
     },
   },
 };

@@ -19,6 +19,13 @@ declare module "next-auth/jwt" {
 }
 
 declare module "next-auth" {
+  export interface Profile {
+    email: string;
+    email_verified: boolean;
+    name: string;
+    given_name: string;
+    family_name: string;
+  }
   export interface Session {
     accessToken: string;
     user: UmojaLinnLoginResponse["user"];

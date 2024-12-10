@@ -56,24 +56,27 @@ export const resetPassword = (body: {
     body
   );
 
-export const retrieveUserInfoFromGoogle = (
+export const retrieveUserInfoFromGoogle = async (
   body: Partial<Record<keyof UmojaLinnUser, string>>
 ) => {
   // return;
   try {
-    return clientAxios.post<
+    const hash = crypto
+      .createHmac("sha512", process.env.SERVER_SECRET || "")
+      .update(JSON.stringify(body))
+      .digest("hex");
+
+    const res = await clientAxios.post<
       unknown,
       AxiosResponse<SingleApiResponse<UmojaLinnLoginResponse>, unknown>
     >("/auth/google-auth", body, {
       headers: {
-        "x-social-signature": crypto
-          .createHmac("sha512", process.env.SERVER_SECRET || "")
-          .update(JSON.stringify(body))
-          .digest("hex"),
+        "x-social-signature": hash,
       },
     });
+    return res;
   } catch (error) {
-    console.error(error);
+    console.error(error, "RETRIEVE <<<");
     return null;
   }
 };

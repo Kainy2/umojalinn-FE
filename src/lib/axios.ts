@@ -22,6 +22,8 @@ export const setBearerToken = async (req: NextRequest) => {
 
   customAxios.defaults.headers.common.Authorization = `Bearer ${session?.accessToken}`;
 
+  console.log(session);
+
   return session;
 };
 

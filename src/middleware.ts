@@ -32,37 +32,16 @@ export default withAuth(
 
     const hasOnboarded = !!token?.user?.hasOnboarded;
 
-    console.log(
-      pathname,
-      isPrivateRoute,
-      hasOnboarded,
-      isOnboarding,
-      isGuestRoute,
-      isSharedRoute
-    );
-
     // Handle private routes
     if (isPrivateRoute) {
       if (!isUserLoggedIn) {
-        console.log("!isUserLoggedIn", !isUserLoggedIn, isUserLoggedIn);
         return NextResponse.redirect(
           absoluteUrl(LOGIN_PAGE_URL, request) + `?redirectTo=${pathname}`
         );
       } else if (!hasOnboarded && !isOnboarding) {
-        console.log(
-          "!hasOnboarded && !isOnboarding",
-          !hasOnboarded && !isOnboarding,
-          hasOnboarded,
-          isOnboarding
-        );
         return NextResponse.redirect(absoluteUrl(ONBOARDING_PAGE_URL, request));
       } else if (hasOnboarded && isOnboarding) {
-        console.log(
-          "hasOnboarded && isOnboarding",
-          hasOnboarded && isOnboarding,
-          hasOnboarded,
-          isOnboarding
-        );
+        console.log(token, "TOKEN <<<");
         return NextResponse.redirect(
           absoluteUrl(
             `${ONBOARDING_PAGE_URL}/${token?.user?.profileRole?.toLocaleLowerCase()}`,
