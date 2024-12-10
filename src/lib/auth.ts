@@ -8,7 +8,7 @@ import type {
 import { getServerSession } from "next-auth";
 
 import GoogleProvider from "next-auth/providers/google";
-import { login } from "@/actions/auth";
+import { login, retrieveUserInfoFromGoogle } from "@/actions/auth";
 
 export const authOptions: NextAuthOptions = {
   // adapter: PrismaAdapter(prisma) as Adapter,
@@ -121,7 +121,10 @@ export const authOptions: NextAuthOptions = {
       if (trigger === "update") {
         token.user = {
           ...(token.user || {}),
-          role: session?.role,
+          hasOnboarded:
+            !!session?.buyerProfile ||
+            !!session?.designerProfile ||
+            session?.hasOnboarded,
         };
         return token;
       }
@@ -129,8 +132,14 @@ export const authOptions: NextAuthOptions = {
       // TODO: Fix user details retrieval for google auth
       if (account?.provider === "google" && !token.accessToken) {
         // token.accessToken = profile?.email || "";
-        // const res = await retrieveUserInfoFromGoogle(profile!);
-        // token.accessToken = res?.data?.data?.authToken || "";
+        const res = await retrieveUserInfoFromGoogle(profile!);
+        token.accessToken = res?.data?.data?.authToken || "";
+        token.user = {
+          hasOnboarded:
+            !!res?.data?.data?.user?.buyerProfile ||
+            !!res?.data?.data?.user?.designerProfile,
+          role: res?.data.data.user?.role!,
+        };
       }
 
       if (user) {
@@ -140,6 +149,8 @@ export const authOptions: NextAuthOptions = {
          */
         token.accessToken = user.authToken;
         token.user = {
+          hasOnboarded:
+            !!user.user?.buyerProfile || !!user.user?.designerProfile,
           role: user.user?.role,
         };
       }

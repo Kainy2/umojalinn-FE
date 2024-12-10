@@ -58,7 +58,7 @@ const OnboardPage = () => {
       });
       try {
         await onboard(role);
-        update({ role });
+        update({ role, hasOnboarded: true });
         router.push(redirect);
       } catch (error) {
         handleError(error);

@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-import { UmojaLinnLoginResponse, UmojaLinnUser } from "./user";
+import {
+  UmojaLinnLoginResponse,
+  UmojaLinnUser,
+  UmojaLinnUserRole,
+} from "./user";
 
 interface UmojaLinnNextAuthSession {
   user: Pick<UmojaLinnUser, "firstName" | "lastName" | "role">;
@@ -11,7 +15,10 @@ declare module "next-auth/jwt" {
   export interface DefaultUser extends UmojaLinnLoginResponse {}
   export type JWT = {
     accessToken: UmojaLinnLoginResponse["authToken"];
-    user: Pick<UmojaLinnLoginResponse["user"], "role">;
+    user: {
+      hasOnboarded: boolean;
+      role: UmojaLinnUserRole | "USER";
+    };
     iat: number;
     exp: number;
     jti: string;
@@ -26,7 +33,10 @@ declare module "next-auth" {
   }
   export type JWT = {
     accessToken: UmojaLinnLoginResponse["authToken"];
-    user: Pick<UmojaLinnLoginResponse["user"], "role">;
+    user: {
+      hasOnboarded: boolean;
+      role: UmojaLinnUserRole | "USER";
+    };
     iat: number;
     exp: number;
     jti: string;

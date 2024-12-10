@@ -3,22 +3,20 @@ import { NextRequest, NextResponse } from "next/server";
 
 const DASHBOARD_PAGE_URL = "/";
 const LOGIN_PAGE_URL = "/login";
+const ONBOARDING_PAGE_URL = "/onboard";
 
 const absoluteUrl = (relativeUrl: string, request: NextRequest) => {
   const url = request.nextUrl.clone();
   url.pathname = relativeUrl;
-
   return url;
 };
 
-const guestRoutes = [
-  ".*/login.*",
-  ".*/register.*",
-  ".*/confirm.*",
-  ".*/verify-email.*",
-];
-
-const sharedRoutes = [".*/privacy-policy$"];
+// Regular expression for matching guest routes
+const guestRouteRegex = /\.(login|register|confirm|verify-email)$/;
+// Regular expression for matching shared routes
+const sharedRouteRegex = /\.privacy-policy$/;
+// Regular expression for matching onboarding route
+const onboardingRouteRegex = /^\/onboard$/;
 
 export default withAuth(
   async function middleware(request: NextRequestWithAuth) {
@@ -26,57 +24,57 @@ export default withAuth(
     const token = request.nextauth.token;
     const isUserLoggedIn = !!token;
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    function isRoutePattern(url: string) {
-      const re = new RegExp(url);
+    // Determine if the request is a guest route, shared route, or private route
+    const isGuestRoute = guestRouteRegex.test(pathname);
+    const isSharedRoute = sharedRouteRegex.test(pathname);
+    const isOnboarding = onboardingRouteRegex.test(pathname);
+    const isPrivateRoute = !(isGuestRoute || isSharedRoute);
 
-      return re.test(pathname);
-    }
+    const hasOnboarded = token?.user?.hasOnboarded;
 
-    const isPrivateRoute = ![...guestRoutes, ...sharedRoutes].some(
-      (routeRegex) => {
-        const re = new RegExp(routeRegex);
+    console.log(pathname, isPrivateRoute, hasOnboarded, isOnboarding);
 
-        return re.test(pathname);
-      }
-    );
-    const isRequestedRouteIsGuestRoute = guestRoutes.some((routeRegex) => {
-      const re = new RegExp(routeRegex);
-
-      return re.test(pathname);
-    });
-
-    if (isUserLoggedIn && isPrivateRoute) {
-      if (!token?.user?.role && !isRoutePattern(".*/onboard$")) {
-        return NextResponse.redirect(absoluteUrl("/onboard", request));
-      } else if (token?.user?.role && isRoutePattern(".*/onboard$")) {
+    // Handle private routes
+    if (isPrivateRoute) {
+      if (!isUserLoggedIn) {
+        console.log("!isUserLoggedIn", !isUserLoggedIn, isUserLoggedIn);
+        return NextResponse.redirect(
+          absoluteUrl(LOGIN_PAGE_URL, request) + `?redirectTo=${pathname}`
+        );
+      } else if (!hasOnboarded && !isOnboarding) {
+        console.log(
+          "!hasOnboarded && !isOnboarding",
+          !hasOnboarded && !isOnboarding,
+          hasOnboarded,
+          isOnboarding
+        );
+        return NextResponse.redirect(absoluteUrl(ONBOARDING_PAGE_URL, request));
+      } else if (hasOnboarded && isOnboarding) {
+        console.log(
+          "hasOnboarded && isOnboarding",
+          hasOnboarded && isOnboarding,
+          hasOnboarded,
+          isOnboarding
+        );
         return NextResponse.redirect(
           absoluteUrl(
-            `/onboard/${token?.user?.role?.toLocaleLowerCase?.()}`,
+            `${ONBOARDING_PAGE_URL}/${token?.user?.role?.toLocaleLowerCase()}`,
             request
           )
         );
       }
     }
 
-    if (!isUserLoggedIn && isPrivateRoute) {
-      return NextResponse.redirect(
-        absoluteUrl(LOGIN_PAGE_URL, request) + `?redirectTo=${pathname}`
-      );
-    }
-
-    if (isUserLoggedIn && isRequestedRouteIsGuestRoute) {
+    // Handle guest routes
+    if (isUserLoggedIn && isGuestRoute) {
       return NextResponse.redirect(absoluteUrl(DASHBOARD_PAGE_URL, request));
     }
+
+    return NextResponse.next();
   },
   {
     callbacks: {
-      authorized: () => {
-        // This is a work-around for handling redirect on auth pages.
-        // We return true here so that the middleware function above
-        // is always called.
-        return true;
-      },
+      authorized: () => true,
     },
   }
 );

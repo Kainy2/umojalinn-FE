@@ -19,7 +19,7 @@ const ConfirmEmailPage = () => {
     try {
       await verifyEmail(params?.token);
       setLoading(false);
-      router.replace("/login");
+      router.replace("/verify-email/success");
     } catch (error) {
       handleError(error);
     }
