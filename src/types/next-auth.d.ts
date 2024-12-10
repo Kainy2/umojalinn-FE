@@ -5,10 +5,6 @@ import {
   UmojaLinnUserRole,
 } from "./user";
 
-interface UmojaLinnNextAuthSession {
-  user: Pick<UmojaLinnUser, "firstName" | "lastName" | "role">;
-}
-
 declare module "next-auth/jwt" {
   export type JWT = {
     accessToken: UmojaLinnLoginResponse["authToken"];
