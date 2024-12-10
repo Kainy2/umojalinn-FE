@@ -4,6 +4,8 @@ import "./globals.css";
 import "react-international-phone/style.css";
 
 import { Inter } from "next/font/google";
+import NextAuthProvider from "@/components/provider/NextAuth";
+import { Toaster } from "@/components/ui/toaster";
 
 const InterSans = Inter({ subsets: ["latin"] });
 
@@ -15,7 +17,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps) {
   return (
     <html lang="en">
-      <body className={`${InterSans.className}  antialiased`}>{children}</body>
+      <body className={`${InterSans.className}  antialiased`}>
+        <NextAuthProvider>
+          {children}
+          <Toaster />
+        </NextAuthProvider>
+      </body>
     </html>
   );
 }

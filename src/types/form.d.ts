@@ -1,6 +1,16 @@
-import { loginFormSchema, registrationFormSchema } from "@/lib/schema";
+import {
+  loginFormSchema,
+  onboardingAddressFormSchema,
+  onboardingDetailsFormSchema,
+  registrationFormSchema,
+} from "@/lib/schema";
 import { z } from "zod";
 
 export type RegistrationSchemaProps = z.infer<typeof registrationFormSchema>;
 export type LoginSchemaProps = z.infer<typeof loginFormSchema>;
 export type PasswordFieldKeys = "password" | "confirmPassword";
+
+export type OnboardingProps = {
+  details: z.infer<typeof onboardingDetailsFormSchema>;
+  address: z.infer<typeof onboardingAddressFormSchema>;
+};

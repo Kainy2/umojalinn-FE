@@ -11,11 +11,13 @@ type OnboardActionButtonsProps = {
   hideSkip?: boolean;
   skipHref: string;
   onNextClick?: React.ComponentProps<"button">["onClick"];
+  loading?: boolean;
 };
 
 const OnboardActionButtons = (props: OnboardActionButtonsProps) => {
   const router = useRouter();
-  const { hideBack, hideNext, hideSkip, onNextClick, skipHref } = props;
+  const { hideBack, hideNext, hideSkip, onNextClick, skipHref, loading } =
+    props;
 
   return (
     <>
@@ -34,6 +36,7 @@ const OnboardActionButtons = (props: OnboardActionButtonsProps) => {
           onClick={onNextClick}
           type="submit"
           className={cn(hideNext && "hidden")}
+          loading={loading}
         >
           Next
         </Button>

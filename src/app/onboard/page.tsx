@@ -1,10 +1,27 @@
+"use client";
+import { onboard } from "@/actions/user";
+import { toast } from "@/hooks/use-toast";
+import useHandleError from "@/hooks/useHandleError";
 import Verified from "@/icons/Verified";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
-import React from "react";
+import { UmojaLinnUserRole } from "@/types/user";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import React, { MouseEventHandler } from "react";
 
-const onboardButtonsProps = [
+type OnboardButtonProps = {
+  role: UmojaLinnUserRole;
+  src: string;
+  href: string;
+  title: string;
+  description: string;
+  alt: string;
+  icon: React.JSX.Element;
+};
+
+const onboardButtonsProps: OnboardButtonProps[] = [
   {
+    role: "BUYER",
     src: "lg:bg-[url('/img/webp/buyer-lg.webp')] bg-[url('/img/webp/buyer-sm.webp')]",
     href: "/onboard/buyer",
     title: "Onboard as a Buyer",
@@ -13,6 +30,7 @@ const onboardButtonsProps = [
     icon: <Verified className="text-[#0788F5]" />,
   },
   {
+    role: "DESIGNER",
     src: "lg:bg-[url('/img/webp/designer-lg.webp')] bg-[url('/img/webp/designer-sm.webp')] ",
     href: "/onboard/designer",
     title: "Onboard as a Designer",
@@ -24,12 +42,36 @@ const onboardButtonsProps = [
 ];
 
 const OnboardPage = () => {
+  const { handleError } = useHandleError("Onboarding");
+  const router = useRouter();
+  const { update } = useSession();
+
+  const handleClick =
+    (
+      role: UmojaLinnUserRole,
+      redirect: string
+    ): MouseEventHandler<HTMLButtonElement> =>
+    async (e) => {
+      e.preventDefault();
+      toast({
+        description: "Please wait!",
+      });
+      try {
+        await onboard(role);
+        update({ role });
+        router.push(redirect);
+      } catch (error) {
+        handleError(error);
+      }
+    };
+
   return (
     <div className="bg-[url('/img/png/pattern.png')] bg-cover h-screen w-screen relative flex items-stretch justify-stretch flex-col lg:flex-row">
       {onboardButtonsProps.map((props) => (
-        <Link
+        <span
           key={props.href}
-          href={props.href}
+          onClick={handleClick(props.role, props.href)}
+          // href={props.href}
           className={cn(
             "flex-1 cursor-pointer bg-cover bg-left-top group relative before:content-[''] before:absolute before:top-0 before:h-full before:w-full before:bg-gradient-to-t before:from-black before:to-transparent overflow-hidden",
             props.src
@@ -48,7 +90,7 @@ const OnboardPage = () => {
               {props.alt}
             </h2>
           </div>
-        </Link>
+        </span>
       ))}
     </div>
   );

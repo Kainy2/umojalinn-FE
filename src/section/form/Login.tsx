@@ -9,14 +9,15 @@ import { loginFormTemplate } from "@/lib/formTemplate";
 import SocialsForm from "./Socials";
 import { Button } from "@/components/ui/button";
 import NestedFormItem from "@/components/custom/NestedFormItem";
-
-function onSubmit(values: LoginSchemaProps) {
-  // Do something with the form values.
-  // ✅ This will be type-safe and validated.
-  console.log(values);
-}
+import { signIn } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const LoginForm = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [loading, setLoading] = useState(false);
+
   const form = useForm<LoginSchemaProps>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -34,6 +35,41 @@ const LoginForm = () => {
     setVisible((prev) => ({ ...prev, [name]: !prev[name] }));
   }, []);
 
+  const onSubmit = useCallback(
+    async (values: LoginSchemaProps) => {
+      // Do something with the form values.
+      // ✅ This will be type-safe and validated.
+      setLoading(true);
+
+      const res = await signIn("credentials", {
+        email: values.email,
+        password: values.password,
+        redirect: false,
+      });
+      if (res?.ok) {
+        setLoading(false);
+        const redirectURL = searchParams.get("redirectTo") || "/";
+        router.push(redirectURL);
+      } else if (
+        res?.error?.includes("400") ||
+        res?.error?.includes("401") ||
+        res?.error?.includes("404")
+      ) {
+        form.setError("email", {
+          type: "400",
+          message: "Email or password is invalid",
+        });
+      } else {
+        form.setError("email", {
+          type: "400",
+          message: "Please check internet connection",
+        });
+      }
+      setLoading(false);
+    },
+    [form, router, searchParams]
+  );
+
   return (
     <Form {...form}>
       <form
@@ -48,7 +84,7 @@ const LoginForm = () => {
             />
           );
         })}
-        <Button fullWidth type="submit">
+        <Button loading={loading} fullWidth type="submit">
           Login
         </Button>
         <SocialsForm mode="login" />

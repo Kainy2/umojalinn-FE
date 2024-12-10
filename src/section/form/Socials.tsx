@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { signIn } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -13,6 +14,7 @@ const socialButtonTemplate = [
   {
     platform: "Google",
     icon: "/img/svg/google.svg",
+    id: "google",
   },
   {
     platform: "Facebook",
@@ -36,7 +38,17 @@ const SocialsForm = (props: SocialsFormProps) => {
       </div>
       <div className="flex flex-col gap-2">
         {socialButtonTemplate.map((btn) => (
-          <Button key={btn.platform} variant="outline" fullWidth type="button">
+          <Button
+            key={btn.platform}
+            variant="outline"
+            fullWidth
+            type="button"
+            onClick={() => {
+              if (btn?.id) {
+                signIn("google", { redirect: false });
+              }
+            }}
+          >
             <Image
               src={btn.icon}
               alt=""

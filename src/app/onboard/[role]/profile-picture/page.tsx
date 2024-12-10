@@ -2,13 +2,7 @@ import ProfilePhotoPicker from "@/components/custom/ProfilePhotoPicker";
 import OnboardActionButtons from "@/section/onboard/ActionButtons";
 import React from "react";
 
-const OnboardProfilePicturePage = async ({
-  params,
-}: {
-  params: { role: string };
-}) => {
-  const { role } = await params;
-
+const OnboardProfilePicturePage = async () => {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col items-center justify-center">

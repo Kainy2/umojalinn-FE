@@ -5,7 +5,7 @@ import React from "react";
 const OnboardLayout = async ({
   children,
   params,
-}: LayoutProps & { params: { role: string } }) => {
+}: LayoutProps & { params: Promise<{ role: string }> }) => {
   const { role } = await params;
   if (!["buyer", "designer"].includes(role?.toLocaleLowerCase?.())) {
     return redirect("/unauthorized");

@@ -3,7 +3,11 @@ import TextField from "@/components/custom/TextField";
 import OnboardActionButtons from "@/section/onboard/ActionButtons";
 import React from "react";
 
-const OnboardAddressPage = async ({ params }: { params: { role: string } }) => {
+const OnboardAddressPage = async ({
+  params,
+}: {
+  params: Promise<{ role: string }>;
+}) => {
   const { role } = await params;
 
   return (

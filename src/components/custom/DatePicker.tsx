@@ -37,7 +37,7 @@ type CustomDatePickerRangeProp = {
 type CustomDatePickerProps =
   | (CustomDatePickerDefaultProp | CustomDatePickerRangeProp) & {
       calendar?: CalendarProps;
-      placeholder?: string
+      placeholder?: string;
     };
 
 type CustomDatePickerFieldProps = CustomDatePickerProps & FieldProps;
@@ -57,7 +57,7 @@ export const CustomDatePicker = React.forwardRef<
     preset,
     initValue,
     calendar,
-    placeholder
+    placeholder,
   } = props;
   const [intDate, setIntDate] = React.useState<Date | undefined>(
     // @ts-expect-error Generic
@@ -162,7 +162,11 @@ export const CustomDatePickerField = React.forwardRef<
         ) : (
           <Label {...label} />
         ))}
-      <CustomDatePicker {...datePickerProps} ref={ref} />
+      <CustomDatePicker
+        calendar={{ captionLayout: "dropdown-buttons" }}
+        {...datePickerProps}
+        ref={ref}
+      />
       {hint && <p className="text-sm mt-2">{hint}</p>}
     </div>
   );

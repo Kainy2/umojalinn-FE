@@ -1,5 +1,5 @@
 import Image from "next/image";
-import React from "react";
+import React, { Suspense } from "react";
 import LoginForm from "@/section/form/Login";
 
 const LoginPage = () => {
@@ -16,7 +16,9 @@ const LoginPage = () => {
         <h1 className="text-lg font-semibold text-foreground">Welcome Back</h1>
         <p className="font-normal">We&apos;re happy to have you back</p>
       </div>
-      <LoginForm />
+      <Suspense>
+        <LoginForm />
+      </Suspense>
     </div>
   );
 };

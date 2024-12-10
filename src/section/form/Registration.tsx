@@ -10,15 +10,29 @@ import SocialsForm from "./Socials";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import NestedFormItem from "@/components/custom/NestedFormItem";
+import { createAccount } from "@/actions/auth";
+import { useToast } from "@/hooks/use-toast";
+import useStorage from "@/hooks/useStorage";
+import CustomCheckbox from "@/components/custom/Checkbox";
+import Link from "next/link";
+import useHandleError from "@/hooks/useHandleError";
 
 const RegistrationForm = () => {
   const router = useRouter();
+  const { setItem } = useStorage();
+  const [loading, setLoading] = useState(false);
+  const [agree, setAgree] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { toast } = useToast();
+  const { handleError } = useHandleError("Registration");
   const form = useForm<RegistrationSchemaProps>({
     resolver: zodResolver(registrationFormSchema),
     defaultValues: {
       email: "",
       password: "",
       confirmPassword: "",
+      firstName: "",
+      lastName: "",
     },
   });
 
@@ -31,11 +45,20 @@ const RegistrationForm = () => {
     setVisible((prev) => ({ ...prev, [name]: !prev[name] }));
   }, []);
 
-  function onSubmit(values: RegistrationSchemaProps) {
+  async function onSubmit(values: RegistrationSchemaProps) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    router.push("/register/verify");
-    console.log(values);
+    setLoading(true);
+    try {
+      await createAccount(values);
+      setItem("AUTH_REGISTER_EMAIL", { email: values?.email });
+      setLoading(false);
+      router.push("/register/verify");
+    } catch (error: unknown) {
+      handleError(error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -50,7 +73,23 @@ const RegistrationForm = () => {
             {...{ formItem, form, handleToggle, visible }}
           />
         ))}
-        <Button fullWidth type="submit">
+        <div className="my-4">
+          <CustomCheckbox
+            checked={agree}
+            onCheckedChange={() => setAgree((agree) => !agree)}
+            label={{
+              children: (
+                <>
+                  You agree to our{" "}
+                  <Link href="/privacy-policy" className="underline">
+                    privacy policy
+                  </Link>
+                </>
+              ),
+            }}
+          />
+        </div>
+        <Button loading={loading} disabled={!agree} fullWidth type="submit">
           Get Started
         </Button>
         <SocialsForm mode="register" />

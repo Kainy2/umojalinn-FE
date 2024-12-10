@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { CircleCheck } from "lucide-react";
+import Link from "next/link";
 import React from "react";
 
 const ConfirmEmailSuccessPage = () => {
@@ -13,7 +14,9 @@ const ConfirmEmailSuccessPage = () => {
         Your account has been created. Welcome to{" "}
         <span className="font-semibold">Umoja Linn</span>
       </p>
-      <Button fullWidth>Continue</Button>
+      <Button fullWidth asChild>
+        <Link href="/login">Continue</Link>
+      </Button>
     </div>
   );
 };
