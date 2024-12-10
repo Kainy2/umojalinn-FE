@@ -12,9 +12,9 @@ const absoluteUrl = (relativeUrl: string, request: NextRequest) => {
 };
 
 // Regular expression for matching guest routes
-const guestRouteRegex = /\.(login|register|confirm|verify-email)$/;
+const guestRouteRegex = /^\/(login|register|confirm|verify-email)$/;
 // Regular expression for matching shared routes
-const sharedRouteRegex = /\.privacy-policy$/;
+const sharedRouteRegex = /^\/privacy-policy$/;
 // Regular expression for matching onboarding route
 const onboardingRouteRegex = /^\/onboard$/;
 
@@ -30,9 +30,16 @@ export default withAuth(
     const isOnboarding = onboardingRouteRegex.test(pathname);
     const isPrivateRoute = !(isGuestRoute || isSharedRoute);
 
-    const hasOnboarded = token?.user?.hasOnboarded;
+    const hasOnboarded = !!token?.user?.hasOnboarded;
 
-    console.log(pathname, isPrivateRoute, hasOnboarded, isOnboarding);
+    console.log(
+      pathname,
+      isPrivateRoute,
+      hasOnboarded,
+      isOnboarding,
+      isGuestRoute,
+      isSharedRoute
+    );
 
     // Handle private routes
     if (isPrivateRoute) {
@@ -58,7 +65,7 @@ export default withAuth(
         );
         return NextResponse.redirect(
           absoluteUrl(
-            `${ONBOARDING_PAGE_URL}/${token?.user?.role?.toLocaleLowerCase()}`,
+            `${ONBOARDING_PAGE_URL}/${token?.user?.profileRole?.toLocaleLowerCase()}`,
             request
           )
         );

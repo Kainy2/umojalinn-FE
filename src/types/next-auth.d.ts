@@ -3,6 +3,7 @@ import {
   UmojaLinnLoginResponse,
   UmojaLinnUser,
   UmojaLinnUserRole,
+  UmojaLinnUserRoleProfile,
 } from "./user";
 
 interface UmojaLinnNextAuthSession {
@@ -10,14 +11,11 @@ interface UmojaLinnNextAuthSession {
 }
 
 declare module "next-auth/jwt" {
-  export interface AdapterUser extends UmojaLinnLoginResponse {}
-  export interface User extends UmojaLinnLoginResponse {}
-  export interface DefaultUser extends UmojaLinnLoginResponse {}
   export type JWT = {
     accessToken: UmojaLinnLoginResponse["authToken"];
     user: {
       hasOnboarded: boolean;
-      role: UmojaLinnUserRole | "USER";
+      profileRole: UmojaLinnUserRole | null;
     };
     iat: number;
     exp: number;
@@ -31,19 +29,7 @@ declare module "next-auth" {
     user: UmojaLinnLoginResponse["user"];
     expires: string;
   }
-  export type JWT = {
-    accessToken: UmojaLinnLoginResponse["authToken"];
-    user: {
-      hasOnboarded: boolean;
-      role: UmojaLinnUserRole | "USER";
-    };
-    iat: number;
-    exp: number;
-    jti: string;
-  };
-  export interface AdapterUser extends UmojaLinnLoginResponse {}
   export interface User extends UmojaLinnLoginResponse {}
-  export interface DefaultUser extends UmojaLinnLoginResponse {}
 }
 
 // declare module "next-auth" {

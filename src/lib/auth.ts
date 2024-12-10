@@ -125,6 +125,7 @@ export const authOptions: NextAuthOptions = {
             !!session?.buyerProfile ||
             !!session?.designerProfile ||
             session?.hasOnboarded,
+          profileRole: session?.profileRole,
         };
         return token;
       }
@@ -138,7 +139,10 @@ export const authOptions: NextAuthOptions = {
           hasOnboarded:
             !!res?.data?.data?.user?.buyerProfile ||
             !!res?.data?.data?.user?.designerProfile,
-          role: res?.data.data.user?.role!,
+          profileRole:
+            (!!res?.data?.data?.user?.buyerProfile && "BUYER") ||
+            (!!res?.data?.data?.user?.designerProfile && "DESIGNER") ||
+            null,
         };
       }
 
@@ -148,10 +152,14 @@ export const authOptions: NextAuthOptions = {
          * in token which then will be available in the `session()` callback
          */
         token.accessToken = user.authToken;
+
         token.user = {
           hasOnboarded:
             !!user.user?.buyerProfile || !!user.user?.designerProfile,
-          role: user.user?.role,
+          profileRole:
+            (!!user.user?.buyerProfile && "BUYER") ||
+            (!!user.user?.designerProfile && "DESIGNER") ||
+            null,
         };
       }
       return token;
