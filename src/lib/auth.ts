@@ -136,7 +136,7 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (res) {
-          token.accessToken = res?.data?.data?.authToken || "";
+          token.accessToken = res?.data?.data?.authToken;
           token.user = {
             hasOnboarded:
               !!res?.data?.data?.user?.buyerProfile ||

@@ -60,8 +60,9 @@ export const retrieveUserInfoFromGoogle = async (
   body: Partial<Record<keyof UmojaLinnUser, string>>
 ) => {
   // return;
+  let hash: string = "";
   try {
-    const hash = crypto
+    hash = crypto
       .createHmac("sha512", process.env.SERVER_SECRET || "")
       .update(JSON.stringify(body))
       .digest("hex");
@@ -76,7 +77,16 @@ export const retrieveUserInfoFromGoogle = async (
     });
     return res;
   } catch (error) {
-    console.error(error, "RETRIEVE <<<");
+    console.error(
+      error,
+      "RETRIEVE <<<",
+      process.env.SERVER_SECRET,
+      "<<< SERVER SECRET",
+      hash,
+      "<<< HASH",
+      body,
+      "<<< BODY"
+    );
     return null;
   }
 };
