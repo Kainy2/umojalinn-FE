@@ -37,6 +37,7 @@ export const authOptions: NextAuthOptions = {
           prompt: "consent",
           access_type: "offline",
           response_type: "code",
+          redirect_uri: `${process.env.NEXT_PUBLIC_API_URL}/auth/callback/google`,
         },
       },
     }),
