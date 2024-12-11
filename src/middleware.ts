@@ -12,7 +12,8 @@ const absoluteUrl = (relativeUrl: string, request: NextRequest) => {
 };
 
 // Regular expression for matching guest routes
-const guestRouteRegex = /^\/(login|register|confirm|verify-email)$/;
+const guestRouteRegex =
+  /^\/(login|register|confirm|verify-email\/.*|register\/verify)$/;
 // Regular expression for matching shared routes
 const sharedRouteRegex = /^\/privacy-policy$/;
 // Regular expression for matching onboarding route

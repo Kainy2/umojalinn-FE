@@ -11,7 +11,7 @@ const ConfirmEmailSuccessPage = () => {
       </span>
       <h1 className="text-lg font-bold text-foreground mb-2">Email Verified</h1>
       <p className="mb-6">
-        Your account has been created. Welcome to{" "}
+        Your account has been created, click continue to login. Welcome to{" "}
         <span className="font-semibold">Umoja Linn</span>
       </p>
       <Button fullWidth asChild>
