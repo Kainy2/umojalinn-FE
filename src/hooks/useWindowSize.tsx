@@ -10,6 +10,10 @@ function useWindowSize() {
   useEffect(() => {
     let handleResize: () => void;
     if (typeof window !== "undefined") {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
       handleResize = () => {
         setWindowSize({
           width: window.innerWidth,
