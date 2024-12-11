@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { UmojaLinnUserRole } from "@/types/user";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import React, { MouseEventHandler } from "react";
+import React, { MouseEventHandler, useEffect } from "react";
 
 type OnboardButtonProps = {
   role: UmojaLinnUserRole;
@@ -46,6 +46,11 @@ const OnboardPage = () => {
   const router = useRouter();
   const { update } = useSession();
 
+  useEffect(() => {
+    router.prefetch("/onboard/buyer");
+    router.prefetch("/onboard/designer");
+  }, [router]);
+
   const handleClick =
     (
       role: UmojaLinnUserRole,
@@ -59,7 +64,9 @@ const OnboardPage = () => {
       try {
         await onboard(role);
         update({ profileRole: role, hasOnboarded: true });
-        router.push(redirect);
+        setTimeout(() => {
+          router.replace(redirect);
+        }, 1000);
       } catch (error) {
         handleError(error);
       }
