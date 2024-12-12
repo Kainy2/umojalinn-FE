@@ -18,6 +18,8 @@ const guestRouteRegex =
 const sharedRouteRegex = /^\/privacy-policy$/;
 // Regular expression for matching onboarding route
 const onboardingRouteRegex = /^\/onboard.*/;
+// Regular expression for matching onboarding congratulations route
+const onboardingCongratulationsRouteRegex = /^\/onboard\/congratulations/;
 
 export default withAuth(
   async function middleware(request: NextRequestWithAuth) {
@@ -29,6 +31,8 @@ export default withAuth(
     const isGuestRoute = guestRouteRegex.test(pathname);
     const isSharedRoute = sharedRouteRegex.test(pathname);
     const isOnboarding = onboardingRouteRegex.test(pathname);
+    const isCongratulations =
+      onboardingCongratulationsRouteRegex.test(pathname);
     const isPrivateRoute = !(isGuestRoute || isSharedRoute);
 
     const hasOnboarded = !!token?.user?.hasOnboarded;
@@ -41,16 +45,9 @@ export default withAuth(
         );
       } else if (!hasOnboarded && !isOnboarding) {
         return NextResponse.redirect(absoluteUrl(ONBOARDING_PAGE_URL, request));
+      } else if (hasOnboarded && isOnboarding && !isCongratulations) {
+        return NextResponse.redirect(absoluteUrl(DASHBOARD_PAGE_URL, request));
       }
-      // else if (hasOnboarded && isOnboarding) {
-      //   console.log(token, "TOKEN <<<");
-      //   return NextResponse.redirect(
-      //     absoluteUrl(
-      //       `${ONBOARDING_PAGE_URL}/${token?.user?.profileRole?.toLocaleLowerCase()}`,
-      //       request
-      //     )
-      //   );
-      // }
     }
 
     // Handle guest routes
