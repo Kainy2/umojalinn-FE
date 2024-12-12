@@ -118,10 +118,10 @@ export const authOptions: NextAuthOptions = {
         token.user = {
           ...(token.user || {}),
           hasOnboarded:
-            !!session?.buyerProfile ||
-            !!session?.designerProfile ||
-            !!session?.hasOnboarded,
-          profileRole: session?.profileRole,
+            !!session?.user?.buyerProfile ||
+            !!session?.user?.designerProfile ||
+            !!session?.user?.hasOnboarded,
+          profileRole: session?.user?.profileRole,
         };
         return token;
       }
@@ -173,20 +173,21 @@ export const authOptions: NextAuthOptions = {
       }
       return token;
     },
-    async session({ session, trigger, token }) {
+    async session({ session, trigger, token, newSession }) {
       if (trigger === "update") {
-        token.user = {
-          ...(token.user || {}),
+        session.user = {
+          ...session.user,
           hasOnboarded:
-            !!session?.user?.buyerProfile ||
-            !!session?.user?.designerProfile ||
-            !!session?.user?.hasOnboarded,
+            !!newSession?.user?.buyerProfile ||
+            !!newSession?.user?.designerProfile ||
+            !!newSession?.user?.hasOnboarded,
           profileRole:
-            (!!session?.user?.buyerProfile && "BUYER") ||
-            (!!session?.user?.designerProfile && "DESIGNER") ||
-            session?.user?.profileRole ||
+            (!!newSession?.user?.buyerProfile && "BUYER") ||
+            (!!newSession?.user?.designerProfile && "DESIGNER") ||
+            newSession?.user?.profileRole ||
             null,
         };
+        return session;
       }
 
       if (session.user) {
