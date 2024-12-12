@@ -26,7 +26,7 @@ declare module "next-auth" {
   }
   export interface Session {
     accessToken: string;
-    user: UmojaLinnLoginResponse["user"];
+    user: Partial<UmojaLinnLoginResponse["user"]> & UmojaLinnJWTUserExtension;
     expires: string;
   }
   export interface User extends UmojaLinnLoginResponse {

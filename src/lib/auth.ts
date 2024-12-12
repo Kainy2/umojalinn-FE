@@ -173,12 +173,25 @@ export const authOptions: NextAuthOptions = {
       }
       return token;
     },
-    async session({ session, trigger, newSession }) {
+    async session({ session, trigger, token }) {
       if (trigger === "update") {
-        if (newSession.user) return session;
+        token.user = {
+          ...(token.user || {}),
+          hasOnboarded:
+            !!session?.user?.buyerProfile ||
+            !!session?.user?.designerProfile ||
+            !!session?.user?.hasOnboarded,
+          profileRole:
+            (!!session?.user?.buyerProfile && "BUYER") ||
+            (!!session?.user?.designerProfile && "DESIGNER") ||
+            session?.user?.profileRole ||
+            null,
+        };
       }
 
       if (session.user) {
+        session.user.hasOnboarded = token.user?.hasOnboarded || false;
+        session.user.profileRole = token.user?.profileRole;
       }
 
       return session;

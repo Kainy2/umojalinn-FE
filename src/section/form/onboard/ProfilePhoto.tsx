@@ -17,7 +17,7 @@ const OnboardProfilePhotoForm = (props: { role: UmojaLinnUserRole }) => {
 
   const { mutateAsync: onboard, isPending: loading } = useOnboard({
     onSuccess: () => {
-      update({ profileRole: props?.role, hasOnboarded: true });
+      update({ user: { profileRole: props?.role, hasOnboarded: true } });
       router.push("/onboard/congratulations");
     },
     onError: (error) => handleError(error),
