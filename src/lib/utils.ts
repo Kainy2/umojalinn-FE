@@ -45,7 +45,7 @@ export function jsonToFormData<T extends Record<string, unknown>>(
     } else if (typeof value === "object" && value !== null) {
       // Handle nested objects recursively
       Object.entries(value).forEach(([nestedKey, nestedValue]) => {
-        appendToFormData(`${key}.${nestedKey}`, nestedValue);
+        appendToFormData(`${key}[${nestedKey}]`, nestedValue);
       });
     } else if (typeof value === "undefined" || value === null || !!value) {
       return;
