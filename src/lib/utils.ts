@@ -47,11 +47,11 @@ export function jsonToFormData<T extends Record<string, unknown>>(
       Object.entries(value).forEach(([nestedKey, nestedValue]) => {
         appendToFormData(`${key}.${nestedKey}`, nestedValue);
       });
-    } else if (typeof value === "undefined") {
+    } else if (typeof value === "undefined" || value === null || !!value) {
       return;
     } else {
       // Append primitive values
-      formData.append(key, value != null ? String(value) : "");
+      formData.append(key, String(value));
     }
   };
 

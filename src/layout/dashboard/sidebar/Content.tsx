@@ -21,7 +21,7 @@ import React from "react";
 const items = [
   {
     title: "Projects",
-    url: "#",
+    url: "/",
     icon: Activity,
   },
   {
