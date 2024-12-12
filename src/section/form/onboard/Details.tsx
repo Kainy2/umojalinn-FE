@@ -68,6 +68,7 @@ const OnboardDetailsForm = (props: { role: UmojaLinnUserRole }) => {
                 onValueChange={(val) => field.onChange(val)}
                 label="Gender"
                 defaultValue={field.value}
+                key={field.value}
                 options={[
                   {
                     type: "option",

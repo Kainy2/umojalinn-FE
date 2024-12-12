@@ -136,6 +136,9 @@ export const CustomDatePicker = React.forwardRef<
           <Calendar
             mode={isDefault ? "single" : "range"}
             selected={date}
+            captionLayout="dropdown-buttons"
+            fromYear={1970}
+            toYear={2024}
             // @ts-expect-error Generic
             onSelect={setDate}
             initialFocus

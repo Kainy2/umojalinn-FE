@@ -1,3 +1,4 @@
+"use client";
 import {
   SidebarContent,
   SidebarGroup,
@@ -13,8 +14,10 @@ import SearchRefracted from "@/icons/SearchRefracted";
 import Settings01 from "@/icons/Settings01";
 import Tag03 from "@/icons/Tag03";
 import Wallet02 from "@/icons/Wallet02";
+import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import React from "react";
 
@@ -23,6 +26,7 @@ const items = [
     title: "Projects",
     url: "/",
     icon: Activity,
+    regex: /^\/$/,
   },
   {
     title: "Designers",
@@ -68,6 +72,8 @@ const items = [
 ];
 
 const DashboardSidebarContent = () => {
+  const pathName = usePathname();
+
   return (
     <SidebarContent>
       <SidebarGroup>
@@ -96,13 +102,26 @@ const DashboardSidebarContent = () => {
                 );
               }
 
+              const active = !!item.regex?.test?.(pathName);
+
               return (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton
+                    asChild
+                    className={cn(
+                      active &&
+                        "bg-primary text-white hover:text-white  hover:bg-primary-600"
+                    )}
+                  >
                     <a href={item.url}>
                       {item.icon && <item.icon />}
                       <span className="flex-1">{item.title}</span>
-                      <span className="shrink-0 h-5  w-5 text-xs flex items-center justify-center bg-gray-200 rounded-full">
+                      <span
+                        className={cn(
+                          "shrink-0 h-5  w-5 text-xs flex items-center justify-center rounded-full",
+                          active ? "bg-white text-primary" : "bg-gray-200"
+                        )}
+                      >
                         12
                       </span>
                     </a>
