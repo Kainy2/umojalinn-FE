@@ -1,40 +1,16 @@
-import { Button } from "@/components/ui/button";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarHeader,
-  SidebarProvider,
-} from "@/components/ui/sidebar";
-import { Plus } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
+import { Sidebar, SidebarProvider } from "@/components/ui/sidebar";
+import DashboardSidebarContent from "@/layout/dashboard/sidebar/Content";
+import DashbordSidebarFooter from "@/layout/dashboard/sidebar/Footer";
+import DashboardSidebarHeader from "@/layout/dashboard/sidebar/Header";
 import React from "react";
 
 const layout = ({ children }: LayoutProps) => {
   return (
     <SidebarProvider>
       <Sidebar>
-        <SidebarHeader className="flex items-center justify-center flex-col p-4">
-          <Image
-            src="/img/png/umoja.png"
-            alt="Umoja logo"
-            height={80}
-            width={80}
-          />
-          <Button asChild fullWidth variant="outline" className="text-primary">
-            <Link href="/project/create">
-              <Plus />
-              Create project
-            </Link>
-          </Button>
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarGroup />
-          <SidebarGroup />
-        </SidebarContent>
-        <SidebarFooter />
+        <DashboardSidebarHeader />
+        <DashboardSidebarContent />
+        <DashbordSidebarFooter />
       </Sidebar>
       <main>
         {/* <SidebarTrigger /> */}

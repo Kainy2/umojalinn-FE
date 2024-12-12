@@ -10,11 +10,10 @@ import SocialsForm from "./Socials";
 import { Button } from "@/components/ui/button";
 import NestedFormItem from "@/components/custom/NestedFormItem";
 import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
-const LoginForm = () => {
+const LoginForm = (props: { redirectHref: string | string[] | undefined }) => {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const [loading, setLoading] = useState(false);
 
@@ -48,7 +47,8 @@ const LoginForm = () => {
       });
       if (res?.ok) {
         setLoading(false);
-        const redirectURL = searchParams.get("redirectTo") || "/";
+        const redirectURL =
+          typeof props.redirectHref === "string" ? props.redirectHref : "/";
         router.push(redirectURL);
       } else if (
         res?.error?.includes("400") ||
@@ -67,7 +67,7 @@ const LoginForm = () => {
       }
       setLoading(false);
     },
-    [form, router, searchParams]
+    [form, props.redirectHref, router]
   );
 
   return (

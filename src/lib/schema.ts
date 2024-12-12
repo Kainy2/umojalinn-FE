@@ -35,13 +35,11 @@ export const loginFormSchema = z.object({
 
 export const onboardingDetailsFormSchema = z
   .object({
-    gender: z.string().min(1, {
-      message: "Invalid field.",
-    }),
-    dateOfBirth: z.date().nullable(),
-    phoneNumber: z.string(),
+    gender: z.string().optional(),
+    dateOfBirth: z.union([z.date().nullable().optional(), z.string()]),
+    phoneNumber: z.string().optional(),
   })
-  .refine((data) => isPhoneValid(data.phoneNumber), {
+  .refine((data) => !data.phoneNumber || isPhoneValid(data.phoneNumber), {
     message: "Phone number not valid.",
     path: ["phoneNumber"],
   })
@@ -51,19 +49,9 @@ export const onboardingDetailsFormSchema = z
   });
 
 export const onboardingAddressFormSchema = z.object({
-  address: z.string().min(1, {
-    message: "Field cannot be empty.",
-  }),
-  country: z.string().min(1, {
-    message: "Field cannot be empty.",
-  }),
-  state: z.string().min(1, {
-    message: "Field cannot be empty.",
-  }),
-  city: z.string().min(1, {
-    message: "Field cannot be empty.",
-  }),
-  zipCode: z.string().min(1, {
-    message: "Field cannot be empty.",
-  }),
+  address: z.string().optional(),
+  country: z.string().optional(),
+  state: z.string().optional(),
+  city: z.string().optional(),
+  zipCode: z.string().optional(),
 });

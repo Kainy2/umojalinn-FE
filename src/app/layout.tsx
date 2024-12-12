@@ -6,6 +6,7 @@ import "react-international-phone/style.css";
 import { Inter } from "next/font/google";
 import NextAuthProvider from "@/components/provider/NextAuth";
 import { Toaster } from "@/components/ui/toaster";
+import TanstackQueryClientProvider from "@/components/provider/TanstackQueryClient";
 
 const InterSans = Inter({ subsets: ["latin"] });
 
@@ -19,8 +20,10 @@ export default function RootLayout({ children }: LayoutProps) {
     <html lang="en">
       <body className={`${InterSans.className}  antialiased`}>
         <NextAuthProvider>
-          {children}
-          <Toaster />
+          <TanstackQueryClientProvider>
+            {children}
+            <Toaster />
+          </TanstackQueryClientProvider>
         </NextAuthProvider>
       </body>
     </html>

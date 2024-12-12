@@ -31,7 +31,13 @@ export type UmojaLinnUser = {
   alternativeEmail: null | string;
   role: UmojaLinnUserRole;
   gender: null | string;
-  address: null | string;
+  address: null | Partial<{
+    zipCode: string;
+    address: string;
+    country: string;
+    state: string;
+    city: string;
+  }>;
   tag: string;
   dateOfBirth: null | Date | string;
   phoneNumber: null | string;

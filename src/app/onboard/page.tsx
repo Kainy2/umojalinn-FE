@@ -1,13 +1,8 @@
-"use client";
-import { onboard } from "@/actions/user";
-import { toast } from "@/hooks/use-toast";
-import useHandleError from "@/hooks/useHandleError";
 import Verified from "@/icons/Verified";
 import { cn } from "@/lib/utils";
 import { UmojaLinnUserRole } from "@/types/user";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import React, { MouseEventHandler, useEffect } from "react";
+import Link from "next/link";
+import React from "react";
 
 type OnboardButtonProps = {
   role: UmojaLinnUserRole;
@@ -42,43 +37,12 @@ const onboardButtonsProps: OnboardButtonProps[] = [
 ];
 
 const OnboardPage = () => {
-  const { handleError } = useHandleError("Onboarding");
-  const router = useRouter();
-  const { update } = useSession();
-
-  useEffect(() => {
-    router.prefetch("/onboard/buyer");
-    router.prefetch("/onboard/designer");
-  }, [router]);
-
-  const handleClick =
-    (
-      role: UmojaLinnUserRole,
-      redirect: string
-    ): MouseEventHandler<HTMLButtonElement> =>
-    async (e) => {
-      e.preventDefault();
-      toast({
-        description: "Please wait!",
-      });
-      try {
-        await onboard(role);
-        update({ profileRole: role, hasOnboarded: true });
-        setTimeout(() => {
-          router.replace(redirect);
-        }, 1000);
-      } catch (error) {
-        handleError(error);
-      }
-    };
-
   return (
     <div className="bg-[url('/img/png/pattern.png')] bg-cover h-screen w-screen relative flex items-stretch justify-stretch flex-col lg:flex-row">
       {onboardButtonsProps.map((props) => (
-        <span
+        <Link
           key={props.href}
-          onClick={handleClick(props.role, props.href)}
-          // href={props.href}
+          href={props.href}
           className={cn(
             "flex-1 cursor-pointer bg-cover bg-left-top group relative before:content-[''] before:absolute before:top-0 before:h-full before:w-full before:bg-gradient-to-t before:from-black before:to-transparent overflow-hidden",
             props.src
@@ -97,7 +61,7 @@ const OnboardPage = () => {
               {props.alt}
             </h2>
           </div>
-        </span>
+        </Link>
       ))}
     </div>
   );

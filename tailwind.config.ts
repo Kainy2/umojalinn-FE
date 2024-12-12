@@ -7,6 +7,7 @@ export default {
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/section/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/layout/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
@@ -17,9 +18,9 @@ export default {
       subtitle: ["1.2rem", { lineHeight: "1.875rem" }],
       md: ["1rem", { lineHeight: "1.5rem" }],
       sm: ["0.875rem", { lineHeight: "0.055rem" }],
-      xs: ["1.5rem", { lineHeight: "2rem" }],
+      xs: ["0.75rem", { lineHeight: "2rem" }],
       base: ["1rem", { lineHeight: "1.5rem" }],
-      label: ["0.875rem", { lineHeight: "1.25rem" }],
+      label: ["0.875rem", { lineHeight: "1.125rem" }],
     },
     extend: {
       container: {

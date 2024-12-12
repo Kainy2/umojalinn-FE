@@ -1,8 +1,12 @@
 import Image from "next/image";
-import React, { Suspense } from "react";
+import React from "react";
 import LoginForm from "@/section/form/Login";
 
-const LoginPage = () => {
+const LoginPage = async (props: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) => {
+  const { redirectTo } = (await props.searchParams) || {};
+
   return (
     <div className="container max-w-screen-sm py-20">
       <div className="text-center mb-4 flex flex-col items-center">
@@ -16,9 +20,7 @@ const LoginPage = () => {
         <h1 className="text-lg font-semibold text-foreground">Welcome Back</h1>
         <p className="font-normal">We&apos;re happy to have you back</p>
       </div>
-      <Suspense>
-        <LoginForm />
-      </Suspense>
+      <LoginForm redirectHref={redirectTo} />
     </div>
   );
 };

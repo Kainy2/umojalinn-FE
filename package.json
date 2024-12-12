@@ -19,9 +19,12 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-toast": "^1.2.2",
     "@radix-ui/react-tooltip": "^1.1.4",
+    "@tanstack/react-query": "^5.62.7",
+    "@tanstack/react-query-devtools": "^5.62.7",
     "axios": "^1.7.9",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "country-list-json": "^1.1.0",
     "crypto": "^1.0.1",
     "date-fns": "^4.1.0",
     "google-libphonenumber": "^3.2.40",
@@ -39,6 +42,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@tanstack/eslint-plugin-query": "^5.62.1",
     "@types/google-libphonenumber": "^7.4.30",
     "@types/node": "^20",
     "@types/react": "^18",

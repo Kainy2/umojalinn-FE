@@ -3,7 +3,8 @@ import { useCallback, useEffect, useState } from "react";
 
 const useStorage = () => {
   const [loaded, setLoaded] = useState<boolean>(false);
-  const getItem = useCallback((key: string) => {
+  /* eslint-disable  @typescript-eslint/no-explicit-any */
+  const getItem = useCallback((key: string): Record<string, any> | null => {
     const val = localStorage.getItem(key);
     return val !== null ? JSON.parse(val) : null;
   }, []);

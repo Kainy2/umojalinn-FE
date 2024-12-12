@@ -120,7 +120,7 @@ export const authOptions: NextAuthOptions = {
           hasOnboarded:
             !!session?.buyerProfile ||
             !!session?.designerProfile ||
-            session?.hasOnboarded,
+            !!session?.hasOnboarded,
           profileRole: session?.profileRole,
         };
         return token;
@@ -161,10 +161,13 @@ export const authOptions: NextAuthOptions = {
 
         token.user = {
           hasOnboarded:
-            !!user.user?.buyerProfile || !!user.user?.designerProfile,
+            !!user.user?.buyerProfile ||
+            !!user.user?.designerProfile ||
+            !!user.user.hasOnboarded,
           profileRole:
             (!!user.user?.buyerProfile && "BUYER") ||
             (!!user.user?.designerProfile && "DESIGNER") ||
+            user?.user?.profileRole ||
             null,
         };
       }

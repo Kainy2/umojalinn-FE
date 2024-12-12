@@ -1,17 +1,16 @@
 import { clientAxios } from "@/lib/axios";
-import { UmojaLinnLoginResponse, UmojaLinnUserRole } from "@/types/user";
+import { UmojaLinnUser } from "@/types/user";
 import { SingleApiResponse } from "@/types/util";
 import { AxiosResponse } from "axios";
 
 export const getMe = () =>
-  clientAxios.get<
-    unknown,
-    AxiosResponse<SingleApiResponse<UmojaLinnLoginResponse>, unknown>
-  >("/user/me");
+  clientAxios.get<unknown, AxiosResponse<SingleApiResponse<UmojaLinnUser>>>(
+    "/user/me"
+  );
 
-export const onboard = (profileType: UmojaLinnUserRole) => {
-  return clientAxios.post<
-    unknown,
-    AxiosResponse<SingleApiResponse<UmojaLinnLoginResponse>, unknown>
-  >("/user/onboard", { profileType });
+export const onboard = (body: FormData) => {
+  return clientAxios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    "/user/onboard",
+    body
+  );
 };
