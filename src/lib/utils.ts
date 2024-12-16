@@ -47,9 +47,7 @@ export function jsonToFormData<T extends Record<string, unknown>>(
       Object.entries(value).forEach(([nestedKey, nestedValue]) => {
         appendToFormData(`${key}[${nestedKey}]`, nestedValue);
       });
-    } else if (typeof value === "undefined" || value === null || !!value) {
-      return;
-    } else {
+    } else if (value !== undefined && value !== null && value !== '') {
       // Append primitive values
       formData.append(key, String(value));
     }
