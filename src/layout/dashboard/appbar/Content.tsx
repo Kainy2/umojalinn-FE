@@ -28,7 +28,7 @@ const DashboardAppbarContent = () => {
         <Button variant="ghost" className="font-normal">
           <UserRoundPlus className="icon-base" /> Invite Client
         </Button>
-        <Separator orientation="vertical" />
+        <Separator orientation="vertical" className="h-8" />
         <Button variant="ghost" className="font-normal">
           <Bell className="icon-base" />
         </Button>

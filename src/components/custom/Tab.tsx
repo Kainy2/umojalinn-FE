@@ -24,15 +24,20 @@ const CustomTabItem = (props: CustomTabItemProps) => {
       <Link
         href={props.href}
         passHref
-        className={`px-6 py-1.5 text-sm font-semibold border-b-2 transition-colors duration-200 leading-normal ${
+        className={`px-6 py-1 text-sm font-semibold border-b-2 transition-colors duration-200 leading-normal ${
           props.active
             ? "border-primary text-primary"
-            : "border-transparent text-gray-500 hover:text-primary hover:border-primary"
+            : "border-transparent text-gray-500 hover:text-primary"
         }`}
       >
         {props.title}
         {props.count !== undefined && (
-          <span className="ml-2 px-3 py-1 text-xs font-bold text-foreground bg-gray-100 rounded-full">
+          <span
+            className={cn(
+              "ml-2 px-3 py-1 text-xs font-bold  rounded-full",
+              props.active ? "bg-primary-100" : "text-foreground bg-gray-100"
+            )}
+          >
             {props.count}
           </span>
         )}

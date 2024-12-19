@@ -65,7 +65,7 @@ export const DESIGNERS_SIDEBAR_CONTENT: CustomSidebarMenuItemProps[] = [
     title: "Dashboard",
     url: "/",
     icon: <Grid01 />,
-    regex: /^\/$/,
+    regex: /(^\/$|^\/dashboard\/.*)/,
   },
   {
     title: "Jobs",

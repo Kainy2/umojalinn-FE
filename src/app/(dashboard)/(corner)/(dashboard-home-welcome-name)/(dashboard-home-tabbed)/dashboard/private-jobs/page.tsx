@@ -1,12 +1,14 @@
 import CustomCardHolder from "@/components/custom/card/Holder";
 import JobCard from "@/components/custom/card/Job";
+import React from "react";
 
-export default function Home() {
+const PrivateJobsPage = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 justify-stretch mt-4">
       {new Array(4).fill("").map((_, i) => (
-        <CustomCardHolder count={1} key={i} title="try">
+        <CustomCardHolder key={i} title="try">
           <JobCard
+            isPrivate
             name="My Agbada"
             progress={2}
             img="/img/webp/buyer-sm.webp"
@@ -16,4 +18,6 @@ export default function Home() {
       ))}
     </div>
   );
-}
+};
+
+export default PrivateJobsPage;
