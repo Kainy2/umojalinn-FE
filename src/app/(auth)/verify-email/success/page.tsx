@@ -1,9 +1,15 @@
+"use server";
 import { Button } from "@/components/ui/button";
+import { PageProps } from "@/types/util";
 import { CircleCheck } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
-const ConfirmEmailSuccessPage = () => {
+const ConfirmEmailSuccessPage = async (
+  props: PageProps<unknown, { inviterTag?: string }>
+) => {
+  const searchParams = (await props?.searchParams) || {};
+
   return (
     <div className="text-center flex flex-col items-center container max-w-[550px] text-md">
       <span className="icon-wrapper success mb-4">
@@ -15,7 +21,15 @@ const ConfirmEmailSuccessPage = () => {
         <span className="font-semibold">Umoja Linn</span>
       </p>
       <Button fullWidth asChild>
-        <Link href="/login">Continue</Link>
+        <Link
+          href={`/login${
+            searchParams?.inviterTag
+              ? `inviterTag=${searchParams?.inviterTag}`
+              : ""
+          }`}
+        >
+          Continue
+        </Link>
       </Button>
     </div>
   );

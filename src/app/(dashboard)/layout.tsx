@@ -1,4 +1,5 @@
 import { Sidebar, SidebarProvider } from "@/components/ui/sidebar";
+import DashboardAppbarContent from "@/layout/dashboard/appbar/Content";
 import DashboardSidebarContent from "@/layout/dashboard/sidebar/Content";
 import DashbordSidebarFooter from "@/layout/dashboard/sidebar/Footer";
 import DashboardSidebarHeader from "@/layout/dashboard/sidebar/Header";
@@ -12,9 +13,12 @@ const layout = ({ children }: LayoutProps) => {
         <DashboardSidebarContent />
         <DashbordSidebarFooter />
       </Sidebar>
-      <main>
+      <main className="relative">
         {/* <SidebarTrigger /> */}
-        {children}
+        <div className="h-24 p-12 md:pl-0 flex  items-center justify-between sticky top-0 bg-background">
+          <DashboardAppbarContent />
+        </div>
+        <div className="dashboard-content">{children}</div>
       </main>
     </SidebarProvider>
   );

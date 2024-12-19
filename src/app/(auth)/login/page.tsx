@@ -1,11 +1,10 @@
 import Image from "next/image";
 import React from "react";
 import LoginForm from "@/section/form/Login";
+import { PageProps } from "@/types/util";
 
-const LoginPage = async (props: {
-  searchParams?: Promise<Record<string, string | string[] | undefined>>;
-}) => {
-  const { redirectTo } = (await props.searchParams) || {};
+const LoginPage = async (props: PageProps) => {
+  const { redirectTo, inviterTag } = (await props.searchParams) || {};
 
   return (
     <div className="container max-w-screen-sm py-20">
@@ -20,7 +19,7 @@ const LoginPage = async (props: {
         <h1 className="text-lg font-semibold text-foreground">Welcome Back</h1>
         <p className="font-normal">We&apos;re happy to have you back</p>
       </div>
-      <LoginForm redirectHref={redirectTo} />
+      <LoginForm redirectHref={redirectTo} inviterTag={inviterTag as string} />
     </div>
   );
 };

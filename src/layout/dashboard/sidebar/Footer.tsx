@@ -18,7 +18,7 @@ const DashbordSidebarFooterContent = (props: {
     return (
       <>
         <Skeleton className="h-10 w-10 rounded-full shrink-0" />
-        <div className="flex-1 truncate ">
+        <div className="flex-1">
           <Skeleton className="h-5 mb-2 w-16" />
           <Skeleton className="h-4 w-28" />
         </div>
@@ -36,11 +36,13 @@ const DashbordSidebarFooterContent = (props: {
         width={40}
         className="object-cover object-center rounded-full shrink-0"
       />
-      <div className="flex-1 truncate ">
-        <h5 className="text-sm font-bold leading-normal ">
+      <div className="flex-1 truncate overflow-hidden">
+        <h5 className="text-sm font-bold leading-normal truncate overflow-hidden">
           {me?.firstName} {me?.lastName}
         </h5>
-        <p className="text-sm text-gray-500 leading-normal">{me?.email}</p>
+        <p className="text-sm text-gray-500 leading-normal truncate overflow-hidden">
+          {me?.email}
+        </p>
       </div>
       {props.action}
     </>

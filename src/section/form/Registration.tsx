@@ -17,7 +17,7 @@ import CustomCheckbox from "@/components/custom/Checkbox";
 import Link from "next/link";
 import useHandleError from "@/hooks/useHandleError";
 
-const RegistrationForm = () => {
+const RegistrationForm = (props: { inviterTag?: string }) => {
   const router = useRouter();
   const { setItem } = useStorage();
   const [loading, setLoading] = useState(false);
@@ -50,7 +50,7 @@ const RegistrationForm = () => {
     // ✅ This will be type-safe and validated.
     setLoading(true);
     try {
-      await createAccount(values);
+      await createAccount({ ...values, inviterTag: props.inviterTag });
       setItem("AUTH_REGISTER_EMAIL", { email: values?.email });
       setLoading(false);
       router.push("/register/verify");

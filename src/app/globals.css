@@ -22,12 +22,12 @@ body {
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
     --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
+    --muted-foreground: 220 13% 46%;
     --accent: 0 0% 96.1%;
     --accent-foreground: 0 0% 9%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
+    --border: 216 16% 84%;
     --input: 0 0% 89.8%;
     --ring: 43 93% 47%;
     --chart-1: 12 76% 61%;
@@ -109,8 +109,15 @@ body {
     @apply border-error-50 bg-error-100 text-error;
   }
 
+  .icon-base {
+    @apply !h-5 !w-5;
+  }
+
   .bg-auth {
     @apply bg-[url("/img/png/pattern.png")] overflow-scroll relative h-dvh min-h-[500px] grid items-center justify-center;
+  }
+  .bg-corner {
+    @apply lg:bg-[url("/img/png/corner-pattern.png")] object-right-top object-contain bg-no-repeat;
   }
 
   .bg-auth > div {
@@ -139,7 +146,7 @@ body {
   }
 
   .dashboard-content {
-    @apply p-8 h-full flex-grow w-screen md:w-[calc(100dvw-16rem)] border-l border-t;
+    @apply min-h-[calc(100dvh-6rem)] flex-grow w-screen md:w-[calc(100dvw-16rem)] border-l border-t;
   }
 }
 

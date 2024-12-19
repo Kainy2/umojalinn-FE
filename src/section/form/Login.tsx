@@ -12,7 +12,10 @@ import NestedFormItem from "@/components/custom/NestedFormItem";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
-const LoginForm = (props: { redirectHref: string | string[] | undefined }) => {
+const LoginForm = (props: {
+  redirectHref: string | string[] | undefined;
+  inviterTag?: string;
+}) => {
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
@@ -47,8 +50,11 @@ const LoginForm = (props: { redirectHref: string | string[] | undefined }) => {
       });
       if (res?.ok) {
         setLoading(false);
-        const redirectURL =
-          typeof props.redirectHref === "string" ? props.redirectHref : "/";
+        const redirectURL = props.inviterTag
+          ? "/project/create"
+          : typeof props.redirectHref === "string"
+          ? props.redirectHref
+          : "/";
         router.push(redirectURL);
       } else if (
         res?.error?.includes("400") ||
@@ -67,7 +73,7 @@ const LoginForm = (props: { redirectHref: string | string[] | undefined }) => {
       }
       setLoading(false);
     },
-    [form, props.redirectHref, router]
+    [form, props.inviterTag, props.redirectHref, router]
   );
 
   return (

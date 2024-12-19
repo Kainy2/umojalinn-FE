@@ -2,6 +2,7 @@ import axios from "axios";
 import { AxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
+import { auth } from "./auth";
 
 export const clientAxios = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -60,4 +61,13 @@ export const handleAPIError = (error: unknown) => {
     },
     { status: 500 }
   );
+};
+
+export const getServerAxiosWithToken = async () => {
+  const token = await auth();
+  const axios = customAxios;
+  if (token?.accessToken) {
+    axios.defaults.headers.common.Authorization = `Bearer ${token?.accessToken}`;
+  }
+  return axios;
 };

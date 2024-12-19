@@ -8,6 +8,7 @@ const SOCIAL_ICON_SIZE = 20;
 
 type SocialsFormProps = {
   mode?: "login" | "register";
+  inviterTag?: string;
 };
 
 const socialButtonTemplate = [
@@ -27,7 +28,7 @@ const socialButtonTemplate = [
 ];
 
 const SocialsForm = (props: SocialsFormProps) => {
-  const { mode = "login" } = props;
+  const { mode = "login", inviterTag } = props;
   const isLogin = mode === "login";
   return (
     <>
@@ -62,7 +63,9 @@ const SocialsForm = (props: SocialsFormProps) => {
           {isLogin ? "Are you new here?" : "Already have an account?"}{" "}
           <Link
             className="text-primary font-bold"
-            href={isLogin ? "/register" : "/login"}
+            href={`/${isLogin ? "register" : "login"}${
+              inviterTag ? `?inviterTag=${inviterTag}` : ""
+            }`}
           >
             {isLogin ? "Register" : "Login"}
           </Link>
