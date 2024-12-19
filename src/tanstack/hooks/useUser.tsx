@@ -8,21 +8,13 @@ import { UmojaLinnUser } from "@/types/user";
 import { SingleApiResponse } from "@/types/util";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
-const getMeConfig = {
-  queryKey: ["USER", "ME"],
-  queryFn: getMe,
-};
-
 export const useGetMe = (
   options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnUser>>
 ) => {
-  return useQuery({ ...options, ...getMeConfig });
-};
-
-export const prefetchGetMe = () => {
-  return queryClient.prefetchQuery({
-    ...getMeConfig,
-    staleTime: 10 * 1000, // only prefetch if older than 10 seconds
+  return useQuery({
+    ...options,
+    queryKey: ["USER", "ME"],
+    queryFn: () => getMe(),
   });
 };
 
