@@ -40,7 +40,7 @@ const DashbordSidebarFooterContent = (props: {
         <h5 className="text-sm font-bold leading-normal truncate overflow-hidden">
           {me?.firstName} {me?.lastName}
         </h5>
-        <p className="text-sm text-gray-500 leading-normal truncate overflow-hidden">
+        <p className="text-sm text-slate-500 leading-normal truncate overflow-hidden">
           {me?.email}
         </p>
       </div>

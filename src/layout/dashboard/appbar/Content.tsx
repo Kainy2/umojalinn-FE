@@ -3,14 +3,13 @@ import TextField from "@/components/custom/TextField";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import InviteClient from "@/section/dashboard/appbar/InviteClient";
 import { useGetMe } from "@/tanstack/hooks/useUser";
-import { Bell, ChevronDown, Search, UserRoundPlus } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { Bell, ChevronDown, Search } from "lucide-react";
 import React from "react";
 
 const DashboardAppbarContent = () => {
-  const { data: session } = useSession();
-  const { data: meData } = useGetMe({ enabled: !!session?.user });
+  const { data: meData } = useGetMe();
   const me = meData?.data?.data;
 
   return (
@@ -25,9 +24,7 @@ const DashboardAppbarContent = () => {
         />
       </div>
       <div className="flex space-x-1 items-center ">
-        <Button variant="ghost" className="font-normal">
-          <UserRoundPlus className="icon-base" /> Invite Client
-        </Button>
+        <InviteClient />
         <Separator orientation="vertical" className="h-8" />
         <Button variant="ghost" className="font-normal">
           <Bell className="icon-base" />

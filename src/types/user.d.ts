@@ -1,9 +1,6 @@
-export type UmojaLinnUserRole = "BUYER" | "DESIGNER";
+import { UmojaLinnTimestamp } from "./util";
 
-export type UmojaLinnTimestamp = {
-  createdAt: string;
-  updatedAt: string;
-};
+export type UmojaLinnUserRole = "BUYER" | "DESIGNER";
 
 export type UmojaLinnProjectInvitation = {
   id: string;
@@ -11,7 +8,7 @@ export type UmojaLinnProjectInvitation = {
   designerProfileId: string;
   status: "PENDING" | "SUCCESS";
   buyerProfile: {
-    user: Pick<UmojaLinnUser, "firstName" | "lastName" | "id">;
+    user: Pick<UmojaLinnUser, "firstName" | "lastName" | "id" | "email">;
   };
 } & UmojaLinnTimestamp;
 

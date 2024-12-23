@@ -32,7 +32,7 @@ const CustomCardHolderChildren = (
 const CustomCardHolder = (props: CustomCardHolderProps) => {
   const { empty, loading } = props;
   return (
-    <div className="bg-gray-100 p-4 flex-1 w-full h-full">
+    <div className="bg-slate-100 p-4 flex-1 w-full h-full">
       <h6
         className={cn(
           "font-semibold truncate flex gap-2 items-center justify-center mb-8 text-teal-500"

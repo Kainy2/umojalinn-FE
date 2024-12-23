@@ -7,8 +7,13 @@ import { Inter } from "next/font/google";
 import NextAuthProvider from "@/components/provider/NextAuth";
 import { Toaster } from "@/components/ui/toaster";
 import TanstackQueryClientProvider from "@/components/provider/TanstackQueryClient";
+import { Provider as RollbarProvider } from "@rollbar/react";
+import { clientConfig } from "@/lib/rollbar";
 
-const InterSans = Inter({ subsets: ["latin"] });
+const InterSans = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+});
 
 export const metadata: Metadata = {
   title: "Welcome to Umoja",
@@ -17,15 +22,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps) {
   return (
-    <html lang="en">
-      <body className={`${InterSans.className}  antialiased`}>
-        <NextAuthProvider>
-          <TanstackQueryClientProvider>
-            {children}
-            <Toaster />
-          </TanstackQueryClientProvider>
-        </NextAuthProvider>
-      </body>
-    </html>
+    <RollbarProvider config={clientConfig}>
+      <html lang="en">
+        <body className={`${InterSans.className}  antialiased`}>
+          <NextAuthProvider>
+            <TanstackQueryClientProvider>
+              {children}
+              <Toaster />
+            </TanstackQueryClientProvider>
+          </NextAuthProvider>
+        </body>
+      </html>
+    </RollbarProvider>
   );
 }

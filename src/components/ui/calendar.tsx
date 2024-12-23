@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { format, setMonth } from "date-fns";
 import { SelectContent, SelectTrigger } from "@radix-ui/react-select";
-import { Select, SelectItem } from "./select";
+import { Select, SelectGroup, SelectItem } from "./select";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
@@ -86,16 +86,18 @@ function Calendar({
                 <SelectTrigger className="p-2">
                   {format(currentMonth, "MMM")}
                 </SelectTrigger>
-                <SelectContent className="bg-background z-50">
-                  {selectItems?.map((selectItem) => (
-                    <SelectItem
-                      className="leading-normal"
-                      key={selectItem.value}
-                      value={selectItem.value}
-                    >
-                      {selectItem.label}
-                    </SelectItem>
-                  ))}
+                <SelectContent className="bg-background z-50 max-h-80 overflow-scroll">
+                  <SelectGroup>
+                    {selectItems?.map((selectItem) => (
+                      <SelectItem
+                        className="leading-normal"
+                        key={selectItem.value}
+                        value={selectItem.value}
+                      >
+                        {selectItem.label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
                 </SelectContent>
               </Select>
             );
@@ -127,15 +129,17 @@ function Calendar({
                     {currentMonth.getFullYear()}
                   </SelectTrigger>
                   <SelectContent className="bg-background z-50 max-h-48 overflow-scroll">
-                    {selectItems?.map((selectItem) => (
-                      <SelectItem
-                        className="leading-normal"
-                        key={selectItem.value}
-                        value={selectItem.value}
-                      >
-                        {selectItem.label}
-                      </SelectItem>
-                    ))}
+                    <SelectGroup>
+                      {selectItems?.map((selectItem) => (
+                        <SelectItem
+                          className="leading-normal"
+                          key={selectItem.value}
+                          value={selectItem.value}
+                        >
+                          {selectItem.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
               );

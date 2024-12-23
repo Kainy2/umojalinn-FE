@@ -19,7 +19,7 @@ const OnboardLayout = async ({
           <h1 className="text-xl font-bold text-foreground mb-8">
             We are almost there!
           </h1>
-          <p className="text-subtitle mb-8">We just need...</p>
+          <p className="text-subtitle-1 mb-8">We just need...</p>
         </div>
         <div className="container flex md:block mb-20 justify-center">
           <OnboardTab />

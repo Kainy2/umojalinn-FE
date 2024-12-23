@@ -15,3 +15,8 @@ export type PageProps<
   params: Promise<T>;
   searchParams: Promise<U>;
 };
+
+export type UmojaLinnTimestamp = {
+  createdAt: string;
+  updatedAt: string;
+};

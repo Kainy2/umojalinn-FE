@@ -86,10 +86,10 @@ body {
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border leading-normal;
   }
   body {
-    @apply bg-background text-foreground-body text-base;
+    @apply bg-background text-foreground-body text-md;
   }
 
   button,
@@ -147,6 +147,10 @@ body {
 
   .dashboard-content {
     @apply min-h-[calc(100dvh-6rem)] flex-grow w-screen md:w-[calc(100dvw-16rem)] border-l border-t;
+  }
+
+  .SelectTrigger[data-placeholder] {
+    @apply text-muted-foreground;
   }
 }
 

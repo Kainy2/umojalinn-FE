@@ -15,7 +15,7 @@ export const BUYERS_SIDEBAR_CONTENT: CustomSidebarMenuItemProps[] = [
     title: "Projects",
     url: "/",
     icon: <Activity />,
-    regex: /^\/$/,
+    regex: /(^\/$|^\/project\/.*)/,
   },
   {
     title: "Designers",

@@ -18,8 +18,8 @@ const CustomPhonePicker = React.forwardRef<PhoneInputRefType, PhoneInputProps>(
         showDisabledDialCodeAndPrefix
         {...props}
         className={cn(
-          "p-1.5 pl-4 !text-base w-full flex  h-12 border border-input",
-          props.disabled && "!bg-gray-400/10 !text-foreground-secondary",
+          "p-1.5 pl-4 !text-md w-full flex  h-12 border border-input",
+          props.disabled && "!bg-slate-400/10 !text-foreground-secondary",
           props.className
         )}
         inputClassName={cn(
@@ -51,7 +51,7 @@ const CustomPhonePicker = React.forwardRef<PhoneInputRefType, PhoneInputProps>(
         dialCodePreviewStyleProps={{
           ...props.dialCodePreviewStyleProps,
           className: cn(
-            "p-4 text-typograph !bg-purple !border-transparent  !text-base",
+            "p-4 text-typograph !bg-purple !border-transparent  !text-md",
             props.dialCodePreviewStyleProps?.className
           ),
         }}

@@ -3,6 +3,7 @@ import { AxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { auth } from "./auth";
+import { serverInstance } from "./rollbar";
 
 export const clientAxios = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -30,6 +31,7 @@ export const setBearerToken = async (req: NextRequest) => {
 
 export const handleAPIError = (error: unknown) => {
   console.error("API Error:", error);
+  serverInstance.error(error as Error, JSON.stringify(error));
 
   if (error && typeof error === "object") {
     if ("isAxiosError" in error) {

@@ -28,6 +28,7 @@ export type CustomSelectProps = SelectProps &
     placeholder: string;
     trigger: SelectTriggerProps;
     options: Array<CustomOptionsProps>;
+    adornment?: boolean;
   }>;
 
 export type CustomSelectFieldProps = CustomSelectProps & FieldProps;
@@ -55,7 +56,7 @@ export const CustomOption = (props: { value: CustomOptionsProps }) => {
 
 const CustomSelect = React.forwardRef<HTMLButtonElement, CustomSelectProps>(
   (props, ref) => {
-    const { placeholder, trigger, options, ...selectProps } = props;
+    const { placeholder, trigger, options, adornment, ...selectProps } = props;
     return (
       <Select {...selectProps}>
         <SelectTrigger
@@ -63,10 +64,12 @@ const CustomSelect = React.forwardRef<HTMLButtonElement, CustomSelectProps>(
           ref={ref}
           className={cn(
             "[&>span]:overflow-visible  [&>span]:h-full [&>span]:flex [&>span]:items-center rounded-none h-12",
+            adornment &&
+              "!ring-transparent focus:!ring-transparent !border-transparent !h-8 m-1",
             trigger?.className
           )}
         >
-          <SelectValue placeholder={placeholder} />
+          <SelectValue className="" placeholder={placeholder} />
         </SelectTrigger>
 
         <SelectContent>{<CustomOption value={options || []} />}</SelectContent>

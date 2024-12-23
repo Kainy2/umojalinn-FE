@@ -15,12 +15,11 @@ export default {
       "2xl": ["4.5rem", { lineHeight: "5.625rem" }],
       xl: ["3.75rem", { lineHeight: "4.5rem" }],
       lg: ["1.875rem", { lineHeight: "2.375rem" }],
-      subtitle: ["1.2rem", { lineHeight: "1.875rem" }],
+      "subtitle-1": ["1.5rem", { lineHeight: "1.875rem" }],
+      "subtitle-2": ["1.2rem", { lineHeight: "1.5rem" }],
       md: ["1rem", { lineHeight: "1.5rem" }],
-      sm: ["0.875rem", { lineHeight: "0.055rem" }],
-      xs: ["0.75rem", { lineHeight: "2rem" }],
-      base: ["1rem", { lineHeight: "1.5rem" }],
-      label: ["0.875rem", { lineHeight: "1.125rem" }],
+      sm: ["0.875rem", { lineHeight: "1.125rem" }],
+      xs: ["0.75rem", { lineHeight: "0.875rem" }],
     },
     extend: {
       container: {

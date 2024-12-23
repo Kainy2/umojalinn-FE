@@ -46,7 +46,7 @@ const CustomSidebarMenuItem = (props: CustomSidebarMenuItemProps) => {
 
   if (props.isAd) {
     return (
-      <div key={props.title} className="bg-gray-50 px-2 py-6 my-2 block">
+      <div key={props.title} className="bg-slate-50 px-2 py-6 my-2 block">
         <h4 className="font-semibold leading-normal">{props.title}</h4>
         <p className="leading-normal mb-4">{props.description}</p>
         <Image
@@ -80,7 +80,7 @@ const CustomSidebarMenuItem = (props: CustomSidebarMenuItemProps) => {
             <span
               className={cn(
                 "shrink-0 h-5  w-5 text-xs flex items-center justify-center rounded-full",
-                active ? "bg-white text-primary" : "bg-gray-200"
+                active ? "bg-white text-primary" : "bg-slate-200"
               )}
             >
               {badge}

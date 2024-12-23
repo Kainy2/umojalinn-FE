@@ -34,7 +34,7 @@ const SocialsForm = (props: SocialsFormProps) => {
     <>
       <div className="flex gap-2 items-center my-2">
         <hr className="flex-1" />
-        <span className="text-label">OR</span>
+        <span className="text-sm">OR</span>
         <hr className="flex-1" />
       </div>
       <div className="flex flex-col gap-2">

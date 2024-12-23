@@ -2,6 +2,8 @@
 import { useCallback } from "react";
 import { useToast } from "./use-toast";
 import { AxiosError } from "axios";
+import { clientConfig } from "@/lib/rollbar";
+import Rollbar from "rollbar";
 
 const useHandleError = (errorTitle: string) => {
   const { toast } = useToast();
@@ -9,6 +11,8 @@ const useHandleError = (errorTitle: string) => {
   const handleError = useCallback(
     (error: unknown, onError?: (error: unknown) => void) => {
       console.error(error);
+      const rollbar = new Rollbar(clientConfig);
+      rollbar.error(error as Error, JSON.stringify(error));
       if (error && typeof error === "object" && "isAxiosError" in error) {
         const axiosError = error as AxiosError<{
           message: string[] | string;

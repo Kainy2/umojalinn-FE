@@ -36,7 +36,7 @@ const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
             <Label {...label} />
           ))}
         <Input {...inputProps} ref={ref} />
-        {hint && <p className="text-sm mt-2">{hint}</p>}
+        {hint && <p className="text-sm text-foreground-body">{hint}</p>}
       </div>
     );
   }

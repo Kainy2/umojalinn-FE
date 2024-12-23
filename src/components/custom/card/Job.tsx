@@ -41,7 +41,7 @@ const JobCard = (props: JobCardProps) => {
             <span
               key={index}
               className={cn(
-                "h-1.5 bg-gray-100 rounded-full w-full",
+                "h-1.5 bg-slate-100 rounded-full w-full",
                 index <= (props.progress || 0) && "bg-success"
               )}
             />
@@ -68,7 +68,7 @@ const JobCard = (props: JobCardProps) => {
           </div>
           <div className="flex-1 shrink-0 justify-end">
             {props.status ? (
-              <p className={cn("text-gray-400")}>{props?.status?.value}</p>
+              <p className={cn("text-slate-400")}>{props?.status?.value}</p>
             ) : (
               <div
                 className={cn(
