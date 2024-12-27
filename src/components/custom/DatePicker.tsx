@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { addDays, format } from "date-fns";
+import { addDays, format, subYears } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -13,8 +13,15 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import CustomSelect, { CustomSelectProps } from "./Select";
-import { FieldProps } from "./TextField";
+import { FieldProps, FormFieldProps } from "./TextField";
 import { Label } from "../ui/label";
+import {
+  FormControl,
+  FormDescription,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
 
 type CustomDateRangeProp = { from: Date; to: Date };
 
@@ -41,6 +48,8 @@ type CustomDatePickerProps =
     };
 
 type CustomDatePickerFieldProps = CustomDatePickerProps & FieldProps;
+export type FormCustomDatePickerFieldProps = CustomDatePickerProps &
+  FormFieldProps;
 
 const findIsDate = (date: CustomDatePickerProps["value"]) => {
   return date instanceof Date && !isNaN(date.getTime());
@@ -137,8 +146,8 @@ export const CustomDatePicker = React.forwardRef<
             mode={isDefault ? "single" : "range"}
             selected={date}
             captionLayout="dropdown-buttons"
-            fromYear={1970}
-            toYear={2024}
+            fromYear={subYears(new Date(), 100).getFullYear()}
+            toYear={new Date().getFullYear()}
             // @ts-expect-error Generic
             onSelect={setDate}
             initialFocus
@@ -176,5 +185,27 @@ export const CustomDatePickerField = React.forwardRef<
 });
 
 CustomDatePickerField.displayName = "CustomDatePickerField";
+
+export const FormCustomDatePickerField = React.forwardRef<
+  HTMLButtonElement,
+  FormCustomDatePickerFieldProps
+>(({ label, hint, containerClassName, ...datePickerProps }, ref) => {
+  return (
+    <FormItem className={(containerClassName || "") + ""}>
+      {label && <FormLabel>{label}</FormLabel>}
+      <FormControl>
+        <CustomDatePicker
+          calendar={{ captionLayout: "dropdown-buttons" }}
+          {...datePickerProps}
+          ref={ref}
+        />
+      </FormControl>
+      {hint && <FormDescription>{hint}</FormDescription>}
+      <FormMessage className="pt-2" />
+    </FormItem>
+  );
+});
+
+FormCustomDatePickerField.displayName = "FormCustomDatePickerField";
 
 export default CustomDatePicker;

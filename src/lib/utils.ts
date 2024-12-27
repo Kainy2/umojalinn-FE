@@ -36,10 +36,13 @@ export function jsonToFormData<T extends Record<string, unknown>>(
     if (value instanceof File) {
       // Append File instances directly
       formData.append(key, value);
+    } else if (Object.prototype.toString.call(value) === "[object Date]") {
+      // Append Date instances as strings
+      formData.append(key, (value as Date).toISOString());
     } else if (Array.isArray(value)) {
       // Handle arrays by appending each element as key[]
       value.forEach((item, index) => {
-        const arrayKey = `${key}[${index}]`;
+        const arrayKey = key === "gallery-images" ? key : `${key}[${index}]`;
         appendToFormData(arrayKey, item);
       });
     } else if (typeof value === "object" && value !== null) {
@@ -47,7 +50,7 @@ export function jsonToFormData<T extends Record<string, unknown>>(
       Object.entries(value).forEach(([nestedKey, nestedValue]) => {
         appendToFormData(`${key}[${nestedKey}]`, nestedValue);
       });
-    } else if (value !== undefined && value !== null && value !== '') {
+    } else if (value !== undefined && value !== null && value !== "") {
       // Append primitive values
       formData.append(key, String(value));
     }
@@ -58,4 +61,46 @@ export function jsonToFormData<T extends Record<string, unknown>>(
   });
 
   return formData;
+}
+
+/**
+ * Converts a File to a preview URL.
+ *
+ * @param file - The file to be converted.
+ * @returns A string representing the preview URL or null if the input is invalid.
+ */
+export function fileToPreviewUrl(file: File | string): string | null {
+  if (!file) {
+    console.error("No file provided.");
+    return null;
+  }
+
+  if (typeof file === "string") {
+    return file;
+  }
+
+  try {
+    return URL.createObjectURL(file);
+  } catch (error) {
+    console.error("Error creating preview URL:", error);
+    return null;
+  }
+}
+
+/**
+ * Releases the memory allocated for a preview URL.
+ *
+ * @param url - The URL to be revoked.
+ */
+export function revokePreviewUrl(url: string): void {
+  if (url) {
+    URL.revokeObjectURL(url);
+    console.log("Preview URL revoked:", url);
+  } else {
+    console.error("No URL provided to revoke.");
+  }
+}
+
+export function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

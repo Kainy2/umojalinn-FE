@@ -9,12 +9,10 @@ export const POST = async (req: NextRequest) => {
 
     const body = await req.json();
 
-    console.log(body);
-
     const response = await customAxios.post<
       unknown,
       AxiosResponse<SingleApiResponse, unknown>
-    >(`/project/invite-buyer`, body);
+    >(`/project/create-project`, body);
 
     return NextResponse.json(response.data);
   } catch (error) {

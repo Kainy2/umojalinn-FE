@@ -24,7 +24,7 @@ const CustomTabItem = (props: CustomTabItemProps) => {
       <Link
         href={props.href}
         passHref
-        className={`px-6 py-1 text-sm font-semibold border-b-2 transition-colors duration-200 leading-normal ${
+        className={`px-6 py-3 text-sm font-semibold border-b-2 transition-colors duration-200 leading-normal ${
           props.active
             ? "border-primary text-primary"
             : "border-transparent text-slate-500 hover:text-primary"

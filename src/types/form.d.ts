@@ -3,6 +3,8 @@ import {
   onboardingAddressFormSchema,
   onboardingDetailsFormSchema,
   registrationFormSchema,
+  projectFormDetailsSchema,
+  requirementsAndBugetSchema,
 } from "@/lib/schema";
 import { z } from "zod";
 
@@ -14,3 +16,8 @@ export type OnboardingProps = {
   details: z.infer<typeof onboardingDetailsFormSchema>;
   address: z.infer<typeof onboardingAddressFormSchema>;
 };
+
+export type ProjectFormDetailsProps = z.infer<typeof projectFormDetailsSchema>;
+export type ProjectFormRequirementsAndBugetProps = z.infer<
+  typeof requirementsAndBugetSchema
+>;

@@ -190,6 +190,7 @@ export const authOptions: NextAuthOptions = {
         return session;
       }
 
+      session.accessToken = token?.accessToken;
       if (session.user) {
         session.user.hasOnboarded = token.user?.hasOnboarded || false;
         session.user.profileRole = token.user?.profileRole;

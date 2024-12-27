@@ -1,14 +1,25 @@
-import { inviteBuyer } from "@/actions/project";
+import {
+  getClothingTypes,
+  getProjectById,
+  inviteBuyer,
+  postProjectLive,
+  updateProjectById,
+} from "@/actions/project";
 import { queryClient } from "@/components/provider/TanstackQueryClient";
 import useHandleError from "@/hooks/useHandleError";
-import { GenericUseMutationProps } from "@/types/tanstack";
+import { UmojaLinnProject } from "@/types/project";
+import {
+  GenericUseMutationProps,
+  GenericUseQueryProps,
+} from "@/types/tanstack";
 import { SingleApiResponse } from "@/types/util";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 
 export const useInviteBuyer = (
-  options: GenericUseMutationProps<SingleApiResponse, { email: string[] }>
+  options: GenericUseMutationProps<SingleApiResponse, { emails: string[] }>
 ) => {
-  const { handleError } = useHandleError("Invite");
+  const { handleError } = useHandleError("Invitation");
   return useMutation({
     ...options,
     mutationFn: inviteBuyer,
@@ -20,5 +31,69 @@ export const useInviteBuyer = (
       handleError(error);
       options?.onError?.(error, variables, context);
     },
+  });
+};
+
+export const useGetProjectById = (
+  id?: string,
+  options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnProject>>
+) => {
+  const { data: me } = useSession();
+  return useQuery({
+    ...options,
+    enabled: !!me?.user && !!id && options?.enabled !== false,
+    queryKey: ["PROJECT", id],
+    queryFn: () => getProjectById(id || ""),
+  });
+};
+
+export const useUpdateProjectById = (
+  id?: string,
+  options?: GenericUseMutationProps<SingleApiResponse, FormData>
+) => {
+  const { handleError } = useHandleError("Update Project");
+  return useMutation({
+    ...options,
+    mutationFn: (variable) => updateProjectById(id || "", variable),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: ["PROJECT"] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const usePostProjectLive = (
+  options?: GenericUseMutationProps<SingleApiResponse, string>
+) => {
+  const { handleError } = useHandleError("Update Project");
+  return useMutation({
+    ...options,
+    mutationFn: postProjectLive,
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: ["PROJECT"] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useGetClothingTypes = (
+  options?: GenericUseQueryProps<
+    SingleApiResponse<UmojaLinnProject["clothingTypes"]>
+  >
+) => {
+  const { data: me } = useSession();
+  return useQuery({
+    ...options,
+    enabled: !!me?.user && options?.enabled !== false,
+    queryKey: ["PROJECT", "CLOTHING_TYPES"],
+    queryFn: () => getClothingTypes(),
   });
 };

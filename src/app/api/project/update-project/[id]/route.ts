@@ -3,18 +3,21 @@ import { customAxios, handleAPIError, setBearerToken } from "@/lib/axios";
 import { AxiosResponse } from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
-export const POST = async (req: NextRequest) => {
+export const PUT = async (
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) => {
   try {
     await setBearerToken(req);
 
-    const body = await req.json();
+    const id = (await params).id;
 
-    console.log(body);
+    const body = await req.formData();
 
-    const response = await customAxios.post<
+    const response = await customAxios.put<
       unknown,
       AxiosResponse<SingleApiResponse, unknown>
-    >(`/project/invite-buyer`, body);
+    >(`/project/update-project/${id}`, body);
 
     return NextResponse.json(response.data);
   } catch (error) {

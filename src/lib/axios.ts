@@ -22,6 +22,8 @@ export const customAxios = axios.create({
 export const setBearerToken = async (req: NextRequest) => {
   const session = await getToken({ req });
 
+  console.log(session?.accessToken, session, "SESSION >>>");
+
   customAxios.defaults.headers.common.Authorization = `Bearer ${session?.accessToken}`;
 
   console.log(session);
@@ -68,6 +70,7 @@ export const handleAPIError = (error: unknown) => {
 export const getServerAxiosWithToken = async () => {
   const token = await auth();
   const axios = customAxios;
+  console.log(token, "TOKEN >>>");
   if (token?.accessToken) {
     axios.defaults.headers.common.Authorization = `Bearer ${token?.accessToken}`;
   }

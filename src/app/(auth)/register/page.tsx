@@ -1,8 +1,11 @@
 import Image from "next/image";
 import React from "react";
 import RegistrationForm from "@/section/form/Registration";
+import { PageProps } from "@/types/util";
 
-const RegistrationPage = () => {
+const RegistrationPage = async (props: PageProps) => {
+  const { inviterTag } = (await props.searchParams) || {};
+
   return (
     <div className="container max-w-screen-sm py-20 ">
       <div className="text-center mb-4 flex flex-col items-center">
@@ -18,7 +21,7 @@ const RegistrationPage = () => {
         </h1>
         <p className="font-normal">Sign up in less than 5 mins</p>
       </div>
-      <RegistrationForm />
+      <RegistrationForm inviterTag={inviterTag as string} />
     </div>
   );
 };

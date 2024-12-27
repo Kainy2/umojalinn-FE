@@ -7,8 +7,7 @@ import { DayPicker, useDayPicker, useNavigation } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { format, setMonth } from "date-fns";
-import { SelectContent, SelectTrigger } from "@radix-ui/react-select";
-import { Select, SelectGroup, SelectItem } from "./select";
+import CustomSelect from "../custom/Select";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
@@ -75,31 +74,23 @@ function Calendar({
               label: format(setMonth(new Date(), i), "MMM"),
             }));
             return (
-              <Select
+              <CustomSelect
                 value={props?.value?.toLocaleString?.()}
                 onValueChange={(newValue) => {
                   const newDate = new Date(currentMonth);
                   newDate.setMonth(parseInt(newValue));
                   goToMonth(newDate);
                 }}
-              >
-                <SelectTrigger className="p-2">
-                  {format(currentMonth, "MMM")}
-                </SelectTrigger>
-                <SelectContent className="bg-background z-50 max-h-80 overflow-scroll">
-                  <SelectGroup>
-                    {selectItems?.map((selectItem) => (
-                      <SelectItem
-                        className="leading-normal"
-                        key={selectItem.value}
-                        value={selectItem.value}
-                      >
-                        {selectItem.label}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+                adornment
+                trigger={{
+                  className: "max-w-[50px] inline-flex",
+                }}
+                renderValue={() => format(currentMonth, "MMM")}
+                options={selectItems?.map((item) => ({
+                  value: item.value,
+                  children: item.label,
+                }))}
+              />
             );
           } else if (props.name === "years") {
             const earliestYear =
@@ -117,34 +108,26 @@ function Calendar({
                 })
               );
               return (
-                <Select
+                <CustomSelect
                   value={props?.value?.toLocaleString?.()}
                   onValueChange={(newValue) => {
                     const newDate = new Date(currentMonth);
                     newDate.setFullYear(parseInt(newValue));
                     goToMonth(newDate);
                   }}
-                >
-                  <SelectTrigger className="p-2">
-                    {currentMonth.getFullYear()}
-                  </SelectTrigger>
-                  <SelectContent className="bg-background z-50 max-h-48 overflow-scroll">
-                    <SelectGroup>
-                      {selectItems?.map((selectItem) => (
-                        <SelectItem
-                          className="leading-normal"
-                          key={selectItem.value}
-                          value={selectItem.value}
-                        >
-                          {selectItem.label}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                  adornment
+                  trigger={{
+                    className: "max-w-[50px] inline-flex",
+                  }}
+                  renderValue={() => currentMonth.getFullYear()}
+                  options={selectItems?.map((item) => ({
+                    value: item.value,
+                    children: item.label,
+                  }))}
+                />
               );
             }
-            return <span>months</span>;
+            return <span></span>;
           }
           return null;
         },

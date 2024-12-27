@@ -55,3 +55,37 @@ export const onboardingAddressFormSchema = z.object({
   city: z.string().optional(),
   zipCode: z.string().optional(),
 });
+
+export const projectFormDetailsSchema = z.object({
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  designerId: z.string().optional(),
+  about: z.string().optional(),
+  title: z.string().max(15).optional(),
+  gender: z.string().optional(),
+  additionalNotes: z.string().optional(),
+  dueDate: z.union([z.string(), z.date()]).optional(),
+  country: z.string().optional(),
+  city: z.string().optional(),
+  address: z.string().optional(),
+  state: z.string().optional(),
+  zipCode: z.string().optional(),
+  clothingTypes: z.array(z.string()).max(8).optional(),
+  submit: z.string().optional(),
+
+  //
+  // budget
+});
+
+export const requirementsAndBugetSchema = z.object({
+  currency: z.string().optional(),
+  specialist: z.string().optional(),
+  experienceLevel: z.string().optional(),
+  budget: z
+    .union([
+      z.string().regex(/^\d+$/, "Budget must be a valid number"),
+      z.number(),
+    ])
+    .optional(),
+  negotiable: z.boolean().optional(),
+});

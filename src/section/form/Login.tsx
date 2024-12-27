@@ -51,7 +51,7 @@ const LoginForm = (props: {
       if (res?.ok) {
         setLoading(false);
         const redirectURL = props.inviterTag
-          ? "/project/create"
+          ? `/project/create?inviterTag=${props.inviterTag}`
           : typeof props.redirectHref === "string"
           ? props.redirectHref
           : "/";
@@ -93,7 +93,7 @@ const LoginForm = (props: {
         <Button loading={loading} fullWidth type="submit">
           Login
         </Button>
-        <SocialsForm mode="login" />
+        <SocialsForm mode="login" inviterTag={props.inviterTag} />
       </form>
     </Form>
   );

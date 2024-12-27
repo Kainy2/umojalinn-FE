@@ -4,12 +4,13 @@ export type UmojaLinnUserRole = "BUYER" | "DESIGNER";
 
 export type UmojaLinnProjectInvitation = {
   id: string;
-  buyerProfileId: string;
-  designerProfileId: string;
+  buyerProfileId: string | null;
+  designerProfileId: string | null;
+  buyerEmail: string;
   status: "PENDING" | "SUCCESS";
   buyerProfile: {
     user: Pick<UmojaLinnUser, "firstName" | "lastName" | "id" | "email">;
-  };
+  } | null;
 } & UmojaLinnTimestamp;
 
 export type UmojaLinnUserRoleProfile = {
@@ -18,6 +19,7 @@ export type UmojaLinnUserRoleProfile = {
   profileStrength: number;
   isAvailable: boolean;
   projectInvitations: UmojaLinnProjectInvitation[];
+  user: null | UmojaLinnUser;
 } & UmojaLinnTimestamp;
 
 export type UmojaLinnUser = {

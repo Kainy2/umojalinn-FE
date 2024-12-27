@@ -32,7 +32,7 @@ const RegistrationVerifyPage = () => {
 
   return (
     <form className="text-center flex flex-col items-center container max-w-[700px] text-md">
-      <span className="icon-wrapper mb-4">
+      <span className="icon-wrapper primary mb-4">
         <Mail />
       </span>
       <h1 className="text-lg font-bold text-foreground mb-2">

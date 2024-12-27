@@ -96,9 +96,12 @@ body {
   a {
     @apply cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
   }
-  .icon-wrapper,
+  .icon-wrapper {
+    @apply border-8 h-14 w-14 shrink-0 rounded-full flex items-center justify-center text-foreground-body bg-slate-200 border-slate-100;
+  }
+
   .icon-wrapper.primary {
-    @apply border-8 border-primary-50 bg-primary-100 h-14 w-14 shrink-0 rounded-full flex items-center justify-center text-primary;
+    @apply border-primary-50 bg-primary-100 text-primary;
   }
 
   .icon-wrapper.success {

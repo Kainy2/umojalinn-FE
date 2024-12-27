@@ -12,7 +12,7 @@ const ConfirmEmailPage = async (
   const searchParams = await props.searchParams;
   try {
     await verifyEmail(params?.token);
-    redirect(
+    return redirect(
       `/verify-email/success${
         searchParams?.inviterTag
           ? `?inviterTag=${searchParams?.inviterTag}`

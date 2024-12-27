@@ -51,7 +51,7 @@ const InviteClient = () => {
     });
 
   const handleSubmit = () => {
-    inviteBuyer({ email: tags });
+    inviteBuyer({ emails: tags });
   };
 
   return (
@@ -78,22 +78,29 @@ const InviteClient = () => {
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col">
-          {me?.data?.data?.designerProfile?.projectInvitations?.map?.(
-            (invite) => (
+          {me?.data?.data?.designerProfile?.projectInvitations
+            ?.slice?.(0, 4)
+            ?.map?.((invite) => (
               <div
                 key={invite.id}
-                className="bg-slate-300 flex justify-between"
+                className="bg-slate-100 flex justify-between p-2 text-sm text-foreground-body"
               >
                 <span>
-                  {invite?.buyerProfile?.user?.email ||
-                    `${invite?.buyerProfile?.user?.firstName} ${invite?.buyerProfile?.user?.lastName}`}
+                  {invite?.buyerEmail ||
+                    `${invite?.buyerProfile?.user?.firstName || ""} ${
+                      invite?.buyerProfile?.user?.lastName || ""
+                    }`}
                 </span>
                 {!!invite?.status && (
-                  <Badge>{invite?.status?.toLocaleLowerCase?.()}</Badge>
+                  <Badge
+                    variant="outline"
+                    className="text-foreground-body font-normal"
+                  >
+                    {invite?.status?.toLocaleLowerCase?.()}
+                  </Badge>
                 )}
               </div>
-            )
-          )}
+            ))}
         </div>
         <div className="flex flex-col gap-4">
           <Label>Email</Label>

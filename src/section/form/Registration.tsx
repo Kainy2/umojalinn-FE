@@ -92,7 +92,7 @@ const RegistrationForm = (props: { inviterTag?: string }) => {
         <Button loading={loading} disabled={!agree} fullWidth type="submit">
           Get Started
         </Button>
-        <SocialsForm mode="register" />
+        <SocialsForm mode="register" inviterTag={props.inviterTag} />
       </form>
     </Form>
   );

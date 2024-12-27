@@ -11,7 +11,14 @@ import {
 import { SelectProps, SelectTriggerProps } from "@radix-ui/react-select";
 import { cn } from "@/lib/utils";
 import { Label } from "../ui/label";
-import { FieldProps } from "./TextField";
+import { FieldProps, FormFieldProps } from "./TextField";
+import {
+  FormControl,
+  FormDescription,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
 
 export type CustomGroupedOptionsProps = {
   type?: "label" | "option";
@@ -29,9 +36,12 @@ export type CustomSelectProps = SelectProps &
     trigger: SelectTriggerProps;
     options: Array<CustomOptionsProps>;
     adornment?: boolean;
+    renderValue?: (val?: unknown) => React.ReactNode;
+    startAdornment?: React.ReactNode;
   }>;
 
 export type CustomSelectFieldProps = CustomSelectProps & FieldProps;
+export type FormCustomSelectFieldProps = CustomSelectProps & FormFieldProps;
 
 export const CustomOption = (props: { value: CustomOptionsProps }) => {
   if (Array.isArray(props?.value)) {
@@ -48,7 +58,7 @@ export const CustomOption = (props: { value: CustomOptionsProps }) => {
       <SelectLabel className="!py-6">{props?.value?.children}</SelectLabel>
     );
   return (
-    <SelectItem value={props?.value?.value || ""} className="!py-6">
+    <SelectItem value={props?.value?.value || ""} className="!py-2">
       {props?.value?.children}
     </SelectItem>
   );
@@ -56,7 +66,15 @@ export const CustomOption = (props: { value: CustomOptionsProps }) => {
 
 const CustomSelect = React.forwardRef<HTMLButtonElement, CustomSelectProps>(
   (props, ref) => {
-    const { placeholder, trigger, options, adornment, ...selectProps } = props;
+    const {
+      placeholder,
+      trigger,
+      options,
+      adornment,
+      startAdornment,
+      renderValue,
+      ...selectProps
+    } = props;
     return (
       <Select {...selectProps}>
         <SelectTrigger
@@ -66,10 +84,22 @@ const CustomSelect = React.forwardRef<HTMLButtonElement, CustomSelectProps>(
             "[&>span]:overflow-visible  [&>span]:h-full [&>span]:flex [&>span]:items-center rounded-none h-12",
             adornment &&
               "!ring-transparent focus:!ring-transparent !border-transparent !h-8 m-1",
+            startAdornment && "pl-10 relative",
             trigger?.className
           )}
         >
-          <SelectValue className="" placeholder={placeholder} />
+          {startAdornment && (
+            <div
+              className={cn("absolute inset-y-0 left-0 flex items-center pl-3")}
+            >
+              {startAdornment}
+            </div>
+          )}
+          {renderValue ? (
+            renderValue(selectProps?.value)
+          ) : (
+            <SelectValue className="" placeholder={placeholder} />
+          )}
         </SelectTrigger>
 
         <SelectContent>{<CustomOption value={options || []} />}</SelectContent>
@@ -99,5 +129,23 @@ export const CustomSelectField = React.forwardRef<
 });
 
 CustomSelectField.displayName = "SelectField";
+
+export const FormCustomSelectField = React.forwardRef<
+  HTMLButtonElement,
+  FormCustomSelectFieldProps
+>(({ label, hint, containerClassName, ...selectProps }, ref) => {
+  return (
+    <FormItem className={(containerClassName || "") + ""}>
+      {label && <FormLabel>{label}</FormLabel>}
+      <FormControl>
+        <CustomSelect {...selectProps} ref={ref} />
+      </FormControl>
+      {hint && <FormDescription>{hint}</FormDescription>}
+      <FormMessage className="pt-2" />
+    </FormItem>
+  );
+});
+
+FormCustomSelectField.displayName = "FormCustomSelectField";
 
 export default CustomSelect;
