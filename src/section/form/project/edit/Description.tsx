@@ -232,6 +232,7 @@ const ProjectDescriptionForm = (props: ProjectDescriptionFormProps) => {
               render={({ field }) => (
                 <CustomSelect
                   {...field}
+                  onValueChange={field.onChange}
                   placeholder="Country"
                   options={countries.map((country) => {
                     return {
