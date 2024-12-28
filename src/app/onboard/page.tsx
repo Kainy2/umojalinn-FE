@@ -15,15 +15,15 @@ type OnboardButtonProps = {
 };
 
 const onboardButtonsProps: OnboardButtonProps[] = [
-  {
-    role: "BUYER",
-    src: "lg:bg-[url('/img/webp/buyer-lg.webp')] bg-[url('/img/webp/buyer-sm.webp')]",
-    href: "/onboard/buyer",
-    title: "Onboard as a Buyer",
-    description: "Ready to join our squad of over 16,000 verified buyers?",
-    alt: "I am a Buyer",
-    icon: <Verified className="text-[#0788F5]" />,
-  },
+  // {
+  //   role: "BUYER",
+  //   src: "lg:bg-[url('/img/webp/buyer-lg.webp')] bg-[url('/img/webp/buyer-sm.webp')]",
+  //   href: "/onboard/buyer",
+  //   title: "Onboard as a Buyer",
+  //   description: "Ready to join our squad of over 16,000 verified buyers?",
+  //   alt: "I am a Buyer",
+  //   icon: <Verified className="text-[#0788F5]" />,
+  // },
   {
     role: "DESIGNER",
     src: "lg:bg-[url('/img/webp/designer-lg.webp')] bg-[url('/img/webp/designer-sm.webp')] ",
