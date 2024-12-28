@@ -46,7 +46,7 @@ const CongratulationsPage = () => {
           alt=""
           className="object-cover"
         />
-        {session?.user?.designerProfile && (
+        {session?.user?.profileRole && (
           <Button asChild fullWidth className="max-w-screen-sm">
             <Link href="/">Continue</Link>
           </Button>
