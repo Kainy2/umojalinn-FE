@@ -1,5 +1,6 @@
 "use client";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
 import ProjectReviewView from "@/section/dashboard/project/Review";
 import ProjectEditFooter from "@/section/form/project/edit/Footer";
 import {
@@ -12,7 +13,15 @@ import React from "react";
 const ReviewPage = () => {
   const params = useParams<{ id: string }>();
   const { data } = useGetProjectById(params.id);
-  const { mutateAsync, isPending } = usePostProjectLive();
+  const { toast } = useToast();
+  const { mutateAsync, isPending } = usePostProjectLive({
+    onSuccess: () => {
+      toast({
+        title: "Project Live!",
+        description: "This project has been pushed live successfully",
+      });
+    },
+  });
   return (
     <div className="flex flex-col gap-8">
       <div>
@@ -30,7 +39,7 @@ const ReviewPage = () => {
         handleSave={async () => {
           return !!(await mutateAsync(params.id));
         }}
-        nextUrl={`/project/view/${params.id}`}
+        nextUrl={`/projects/${params.id}`}
         loading={isPending}
         hideDraft
       />
