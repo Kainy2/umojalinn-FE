@@ -17,7 +17,7 @@ const BUYER_HOME_TAB_NAV: CustomTabItemProps[] = [
   { title: "Completed", href: "/projects/completed" },
 ];
 
-const NavTab = (props: { role: UmojaLinnUserRole }) => {
+const NavTab = (props: { role?: UmojaLinnUserRole | null }) => {
   const pathName = usePathname();
 
   const tabs =

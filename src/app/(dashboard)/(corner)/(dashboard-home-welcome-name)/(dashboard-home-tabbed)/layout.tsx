@@ -6,7 +6,7 @@ const layout = async ({ children }: LayoutProps) => {
   const session = await auth();
   return (
     <>
-      <NavTab role={session?.user?.profileRole!} />
+      <NavTab role={session?.user?.profileRole} />
       {children}
     </>
   );

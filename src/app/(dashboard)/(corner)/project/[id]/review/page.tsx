@@ -1,6 +1,4 @@
 "use client";
-import Collapsible from "@/components/custom/Collapsible";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import ProjectReviewView from "@/section/dashboard/project/Review";
 import ProjectEditFooter from "@/section/form/project/edit/Footer";
@@ -8,8 +6,6 @@ import {
   useGetProjectById,
   usePostProjectLive,
 } from "@/tanstack/hooks/useProject";
-import { formatDate } from "date-fns";
-import Image from "next/image";
 import { useParams } from "next/navigation";
 import React from "react";
 
