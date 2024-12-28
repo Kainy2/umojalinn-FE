@@ -1,7 +1,10 @@
+"use server";
 import Verified from "@/icons/Verified";
+import { auth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { UmojaLinnUserRole } from "@/types/user";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import React from "react";
 
 type OnboardButtonProps = {
@@ -36,7 +39,13 @@ const onboardButtonsProps: OnboardButtonProps[] = [
   },
 ];
 
-const OnboardPage = () => {
+const OnboardPage = async () => {
+  const session = await auth();
+
+  if (session?.user?.profileRole) {
+    redirect("/");
+  }
+
   return (
     <div className="bg-[url('/img/png/pattern.png')] bg-cover h-screen w-screen relative flex items-stretch justify-stretch flex-col lg:flex-row">
       {onboardButtonsProps.map((props) => (
