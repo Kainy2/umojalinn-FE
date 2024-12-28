@@ -6,11 +6,13 @@ import { Separator } from "@/components/ui/separator";
 import InviteClient from "@/section/dashboard/appbar/InviteClient";
 import { useGetMe } from "@/tanstack/hooks/useUser";
 import { Bell, ChevronDown, Search } from "lucide-react";
+import { useSession } from "next-auth/react";
 import React from "react";
 
 const DashboardAppbarContent = () => {
   const { data: meData } = useGetMe();
   const me = meData?.data?.data;
+  const { data: session } = useSession();
 
   return (
     <>
@@ -24,8 +26,12 @@ const DashboardAppbarContent = () => {
         />
       </div>
       <div className="flex space-x-1 items-center ">
-        <InviteClient />
-        <Separator orientation="vertical" className="h-8" />
+        {session?.user?.profileRole === "DESIGNER" && (
+          <>
+            <InviteClient />
+            <Separator orientation="vertical" className="h-8" />
+          </>
+        )}
         <Button variant="ghost" className="font-normal">
           <Bell className="icon-base" />
         </Button>
