@@ -59,6 +59,9 @@ const ProjectDescriptionForm = (props: ProjectDescriptionFormProps) => {
     if (data?.data?.data?.about) {
       form.setValue("about", data?.data?.data?.about);
     }
+    if (data?.data?.data?.dueDate) {
+      form.setValue("dueDate", data?.data?.data?.dueDate);
+    }
     if (data?.data?.data?.deliveryAddress?.city) {
       form.setValue("city", data?.data?.data?.deliveryAddress?.city);
     }
