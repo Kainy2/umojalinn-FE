@@ -13,9 +13,9 @@ import React from "react";
 export const BUYERS_SIDEBAR_CONTENT: CustomSidebarMenuItemProps[] = [
   {
     title: "Projects",
-    url: "/",
+    url: "/projects",
     icon: <Activity />,
-    regex: /(^\/$|^\/project\/.*)/,
+    regex: /(^\/$|^\/project\/.*|^\/projects|^\/projects\/.*)/,
   },
   {
     title: "Designers",
@@ -65,7 +65,7 @@ export const DESIGNERS_SIDEBAR_CONTENT: CustomSidebarMenuItemProps[] = [
     title: "Dashboard",
     url: "/",
     icon: <Grid01 />,
-    regex: /(^\/$|^\/dashboard\/.*)/,
+    regex: /(^\/$|^\/dashboard|^\/dashboard\/.*)/,
   },
   {
     title: "Jobs",

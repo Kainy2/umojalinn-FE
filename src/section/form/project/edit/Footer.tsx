@@ -32,7 +32,7 @@ const ProjectEditFooter = (props: ProjectEditFooterProps) => {
                 e.preventDefault();
                 const success = await props.handleSave(e);
                 if (success) {
-                  router.push("/project");
+                  router.push("/projects");
                 }
               }
             }}

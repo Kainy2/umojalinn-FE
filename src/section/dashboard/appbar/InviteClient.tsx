@@ -110,7 +110,10 @@ const InviteClient = () => {
               className="text-primary text-sm flex items-center gap-1 "
               onClick={() =>
                 handleCopy(
-                  `${process.env.NEXT_PUBLIC_WEB_URL}/login?inviterTag=${me?.data?.data?.tag}`
+                  `${
+                    process.env.NEXT_PUBLIC_WEB_URL ||
+                    "https://dev.d1451lqyj8o4u7.amplifyapp.com"
+                  }/login?inviterTag=${me?.data?.data?.tag}`
                 )
               }
             >

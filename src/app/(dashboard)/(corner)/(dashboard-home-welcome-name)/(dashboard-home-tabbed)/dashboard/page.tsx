@@ -1,7 +1,7 @@
 import CustomCardHolder from "@/components/custom/card/Holder";
 import JobCard from "@/components/custom/card/Job";
 
-export default function Home() {
+const DashboardPage = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 justify-stretch mt-4">
       {new Array(4).fill("").map((_, i) => (
@@ -16,4 +16,5 @@ export default function Home() {
       ))}
     </div>
   );
-}
+};
+export default DashboardPage;
