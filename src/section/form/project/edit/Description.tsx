@@ -59,20 +59,20 @@ const ProjectDescriptionForm = (props: ProjectDescriptionFormProps) => {
     if (data?.data?.data?.about) {
       form.setValue("about", data?.data?.data?.about);
     }
-    if (data?.data?.data?.city) {
-      form.setValue("city", data?.data?.data?.city);
+    if (data?.data?.data?.deliveryAddress?.city) {
+      form.setValue("city", data?.data?.data?.deliveryAddress?.city);
     }
-    if (data?.data?.data?.country) {
-      form.setValue("country", data?.data?.data?.country);
+    if (data?.data?.data?.deliveryAddress?.country) {
+      form.setValue("country", data?.data?.data?.deliveryAddress?.country);
     }
-    if (data?.data?.data?.address) {
-      form.setValue("address", data?.data?.data?.address);
+    if (data?.data?.data?.deliveryAddress?.address) {
+      form.setValue("address", data?.data?.data?.deliveryAddress?.address);
     }
-    if (data?.data?.data?.state) {
-      form.setValue("state", data?.data?.data?.state);
+    if (data?.data?.data?.deliveryAddress?.state) {
+      form.setValue("state", data?.data?.data?.deliveryAddress?.state);
     }
-    if (data?.data?.data?.zipCode) {
-      form.setValue("zipCode", data?.data?.data?.zipCode);
+    if (data?.data?.data?.deliveryAddress?.zipCode) {
+      form.setValue("zipCode", data?.data?.data?.deliveryAddress?.zipCode);
     }
     if (data?.data?.data?.clothingTypes?.length) {
       form.setValue(

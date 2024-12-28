@@ -52,13 +52,25 @@ const ProjectReviewView = (props: { project?: UmojaLinnProject }) => {
         </div>
       </div>
       <Collapsible title="Delivery Details">
-        <LabelBadge title="Country" value={props?.project?.country} />
-        <LabelBadge title="City" value={props?.project?.city} />
+        <LabelBadge
+          title="Country"
+          value={props?.project?.deliveryAddress?.country}
+        />
+        <LabelBadge
+          title="City"
+          value={props?.project?.deliveryAddress?.city}
+        />
         <LabelBadge
           title="Province / State / Zip code"
-          value={[props?.project?.state, props?.project?.zipCode]}
+          value={[
+            props?.project?.deliveryAddress?.state,
+            props?.project?.deliveryAddress?.zipCode,
+          ]}
         />
-        <LabelBadge title="Address" value={props?.project?.address} />
+        <LabelBadge
+          title="Address"
+          value={props?.project?.deliveryAddress?.address}
+        />
       </Collapsible>
       <Collapsible title="Other Details">
         <LabelBadge

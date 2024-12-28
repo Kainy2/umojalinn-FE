@@ -13,11 +13,16 @@ export type UmojaLinnProject = {
   designerId: string;
   budget: null | string;
   currency: null | string;
-  country: null | string;
-  city: null | string;
-  address: null | string;
-  state: null | string;
-  zipCode: null | string;
+  deliveryAddress: {
+    id: string;
+    country: null | string;
+    city: null | string;
+    address: null | string;
+    state: null | string;
+    zipCode: null | string;
+    projectId: string;
+    userId: string | null;
+  } & UmojaLinnTimestamp;
   negotiable: null | boolean;
   specialistTypeId: null | string;
   Gallery: Array<
