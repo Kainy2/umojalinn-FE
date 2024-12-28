@@ -10,20 +10,19 @@ const ConfirmEmailPage = async (
 ) => {
   const params = await props.params;
   const searchParams = await props.searchParams;
+  const email = searchParams?.email;
+  let url;
   try {
     await verifyEmail(params?.token);
-    return redirect(
-      `/verify-email/success${
-        searchParams?.inviterTag
-          ? `?inviterTag=${searchParams?.inviterTag}`
-          : ""
-      }`
-    );
+    url = `/verify-email/success${
+      searchParams?.inviterTag ? `?inviterTag=${searchParams?.inviterTag}` : ""
+    }`;
   } catch (error) {
     console.error(error);
-    const email = searchParams?.email;
-    return <VerifyErrorResendForm email={email && decodeURIComponent(email)} />;
   }
+
+  url && redirect(url);
+  return <VerifyErrorResendForm email={email && decodeURIComponent(email)} />;
 };
 
 export default ConfirmEmailPage;
