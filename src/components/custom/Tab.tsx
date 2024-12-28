@@ -10,6 +10,7 @@ export type CustomTabItemProps = {
   type?: CustomTabProps["type"];
   active?: boolean;
   hasPassed?: boolean;
+  match?: RegExp;
 };
 
 type CustomTabProps = {

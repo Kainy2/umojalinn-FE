@@ -10,7 +10,12 @@ const DESIGNER_HOME_TAB_NAV: CustomTabItemProps[] = [
 ];
 
 const BUYER_HOME_TAB_NAV: CustomTabItemProps[] = [
-  { title: "Active", href: "/projects" },
+  {
+    title: "Active",
+    href: "/projects",
+    match:
+      /(^\/$|^\/projects|^\/projects\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$)/,
+  },
   { title: "Ads", href: "/projects/ads" },
   { title: "Bids", href: "/projects/bids" },
   { title: "Drafts", href: "/projects/drafts" },
@@ -31,7 +36,9 @@ const NavTab = (props: { role?: UmojaLinnUserRole | null }) => {
         active={
           tabs?.find(
             (tab) =>
-              tab?.href?.toLocaleLowerCase() === pathName?.toLocaleLowerCase()
+              tab?.href?.toLocaleLowerCase() ===
+                pathName?.toLocaleLowerCase() ||
+              tab?.match?.test(pathName?.toLocaleLowerCase())
           )?.title || ""
         }
       />
