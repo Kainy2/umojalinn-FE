@@ -16,8 +16,8 @@ const OnboardProfilePhotoForm = (props: { role: UmojaLinnUserRole }) => {
   const { update } = useSession();
 
   const { mutateAsync: onboard, isPending: loading } = useOnboard({
-    onSuccess: () => {
-      update({
+    onSuccess: async () => {
+      await update({
         user: {
           profileRole: props?.role?.toLocaleUpperCase?.(),
           hasOnboarded: true,
