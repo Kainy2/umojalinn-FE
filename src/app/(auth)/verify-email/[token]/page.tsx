@@ -8,11 +8,12 @@ import React from "react";
 const ConfirmEmailPage = async (
   props: PageProps<{ token: string }, { email?: string; inviterTag?: string }>
 ) => {
-  const params = await props.params;
-  const searchParams = await props.searchParams;
-  const email = searchParams?.email;
+  let email;
   let url;
   try {
+    const params = await props.params;
+    const searchParams = await props.searchParams;
+    email = searchParams?.email;
     await verifyEmail(params?.token);
     url = `/verify-email/success${
       searchParams?.inviterTag ? `?inviterTag=${searchParams?.inviterTag}` : ""
@@ -21,7 +22,7 @@ const ConfirmEmailPage = async (
     console.error(error);
   }
 
-  url && redirect(url);
+  if (url) redirect(url);
   return <VerifyErrorResendForm email={email && decodeURIComponent(email)} />;
 };
 
