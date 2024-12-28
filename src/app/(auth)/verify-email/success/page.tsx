@@ -24,7 +24,7 @@ const ConfirmEmailSuccessPage = async (
         <Link
           href={`/login${
             searchParams?.inviterTag
-              ? `inviterTag=${searchParams?.inviterTag}`
+              ? `?inviterTag=${searchParams?.inviterTag}`
               : ""
           }`}
         >
