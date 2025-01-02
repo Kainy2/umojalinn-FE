@@ -14,15 +14,28 @@ const BUYER_HOME_TAB_NAV: CustomTabItemProps[] = [
     title: "Active",
     href: "/projects",
     match:
-      /(^\/$|^\/projects|^\/projects\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$)/,
+      /^(\/$|\/projects(?:\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(\/(chat|media-and-links|details))?$)/,
   },
-  { title: "Ads", href: "/projects/ads" },
+  {
+    title: "Ads",
+    href: "/projects/ads",
+    match:
+      /^\/projects\/ads(\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})?$/,
+  },
   { title: "Bids", href: "/projects/bids" },
-  { title: "Drafts", href: "/projects/drafts" },
+  {
+    title: "Drafts",
+    href: "/projects/drafts",
+    match:
+      /(^\/projects\/drafts$|^\/projects\/drafts\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$)/,
+  },
   { title: "Completed", href: "/projects/completed" },
 ];
 
-const NavTab = (props: { role?: UmojaLinnUserRole | null }) => {
+const NavTab = (props: {
+  role?: UmojaLinnUserRole | null;
+  className?: string;
+}) => {
   const pathName = usePathname();
 
   const tabs =
@@ -33,6 +46,7 @@ const NavTab = (props: { role?: UmojaLinnUserRole | null }) => {
       <CustomTab
         type="NAVIGATOR"
         tabs={tabs}
+        className={props.className}
         active={
           tabs?.find(
             (tab) =>

@@ -66,7 +66,7 @@ const OnboardPage = async () => {
             </div>
           </div>
           <div className="absolute top-0 h-full w-full hidden lg:block lg:opacity-100 lg:group-hover:opacity-0 transition-all duration-300 bg-gradient-to-t from-black/50 to-black/20">
-            <h2 className="absolute top-1/2 left-1/2 -translate-x-1/2 text-xl font-semibold text-center text-slate-400 whitespace-nowrap">
+            <h2 className="absolute top-1/2 left-1/2 -translate-x-1/2 text-xl font-semibold text-center text-gray-400 whitespace-nowrap">
               {props.alt}
             </h2>
           </div>

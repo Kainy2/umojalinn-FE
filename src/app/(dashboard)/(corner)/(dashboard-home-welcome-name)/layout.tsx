@@ -1,7 +1,7 @@
 import WelcomeName from "@/section/dashboard/home/WelcomeName";
 import React from "react";
 
-const layout = ({ children }: LayoutProps) => {
+const Layout = ({ children }: LayoutProps) => {
   return (
     <>
       <WelcomeName />
@@ -10,4 +10,4 @@ const layout = ({ children }: LayoutProps) => {
   );
 };
 
-export default layout;
+export default Layout;

@@ -83,7 +83,7 @@ const InviteClient = () => {
             ?.map?.((invite) => (
               <div
                 key={invite.id}
-                className="bg-slate-100 flex justify-between p-2 text-sm text-foreground-body"
+                className="bg-gray-100 flex justify-between p-2 text-sm text-foreground-body"
               >
                 <span>
                   {invite?.buyerEmail ||

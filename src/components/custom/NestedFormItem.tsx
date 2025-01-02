@@ -3,7 +3,7 @@ import { FormField } from "@/components/ui/form";
 import { RegistrationFormItemProps } from "@/lib/formTemplate";
 import { isPasswordField } from "@/lib/utils";
 import { PasswordFieldKeys } from "@/types/form";
-import { Eye, EyeClosed } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import React from "react";
 import { UseFormReturn } from "react-hook-form";
 
@@ -78,7 +78,7 @@ const NestedFormItem = (props: NestedFormItemProps) => {
                 onClick={() => handleToggle(formItem.name as PasswordFieldKeys)}
               >
                 {visible[formItem.name as PasswordFieldKeys] ? (
-                  <EyeClosed />
+                  <EyeOff />
                 ) : (
                   <Eye />
                 )}

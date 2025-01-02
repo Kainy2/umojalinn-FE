@@ -8,12 +8,16 @@ import { AvatarImage } from "@radix-ui/react-avatar";
 import JoinMeet from "@/icons/JoinMeet";
 import { Separator } from "@/components/ui/separator";
 import Lock04 from "@/icons/Lock04";
+import MilestoneProgress from "../MilestoneProgress";
 
 type JobCardProps = {
   isPrivate?: boolean;
   name: string;
   img: string;
-  progress?: 0 | 1 | 2 | 3 | 4;
+  progress?: {
+    value: number;
+    total: number;
+  };
   dueDate: Date | string;
   sharedWith?: string[];
   status?: {
@@ -29,6 +33,7 @@ type JobCardProps = {
 const JobCard = (props: JobCardProps) => {
   return (
     <CustomCard
+      type="DASHBOARD"
       preTitle={
         props?.isPrivate ? (
           <Lock04 className="text-teal-500 h-6 w-6" />
@@ -36,17 +41,9 @@ const JobCard = (props: JobCardProps) => {
       }
       title={props.name}
       preDescription={
-        <div className="flex gap-2 mb-4">
-          {new Array(4).fill("").map((_, index) => (
-            <span
-              key={index}
-              className={cn(
-                "h-1.5 bg-slate-100 rounded-full w-full",
-                index <= (props.progress || 0) && "bg-success"
-              )}
-            />
-          ))}
-        </div>
+        props.progress && (
+          <MilestoneProgress className="mb-4" {...props.progress} />
+        )
       }
       description={`Due in ${format(props.dueDate, "MMM dd")}`}
       img={props.img}
@@ -68,7 +65,7 @@ const JobCard = (props: JobCardProps) => {
           </div>
           <div className="flex-1 shrink-0 justify-end">
             {props.status ? (
-              <p className={cn("text-slate-400")}>{props?.status?.value}</p>
+              <p className={cn("text-gray-400")}>{props?.status?.value}</p>
             ) : (
               <div
                 className={cn(

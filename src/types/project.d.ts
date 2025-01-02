@@ -1,6 +1,8 @@
 import { UmojaLinnUserRoleProfile } from "./user";
 import { UmojaLinnTimestamp } from "./util";
 
+export type UmojaLinnCurrency = "EURO" | "NAIRA";
+
 export type UmojaLinnProject = {
   id: string;
   title: null | string;
@@ -11,8 +13,8 @@ export type UmojaLinnProject = {
   projectType: "PRIVATE" | "PUBLIC";
   buyerId: string;
   designerId: string;
-  budget: null | string;
-  currency: null | string;
+  budget: number | null | string;
+  currency: null | UmojaLinnCurrency;
   deliveryAddress: {
     id: string;
     country: null | string;

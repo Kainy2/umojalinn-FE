@@ -33,7 +33,7 @@ const ReviewPage = () => {
           project are correct
         </p>
       </div>
-      <Separator className="bg-slate-200" />
+      <Separator className="bg-gray-200" />
       <ProjectReviewView project={data?.data?.data} />
       <ProjectEditFooter
         handleSave={async () => {

@@ -18,6 +18,7 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        success: "bg-success text-primary-foreground hover:bg-success/90",
       },
       size: {
         default: "h-12 px-4 py-2",
@@ -70,7 +71,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {loading ? (
           <svg
             aria-hidden="true"
-            className="w-8 h-8 text-slate-200 animate-spin  fill-purple"
+            className="w-8 h-8 text-gray-200 animate-spin  fill-purple"
             viewBox="0 0 100 101"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"

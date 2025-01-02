@@ -22,11 +22,11 @@ const ProfilePhotoPicker = (props: {
           className="h-56 w-56 rounded-full object-cover object-center"
         />
       ) : (
-        <span className="flex items-center justify-center bg-slate-100 text-secondary-foreground h-56 w-56 rounded-full">
+        <span className="flex items-center justify-center bg-gray-100 text-secondary-foreground h-56 w-56 rounded-full">
           <User size={120} />
         </span>
       )}
-      <span className="absolute bottom-4 right-4 bg-white border border-dashed border-slate-300 p-2 rounded-xl shadow-lg shadow-slate-200/90 text-slate-400">
+      <span className="absolute bottom-4 right-4 bg-white border border-dashed border-gray-300 p-2 rounded-xl shadow-lg shadow-gray-200/90 text-gray-400">
         <Plus />
       </span>
       <Input />

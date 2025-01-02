@@ -19,7 +19,7 @@ const CustomPhonePicker = React.forwardRef<PhoneInputRefType, PhoneInputProps>(
         {...props}
         className={cn(
           "p-1.5 pl-4 !text-md w-full flex  h-12 border border-input",
-          props.disabled && "!bg-slate-400/10 !text-foreground-secondary",
+          props.disabled && "!bg-gray-400/10 !text-foreground-secondary",
           props.className
         )}
         inputClassName={cn(

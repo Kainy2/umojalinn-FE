@@ -4,6 +4,8 @@ export type SingleApiResponse<T = unknown> = {
   status: number;
 };
 
+export type ArrayApiResponse<T = unknown> = SingleApiResponse<T[]>;
+
 export type ServerActionOption = {
   isServerAction?: boolean;
 };

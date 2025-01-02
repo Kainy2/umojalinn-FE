@@ -1,4 +1,5 @@
 import {
+  getAllBuyerProjects,
   getClothingTypes,
   getProjectById,
   inviteBuyer,
@@ -12,7 +13,7 @@ import {
   GenericUseMutationProps,
   GenericUseQueryProps,
 } from "@/types/tanstack";
-import { SingleApiResponse } from "@/types/util";
+import { ArrayApiResponse, SingleApiResponse } from "@/types/util";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 
@@ -95,5 +96,29 @@ export const useGetClothingTypes = (
     enabled: !!me?.user && options?.enabled !== false,
     queryKey: ["PROJECT", "CLOTHING_TYPES"],
     queryFn: () => getClothingTypes(),
+  });
+};
+
+export const useGetAllBuyerProject = (
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnProject>>
+) => {
+  const { data: me } = useSession();
+  return useQuery({
+    ...options,
+    enabled: !!me?.user && options?.enabled !== false,
+    queryKey: ["PROJECT", "BUYER"],
+    queryFn: () => getAllBuyerProjects(),
+  });
+};
+
+export const useGetAllDesignerProject = (
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnProject>>
+) => {
+  const { data: me } = useSession();
+  return useQuery({
+    ...options,
+    enabled: !!me?.user && options?.enabled !== false,
+    queryKey: ["PROJECT", "DESIGNER"],
+    queryFn: () => getAllBuyerProjects(),
   });
 };

@@ -135,7 +135,7 @@ const ProjectDescriptionForm = (props: ProjectDescriptionFormProps) => {
           <FormTextField
             disabled
             value={data?.data?.data?.designer?.user?.email || ""}
-            startAdornment={<UserPlus className="text-slate-400 h-5 w-5" />}
+            startAdornment={<UserPlus className="text-gray-400 h-5 w-5" />}
           />
         </FormItemWrapper>
         <FormItemWrapper title="Title" description="Project name">
@@ -302,7 +302,7 @@ const ProjectDescriptionForm = (props: ProjectDescriptionFormProps) => {
         >
           <div className="flex flex-col gap-4">
             <Switch />
-            <div className="flex gap-2 items-center bg-slate-200 p-2">
+            <div className="flex gap-2 items-center bg-gray-200 p-2">
               <Info className="text-primary h-6 w-6" />
               <span className="text-sm">
                 Include Sizing template in your Project description or at

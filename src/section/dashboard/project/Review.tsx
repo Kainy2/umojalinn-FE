@@ -1,5 +1,7 @@
+import AvatarIconTag from "@/components/custom/AvatarIconTag";
 import Collapsible from "@/components/custom/Collapsible";
 import LabelBadge from "@/components/custom/LabelBadge";
+import { getCurrencySymbol } from "@/lib/string";
 import { UmojaLinnProject } from "@/types/project";
 import { formatDate } from "date-fns";
 import Image from "next/image";
@@ -8,7 +10,7 @@ import React from "react";
 const ProjectReviewView = (props: { project?: UmojaLinnProject }) => {
   return (
     <>
-      <div className="p-4 bg-slate-100 mb-4">
+      <div className="p-4 bg-gray-100 mb-4">
         <h3 className="text-md font-semibold text-foreground-body mb-1">
           {props?.project?.title || "No title"}
         </h3>
@@ -27,8 +29,7 @@ const ProjectReviewView = (props: { project?: UmojaLinnProject }) => {
           <p className="text-sm text-muted-foreground">
             Project budget:{" "}
             <span className="font-semibold">
-              {props?.project?.currency === "EURO" && "€"}
-              {props?.project?.currency === "NAIRA" && "₦"}
+              {getCurrencySymbol(props?.project?.currency)}
               {props?.project?.budget || "0"}
             </span>
           </p>
@@ -90,24 +91,12 @@ const ProjectReviewView = (props: { project?: UmojaLinnProject }) => {
         <h3 className="text-md font-semibold text-foreground mb-3 w-full flex flex-row justify-between gap-4">
           Designer
         </h3>
-        <p className="p-1 pr-3 text-sm flex items-center gap-2 rounded-full shrink-0 font-semibold bg-slate-100 text-foreground-body">
-          <span className="shrink-0 relative">
-            <Image
-              alt=""
-              src={
-                props?.project?.designer?.user?.profilePhotoUri ||
-                "/img/webp/user.webp"
-              }
-              height={25}
-              width={25}
-              className="rounded-full shrink-0 relative"
-            />
-          </span>
-          <span className="whitespace-nowrap">
-            {props?.project?.designer?.user?.firstName}{" "}
-            {props?.project?.designer?.user?.lastName}
-          </span>
-        </p>
+        <AvatarIconTag
+          avatar={{
+            src: props?.project?.designer?.user?.profilePhotoUri,
+          }}
+          label={`${props?.project?.designer?.user?.firstName} ${props?.project?.designer?.user?.lastName}`}
+        />
       </div>
     </>
   );

@@ -97,7 +97,7 @@ body {
     @apply cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
   }
   .icon-wrapper {
-    @apply border-8 h-14 w-14 shrink-0 rounded-full flex items-center justify-center text-foreground-body bg-slate-200 border-slate-100;
+    @apply border-8 h-14 w-14 shrink-0 rounded-full flex items-center justify-center text-foreground-body bg-gray-200 border-gray-100;
   }
 
   .icon-wrapper.primary {
@@ -154,6 +154,14 @@ body {
 
   .SelectTrigger[data-placeholder] {
     @apply text-muted-foreground;
+  }
+
+  .label-grid {
+    @apply grid grid-cols-2 space-y-1 items-center justify-between [&>*:nth-child(even)]:text-right text-foreground-body text-sm;
+  }
+
+  .card {
+    @apply bg-background p-4 shadow-sm text-foreground-body border border-gray-100;
   }
 }
 

@@ -69,7 +69,7 @@ export default {
           "700": "#027A48",
           "800": "#05603A",
           "900": "#054F31",
-          DEFAULT: "#039855",
+          DEFAULT: "#12B76A",
         },
         warning: {
           "25": "#FFFCF5",
@@ -83,7 +83,7 @@ export default {
           "700": "#B54708",
           "800": "#93370D",
           "900": "#7A2E0E",
-          DEFAULT: "#DC6803",
+          DEFAULT: "#F79009",
         },
         error: {
           "25": "#FFFBFA",
@@ -97,7 +97,7 @@ export default {
           "700": "#B42318",
           "800": "#912018",
           "900": "#7A271A",
-          DEFAULT: "#D02010",
+          DEFAULT: "#F04438",
         },
         card: {
           DEFAULT: "hsl(var(--card))",

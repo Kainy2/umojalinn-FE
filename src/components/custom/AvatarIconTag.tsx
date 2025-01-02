@@ -1,0 +1,42 @@
+import { cn } from "@/lib/utils";
+import Image from "next/image";
+import React from "react";
+
+type AvatarIconTagProps = {
+  avatar?: {
+    src?: string | null;
+  };
+  label: string;
+  icon?: "CHECK" | React.ReactNode;
+  className?: string;
+};
+
+const AvatarIconTag = (props: AvatarIconTagProps) => {
+  return (
+    <p
+      className={cn(
+        "p-1 text-sm inline-flex items-center gap-2 rounded-full shrink-0 bg-gray-100 text-foreground-body",
+        !props.icon && "pr-3",
+        !props.avatar && "pl-3",
+        !!props.avatar && "font-semibold",
+        props.className
+      )}
+    >
+      {props.avatar && (
+        <span className="shrink-0 relative">
+          <Image
+            alt=""
+            src={props.avatar?.src || "/img/webp/user.webp"}
+            height={25}
+            width={25}
+            className="rounded-full shrink-0 relative"
+          />
+        </span>
+      )}
+      <span className="whitespace-nowrap">{props?.label}</span>
+      {props.icon}
+    </p>
+  );
+};
+
+export default AvatarIconTag;

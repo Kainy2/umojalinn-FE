@@ -97,12 +97,12 @@ const RequirementsBudgetForm = (props: { id: string }) => {
                 control={form.control}
                 name="experienceLevel"
                 render={({ field }) => (
-                  <div className="p-1 flex flex-wrap justify-between gap-1 bg-slate-100">
+                  <div className="p-1 flex flex-wrap justify-between gap-1 bg-gray-100">
                     {EXPERIENCE_ENUMS.map((experience) => (
                       <button
                         key={experience}
                         className={cn(
-                          "py-1.5 px-4 text-sm font-semibold text-slate-500",
+                          "py-1.5 px-4 text-sm font-semibold text-gray-500",
                           field.value === experience &&
                             "bg-white border-primary border text-primary"
                         )}
@@ -148,7 +148,7 @@ const RequirementsBudgetForm = (props: { id: string }) => {
                 placeholder="0"
                 type="number"
                 startAdornment={
-                  <DollarSign className="text-slate-500 h-5 w-5" />
+                  <DollarSign className="text-gray-500 h-5 w-5" />
                 }
                 endAdornment={
                   <FormField

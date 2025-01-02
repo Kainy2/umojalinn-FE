@@ -1,7 +1,11 @@
 import { clientAxios, getServerAxiosWithToken } from "@/lib/axios";
 import { UmojaLinnProject } from "@/types/project";
 
-import { ServerActionOption, SingleApiResponse } from "@/types/util";
+import {
+  ArrayApiResponse,
+  ServerActionOption,
+  SingleApiResponse,
+} from "@/types/util";
 import { AxiosResponse } from "axios";
 
 export const inviteBuyer = async (
@@ -81,5 +85,25 @@ export const postProjectLive = async (
   }
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
     `/project/post-live/${id}`
+  );
+};
+
+export const getAllBuyerProjects = async (options?: ServerActionOption) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.get<unknown, AxiosResponse<ArrayApiResponse<UmojaLinnProject>>>(
+    `/project/all/buyer`
+  );
+};
+
+export const getAllDesignerProjects = async (options?: ServerActionOption) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.get<unknown, AxiosResponse<ArrayApiResponse<UmojaLinnProject>>>(
+    `/project/all/designer`
   );
 };

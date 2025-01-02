@@ -8,7 +8,10 @@ const DashboardPage = () => {
         <CustomCardHolder count={1} key={i} title="try">
           <JobCard
             name="My Agbada"
-            progress={2}
+            progress={{
+              value: 2,
+              total: 4,
+            }}
             img="/img/webp/buyer-sm.webp"
             dueDate={new Date(new Date().setDate(15))}
           />

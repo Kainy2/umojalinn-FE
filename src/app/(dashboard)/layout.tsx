@@ -5,7 +5,7 @@ import DashbordSidebarFooter from "@/layout/dashboard/sidebar/Footer";
 import DashboardSidebarHeader from "@/layout/dashboard/sidebar/Header";
 import React from "react";
 
-const layout = ({ children }: LayoutProps) => {
+const Layout = ({ children }: LayoutProps) => {
   return (
     <SidebarProvider>
       <Sidebar>
@@ -24,4 +24,4 @@ const layout = ({ children }: LayoutProps) => {
   );
 };
 
-export default layout;
+export default Layout;

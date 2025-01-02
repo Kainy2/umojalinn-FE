@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
@@ -46,7 +47,12 @@ const SocialsForm = (props: SocialsFormProps) => {
             type="button"
             onClick={() => {
               if (btn?.id) {
-                signIn("google", { redirect: false });
+                signIn(btn?.id, {
+                  redirect: !!inviterTag,
+                  callbackUrl: inviterTag
+                    ? `/project/create?${inviterTag}`
+                    : undefined,
+                });
               }
             }}
           >

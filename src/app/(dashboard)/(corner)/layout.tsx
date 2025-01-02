@@ -1,7 +1,7 @@
 import React from "react";
 
-const layout = ({ children }: LayoutProps) => {
+const Layout = ({ children }: LayoutProps) => {
   return <div className="bg-corner p-12">{children}</div>;
 };
 
-export default layout;
+export default Layout;
