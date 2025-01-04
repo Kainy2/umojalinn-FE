@@ -13,10 +13,11 @@ import {
 } from "@/tanstack/hooks/useProject";
 import { ProjectFormRequirementsAndBugetProps } from "@/types/form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DollarSign, Lock, Unlock } from "lucide-react";
+import { DollarSign, Euro, Lock, Unlock } from "lucide-react";
 import React, { useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import ProjectEditFooter from "./Footer";
+import NairaSign from "@/icons/NairaSign";
 
 const EXPERIENCE_ENUMS = [
   "1 - 2 years",
@@ -143,31 +144,39 @@ const RequirementsBudgetForm = (props: { id: string }) => {
             control={form.control}
             name="budget"
             render={({ field }) => (
-              <FormTextField
-                {...field}
-                placeholder="0"
-                type="number"
-                startAdornment={
-                  <DollarSign className="text-gray-500 h-5 w-5" />
-                }
-                endAdornment={
-                  <FormField
-                    control={form.control}
-                    name="currency"
-                    render={({ field }) => (
+              <FormField
+                control={form.control}
+                name="currency"
+                render={({ field: currencyField }) => (
+                  <FormTextField
+                    {...field}
+                    placeholder="0"
+                    type="number"
+                    startAdornment={
+                      <span className="text-gray-500 [&>svg]:size-5">
+                        {currencyField?.value === "EURO" ? (
+                          <Euro />
+                        ) : currencyField?.value === "NAIRA" ? (
+                          <NairaSign />
+                        ) : (
+                          <DollarSign />
+                        )}
+                      </span>
+                    }
+                    endAdornment={
                       <CustomSelect
-                        {...field}
+                        {...currencyField}
                         options={[
                           { value: "EURO", children: "EUR" },
                           { value: "NAIRA", children: "NGN" },
                         ]}
-                        onValueChange={field.onChange}
+                        onValueChange={currencyField.onChange}
                         adornment
                         placeholder="Currency"
                       />
-                    )}
+                    }
                   />
-                }
+                )}
               />
             )}
           />

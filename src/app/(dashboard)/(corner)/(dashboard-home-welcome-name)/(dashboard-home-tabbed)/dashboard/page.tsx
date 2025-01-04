@@ -30,13 +30,21 @@ const DashboardPage = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 justify-stretch mt-4">
       <CustomCardHolder
-        count={bidsData?.data?.data?.length || 0}
+        count={
+          bidsData?.data?.data?.filter(
+            (bid) => !["ACCEPTED"].includes(bid.status)
+          ).length || 0
+        }
         title="My Bids"
         loading={isLoadingDraftBids || isLoadingBids}
-        empty={!bidsData?.data?.data?.length}
+        empty={
+          !bidsData?.data?.data?.filter(
+            (bid) => !["ACCEPTED"].includes(bid.status)
+          ).length
+        }
       >
         {bidsData?.data?.data
-          ?.filter((bid) => bid.status !== "DRAFT")
+          ?.filter((bid) => !["DRAFT", "ACCEPTED"].includes(bid.status))
           .map((bid) => (
             <JobCard
               key={bid.id}
