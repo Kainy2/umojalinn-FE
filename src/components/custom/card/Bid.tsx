@@ -1,3 +1,4 @@
+import { formatNumberTo2DecimalPlace } from "@/lib/number";
 import { capitalizeFirstLetter } from "@/lib/string";
 import { cn } from "@/lib/utils";
 import { UmojaLinnBid } from "@/types/project";
@@ -80,7 +81,18 @@ const BidCard = (props: BidCardProps) => {
           value={props.bid?.milestones?.length || 0}
           label="Milestones"
         />
-        <BidCardFooterValues value="100%" label="Budget" />
+        <BidCardFooterValues
+          value={
+            !props.bid?.project?.budget ||
+            !props.bid?.amount ||
+            typeof props.bid?.project?.budget !== "number"
+              ? "None"
+              : `${formatNumberTo2DecimalPlace(
+                  (props.bid?.project?.budget / props.bid?.amount) * 100
+                )}%`
+          }
+          label="Budget"
+        />
         <BidCardFooterValues
           value={capitalizeFirstLetter(
             props.bid?.deliveryMilestone?.deliveryMethod || "None"

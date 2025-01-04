@@ -33,8 +33,8 @@ const CustomCardWrapper = (props: {
         style={
           props.img
             ? {
-                backgroundImage: `linear-gradient(90deg, 
-    #eaeaea20, #eaeaea), url('${props.img}')`,
+                backgroundImage: `linear-gradient(180deg, 
+    #eaeaea20,#eaeaead3, #eaeaea), url('${props.img}')`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }
