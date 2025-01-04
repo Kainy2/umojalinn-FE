@@ -163,6 +163,16 @@ body {
   .card {
     @apply bg-background p-4 shadow-sm text-foreground-body border border-gray-100;
   }
+
+  .description-section {
+    @apply [&>h3]:font-semibold [&>h3]:mb-2 [&>h3]:text-foreground [&>p]:text-foreground-body;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 }
 
 @media screen and (max-width: 768px) {

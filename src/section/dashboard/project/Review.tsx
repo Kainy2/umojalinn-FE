@@ -44,7 +44,7 @@ const ProjectReviewView = (props: { project?: UmojaLinnProject }) => {
             <Image
               key={gallery.id}
               alt=""
-              src={gallery.imageUrl}
+              src={gallery.imageUrl || "/img/svg/null.svg"}
               className="shrink-0 aspect-video object-cover"
               width={310}
               height={170}

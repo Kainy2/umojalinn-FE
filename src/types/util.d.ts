@@ -4,7 +4,11 @@ export type SingleApiResponse<T = unknown> = {
   status: number;
 };
 
-export type ArrayApiResponse<T = unknown> = SingleApiResponse<T[]>;
+export type ArrayApiResponse<T = unknown> = SingleApiResponse<T[]> &
+  Partial<{
+    lastId: string;
+    total: number;
+  }>;
 
 export type ServerActionOption = {
   isServerAction?: boolean;

@@ -7,7 +7,9 @@ import React from "react";
 
 const ActiveProjectCardList = () => {
   const params = useParams<{ id: string }>();
-  const { data, isPending } = useGetAllBuyerProject();
+  const { data, isPending } = useGetAllBuyerProject({
+    projectStatus: "LIVE",
+  });
 
   return (
     <CustomCardHolder type="PROJECT" loading={isPending}>

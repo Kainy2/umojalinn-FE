@@ -8,7 +8,9 @@ import React from "react";
 import * as timeago from "timeago.js";
 
 const DraftCardList = () => {
-  const { data, isPending } = useGetAllBuyerProject();
+  const { data, isPending } = useGetAllBuyerProject({
+    projectStatus: "DRAFT",
+  });
 
   if (isPending) {
     return (
@@ -38,9 +40,11 @@ const DraftCardList = () => {
                 alt=""
                 className="w-80 aspect-video shrink-0"
                 src={imgSrc}
+                width={200}
+                height={200}
               />
             ) : (
-              <p className="w-80 aspect-video bg-gray-100 shrink-0 flex items-center justify-center text-foreground-body">
+              <p className="w-80 object-cover aspect-video bg-gray-100 shrink-0 flex items-center justify-center text-foreground-body">
                 No images
               </p>
             )}

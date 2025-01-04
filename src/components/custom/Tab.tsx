@@ -11,6 +11,7 @@ export type CustomTabItemProps = {
   active?: boolean;
   hasPassed?: boolean;
   match?: RegExp;
+  replace?: CustomTabProps["replace"];
 };
 
 type CustomTabProps = {
@@ -18,12 +19,14 @@ type CustomTabProps = {
   active: string | null;
   type?: "ONBOARD" | "NAVIGATOR";
   className?: string;
+  replace?: boolean;
 };
 
 const CustomTabItem = (props: CustomTabItemProps) => {
   if (props?.type === "NAVIGATOR") {
     return (
       <Link
+        replace={props.replace}
         href={props.href}
         passHref
         className={`px-6 py-3 text-sm font-semibold border-b-2 transition-colors duration-200 leading-normal ${
@@ -49,6 +52,7 @@ const CustomTabItem = (props: CustomTabItemProps) => {
 
   return (
     <Link
+      replace={props.replace}
       href={props.href}
       className={cn(
         "relative  pt-4 text-sm before:content-[''] before:absolute before:w-full before:h-3 md:before:h-1  before:rounded-full md:before:rounded-none before:top-0 before:bg-gray-100 w-20 md:flex-1 md:shrink-0 text-foreground-body",
@@ -78,6 +82,7 @@ const CustomTab = (props: CustomTabProps) => {
             type="NAVIGATOR"
             active={tab.title === props.active}
             key={index}
+            replace={props.replace}
           />
         ))}
       </div>
@@ -96,6 +101,7 @@ const CustomTab = (props: CustomTabProps) => {
             hasPassed={
               index < props.tabs?.findIndex((t) => t?.title === props.active)
             }
+            replace={props.replace}
           />
         ))}
       </div>

@@ -3,11 +3,12 @@ import React from "react";
 type LabelValueProps = {
   label: string;
   value?: string | string[] | [string, string][];
+  className?: string;
 };
 
 const LabelValue = (props: LabelValueProps) => {
   return (
-    <div>
+    <div className={props.className}>
       <p className="text-foreground-body text-sm mb-2">{props.label}</p>
       <p className="text-foreground">
         {!props.value?.length

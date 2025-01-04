@@ -157,7 +157,7 @@ const ProjectGalleryForm = (props: { id: string }) => {
                   <Image
                     className="absolute object-cover object-top"
                     fill
-                    src={value.src || ""}
+                    src={value.src || "/img/svg/null.svg"}
                     alt=""
                   />
                   <button

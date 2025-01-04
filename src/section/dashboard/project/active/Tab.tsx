@@ -41,7 +41,7 @@ const ActiveProjectTab = () => {
     return null;
   }
 
-  return <CustomTab type="NAVIGATOR" active={active} tabs={tabs} />;
+  return <CustomTab replace type="NAVIGATOR" active={active} tabs={tabs} />;
 };
 
 export default ActiveProjectTab;

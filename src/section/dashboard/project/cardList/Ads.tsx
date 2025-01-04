@@ -7,7 +7,9 @@ import React from "react";
 
 const AdsProjectCardList = () => {
   const params = useParams<{ id: string }>();
-  const { data, isPending } = useGetAllBuyerProject();
+  const { data, isPending } = useGetAllBuyerProject({
+    projectStatus: "ADS",
+  });
 
   return (
     <CustomCardHolder type="PROJECT" loading={isPending}>

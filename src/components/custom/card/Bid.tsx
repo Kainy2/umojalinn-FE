@@ -1,29 +1,11 @@
 import { capitalizeFirstLetter } from "@/lib/string";
 import { cn } from "@/lib/utils";
-import { UmojaLinnCurrency, UmojaLinnProject } from "@/types/project";
-import { UmojaLinnUserRoleProfile } from "@/types/user";
-import { UmojaLinnTimestamp } from "@/types/util";
+import { UmojaLinnBid } from "@/types/project";
 import { format } from "date-fns";
 import { EyeOff, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-
-export type UmojaLinnBid = UmojaLinnTimestamp & {
-  id: string;
-  project: UmojaLinnProject;
-  designer: UmojaLinnUserRoleProfile;
-  note: string;
-  milestones: {
-    title: string;
-    description: string;
-    payment: number;
-  }[];
-  deliveryMethod: "TRACKED" | "NON-TRACKED" | "IN-PERSON";
-  currency: UmojaLinnCurrency;
-  budget: number;
-  status: string;
-};
 
 export type BidCardProps = {
   disabled?: boolean;
@@ -88,7 +70,7 @@ const BidCard = (props: BidCardProps) => {
           </p>
         </div>
       </div>
-      <p className="mb-4">{props.bid?.note}</p>
+      <p className="mb-4">{props.bid?.additionalNotesToClient}</p>
       <div className="flex p-3 font-semibold justify-between items-center bg-gray-50">
         <BidCardFooterValues
           value={props.bid?.project?.title}
@@ -100,7 +82,9 @@ const BidCard = (props: BidCardProps) => {
         />
         <BidCardFooterValues value="100%" label="Budget" />
         <BidCardFooterValues
-          value={capitalizeFirstLetter(props.bid?.deliveryMethod)}
+          value={capitalizeFirstLetter(
+            props.bid?.deliveryMilestone?.deliveryMethod || "None"
+          )}
           label="Delivery Method"
         />
       </div>

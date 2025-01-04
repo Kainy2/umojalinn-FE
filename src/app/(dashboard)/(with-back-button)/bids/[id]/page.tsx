@@ -1,31 +1,18 @@
+"use client";
 import Alert from "@/components/custom/Alert";
+import DeliveryMethodPicker from "@/components/custom/DeliveryMethodPicker";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
-import { MOCK_BIDS } from "@/data/bid";
 import { getCurrencySymbol } from "@/lib/string";
-import { PageProps } from "@/types/util";
+import { useGetBidById } from "@/tanstack/hooks/useBid";
+
+import { useParams } from "next/navigation";
 import React from "react";
 
-const deliveryMethods = [
-  {
-    label: "Tracked",
-    value: "TRACKED",
-  },
-  {
-    label: "Not Tracked",
-    value: "NOT-TRACKED",
-  },
-  {
-    label: "In person pickup",
-    value: "IN-PERSON",
-  },
-];
-
-const IndividualBidPage = async (props: PageProps<{ id: string }>) => {
-  const { id } = await props.params;
-  const bid = MOCK_BIDS.find((val) => val.id === id);
+const IndividualBidPage = () => {
+  const { id } = useParams<{ id: string }>();
+  const { data } = useGetBidById(id);
+  const bid = data?.data?.data;
   return (
     <div className="flex flex-col gap-4">
       {/* budget Alert here */}
@@ -42,8 +29,8 @@ const IndividualBidPage = async (props: PageProps<{ id: string }>) => {
           <div className="font-semibold flex justify-between">
             <p>Milestone payment</p>
             <p>
-              {getCurrencySymbol(bid?.currency)}
-              {milestone?.payment}
+              {getCurrencySymbol(bid?.project?.currency)}
+              {milestone?.amount}
             </p>
           </div>
         </div>
@@ -59,28 +46,19 @@ const IndividualBidPage = async (props: PageProps<{ id: string }>) => {
             available at the commencement of the project.
           </p>
         </div>
-        <RadioGroup className="flex justify-between my-6">
-          {deliveryMethods.map((method) => {
-            const radioId = `delivery-method-${method.value}`;
-            return (
-              <div key={method.value} className="flex items-center space-x-2">
-                <RadioGroupItem id={radioId} value={method.value} />
-                <Label htmlFor={radioId}>{method.label}</Label>
-              </div>
-            );
-          })}
-        </RadioGroup>
+        <DeliveryMethodPicker />
         <div className="font-semibold flex justify-between">
           <p>Milestone payment</p>
           <p>
-            {getCurrencySymbol(bid?.currency)} {bid?.budget}
+            {getCurrencySymbol(bid?.project?.currency)}{" "}
+            {bid?.deliveryMilestone?.amount}
           </p>
         </div>
       </div>
       <p className="text-subtitle-2 font-semibold text-foreground text-right mt-8">
         <span className="text-foreground-body">Buget</span>{" "}
-        {getCurrencySymbol(bid?.currency)}
-        {bid?.budget}
+        {getCurrencySymbol(bid?.project?.currency)}
+        {bid?.amount}
       </p>
       <Separator />
       <div className="flex gap-4 justify-end">

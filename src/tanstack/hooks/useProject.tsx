@@ -1,5 +1,6 @@
 import {
   getAllBuyerProjects,
+  getAllDesignerProjects,
   getClothingTypes,
   getProjectById,
   inviteBuyer,
@@ -100,25 +101,35 @@ export const useGetClothingTypes = (
 };
 
 export const useGetAllBuyerProject = (
+  apiParams?: Partial<{
+    lastId: string;
+    limit: number;
+    projectStatus: UmojaLinnProject["status"];
+  }>,
   options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnProject>>
 ) => {
   const { data: me } = useSession();
   return useQuery({
     ...options,
     enabled: !!me?.user && options?.enabled !== false,
-    queryKey: ["PROJECT", "BUYER"],
-    queryFn: () => getAllBuyerProjects(),
+    queryKey: ["PROJECT", "BUYER", { apiParams }],
+    queryFn: () => getAllBuyerProjects(apiParams),
   });
 };
 
 export const useGetAllDesignerProject = (
+  apiParams?: Partial<{
+    lastId: string;
+    limit: number;
+    projectStatus: UmojaLinnProject["status"];
+  }>,
   options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnProject>>
 ) => {
   const { data: me } = useSession();
   return useQuery({
     ...options,
     enabled: !!me?.user && options?.enabled !== false,
-    queryKey: ["PROJECT", "DESIGNER"],
-    queryFn: () => getAllBuyerProjects(),
+    queryKey: ["PROJECT", "DESIGNER", { apiParams }],
+    queryFn: () => getAllDesignerProjects(apiParams),
   });
 };

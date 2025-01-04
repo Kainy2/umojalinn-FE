@@ -1,4 +1,5 @@
 import { clientAxios, getServerAxiosWithToken } from "@/lib/axios";
+import { convertApiParams } from "@/lib/request";
 import { UmojaLinnProject } from "@/types/project";
 
 import {
@@ -88,22 +89,36 @@ export const postProjectLive = async (
   );
 };
 
-export const getAllBuyerProjects = async (options?: ServerActionOption) => {
+export const getAllBuyerProjects = async (
+  apiParams?: Partial<{
+    lastId: string;
+    limit: number;
+    bidStatus: UmojaLinnProject["status"];
+  }>,
+  options?: ServerActionOption
+) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
   return axios.get<unknown, AxiosResponse<ArrayApiResponse<UmojaLinnProject>>>(
-    `/project/all/buyer`
+    `/project/all/buyer${apiParams ? convertApiParams(apiParams) : ""}`
   );
 };
 
-export const getAllDesignerProjects = async (options?: ServerActionOption) => {
+export const getAllDesignerProjects = async (
+  apiParams?: Partial<{
+    lastId: string;
+    limit: number;
+    bidStatus: UmojaLinnProject["status"];
+  }>,
+  options?: ServerActionOption
+) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
   return axios.get<unknown, AxiosResponse<ArrayApiResponse<UmojaLinnProject>>>(
-    `/project/all/designer`
+    `/project/all/designer${apiParams ? convertApiParams(apiParams) : ""}`
   );
 };

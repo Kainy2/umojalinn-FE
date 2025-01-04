@@ -7,7 +7,9 @@ import React from "react";
 import * as timeago from "timeago.js";
 
 const CompletedCardList = () => {
-  const { data, isPending } = useGetAllBuyerProject();
+  const { data, isPending } = useGetAllBuyerProject({
+    projectStatus: "COMPLETED",
+  });
 
   if (isPending) {
     return (
@@ -32,7 +34,7 @@ const CompletedCardList = () => {
               <Image
                 alt=""
                 className="w-80 aspect-video shrink-0"
-                src={imgSrc}
+                src={imgSrc || "/img/svg/null.svg"}
               />
             ) : (
               <p className="w-80 aspect-video bg-gray-100 shrink-0 flex items-center justify-center text-foreground-body">

@@ -99,7 +99,7 @@ const CustomCard = (props: CustomCardProps) => {
     <CustomCardWrapper
       href={props.href}
       onClick={props.onClick}
-      className="bg-white p-4"
+      className="bg-white p-4 text-left"
     >
       <div className="flex gap-1.5 mb-4 items-center">
         {props.preTitle}
@@ -108,7 +108,7 @@ const CustomCard = (props: CustomCardProps) => {
       <div className="h-36 relative overflow-hidden mb-4">
         <Image
           fill
-          src={props.img || ""}
+          src={props.img || "/img/svg/null.svg"}
           alt={props.title}
           className="relative object-cover"
         />

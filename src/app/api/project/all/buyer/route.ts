@@ -3,6 +3,7 @@ import { customAxios, handleAPIError, setBearerToken } from "@/lib/axios";
 import { AxiosResponse } from "axios";
 import { NextRequest, NextResponse } from "next/server";
 import { UmojaLinnProject } from "@/types/project";
+import { handleQueryParams } from "@/lib/request";
 
 export const GET = async (req: NextRequest) => {
   try {
@@ -11,7 +12,7 @@ export const GET = async (req: NextRequest) => {
     const response = await customAxios.get<
       unknown,
       AxiosResponse<ArrayApiResponse<UmojaLinnProject>, unknown>
-    >(`/project/all/buyer`);
+    >(`/project/all/buyer${handleQueryParams(req, true)}`);
 
     return NextResponse.json(response.data);
   } catch (error) {

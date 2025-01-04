@@ -18,7 +18,7 @@ type JobCardProps = {
     value: number;
     total: number;
   };
-  dueDate: Date | string;
+  dueDate?: Date | string | null;
   sharedWith?: string[];
   status?: {
     color?: string;
@@ -28,12 +28,14 @@ type JobCardProps = {
   attachedFileCount?: number;
   messageCount?: number;
   newMessage?: boolean;
+  href?: string;
 };
 
 const JobCard = (props: JobCardProps) => {
   return (
     <CustomCard
       type="DASHBOARD"
+      href={props.href}
       preTitle={
         props?.isPrivate ? (
           <Lock04 className="text-teal-500 h-6 w-6" />
@@ -45,7 +47,11 @@ const JobCard = (props: JobCardProps) => {
           <MilestoneProgress className="mb-4" {...props.progress} />
         )
       }
-      description={`Due in ${format(props.dueDate, "MMM dd")}`}
+      description={
+        props.dueDate
+          ? `Due in ${format(new Date(props.dueDate), "MMM dd")}`
+          : undefined
+      }
       img={props.img}
       action={
         <div className="flex">

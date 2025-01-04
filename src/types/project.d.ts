@@ -11,6 +11,7 @@ export type UmojaLinnProject = {
   additionalNotes: null | string;
   dueDate: null | string;
   projectType: "PRIVATE" | "PUBLIC";
+  status: "DRAFT" | "ADS" | "LIVE" | "COMPLETED";
   buyerId: string;
   designerId: string;
   budget: number | null | string;
@@ -57,3 +58,40 @@ export type UmojaLinnProject = {
     } & UmojaLinnTimestamp
   > | null;
 } & UmojaLinnTimestamp;
+
+export type UmojaLinnDeliveryMethod =
+  | "TRACKED"
+  | "NON_TRACKED"
+  | "IN_PERSON_PICKUP";
+
+export type UmojaLinnMilestone = {
+  id: string;
+  title: string;
+  description: string;
+  amount: null | number;
+} & UmojaLinnTimestamp;
+
+export type UmojaLinnBid = {
+  id: string;
+  projectId: string;
+  designerId: string;
+  amount: number;
+  additionalNotesToClient: null | string;
+  rejectionReason: null | string;
+  status: "DRAFT" | "PENDING" | "ACCEPTED" | "REJECTED";
+  createdAt: "2025-01-03T11:41:49.572Z";
+  updatedAt: "2025-01-03T11:41:49.572Z";
+  project: UmojaLinnProject;
+  designer: UmojaLinnUserRoleProfile;
+  milestones: UmojaLinnMilestone[];
+  history: Omit<UmojaLinnBid, "history" | "deliveryMilestone">[];
+  deliveryMilestone: {
+    id: string;
+    bidId: string;
+    state: string;
+    city: string;
+    country: string;
+    amount: null | number;
+    deliveryMethod: null | UmojaLinnDeliveryMethod;
+  } & UmojaLinnTimestamp;
+};

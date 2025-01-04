@@ -1,9 +1,10 @@
 "use client";
 import MilestoneProgress from "@/components/custom/MilestoneProgress";
-import { MOCK_BIDS } from "@/data/bid";
 import { getCurrencySymbol } from "@/lib/string";
+import { useGetBidById } from "@/tanstack/hooks/useBid";
 import { format, isThisYear, isToday, isYesterday } from "date-fns";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import React from "react";
 
 function formatCustomDate(date: Date): string {
@@ -13,9 +14,11 @@ function formatCustomDate(date: Date): string {
 }
 
 const BidTabHistorySection = () => {
+  const { id } = useParams<{ id: string }>();
+  const { data } = useGetBidById(id);
   return (
     <div className="flex flex-col gap-4">
-      {MOCK_BIDS.map((bid) => (
+      {data?.data?.data?.history.map((bid) => (
         <Link
           key={bid.id}
           href={`/bids/${bid.id}`}
@@ -31,7 +34,7 @@ const BidTabHistorySection = () => {
           <div className="flex justify-between">
             <p className="text-gray-400">Total Payment</p>
             <p>
-              {getCurrencySymbol(bid?.currency)} {bid?.budget}
+              {getCurrencySymbol(bid?.project?.currency)} {bid?.amount}
             </p>
           </div>
         </Link>

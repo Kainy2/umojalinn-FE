@@ -5,7 +5,7 @@ import { CustomCardProps } from ".";
 
 type CustomCardHolderProps = {
   title?: string;
-  colour?: string;
+  colour?: "success" | "primary" | "info";
   count?: number;
   children?: React.ReactNode;
   empty?: boolean;
@@ -16,6 +16,11 @@ type CustomCardHolderProps = {
 const CustomCardHolderChildren = (
   props: Pick<CustomCardHolderProps, "children" | "empty" | "loading">
 ) => {
+  if (props.loading) {
+    return new Array(4)
+      .fill("")
+      .map((_, i) => <Skeleton className="h-52 bg-gray-200" key={i} />);
+  }
   if (props.empty) {
     return (
       <p className="h-52 flex items-center justify-center text-foreground-body/50 text-center text-sm">
@@ -23,16 +28,11 @@ const CustomCardHolderChildren = (
       </p>
     );
   }
-  if (props.loading) {
-    return new Array(4)
-      .fill("")
-      .map((_, i) => <Skeleton className="h-52" key={i} />);
-  }
   return props.children;
 };
 
 const CustomCardHolder = (props: CustomCardHolderProps) => {
-  const { empty, loading, type, count, title, children } = props;
+  const { empty, loading, type, count, title, children, colour } = props;
 
   if (type === "PROJECT") {
     if (loading) {
@@ -51,11 +51,21 @@ const CustomCardHolder = (props: CustomCardHolderProps) => {
     <div className="bg-gray-100 p-4 flex-1 w-full h-full">
       <h6
         className={cn(
-          "font-semibold truncate flex gap-2 items-center justify-center mb-8 text-teal-500"
+          "font-semibold text-sm truncate flex gap-2 items-center justify-center mb-8 text-teal-500 uppercase",
+          colour === "success" && "text-success",
+          colour === "info" && "text-blue-500",
+          colour === "primary" && "text-primary"
         )}
       >
         {!!count && (
-          <span className="h-5 w-5 flex items-center justify-center text-white bg-teal-500 text-sm">
+          <span
+            className={cn(
+              "h-5 w-5 flex items-center justify-center text-white bg-teal-500 text-sm",
+              colour === "success" && "bg-success",
+              colour === "info" && "bg-blue-500",
+              colour === "primary" && "bg-primary"
+            )}
+          >
             {count}
           </span>
         )}{" "}
