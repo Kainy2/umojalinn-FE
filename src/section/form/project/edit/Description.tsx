@@ -78,7 +78,7 @@ const ProjectDescriptionForm = (props: ProjectDescriptionFormProps) => {
       form.setValue("zipCode", data?.data?.data?.deliveryAddress?.zipCode);
     }
     if (data?.data?.data?.additionalNotes) {
-      form.setValue("additonalNotes", data?.data?.data?.additionalNotes);
+      form.setValue("additionalNotes", data?.data?.data?.additionalNotes);
     }
     if (data?.data?.data?.clothingTypes?.length) {
       form.setValue(
