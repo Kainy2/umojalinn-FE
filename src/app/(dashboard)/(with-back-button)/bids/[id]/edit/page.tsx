@@ -366,7 +366,7 @@ const BidPage = () => {
           excess={excess}
           currency={bid.project?.currency}
           onConfirm={() => {
-            handleUpdate(mode);
+            handleUpdateAction(mode);
           }}
         />
       </div>

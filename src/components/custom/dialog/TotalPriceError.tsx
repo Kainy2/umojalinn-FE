@@ -17,6 +17,7 @@ type TotalPriceErrorProps = DialogProps & {
   excess: number;
   currency: UmojaLinnCurrency | null;
   onConfirm: () => void;
+  negotiable?: boolean;
 };
 
 const TotalPriceError = (props: TotalPriceErrorProps) => {
@@ -42,7 +43,11 @@ const TotalPriceError = (props: TotalPriceErrorProps) => {
           </div>
         </DialogHeader>
         <DialogFooter className="flex justify-between lg:items-center flex-col lg:flex-row gap-2">
-          <p className="text-sm">Would you like to continue?</p>
+          <p className="text-sm">
+            {props?.negotiable
+              ? "Would you like to continue?"
+              : "This budget is non-negotiable."}
+          </p>
           <div className="flex w-full lg:w-auto flex-col lg:flex-row gap-2">
             <Button
               className="w-full lg:w-auto"
@@ -50,16 +55,18 @@ const TotalPriceError = (props: TotalPriceErrorProps) => {
               variant="outline"
               type="button"
             >
-              No
+              {props?.negotiable ? "No" : "Change Budget"}
             </Button>
-            <Button
-              className="w-full lg:w-auto"
-              variant="default"
-              type="button"
-              onClick={props?.onConfirm}
-            >
-              Continue
-            </Button>
+            {props.negotiable && (
+              <Button
+                className="w-full lg:w-auto"
+                variant="default"
+                type="button"
+                onClick={props?.onConfirm}
+              >
+                Continue
+              </Button>
+            )}
           </div>
         </DialogFooter>
       </DialogContent>
