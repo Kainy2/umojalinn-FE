@@ -20,7 +20,7 @@ import {
   useUpdateBid,
   useUpdateMilestone,
 } from "@/tanstack/hooks/useBid";
-import { useGetMe } from "@/tanstack/hooks/useUser";
+// import { useGetMe } from "@/tanstack/hooks/useUser";
 import { UmojaLinnDeliveryMethod } from "@/types/project";
 import { Separator } from "@radix-ui/react-separator";
 import { Plus } from "lucide-react";
@@ -48,7 +48,7 @@ const BidPage = () => {
   const [deliveryMethod, setDeliveryMethod] =
     useState<UmojaLinnDeliveryMethod | null>(null);
 
-  const { data: meData } = useGetMe();
+  // const { data: meData } = useGetMe();
 
   const { data, isPending } = useGetDesignerBidById(id);
   const bid = data?.data?.data;
@@ -224,13 +224,13 @@ const BidPage = () => {
     );
   }
 
-  if (bid?.designerId !== meData?.data?.data?.designerProfile?.id) {
-    return (
-      <p className="h-60 flex items-center justify-center text-gray-400">
-        No edit access
-      </p>
-    );
-  }
+  // if (bid?.designerId !== meData?.data?.data?.designerProfile?.id) {
+  //   return (
+  //     <p className="h-60 flex items-center justify-center text-gray-400">
+  //       No edit access
+  //     </p>
+  //   );
+  // }
 
   return (
     <div className="flex flex-col gap-8">
