@@ -1,6 +1,7 @@
 import React, { ComponentProps } from "react";
 import { Separator } from "../ui/separator";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "../ui/skeleton";
 
 type SectionTitleProps = {
   title: string;
@@ -8,6 +9,7 @@ type SectionTitleProps = {
   action?: React.ReactNode;
   onClick?: ComponentProps<"button">["onClick"];
   size?: "small" | "medium" | "large";
+  loading?: boolean;
 };
 
 type SectionTitleWrapperProps = Pick<SectionTitleProps, "onClick"> & {
@@ -27,7 +29,7 @@ const SectionTitleWrapper = (props: SectionTitleWrapperProps) => {
 };
 
 const SectionTitle = (props: SectionTitleProps) => {
-  const { size = "medium", action, title, onClick } = props;
+  const { size = "medium", action, title, onClick, loading } = props;
   return (
     <SectionTitleWrapper onClick={onClick} className="mb-4 block w-full">
       <div
@@ -44,7 +46,7 @@ const SectionTitle = (props: SectionTitleProps) => {
               {props.icon}
             </div>
           )}
-          <span>{title}</span>
+          <span>{loading ? <Skeleton className="h-6 w-36" /> : title}</span>
         </div>
         {action}
       </div>

@@ -1,18 +1,20 @@
-import { ArrayApiResponse } from "@/types/util";
+import { SingleApiResponse } from "@/types/util";
 import { customAxios, handleAPIError, setBearerToken } from "@/lib/axios";
 import { AxiosResponse } from "axios";
 import { NextRequest, NextResponse } from "next/server";
-import { UmojaLinnProject } from "@/types/project";
-import { handleQueryParams } from "@/lib/request";
 
-export const GET = async (req: NextRequest) => {
+export const GET = async (
+  req: NextRequest,
+  { params }: { params: Promise<{ bidId: string }> }
+) => {
   try {
     await setBearerToken(req);
 
+    const bidId = (await params).bidId;
     const response = await customAxios.get<
       unknown,
-      AxiosResponse<ArrayApiResponse<UmojaLinnProject>, unknown>
-    >(`/project/all/designer${handleQueryParams(req, true)}`);
+      AxiosResponse<SingleApiResponse, unknown>
+    >(`/project/buyer/bid/${bidId}`);
 
     return NextResponse.json(response.data);
   } catch (error) {

@@ -14,23 +14,25 @@ const LabelValue = (props: LabelValueProps) => {
         {!props.value?.length
           ? "None"
           : Array.isArray(props.value)
-          ? props.value?.map((val, i) => {
-              if (Array.isArray(val)) {
+          ? props.value
+              ?.filter((val) => !!val)
+              .map((val, i) => {
+                if (Array.isArray(val)) {
+                  return (
+                    <React.Fragment key={i}>
+                      {i !== 0 && ", "}
+                      {val[0]}{" "}
+                      <span className="font-light text-gray-400">{val[1]}</span>
+                    </React.Fragment>
+                  );
+                }
                 return (
                   <React.Fragment key={i}>
                     {i !== 0 && ", "}
-                    {val[0]}{" "}
-                    <span className="font-light text-gray-400">{val[1]}</span>
+                    {val}
                   </React.Fragment>
                 );
-              }
-              return (
-                <React.Fragment key={i}>
-                  {i !== 0 && ", "}
-                  {val}
-                </React.Fragment>
-              );
-            })
+              })
           : props.value}
       </p>
     </div>

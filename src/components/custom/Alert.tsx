@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { AlertCircle, CheckCircle, CircleX } from "lucide-react";
+import { AlertCircle, CheckCircle } from "lucide-react";
 import React from "react";
 
 type AlertProps = {
@@ -17,7 +17,7 @@ const Alert = (props: AlertProps) => {
       colorStyle = "bg-success-50 border-success [&>svg]:text-success";
       break;
     case "error":
-      Icon = CircleX;
+      Icon = AlertCircle;
       colorStyle = "bg-error-50 border-error [&>svg]:text-error";
       break;
     case "info":

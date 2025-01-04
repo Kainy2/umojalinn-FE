@@ -1,37 +1,66 @@
 "use client";
 import LabelValue from "@/components/custom/LabelValue";
-
-import { useGetProjectById } from "@/tanstack/hooks/useProject";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import React from "react";
-import { BidTabProps } from ".";
 import { format } from "date-fns";
 import { getCurrencySymbol } from "@/lib/string";
 import { EyeOff } from "lucide-react";
 import { useGetBidById } from "@/tanstack/hooks/useBid";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const BidTabProjectDetailsSection = (props: BidTabProps) => {
+const BidTabProjectDetailsSection = () => {
   const { id } = useParams<{ id: string }>();
-  const { data: bidData } = useGetBidById(id);
+  const { data: bidData, isPending } = useGetBidById(id);
   const bid = bidData?.data?.data;
-  const { data } = useGetProjectById(id);
-  const project = props?.page === "create" ? data?.data?.data : bid?.project;
+
+  const project = bid?.project;
+
+  if (isPending) {
+    return (
+      <div className="flex flex-col gap-8">
+        <Skeleton className="h-20" />
+        <div className="flex flex-col gap-3">
+          {new Array(2).fill("").map((_, i) => (
+            <Skeleton key={i} className="h-4" />
+          ))}
+          <Skeleton className="h-4 w-3/4" />
+        </div>
+        {new Array(4).fill("").map((_, i) => (
+          <div className="" key={i}>
+            <Skeleton className="h-3 mb-2 w-32 " />
+            <Skeleton className="h-5 w-52 " />
+          </div>
+        ))}
+        <div>
+          <Skeleton className="h-6 w-32 mb-2" />
+          <Skeleton className="h-2 w-40 mb-4" />
+          <Skeleton className="aspect-square max-w-64" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!project) {
+    return (
+      <p className="h-40 flex items-center justify-center text-gray-400">
+        No project to display
+      </p>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-8">
-      {props?.page === "create" && (
-        <div className="relative bg-stone-100 border-l-4 border-stone-600 p-4">
-          <span className="absolute rounded-full p-2 [&>svg]:size-5 text-primary bg-background top-2 right-2">
-            <EyeOff />
-          </span>
-          <p className="text-sm">Project Budget</p>
-          <p className="text-lg font-semibold truncate">
-            {getCurrencySymbol(project?.currency)}
-            {project?.budget}
-          </p>
-        </div>
-      )}
+      <div className="relative bg-stone-100 border-l-4 border-stone-600 p-4">
+        <span className="absolute rounded-full p-2 [&>svg]:size-5 text-primary bg-background top-2 right-2">
+          <EyeOff />
+        </span>
+        <p className="text-sm">Project Budget</p>
+        <p className="text-lg font-semibold truncate">
+          {getCurrencySymbol(project?.currency)}
+          {project?.budget}
+        </p>
+      </div>
       <p className="mb-2">{project?.about}</p>
       <LabelValue
         label="Delivery location"

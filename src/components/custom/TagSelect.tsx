@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { ClassValue } from "clsx";
 import React, { useState } from "react";
 import { Badge } from "../ui/badge";
-import { Cross } from "lucide-react";
+import {  Plus } from "lucide-react";
 import { FieldProps, FormFieldProps } from "./TextField";
 import { Label } from "../ui/label";
 import {
@@ -30,10 +30,13 @@ const CustomTagSelect = (props: CustomTagSelectProps) => {
 
   const handleToggle = (id: string) => {
     let newValue: string[] = [];
+    console.log(newValue, "NEW VALUE");
     if (intVal?.includes(id) || value?.includes(id)) {
       newValue = intVal?.filter((item) => item !== id) as string[];
+      console.log(newValue, "NEW VALUE2");
     } else {
-      newValue = [...new Set(...intVal, id)] as string[];
+      newValue = [...intVal, id] as string[];
+      console.log(newValue, "NEW VALUE2B");
     }
     setIntVal(newValue);
     onChange(newValue);
@@ -55,12 +58,12 @@ const CustomTagSelect = (props: CustomTagSelectProps) => {
             key={opt.value}
             onClick={() => handleToggle(opt.value)}
             className={cn(
-              "cursor-pointer font-normal rounded-md flex flex-1 text-foreground-body",
+              "cursor-pointer font-normal rounded-md flex shrink-0 gap-1 text-foreground-body [&>svg]:size-4",
               !!active && "bg-primary-50 "
             )}
             variant="outline"
           >
-            {opt.label} {!!active && <Cross />}
+            {opt.label} {!!active && <Plus />}
           </Badge>
         );
       })}

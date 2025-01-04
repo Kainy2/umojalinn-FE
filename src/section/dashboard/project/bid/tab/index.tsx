@@ -1,15 +1,16 @@
 "use client";
 import CustomTab from "@/components/custom/Tab";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, usePathname, useSearchParams } from "next/navigation";
 import React, { useMemo } from "react";
 import BidTabProjectDetailsSection from "./ProjectDetails";
 import BidTabHistorySection from "./History";
 
-export type BidTabProps = { page?: "create" | "view" };
+export type BidTabProps = { page?: "create" | "view"; edit?: boolean };
 
 const BidTab = (props: BidTabProps) => {
   const { id } = useParams<{ id: string }>();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
 
   const tabs = useMemo(
     () =>
@@ -22,13 +23,16 @@ const BidTab = (props: BidTabProps) => {
             },
           ]
         : [
-            { title: "Project details", href: `/bids/${id}` },
+            {
+              title: "Project details",
+              href: `${pathname}`,
+            },
             {
               title: "Bid history",
-              href: `/bids/${id}?tab=history`,
+              href: `${pathname}?tab=history`,
             },
           ],
-    [id, props.page]
+    [id, props.page, pathname]
   );
 
   const isHistoryTab = useMemo(
@@ -37,7 +41,7 @@ const BidTab = (props: BidTabProps) => {
   );
 
   return (
-    <>
+    <div className="">
       <CustomTab
         className="mb-4"
         tabs={tabs}
@@ -48,9 +52,9 @@ const BidTab = (props: BidTabProps) => {
       {isHistoryTab ? (
         <BidTabHistorySection />
       ) : (
-        <BidTabProjectDetailsSection {...props} />
+        <BidTabProjectDetailsSection />
       )}
-    </>
+    </div>
   );
 };
 

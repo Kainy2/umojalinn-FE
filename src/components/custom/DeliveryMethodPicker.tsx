@@ -2,19 +2,23 @@ import React, { useId } from "react";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Label } from "../ui/label";
 import { RadioGroupProps } from "@radix-ui/react-radio-group";
+import { UmojaLinnDeliveryMethod } from "@/types/project";
 
-const deliveryMethods = [
+const deliveryMethods: {
+  label: string;
+  value: UmojaLinnDeliveryMethod;
+}[] = [
   {
     label: "Tracked",
     value: "TRACKED",
   },
   {
     label: "Not Tracked",
-    value: "NOT-TRACKED",
+    value: "NON_TRACKED",
   },
   {
     label: "In person pickup",
-    value: "IN-PERSON",
+    value: "IN_PERSON_PICKUP",
   },
 ];
 

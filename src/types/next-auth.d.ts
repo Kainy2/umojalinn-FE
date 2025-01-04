@@ -2,6 +2,7 @@
 import { UmojaLinnLoginResponse, UmojaLinnUserRole } from "./user";
 
 type UmojaLinnJWTUserExtension = {
+  id: string;
   hasOnboarded: boolean;
   profileRole: UmojaLinnUserRole | null;
 };

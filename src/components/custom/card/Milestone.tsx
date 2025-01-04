@@ -6,12 +6,16 @@ import { Edit, Minus, Plus, Save, Trash2 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import TextField from "../TextField";
 import TextAreaField from "../TextField copy";
+import { Separator } from "@/components/ui/separator";
+import VerifyDialog from "../dialog/Verify";
 
 type MileStoneCardProps = {
+  id?: string;
   view: boolean;
   title: string;
   description: string;
   onSave: (props: {
+    id?: string;
     title: string;
     description: string;
     price: number;
@@ -70,7 +74,7 @@ export const MileStoneCardFooter = (
                 {getCurrencySymbol(currency)}
               </span>
               <span
-                className="absolute opacity-0 pointer-events-none"
+                className="absolute opacity-0 shrink-0 pointer-events-none"
                 ref={span}
               >
                 {price || content}
@@ -102,6 +106,7 @@ export const MileStoneCardFooter = (
 
 const MileStoneCard = (props: MileStoneCardProps) => {
   const {
+    id,
     view,
     title,
     description,
@@ -159,12 +164,16 @@ const MileStoneCard = (props: MileStoneCardProps) => {
     return (
       <div className="relative card p-8 flex flex-col gap-4">
         {!hideActions && (
-          <button
-            className="absolute top-8 right-8 text-primary [&>svg]:size-5"
-            onClick={onDelete}
+          <VerifyDialog
+            destructive
+            onConfirm={onDelete}
+            title="Delete Milestone?"
+            description="Are you sure you want to delete this milestone? Please note that this is irreversible."
           >
-            <Trash2 />
-          </button>
+            <button className="absolute top-8 right-8 text-primary [&>svg]:size-5">
+              <Trash2 />
+            </button>
+          </VerifyDialog>
         )}
         <div className="mb-8">
           <h3 className="mb-2 text-subtitle-2 font-semibold">
@@ -191,12 +200,12 @@ const MileStoneCard = (props: MileStoneCardProps) => {
     <div className="card p-6 flex flex-col gap-4">
       <TextField
         label="Milestone name"
-        value={title}
+        value={editedValues?.title}
         onChange={handleEdit("title")}
       />
       <TextAreaField
         label="Description"
-        value={description}
+        value={editedValues?.description}
         onChange={handleEdit("description")}
         placeholder="Enter a description..."
         rows={5}
@@ -204,12 +213,13 @@ const MileStoneCard = (props: MileStoneCardProps) => {
       {footer}
       <div className="flex gap-4 items-center">
         <button
-          onClick={() => onSave(editedValues)}
-          className="text-left w-fit flex text-sm text-primary [&>svg]:size-5 gap-2"
+          onClick={() => onSave({ ...editedValues, id })}
+          className="text-left items-center w-fit flex text-sm text-primary [&>svg]:size-5 gap-2"
         >
           <Save />
           Save
         </button>
+        <Separator orientation="vertical" className="w-[1px] h-6" />
         <button
           onClick={onCancel}
           className="text-left w-fit flex text-sm text-foreground-body [&>svg]:size-5 gap-2"

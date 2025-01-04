@@ -38,7 +38,16 @@ const PrivateJobsPage = () => {
         }
         title="My Bids"
         loading={isLoadingAdsProjectsData || isLoadingDraftProjectsData}
-        empty
+        empty={
+          !(
+            (adsProjectsData?.data?.data?.filter?.(
+              (project) => project.projectType === "PRIVATE"
+            )?.length || 0) +
+            (draftProjectsData?.data?.data?.filter?.(
+              (project) => project.projectType === "PRIVATE"
+            )?.length || 0)
+          )
+        }
       >
         {adsProjectsData?.data?.data
           ?.filter?.((project) => project.projectType === "PRIVATE")
@@ -55,9 +64,9 @@ const PrivateJobsPage = () => {
               dueDate={new Date(new Date().setDate(15))}
             />
           ))}
-        <div className="flex gap-2 items-center my-2">
+        <div className="flex gap-2 items-center my-2 [&>hr]:bg-yellow text-gray-400">
           <hr className="flex-1" />
-          <span className="text-sm">Bids in draft</span>
+          <span className="text-xs">Bids in draft</span>
           <hr className="flex-1" />
         </div>
         {draftProjectsData?.data?.data
@@ -117,7 +126,11 @@ const PrivateJobsPage = () => {
         }
         title="My Past Jobs"
         loading={isLoadingCompletedProjectsData}
-        empty
+        empty={
+          !completedProjectsData?.data?.data?.filter?.(
+            (project) => project.projectType === "PRIVATE"
+          )?.length
+        }
       >
         {completedProjectsData?.data?.data
           ?.filter?.((project) => project.projectType === "PRIVATE")
@@ -144,7 +157,11 @@ const PrivateJobsPage = () => {
         }
         title="Completed Jobs"
         loading={isLoadingCompletedProjectsData}
-        empty
+        empty={
+          !completedProjectsData?.data?.data?.filter?.(
+            (project) => project.projectType === "PRIVATE"
+          )?.length
+        }
       >
         {completedProjectsData?.data?.data
           ?.filter?.((project) => project.projectType === "PRIVATE")

@@ -138,6 +138,7 @@ export const authOptions: NextAuthOptions = {
         if (res) {
           token.accessToken = res?.data?.data?.authToken;
           token.user = {
+            id: res?.data?.data?.user?.id,
             hasOnboarded:
               !!res?.data?.data?.user?.buyerProfile ||
               !!res?.data?.data?.user?.designerProfile,
@@ -160,6 +161,7 @@ export const authOptions: NextAuthOptions = {
         token.accessToken = user.authToken;
 
         token.user = {
+          id: user.user?.id,
           hasOnboarded:
             !!user.user?.buyerProfile ||
             !!user.user?.designerProfile ||
@@ -192,6 +194,7 @@ export const authOptions: NextAuthOptions = {
 
       session.accessToken = token?.accessToken;
       if (session.user) {
+        session.user.id = token.user?.id;
         session.user.hasOnboarded = token.user?.hasOnboarded || false;
         session.user.profileRole = token.user?.profileRole;
       }

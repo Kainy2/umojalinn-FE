@@ -3,8 +3,9 @@ import {
   createBid,
   createMilestone,
   deleteMilestone,
-  getBidById,
+  getBuyerBidById,
   getBuyerBids,
+  getDesignerBidById,
   getDesignerBids,
   submitBid,
   updateBid,
@@ -75,6 +76,32 @@ export const useGetBuyerBids = (
   });
 };
 
+export const useGetDesignerBidById = (
+  id: string,
+  options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnBid>>
+) => {
+  const { data: me } = useSession();
+  return useQuery({
+    ...options,
+    enabled: !!me?.user && options?.enabled !== false,
+    queryKey: ["BID", "DESIGNER", { id }],
+    queryFn: () => getDesignerBidById(id),
+  });
+};
+
+export const useGetBuyerBidById = (
+  id: string,
+  options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnBid>>
+) => {
+  const { data: me } = useSession();
+  return useQuery({
+    ...options,
+    enabled: !!me?.user && options?.enabled !== false,
+    queryKey: ["BID", "BUYER", { id }],
+    queryFn: () => getBuyerBidById(id),
+  });
+};
+
 export const useGetBidById = (
   id: string,
   options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnBid>>
@@ -83,8 +110,11 @@ export const useGetBidById = (
   return useQuery({
     ...options,
     enabled: !!me?.user && options?.enabled !== false,
-    queryKey: ["BID", { id }],
-    queryFn: () => getBidById(id),
+    queryKey: ["BID", { id, role: me?.user?.profileRole }],
+    queryFn: () =>
+      me?.user?.profileRole === "BUYER"
+        ? getBuyerBidById(id)
+        : getDesignerBidById(id),
   });
 };
 
@@ -111,16 +141,18 @@ export const useCreateMilestone = (
 };
 
 export const useUpdateMilestone = (
-  id: string,
   options?: GenericUseMutationProps<
     SingleApiResponse,
-    Partial<Pick<UmojaLinnMilestone, "title" | "amount" | "description">>
+    Partial<Pick<UmojaLinnMilestone, "id" | "title" | "amount" | "description">>
   >
 ) => {
   const { handleError } = useHandleError("Update Milestone");
   return useMutation({
     ...options,
-    mutationFn: (variables) => updateMilestone(id, variables),
+    mutationFn: (variables) => {
+      const { id, ...others } = variables;
+      return updateMilestone(id || "", others);
+    },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: ["BID"] });
       options?.onSuccess?.(data, variables, context);
@@ -201,7 +233,7 @@ export const useAcceptOrRejectBid = (
     SingleApiResponse,
     {
       status: "ACCEPTED" | "REJECTED";
-      rejectionReason: string;
+      rejectionReason?: string;
     }
   >
 ) => {

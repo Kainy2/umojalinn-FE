@@ -57,13 +57,29 @@ export const getBuyerBids = async (
   );
 };
 
-export const getBidById = async (id?: string, options?: ServerActionOption) => {
+export const getDesignerBidById = async (
+  id?: string,
+  options?: ServerActionOption
+) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
   return axios.get<unknown, AxiosResponse<SingleApiResponse<UmojaLinnBid>>>(
     `/project/designer/bid/${id}`
+  );
+};
+
+export const getBuyerBidById = async (
+  id?: string,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.get<unknown, AxiosResponse<SingleApiResponse<UmojaLinnBid>>>(
+    `/project/buyer/bid/${id}`
   );
 };
 
@@ -106,7 +122,7 @@ export const deleteMilestone = async (
     axios = await getServerAxiosWithToken();
   }
   return axios.delete<unknown, AxiosResponse<SingleApiResponse>>(
-    `/project/update-milestone/${id}`
+    `/project/delete-milestone/${id}`
   );
 };
 
@@ -143,7 +159,7 @@ export const acceptOrRejectBid = async (
   id: string,
   body: {
     status: "ACCEPTED" | "REJECTED";
-    rejectionReason: string;
+    rejectionReason?: string;
   },
   options?: ServerActionOption
 ) => {

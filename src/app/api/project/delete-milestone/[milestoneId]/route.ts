@@ -9,13 +9,12 @@ export const DELETE = async (
 ) => {
   try {
     await setBearerToken(req);
-    const body = await req.json();
 
     const milestoneId = (await params).milestoneId;
     const response = await customAxios.delete<
       unknown,
       AxiosResponse<SingleApiResponse, unknown>
-    >(`/project/delete-milestone/${milestoneId}`, body);
+    >(`/project/delete-milestone/${milestoneId}`);
 
     return NextResponse.json(response.data);
   } catch (error) {

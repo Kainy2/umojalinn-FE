@@ -84,7 +84,14 @@ export type UmojaLinnBid = {
   project: UmojaLinnProject;
   designer: UmojaLinnUserRoleProfile;
   milestones: UmojaLinnMilestone[];
-  history: Omit<UmojaLinnBid, "history" | "deliveryMilestone">[];
+  history: Array<
+    {
+      id: string;
+      bidId: string;
+      amount: number;
+      numberOfMileStones: number;
+    } & UmojaLinnTimestamp
+  >;
   deliveryMilestone: {
     id: string;
     bidId: string;

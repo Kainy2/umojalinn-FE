@@ -1,6 +1,7 @@
 "use client";
 import LabelValue from "@/components/custom/LabelValue";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { getCurrencySymbol } from "@/lib/string";
 import { useCreateBid } from "@/tanstack/hooks/useBid";
@@ -8,21 +9,46 @@ import { useGetProjectById } from "@/tanstack/hooks/useProject";
 import { formatDate } from "date-fns";
 import { CircleDollarSign, MoreVertical } from "lucide-react";
 import Image from "next/image";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import React from "react";
 
 const JobPage = () => {
   const { id } = useParams<{ id: string }>();
-  const { data } = useGetProjectById(id);
+  const { data, isPending } = useGetProjectById(id);
   const project = data?.data?.data;
   const { toast } = useToast();
+  const router = useRouter();
 
   const { mutate: createBid, isPending: isCreatingBid } = useCreateBid({
     onSuccess(data) {
-      console.log(data);
+      router.push(`/bids/${data?.data?.data?.id}/edit`);
       toast({ description: "Please wait" });
     },
   });
+
+  if (isPending) {
+    return (
+      <div className="flex flex-col gap-8">
+        <div>
+          <Skeleton className="h-52" />
+          <div className="flex px-12">
+            <div className="relative w-40">
+              <Skeleton className="size-40 absolute bottom-0" />
+            </div>
+            <div className="flex-1 p-6 pb-3">
+              <Skeleton className="h-8 w-full max-w-44 mb-4" />
+              <Skeleton className="h-4 w-full max-w-64" />
+            </div>
+            <div className="pt-6 flex flex-row items-center gap-2">
+              <Skeleton className="size-10" />
+              <Skeleton className="h-10 w-36 " />
+            </div>
+          </div>
+        </div>
+        <Skeleton className="h-14" />
+      </div>
+    );
+  }
   return (
     <div className="flex flex-col gap-8">
       <div>
