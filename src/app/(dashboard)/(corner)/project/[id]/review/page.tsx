@@ -1,5 +1,6 @@
 "use client";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import ProjectReviewView from "@/section/dashboard/project/Review";
 import ProjectEditFooter from "@/section/form/project/edit/Footer";
@@ -12,7 +13,7 @@ import React from "react";
 
 const ReviewPage = () => {
   const params = useParams<{ id: string }>();
-  const { data } = useGetProjectById(params.id);
+  const { data, isPending: projectLoading } = useGetProjectById(params.id);
   const { toast } = useToast();
   const router = useRouter();
   const { mutate: goLive, isPending } = usePostProjectLive({
@@ -24,6 +25,20 @@ const ReviewPage = () => {
       });
     },
   });
+
+  if (projectLoading) {
+    return (
+      <div className="flex flex-col gap-8">
+        <div>
+          <Skeleton className="h-6 mb-1" />
+          <Skeleton className="h-4" />
+        </div>
+        <Separator className="bg-gray-200" />
+        <ProjectReviewView loading />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-8">
       <div>

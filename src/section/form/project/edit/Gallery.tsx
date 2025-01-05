@@ -16,10 +16,11 @@ import ProjectEditFooter from "./Footer";
 import FormItemWrapper from "@/components/custom/FormItemWrapper";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ProjectGalleryForm = (props: { id: string }) => {
   const id = useId();
-  const { data } = useGetProjectById(props.id);
+  const { data, isPending: loadingProject } = useGetProjectById(props.id);
   const { mutate: updateProject, isPending: isUpdating } = useUpdateProjectById(
     props.id
   );
@@ -151,6 +152,17 @@ const ProjectGalleryForm = (props: { id: string }) => {
       },
     [data?.data?.data?.Gallery, props.id, router, updateProject, values]
   );
+
+  if (loadingProject) {
+    return (
+      <FormItemWrapper loading>
+        <div className="flex gap-4 flex-col">
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-20 w-full" />
+        </div>
+      </FormItemWrapper>
+    );
+  }
 
   return (
     <>

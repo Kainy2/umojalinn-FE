@@ -24,13 +24,14 @@ import { jsonToFormData } from "@/lib/utils";
 import CustomSelect from "@/components/custom/Select";
 import ProjectEditFooter from "./Footer";
 import { useRouter } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type ProjectDescriptionFormProps = {
   id: string;
 };
 
 const ProjectDescriptionForm = (props: ProjectDescriptionFormProps) => {
-  const { data } = useGetProjectById(props.id);
+  const { data, isPending: loadingProject } = useGetProjectById(props.id);
   const { data: clothingTypes } = useGetClothingTypes();
   const { mutate: updateProject, isPending: isUpdating } = useUpdateProjectById(
     props.id
@@ -106,6 +107,51 @@ const ProjectDescriptionForm = (props: ProjectDescriptionFormProps) => {
     },
     [props.id, router, updateProject]
   );
+
+  if (loadingProject) {
+    return (
+      <div className="flex flex-col gap-6">
+        <FormItemWrapper loading>
+          <div className="flex gap-4 flex-col lg:flex-row justify-stretch">
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
+          </div>
+        </FormItemWrapper>
+        <FormItemWrapper loading>
+          <Skeleton className="h-12 w-full" />
+        </FormItemWrapper>
+        <FormItemWrapper loading>
+          <Skeleton className="h-12 w-full" />
+        </FormItemWrapper>
+        <FormItemWrapper loading>
+          <Skeleton className="h-20 w-full" />
+        </FormItemWrapper>
+        <FormItemWrapper loading>
+          <Skeleton className="h-20 w-full" />
+        </FormItemWrapper>
+        <FormItemWrapper loading>
+          <Skeleton className="h-12 w-full" />
+        </FormItemWrapper>
+        <FormItemWrapper loading>
+          <div className="flex flex-col gap-4">
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
+          </div>
+        </FormItemWrapper>
+        <FormItemWrapper loading>
+          <Skeleton className="h-20 w-full" />
+        </FormItemWrapper>
+        <FormItemWrapper loading>
+          <div className="flex flex-col gap-4">
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
+          </div>
+        </FormItemWrapper>
+      </div>
+    );
+  }
 
   return (
     <Form {...form}>

@@ -19,6 +19,7 @@ import { useForm } from "react-hook-form";
 import ProjectEditFooter from "./Footer";
 import NairaSign from "@/icons/NairaSign";
 import { useRouter } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const EXPERIENCE_ENUMS = [
   "1 - 2 years",
@@ -29,7 +30,7 @@ const EXPERIENCE_ENUMS = [
 ] as const;
 
 const RequirementsBudgetForm = (props: { id: string }) => {
-  const { data } = useGetProjectById(props.id);
+  const { data, isPending: loadingProject } = useGetProjectById(props.id);
   const { mutate: updateProject, isPending: isUpdating } = useUpdateProjectById(
     props.id
   );
@@ -76,6 +77,16 @@ const RequirementsBudgetForm = (props: { id: string }) => {
       },
     [props.id, router, updateProject]
   );
+
+  if (loadingProject) {
+    return (
+      <FormItemWrapper loading>
+        <div className="flex gap-4 flex-col lg:flex-row justify-stretch">
+          <Skeleton className="h-12 w-full" />
+        </div>
+      </FormItemWrapper>
+    );
+  }
 
   return (
     <Form {...form}>

@@ -1,13 +1,56 @@
 import AvatarIconTag from "@/components/custom/AvatarIconTag";
 import Collapsible from "@/components/custom/Collapsible";
 import LabelBadge from "@/components/custom/LabelBadge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getCurrencySymbol } from "@/lib/string";
 import { UmojaLinnProject } from "@/types/project";
 import { formatDate } from "date-fns";
 import Image from "next/image";
 import React from "react";
 
-const ProjectReviewView = (props: { project?: UmojaLinnProject }) => {
+const ProjectReviewView = (props: {
+  project?: UmojaLinnProject;
+  loading?: boolean;
+}) => {
+  if (props.loading) {
+    return (
+      <>
+        <Skeleton className="h-36" />
+        <div>
+          <Skeleton className="h-6 mb-2" />
+          <Skeleton className="aspect-square w-full max-w-14" />
+        </div>
+        <div>
+          <Skeleton className="w-full h-6 max-w-20 mb-4" />
+          <div className="flex flex-col gap-8">
+            {new Array(4).fill("").map((_, i) => (
+              <div
+                key={i}
+                className="flex flex-col gap-2 lg:flex-row lg:justify-center"
+              >
+                <Skeleton className="h-4 w-full max-w-10" />
+                <Skeleton className="h-5 w-full max-w-12" />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <Skeleton className="w-full h-6 max-w-20 mb-4" />
+          <div className="flex flex-col gap-8">
+            {new Array(2).fill("").map((_, i) => (
+              <div
+                key={i}
+                className="flex flex-col gap-2 lg:flex-row lg:justify-center"
+              >
+                <Skeleton className="h-4 w-full max-w-10" />
+                <Skeleton className="h-5 w-full max-w-12" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </>
+    );
+  }
   return (
     <>
       <div className="p-4 bg-gray-100 mb-4">

@@ -1,13 +1,30 @@
 import React from "react";
+import { Skeleton } from "../ui/skeleton";
 
 type FormItemWrapperProps = {
+  loading?: boolean;
   children: React.ReactNode;
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
   endAdornment?: React.ReactNode;
 };
 
 const FormItemWrapper = (props: FormItemWrapperProps) => {
+  if (props.loading) {
+    return (
+      <div className="grid grid-cols-12 gap-4">
+        <div className="col-span-12 lg:col-span-3 pt-2">
+          <Skeleton className="h-6 w-full max-w-14" />
+          <Skeleton className="h-4 w-full max-w-20" />
+        </div>
+        <div className="flex items-center col-span-12 lg:grid lg:grid-cols-subgrid lg:col-span-9 gap-4">
+          {props.children}
+        </div>
+        <div className="lg:col-span-3"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-12 gap-4">
       <div className="col-span-12 lg:col-span-3 pt-2">
