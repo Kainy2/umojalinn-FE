@@ -14,13 +14,15 @@ const FormItemWrapper = (props: FormItemWrapperProps) => {
     return (
       <div className="grid grid-cols-12 gap-4">
         <div className="col-span-12 lg:col-span-3 pt-2">
-          <Skeleton className="h-6 w-full max-w-14" />
-          <Skeleton className="h-4 w-full max-w-20" />
+          <Skeleton className="h-6 w-full max-w-24 mb-2" />
+          <Skeleton className="h-4 w-full max-w-32 " />
         </div>
         <div className="flex items-center col-span-12 lg:grid lg:grid-cols-subgrid lg:col-span-9 gap-4">
-          {props.children}
+          <div className="flex-1 lg:flex-grow-0 lg:col-span-6">
+            {props.children}
+          </div>
+          <div className="lg:col-span-3"></div>
         </div>
-        <div className="lg:col-span-3"></div>
       </div>
     );
   }

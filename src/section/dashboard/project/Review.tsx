@@ -17,8 +17,8 @@ const ProjectReviewView = (props: {
       <>
         <Skeleton className="h-36" />
         <div>
-          <Skeleton className="h-6 mb-2" />
-          <Skeleton className="aspect-square w-full max-w-14" />
+          <Skeleton className="h-6 mb-2 w-full max-w-24" />
+          <Skeleton className="aspect-square w-full max-w-36" />
         </div>
         <div>
           <Skeleton className="w-full h-6 max-w-20 mb-4" />
@@ -26,10 +26,10 @@ const ProjectReviewView = (props: {
             {new Array(4).fill("").map((_, i) => (
               <div
                 key={i}
-                className="flex flex-col gap-2 lg:flex-row lg:justify-center"
+                className="flex flex-col gap-2 lg:flex-row lg:justify-between"
               >
-                <Skeleton className="h-4 w-full max-w-10" />
-                <Skeleton className="h-5 w-full max-w-12" />
+                <Skeleton className="h-4 w-full max-w-20" />
+                <Skeleton className="h-5 w-full max-w-32" />
               </div>
             ))}
           </div>
@@ -40,10 +40,10 @@ const ProjectReviewView = (props: {
             {new Array(2).fill("").map((_, i) => (
               <div
                 key={i}
-                className="flex flex-col gap-2 lg:flex-row lg:justify-center"
+                className="flex flex-col gap-2 lg:flex-row lg:justify-between"
               >
-                <Skeleton className="h-4 w-full max-w-10" />
-                <Skeleton className="h-5 w-full max-w-12" />
+                <Skeleton className="h-4 w-full max-w-20" />
+                <Skeleton className="h-5 w-full max-w-32" />
               </div>
             ))}
           </div>

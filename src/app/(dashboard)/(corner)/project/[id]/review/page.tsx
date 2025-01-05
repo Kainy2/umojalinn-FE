@@ -30,8 +30,8 @@ const ReviewPage = () => {
     return (
       <div className="flex flex-col gap-8">
         <div>
-          <Skeleton className="h-6 mb-1" />
-          <Skeleton className="h-4" />
+          <Skeleton className="h-6 mb-2 max-w-32" />
+          <Skeleton className="h-4 max-w-48" />
         </div>
         <Separator className="bg-gray-200" />
         <ProjectReviewView loading />
