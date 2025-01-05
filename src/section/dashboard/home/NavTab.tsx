@@ -14,20 +14,18 @@ const BUYER_HOME_TAB_NAV: CustomTabItemProps[] = [
     title: "Active",
     href: "/projects",
     match:
-      /^(\/$|\/projects(?:\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(\/(chat|media-and-links|details))?$)/,
+      /^(\/$|\/projects(?:\/[A-Za-z0-9]{20, 25})(\/(chat|media-and-links|details))?$)/,
   },
   {
     title: "Ads",
     href: "/projects/ads",
-    match:
-      /^\/projects\/ads(\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})?$/,
+    match: /^\/projects\/ads(\/[A-Za-z0-9]{20, 25})?$/,
   },
   { title: "Bids", href: "/projects/bids" },
   {
     title: "Drafts",
     href: "/projects/drafts",
-    match:
-      /(^\/projects\/drafts$|^\/projects\/drafts\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$)/,
+    match: /(^\/projects\/drafts$|^\/projects\/drafts\/[A-Za-z0-9]{20, 25}$)/,
   },
   { title: "Completed", href: "/projects/completed" },
 ];
