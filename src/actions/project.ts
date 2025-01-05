@@ -1,5 +1,6 @@
 import { clientAxios, getServerAxiosWithToken } from "@/lib/axios";
 import { convertApiParams } from "@/lib/request";
+import { base62ToUuidSafe } from "@/lib/uuid";
 import { UmojaLinnProject } from "@/types/project";
 
 import {
@@ -46,7 +47,7 @@ export const getProjectById = async (
     axios = await getServerAxiosWithToken();
   }
   return axios.get<unknown, AxiosResponse<SingleApiResponse<UmojaLinnProject>>>(
-    `/project/${id}`
+    `/project/${base62ToUuidSafe(id)}`
   );
 };
 
@@ -71,7 +72,7 @@ export const updateProjectById = async (
     axios = await getServerAxiosWithToken();
   }
   return axios.put<unknown, AxiosResponse<SingleApiResponse>>(
-    `/project/update-project/${id}`,
+    `/project/update-project/${base62ToUuidSafe(id)}`,
     body
   );
 };
@@ -85,7 +86,7 @@ export const postProjectLive = async (
     axios = await getServerAxiosWithToken();
   }
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
-    `/project/post-live/${id}`
+    `/project/post-live/${base62ToUuidSafe(id)}`
   );
 };
 

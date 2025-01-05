@@ -2,6 +2,7 @@
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+import { uuidToBase62Safe } from "@/lib/uuid";
 import ProjectReviewView from "@/section/dashboard/project/Review";
 import ProjectEditFooter from "@/section/form/project/edit/Footer";
 import {
@@ -18,7 +19,7 @@ const ReviewPage = () => {
   const router = useRouter();
   const { mutate: goLive, isPending } = usePostProjectLive({
     onSuccess: () => {
-      router.push(`/projects/${params.id}`);
+      router.push(`/projects/${uuidToBase62Safe(params.id)}`);
       toast({
         title: "Project Live!",
         description: "This project has been pushed live successfully",

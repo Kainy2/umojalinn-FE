@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { getCurrencySymbol } from "@/lib/string";
+import { uuidToBase62Safe } from "@/lib/uuid";
 import { useCreateBid } from "@/tanstack/hooks/useBid";
 import { useGetProjectById } from "@/tanstack/hooks/useProject";
 import { formatDate } from "date-fns";
@@ -21,7 +22,7 @@ const JobPage = () => {
 
   const { mutate: createBid, isPending: isCreatingBid } = useCreateBid({
     onSuccess(data) {
-      router.push(`/bids/${data?.data?.data?.id}/edit`);
+      router.push(`/bids/${uuidToBase62Safe(data?.data?.data?.id)}/edit`);
       toast({ description: "Please wait" });
     },
   });

@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { getCurrencySymbol } from "@/lib/string";
+import { uuidToBase62Safe } from "@/lib/uuid";
 import {
   useCreateMilestone,
   useDeleteMilestone,
@@ -108,7 +109,7 @@ const BidPage = () => {
         title: "Bid saved in Drafts",
         description: "Your bid has been saved successfully.",
       });
-      router.push(`/jobs/${project?.id}`);
+      router.push(`/jobs/${uuidToBase62Safe(project?.id || "")}`);
     },
   });
 
@@ -119,7 +120,7 @@ const BidPage = () => {
         title: "Bid Live",
         description: "Your bid has been published successfully.",
       });
-      router.push(`/jobs/${project?.id}`);
+      router.push(`/jobs/${uuidToBase62Safe(project?.id || "")}`);
     },
   });
 

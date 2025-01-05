@@ -1,6 +1,7 @@
 "use client";
 import CustomCard from "@/components/custom/card";
 import CustomCardHolder from "@/components/custom/card/Holder";
+import { uuidToBase62Safe } from "@/lib/uuid";
 import { useGetAllBuyerProject } from "@/tanstack/hooks/useProject";
 import { useParams } from "next/navigation";
 import React from "react";
@@ -16,14 +17,18 @@ const ActiveProjectCardList = () => {
       {data?.data?.data?.map((project) => (
         <CustomCard
           key={project.id}
-          preTitle={params.id === project.id}
+          preTitle={
+            uuidToBase62Safe(params.id) === uuidToBase62Safe(project.id)
+          }
           img={
             project?.Gallery?.find((gallery) => gallery.isCoverImage)?.imageUrl
           }
           title={project.title || "No title"}
           type="PROJECT"
           href={
-            params.id === project.id ? "/projects" : `/projects/${project.id}`
+            uuidToBase62Safe(params.id) === uuidToBase62Safe(project.id)
+              ? "/projects"
+              : `/projects/${uuidToBase62Safe(project.id)}`
           }
         />
       ))}

@@ -8,6 +8,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { uuidToBase62Safe } from "@/lib/uuid";
 import ProjectReviewView from "@/section/dashboard/project/Review";
 import { useGetProjectById } from "@/tanstack/hooks/useProject";
 import { PopoverClose } from "@radix-ui/react-popover";
@@ -35,7 +36,9 @@ const AdsProjectPage = () => {
             <PopoverContent align="end" className="w-48 p-1">
               <PopoverClose asChild>
                 <MenuButton
-                  href={`/project/${data?.data?.data?.id}`}
+                  href={`/project/${uuidToBase62Safe(
+                    data?.data?.data?.id || ""
+                  )}`}
                   icon={<Edit />}
                 >
                   Edit

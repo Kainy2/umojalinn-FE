@@ -17,6 +17,7 @@ import FormItemWrapper from "@/components/custom/FormItemWrapper";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
+import { uuidToBase62Safe } from "@/lib/uuid";
 
 const ProjectGalleryForm = (props: { id: string }) => {
   const id = useId();
@@ -144,7 +145,9 @@ const ProjectGalleryForm = (props: { id: string }) => {
               router.push(
                 mode === "DRAFT"
                   ? "/projects"
-                  : `/project/${props.id}/requirements-and-budget`
+                  : `/project/${uuidToBase62Safe(
+                      props.id
+                    )}/requirements-and-budget`
               );
             },
           }

@@ -1,5 +1,6 @@
 "use client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { uuidToBase62Safe } from "@/lib/uuid";
 import { useGetAllBuyerProject } from "@/tanstack/hooks/useProject";
 import { Trash2 } from "lucide-react";
 import Image from "next/image";
@@ -31,7 +32,7 @@ const DraftCardList = () => {
         return (
           <Link
             key={project?.id}
-            href={`/project/${project?.id}`}
+            href={`/project/${uuidToBase62Safe(project?.id)}`}
             className="relative card flex gap-4 hover:bg-gray-50 transition-colors"
           >
             <Trash2 className="size-5 absolute top-4 right-4" />

@@ -12,8 +12,6 @@ export const GET = async (
 
     const id = (await params).id;
 
-    console.log(id, "<<< GET PROJECT >>>");
-
     const response = await customAxios.get<
       unknown,
       AxiosResponse<SingleApiResponse, unknown>

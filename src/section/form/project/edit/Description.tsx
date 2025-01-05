@@ -25,6 +25,7 @@ import CustomSelect from "@/components/custom/Select";
 import ProjectEditFooter from "./Footer";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
+import { uuidToBase62Safe } from "@/lib/uuid";
 
 type ProjectDescriptionFormProps = {
   id: string;
@@ -100,7 +101,9 @@ const ProjectDescriptionForm = (props: ProjectDescriptionFormProps) => {
       updateProject(val, {
         onSuccess() {
           router.push(
-            mode === "DRAFT" ? "/projects" : `/project/${props.id}/gallery`
+            mode === "DRAFT"
+              ? "/projects"
+              : `/project/${uuidToBase62Safe(props.id)}/gallery`
           );
         },
       });

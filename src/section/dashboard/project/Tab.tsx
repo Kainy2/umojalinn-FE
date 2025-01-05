@@ -1,5 +1,6 @@
 "use client";
 import CustomTab from "@/components/custom/Tab";
+import { uuidToBase62Safe } from "@/lib/uuid";
 import { useParams, usePathname } from "next/navigation";
 import React, { useMemo } from "react";
 
@@ -11,19 +12,19 @@ const ProjectTab = () => {
     () => [
       {
         title: "Project Description",
-        href: `/project/${params.id}`,
+        href: `/project/${uuidToBase62Safe(params.id)}`,
       },
       {
         title: "Gallery",
-        href: `/project/${params.id}/gallery`,
+        href: `/project/${uuidToBase62Safe(params.id)}/gallery`,
       },
       {
         title: "Requirements & Budget",
-        href: `/project/${params.id}/requirements-and-budget`,
+        href: `/project/${uuidToBase62Safe(params.id)}/requirements-and-budget`,
       },
       {
         title: "Review",
-        href: `/project/${params.id}/review`,
+        href: `/project/${uuidToBase62Safe(params.id)}/review`,
       },
     ],
     [params.id]

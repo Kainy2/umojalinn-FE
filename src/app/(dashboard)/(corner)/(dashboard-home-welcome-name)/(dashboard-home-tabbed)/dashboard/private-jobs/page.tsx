@@ -2,6 +2,7 @@
 import CustomCardHolder from "@/components/custom/card/Holder";
 import JobCard from "@/components/custom/card/Job";
 import { getCoverImage } from "@/lib/project";
+import { uuidToBase62Safe } from "@/lib/uuid";
 import { useGetAllDesignerProject } from "@/tanstack/hooks/useProject";
 import React from "react";
 
@@ -107,7 +108,7 @@ const PrivateJobsPage = () => {
               key={job.id}
               isPrivate={job.projectType === "PRIVATE"}
               name={job?.title || "No title"}
-              href={`/jobs/${job?.id}`}
+              href={`/jobs/${uuidToBase62Safe(job?.id)}`}
               progress={{
                 value: 0,
                 total: 1,

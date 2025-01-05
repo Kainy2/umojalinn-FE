@@ -66,3 +66,17 @@ export function base62ToUuid(base62: string): string | null {
     hexString.slice(20, 32),
   ].join("-");
 }
+
+export const uuidToBase62Safe = (id: string): string => {
+  if (isValidUuid(id)) {
+    return uuidToBase62(id) as string;
+  }
+  return id;
+};
+
+export const base62ToUuidSafe = (id: string): string => {
+  if (isValidBase62(id)) {
+    return base62ToUuid(id) as string;
+  }
+  return id;
+};

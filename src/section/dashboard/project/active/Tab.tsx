@@ -1,5 +1,6 @@
 "use client";
 import CustomTab from "@/components/custom/Tab";
+import { uuidToBase62Safe } from "@/lib/uuid";
 import { useGetProjectById } from "@/tanstack/hooks/useProject";
 import { useParams, usePathname } from "next/navigation";
 import React, { useMemo } from "react";
@@ -14,19 +15,19 @@ const ActiveProjectTab = () => {
     () => [
       {
         title: "Activities",
-        href: `/projects/${params.id}`,
+        href: `/projects/${uuidToBase62Safe(params.id)}`,
       },
       // {
       //   title: "Chat",
-      //   href: `/projects/${params.id}/chat`,
+      //   href: `/projects/${uuidToBase62Safe(params.id)}/chat`,
       // },
       {
         title: "Media & links",
-        href: `/projects/${params.id}/media-and-links`,
+        href: `/projects/${uuidToBase62Safe(params.id)}/media-and-links`,
       },
       {
         title: "Details",
-        href: `/projects/${params.id}/details`,
+        href: `/projects/${uuidToBase62Safe(params.id)}/details`,
       },
     ],
     [params.id]

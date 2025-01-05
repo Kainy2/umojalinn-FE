@@ -4,6 +4,7 @@ import { useParams, usePathname, useSearchParams } from "next/navigation";
 import React, { useMemo } from "react";
 import BidTabProjectDetailsSection from "./ProjectDetails";
 import BidTabHistorySection from "./History";
+import { uuidToBase62Safe } from "@/lib/uuid";
 
 export type BidTabProps = { page?: "create" | "view"; edit?: boolean };
 
@@ -16,10 +17,13 @@ const BidTab = (props: BidTabProps) => {
     () =>
       props.page === "create"
         ? [
-            { title: "Project details", href: `/jobs/${id}/bid` },
+            {
+              title: "Project details",
+              href: `/jobs/${uuidToBase62Safe(id)}/bid`,
+            },
             {
               title: "Bid history",
-              href: `/jobs/${id}/bid?tab=history`,
+              href: `/jobs/${uuidToBase62Safe(id)}/bid?tab=history`,
             },
           ]
         : [

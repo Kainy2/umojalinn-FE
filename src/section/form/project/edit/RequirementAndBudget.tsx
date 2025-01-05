@@ -20,6 +20,7 @@ import ProjectEditFooter from "./Footer";
 import NairaSign from "@/icons/NairaSign";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
+import { uuidToBase62Safe } from "@/lib/uuid";
 
 const EXPERIENCE_ENUMS = [
   "1 - 2 years",
@@ -70,7 +71,9 @@ const RequirementsBudgetForm = (props: { id: string }) => {
         updateProject(val, {
           onSuccess() {
             router.push(
-              mode === "DRAFT" ? "/projects" : `/project/${props.id}/review`
+              mode === "DRAFT"
+                ? "/projects"
+                : `/project/${uuidToBase62Safe(props.id)}/review`
             );
           },
         });

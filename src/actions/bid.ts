@@ -1,5 +1,6 @@
 import { clientAxios, getServerAxiosWithToken } from "@/lib/axios";
 import { convertApiParams } from "@/lib/request";
+import { base62ToUuidSafe } from "@/lib/uuid";
 import {
   UmojaLinnBid,
   UmojaLinnDeliveryMethod,
@@ -21,7 +22,7 @@ export const createBid = async (
     axios = await getServerAxiosWithToken();
   }
   return axios.post<unknown, AxiosResponse<SingleApiResponse<UmojaLinnBid>>>(
-    `/project/bid/${projectId}/create`
+    `/project/bid/${base62ToUuidSafe(projectId)}/create`
   );
 };
 
@@ -66,7 +67,7 @@ export const getDesignerBidById = async (
     axios = await getServerAxiosWithToken();
   }
   return axios.get<unknown, AxiosResponse<SingleApiResponse<UmojaLinnBid>>>(
-    `/project/designer/bid/${id}`
+    `/project/designer/bid/${base62ToUuidSafe(id || "")}`
   );
 };
 
@@ -79,7 +80,7 @@ export const getBuyerBidById = async (
     axios = await getServerAxiosWithToken();
   }
   return axios.get<unknown, AxiosResponse<SingleApiResponse<UmojaLinnBid>>>(
-    `/project/buyer/bid/${id}`
+    `/project/buyer/bid/${base62ToUuidSafe(id || "")}`
   );
 };
 
@@ -93,7 +94,7 @@ export const createMilestone = async (
     axios = await getServerAxiosWithToken();
   }
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
-    `/project/add-milestone-to-bid/${bidId}`,
+    `/project/add-milestone-to-bid/${base62ToUuidSafe(bidId || "")}`,
     body
   );
 };
@@ -108,7 +109,7 @@ export const updateMilestone = async (
     axios = await getServerAxiosWithToken();
   }
   return axios.put<unknown, AxiosResponse<SingleApiResponse>>(
-    `/project/update-milestone/${id}`,
+    `/project/update-milestone/${base62ToUuidSafe(id || "")}`,
     body
   );
 };
@@ -122,7 +123,7 @@ export const deleteMilestone = async (
     axios = await getServerAxiosWithToken();
   }
   return axios.delete<unknown, AxiosResponse<SingleApiResponse>>(
-    `/project/delete-milestone/${id}`
+    `/project/delete-milestone/${base62ToUuidSafe(id)}`
   );
 };
 
@@ -140,7 +141,7 @@ export const updateBid = async (
     axios = await getServerAxiosWithToken();
   }
   return axios.put<unknown, AxiosResponse<SingleApiResponse>>(
-    `/project/update-bid/${id}`,
+    `/project/update-bid/${base62ToUuidSafe(id)}`,
     body
   );
 };
@@ -151,7 +152,7 @@ export const submitBid = async (id: string, options?: ServerActionOption) => {
     axios = await getServerAxiosWithToken();
   }
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
-    `/project/submit-bid/${id}`
+    `/project/submit-bid/${base62ToUuidSafe(id)}`
   );
 };
 
@@ -168,7 +169,7 @@ export const acceptOrRejectBid = async (
     axios = await getServerAxiosWithToken();
   }
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
-    `/project/accept-or-reject-bid/${id}`,
+    `/project/accept-or-reject-bid/${base62ToUuidSafe(id)}`,
     body
   );
 };

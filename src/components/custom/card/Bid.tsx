@@ -1,6 +1,7 @@
 import { formatNumberTo2DecimalPlace } from "@/lib/number";
 import { capitalizeFirstLetter } from "@/lib/string";
 import { cn } from "@/lib/utils";
+import { uuidToBase62Safe } from "@/lib/uuid";
 import { UmojaLinnBid } from "@/types/project";
 import { format } from "date-fns";
 import { EyeOff, User } from "lucide-react";
@@ -30,7 +31,7 @@ const BidCardFooterValues = (props: {
 const BidCard = (props: BidCardProps) => {
   return (
     <Link
-      href={`/bids/${props.bid?.id}`}
+      href={`/bids/${uuidToBase62Safe(props.bid?.id || "")}`}
       className={cn(
         "relative py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors",
         props.disabled && "text-gray-400 pointer-events-none cursor-not-allowed"
