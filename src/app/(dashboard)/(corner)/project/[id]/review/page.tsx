@@ -7,15 +7,17 @@ import {
   useGetProjectById,
   usePostProjectLive,
 } from "@/tanstack/hooks/useProject";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import React from "react";
 
 const ReviewPage = () => {
   const params = useParams<{ id: string }>();
   const { data } = useGetProjectById(params.id);
   const { toast } = useToast();
-  const { mutateAsync, isPending } = usePostProjectLive({
+  const router = useRouter();
+  const { mutate: goLive, isPending } = usePostProjectLive({
     onSuccess: () => {
+      router.push(`/projects/${params.id}`);
       toast({
         title: "Project Live!",
         description: "This project has been pushed live successfully",
@@ -36,10 +38,7 @@ const ReviewPage = () => {
       <Separator className="bg-gray-200" />
       <ProjectReviewView project={data?.data?.data} />
       <ProjectEditFooter
-        handleSave={async () => {
-          return !!(await mutateAsync(params.id));
-        }}
-        nextUrl={`/projects/${params.id}`}
+        handleSave={async () => goLive(params.id)}
         loading={isPending}
         hideDraft
       />

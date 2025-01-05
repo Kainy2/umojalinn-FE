@@ -23,6 +23,7 @@ import { FormCustomTagSelectField } from "@/components/custom/TagSelect";
 import { jsonToFormData } from "@/lib/utils";
 import CustomSelect from "@/components/custom/Select";
 import ProjectEditFooter from "./Footer";
+import { useRouter } from "next/navigation";
 
 type ProjectDescriptionFormProps = {
   id: string;
@@ -31,11 +32,11 @@ type ProjectDescriptionFormProps = {
 const ProjectDescriptionForm = (props: ProjectDescriptionFormProps) => {
   const { data } = useGetProjectById(props.id);
   const { data: clothingTypes } = useGetClothingTypes();
-  const {
-    mutateAsync,
-    isPending: isUpdating,
-    isSuccess,
-  } = useUpdateProjectById(props.id);
+  const { mutate: updateProject, isPending: isUpdating } = useUpdateProjectById(
+    props.id
+  );
+
+  const router = useRouter();
 
   const form = useForm<ProjectFormDetailsProps>({
     resolver: zodResolver(projectFormDetailsSchema),
@@ -89,15 +90,21 @@ const ProjectDescriptionForm = (props: ProjectDescriptionFormProps) => {
   }, [data?.data?.data, form]);
 
   const onSubmit = useCallback(
-    async (values: ProjectFormDetailsProps) => {
+    (mode: "SAVE" | "DRAFT") => (values: ProjectFormDetailsProps) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { firstName, lastName, designerId, ...otherValues } = values;
       const val = jsonToFormData({
         ...otherValues,
       });
-      await mutateAsync(val);
+      updateProject(val, {
+        onSuccess() {
+          router.push(
+            mode === "DRAFT" ? "/projects" : `/project/${props.id}/gallery`
+          );
+        },
+      });
     },
-    [mutateAsync]
+    [props.id, router, updateProject]
   );
 
   return (
@@ -317,12 +324,9 @@ const ProjectDescriptionForm = (props: ProjectDescriptionFormProps) => {
         </FormItemWrapper>
 
         <ProjectEditFooter
-          handleSave={async (e) => {
-            await form.handleSubmit(onSubmit)(e);
-            return isSuccess;
-          }}
+          handleSave={form.handleSubmit(onSubmit("SAVE"))}
+          handleDraft={form.handleSubmit(onSubmit("DRAFT"))}
           loading={isUpdating}
-          nextUrl={`/project/${props.id}/gallery`}
         />
       </form>
     </Form>

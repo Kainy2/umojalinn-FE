@@ -6,10 +6,8 @@ import React from "react";
 
 type ProjectEditFooterProps = {
   loading: boolean;
-  handleSave?: (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => Promise<boolean>;
-  nextUrl?: string;
+  handleDraft?: React.ComponentProps<"button">["onClick"];
+  handleSave?: React.ComponentProps<"button">["onClick"];
   hideDraft?: boolean;
 };
 
@@ -27,15 +25,7 @@ const ProjectEditFooter = (props: ProjectEditFooterProps) => {
           <Button
             name="submit"
             value="save_and_submit"
-            onClick={async (e) => {
-              if (props.handleSave) {
-                e.preventDefault();
-                const success = await props.handleSave(e);
-                if (success) {
-                  router.push("/projects");
-                }
-              }
-            }}
+            onClick={props.handleDraft}
             disabled={props.loading}
             type="submit"
             variant="outline"
@@ -49,15 +39,7 @@ const ProjectEditFooter = (props: ProjectEditFooterProps) => {
           disabled={props.loading}
           type="submit"
           variant="default"
-          onClick={async (e) => {
-            if (props.handleSave) {
-              e.preventDefault();
-              const success = await props.handleSave(e);
-              if (success) {
-                router.push(props.nextUrl || "");
-              }
-            }
-          }}
+          onClick={props.handleSave}
         >
           Continue
         </Button>

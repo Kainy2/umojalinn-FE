@@ -11,16 +11,20 @@ import {
 import { RadioGroup } from "@radix-ui/react-radio-group";
 import { Trash2, UploadCloud } from "lucide-react";
 import Image from "next/image";
-import React, { useId, useMemo, useState } from "react";
+import React, { useCallback, useId, useMemo, useState } from "react";
 import ProjectEditFooter from "./Footer";
 import FormItemWrapper from "@/components/custom/FormItemWrapper";
 import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 const ProjectGalleryForm = (props: { id: string }) => {
   const id = useId();
   const { data } = useGetProjectById(props.id);
-  const { mutateAsync, isPending: isUpdating } = useUpdateProjectById(props.id);
+  const { mutate: updateProject, isPending: isUpdating } = useUpdateProjectById(
+    props.id
+  );
   const { toast } = useToast();
+  const router = useRouter();
 
   const [values, setValues] = useState<
     {
@@ -114,28 +118,39 @@ const ProjectGalleryForm = (props: { id: string }) => {
       );
     };
 
-  const handleSubmit = async (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
-    e.preventDefault();
-    const oldIdList = values
-      ?.map((val) => val.id)
-      .filter((val) => typeof val === "string");
-    const toAdd = values?.filter((val) => typeof val?.image !== "string");
-    return !!(await mutateAsync(
-      jsonToFormData({
-        imagesMeta: toAdd?.map(({ title, fileName, isCoverImage }) => ({
-          title,
-          fileName,
-          isCoverImage,
-        })),
-        "gallery-images": toAdd.map(({ image }) => image),
-        imagesToRemove: data?.data?.data?.Gallery?.filter(
-          (gallery) => !oldIdList.includes(gallery.id)
-        )?.map(({ id }) => id),
-      })
-    ));
-  };
+  const handleSubmit = useCallback(
+    (mode: "SAVE" | "DRAFT") =>
+      (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.preventDefault();
+        const oldIdList = values
+          ?.map((val) => val.id)
+          .filter((val) => typeof val === "string");
+        const toAdd = values?.filter((val) => typeof val?.image !== "string");
+        updateProject(
+          jsonToFormData({
+            imagesMeta: toAdd?.map(({ title, fileName, isCoverImage }) => ({
+              title,
+              fileName,
+              isCoverImage,
+            })),
+            "gallery-images": toAdd.map(({ image }) => image),
+            imagesToRemove: data?.data?.data?.Gallery?.filter(
+              (gallery) => !oldIdList.includes(gallery.id)
+            )?.map(({ id }) => id),
+          }),
+          {
+            onSuccess() {
+              router.push(
+                mode === "DRAFT"
+                  ? "/projects"
+                  : `/project/${props.id}/requirements-and-budget`
+              );
+            },
+          }
+        );
+      },
+    [data?.data?.data?.Gallery, props.id, router, updateProject, values]
+  );
 
   return (
     <>
@@ -217,8 +232,8 @@ const ProjectGalleryForm = (props: { id: string }) => {
         </div>
       </FormItemWrapper>
       <ProjectEditFooter
-        handleSave={handleSubmit}
-        nextUrl={`/project/${props.id}/requirements-and-budget`}
+        handleSave={handleSubmit("SAVE")}
+        handleDraft={handleSubmit("DRAFT")}
         loading={isUpdating}
       />
     </>

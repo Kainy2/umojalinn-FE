@@ -18,6 +18,7 @@ import React, { useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import ProjectEditFooter from "./Footer";
 import NairaSign from "@/icons/NairaSign";
+import { useRouter } from "next/navigation";
 
 const EXPERIENCE_ENUMS = [
   "1 - 2 years",
@@ -29,11 +30,11 @@ const EXPERIENCE_ENUMS = [
 
 const RequirementsBudgetForm = (props: { id: string }) => {
   const { data } = useGetProjectById(props.id);
-  const {
-    mutateAsync,
-    isPending: isUpdating,
-    isSuccess,
-  } = useUpdateProjectById(props.id);
+  const { mutate: updateProject, isPending: isUpdating } = useUpdateProjectById(
+    props.id
+  );
+
+  const router = useRouter();
 
   const form = useForm<ProjectFormRequirementsAndBugetProps>({
     resolver: zodResolver(requirementsAndBugetSchema),
@@ -59,14 +60,21 @@ const RequirementsBudgetForm = (props: { id: string }) => {
   }, [data?.data?.data, form]);
 
   const onSubmit = useCallback(
-    async (values: ProjectFormRequirementsAndBugetProps) => {
-      const val = jsonToFormData({
-        ...values,
-      });
-      const res = await mutateAsync(val);
-      console.log(res, "<<< RESPONSE");
-    },
-    [mutateAsync]
+    (mode: "SAVE" | "DRAFT") =>
+      (values: ProjectFormRequirementsAndBugetProps) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const val = jsonToFormData({
+          ...values,
+        });
+        updateProject(val, {
+          onSuccess() {
+            router.push(
+              mode === "DRAFT" ? "/projects" : `/project/${props.id}/review`
+            );
+          },
+        });
+      },
+    [props.id, router, updateProject]
   );
 
   return (
@@ -182,12 +190,9 @@ const RequirementsBudgetForm = (props: { id: string }) => {
           />
         </FormItemWrapper>
         <ProjectEditFooter
-          handleSave={async (e) => {
-            await form.handleSubmit(onSubmit)(e);
-            return isSuccess;
-          }}
+          handleSave={form.handleSubmit(onSubmit("SAVE"))}
+          handleDraft={form.handleSubmit(onSubmit("DRAFT"))}
           loading={isUpdating}
-          nextUrl={`/project/${props.id}/review`}
         />
       </div>
     </Form>
