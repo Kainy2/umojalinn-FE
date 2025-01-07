@@ -102,3 +102,61 @@ export type UmojaLinnBid = {
     deliveryMethod: null | UmojaLinnDeliveryMethod;
   } & UmojaLinnTimestamp;
 };
+
+export type UmojaLinnMaleSizingTemplateProps = {
+  height: number | null;
+  neckCircumference: number | null;
+  shoulderWidth: number | null;
+  upperChestCircumference: number | null;
+  chestCircumference: number | null;
+  upperArmCircumference: number | null;
+  armLength: number | null;
+  wristCircumference: number | null;
+  backWidth: number | null;
+  hipsCircumference: number | null;
+  crotchDepth: number | null;
+  neckToWaistline: number | null;
+  waist: number | null;
+  inseam: number | null;
+  waistToKnee: number | null;
+  kneeCircumference: number | null;
+  ankleCircumference: number | null;
+  napeToWaist: number | null;
+  waistToFloor: number | null;
+  thighCircumference: number | null;
+  neckToAnkle: number | null;
+  calfCircumference: number | null;
+};
+
+export type UmojaLinnFemaleSizingTemplateProps = {
+  height: number | null;
+  neckSize: number | null;
+  totalBust: number | null;
+  highestPointOfHips: number | null;
+  widestPointOfHips: number | null;
+  thigh: number | null;
+  upperArmCircumference: number | null;
+  armLength: number | null;
+  shoulderWidth: number | null;
+  bodyRise: number | null;
+  neckToAnkle: number | null;
+  waist: number | null;
+  inseam: number | null;
+  backLength: number | null;
+  outseam: number | null;
+  ankleCircumference: number | null;
+  calfCircumference: number | null;
+  wristCircumference: number | null;
+  waistToFloor: number | null;
+};
+
+export type UmojaLinnSizingTemplate = {
+  id: string;
+  buyerId: string;
+  name: string;
+  unit: "CM" | "INCH";
+  gender: "MALE" | "FEMALE";
+  status: "DRAFT";
+} & Partial<UmojaLinnMaleSizingTemplateProps> &
+  Partial<UmojaLinnMaleSizingTemplateProps> &
+  UmojaLinnTimestamp;
