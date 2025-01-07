@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Copy, UserRoundPlus } from "lucide-react";
-import { TagInput } from "@/components/custom/TagInput";
+import { TagInput } from "@/components/custom/tag/Input";
 import { z } from "zod";
 import { useGetMe } from "@/tanstack/hooks/useUser";
 import { Badge } from "@/components/ui/badge";

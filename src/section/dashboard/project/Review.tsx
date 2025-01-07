@@ -1,4 +1,4 @@
-import AvatarIconTag from "@/components/custom/AvatarIconTag";
+import AvatarIconTag from "@/components/custom/tag/AvatarIcon";
 import Collapsible from "@/components/custom/Collapsible";
 import LabelBadge from "@/components/custom/LabelBadge";
 import { Skeleton } from "@/components/ui/skeleton";

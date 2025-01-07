@@ -1,5 +1,5 @@
 "use client";
-import AvatarIconTag from "@/components/custom/AvatarIconTag";
+import AvatarIconTag from "@/components/custom/tag/AvatarIcon";
 import SectionTitle from "@/components/custom/SectionTitle";
 import CheckCircle from "@/icons/CheckCircle";
 import { useGetProjectById } from "@/tanstack/hooks/useProject";

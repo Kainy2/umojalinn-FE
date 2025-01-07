@@ -7,18 +7,18 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
+} from "@/components/ui/select";
 import { SelectProps, SelectTriggerProps } from "@radix-ui/react-select";
 import { cn } from "@/lib/utils";
-import { Label } from "../ui/label";
-import { FieldProps, FormFieldProps } from "./TextField";
+import { Label } from "@/components/ui/label";
+import { FieldProps, FormFieldProps } from "@/components/custom/TextField";
 import {
   FormControl,
   FormDescription,
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form";
+} from "@/components/ui/form";
 
 export type CustomGroupedOptionsProps = {
   type?: "label" | "option";

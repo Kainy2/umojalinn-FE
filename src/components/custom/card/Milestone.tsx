@@ -5,7 +5,7 @@ import { UmojaLinnCurrency } from "@/types/project";
 import { Edit, Minus, Plus, Save, Trash2 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import TextField from "../TextField";
-import TextAreaField from "../TextField copy";
+import TextAreaField from "../TextAreaField";
 import { Separator } from "@/components/ui/separator";
 import VerifyDialog from "../dialog/Verify";
 

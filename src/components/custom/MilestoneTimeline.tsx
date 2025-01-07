@@ -1,8 +1,8 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { Button, ButtonProps } from "../ui/button";
-import { Separator } from "../ui/separator";
+import { Button, ButtonProps } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { Check, Plus } from "lucide-react";
 import { format } from "date-fns";
 

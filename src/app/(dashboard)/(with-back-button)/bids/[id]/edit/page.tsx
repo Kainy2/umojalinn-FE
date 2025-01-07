@@ -5,7 +5,7 @@ import MilestoneCard, {
 } from "@/components/custom/card/Milestone";
 import DeliveryMethodPicker from "@/components/custom/DeliveryMethodPicker";
 import TotalPriceError from "@/components/custom/dialog/TotalPriceError";
-import TextAreaField from "@/components/custom/TextField copy";
+import TextAreaField from "@/components/custom/TextAreaField";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";

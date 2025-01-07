@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
 import { ClassValue } from "clsx";
-import { Textarea } from "../ui/textarea";
+import { Textarea } from "@/components/ui/textarea";
 
 export type FieldProps = Partial<{
   label: React.ComponentProps<"label"> | string;

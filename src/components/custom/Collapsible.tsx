@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import SectionTitle from "./SectionTitle";
+import SectionTitle from "@/components/custom/SectionTitle";
 
 type CollapsibleProps = {
   title: string;

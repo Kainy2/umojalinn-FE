@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { XIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { type InputProps } from "../ui/input";
+import { type InputProps } from "@/components/ui/input";
 
 type TagInputProps = Omit<InputProps, "value" | "onChange"> & {
   value: string[];

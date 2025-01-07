@@ -1,5 +1,5 @@
 "use client";
-import ProfilePhotoPicker from "@/components/custom/ProfilePhotoPicker";
+import ProfilePhotoPicker from "@/components/custom/picker/ProfilePhotoPicker";
 import useHandleError from "@/hooks/useHandleError";
 import useStorage from "@/hooks/useStorage";
 import { jsonToFormData } from "@/lib/utils";

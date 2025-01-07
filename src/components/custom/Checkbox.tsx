@@ -1,7 +1,7 @@
 import { CheckboxProps } from "@radix-ui/react-checkbox";
 import React from "react";
-import { FieldProps } from "./TextField";
-import { Checkbox } from "../ui/checkbox";
+import { FieldProps } from "@/components/custom/TextField";
+import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 
 type CustomCheckboxProps = CheckboxProps & FieldProps;

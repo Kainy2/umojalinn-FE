@@ -1,7 +1,7 @@
 import React, { ComponentProps } from "react";
-import { Separator } from "../ui/separator";
+import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { Skeleton } from "../ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type SectionTitleProps = {
   title: string;

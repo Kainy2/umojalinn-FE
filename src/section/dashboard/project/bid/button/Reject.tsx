@@ -1,6 +1,6 @@
 "use client";
 import VerifyDialog from "@/components/custom/dialog/Verify";
-import TextAreaField from "@/components/custom/TextField copy";
+import TextAreaField from "@/components/custom/TextAreaField";
 import { Button } from "@/components/ui/button";
 import { useAcceptOrRejectBid } from "@/tanstack/hooks/useBid";
 import React, { useState } from "react";

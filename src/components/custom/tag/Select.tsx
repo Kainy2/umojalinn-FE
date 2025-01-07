@@ -1,17 +1,17 @@
 import { cn } from "@/lib/utils";
 import { ClassValue } from "clsx";
 import React, { useState } from "react";
-import { Badge } from "../ui/badge";
-import {  Plus } from "lucide-react";
-import { FieldProps, FormFieldProps } from "./TextField";
-import { Label } from "../ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Plus } from "lucide-react";
+import { FieldProps, FormFieldProps } from "@/components/custom/TextField";
+import { Label } from "@/components/ui/label";
 import {
   FormControl,
   FormDescription,
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form";
+} from "@/components/ui/form";
 
 type CustomTagSelectProps = {
   value: string[];

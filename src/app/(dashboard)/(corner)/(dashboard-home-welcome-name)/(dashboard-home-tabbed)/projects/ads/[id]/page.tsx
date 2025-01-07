@@ -1,5 +1,5 @@
 "use client";
-import AvatarIconTag from "@/components/custom/AvatarIconTag";
+import AvatarIconTag from "@/components/custom/tag/AvatarIcon";
 import MenuButton from "@/components/custom/MenuButton";
 import SectionTitle from "@/components/custom/SectionTitle";
 import { Button } from "@/components/ui/button";
