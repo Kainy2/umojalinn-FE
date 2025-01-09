@@ -1,4 +1,4 @@
-import CustomSidebarMenu from "@/components/custom/SidebarMenu";
+import CustomSidebarMenu from "@/components/custom/sidebar/Menu";
 
 import {
   SidebarContent,

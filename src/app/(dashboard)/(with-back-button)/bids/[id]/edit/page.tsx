@@ -3,9 +3,9 @@ import Alert from "@/components/custom/Alert";
 import MilestoneCard, {
   MileStoneCardFooter,
 } from "@/components/custom/card/Milestone";
-import DeliveryMethodPicker from "@/components/custom/DeliveryMethodPicker";
+import DeliveryMethodPicker from "@/components/custom/picker/DeliveryMethod";
 import TotalPriceError from "@/components/custom/dialog/TotalPriceError";
-import TextAreaField from "@/components/custom/TextAreaField";
+import TextAreaField from "@/components/custom/input/TextAreaField";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";

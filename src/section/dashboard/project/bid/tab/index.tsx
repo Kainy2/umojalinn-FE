@@ -1,5 +1,5 @@
 "use client";
-import CustomTab from "@/components/custom/Tab";
+import CustomTab from "@/components/custom/tab";
 import { useParams, usePathname, useSearchParams } from "next/navigation";
 import React, { useMemo } from "react";
 import BidTabProjectDetailsSection from "./ProjectDetails";

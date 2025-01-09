@@ -1,5 +1,5 @@
 "use client";
-import CustomTab from "@/components/custom/Tab";
+import CustomTab from "@/components/custom/tab";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { useGetProjectById } from "@/tanstack/hooks/useProject";
 import { useParams, usePathname } from "next/navigation";

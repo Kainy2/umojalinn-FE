@@ -4,8 +4,8 @@ import { parseStringToNumber } from "@/lib/utils";
 import { UmojaLinnCurrency } from "@/types/project";
 import { Edit, Minus, Plus, Save, Trash2 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import TextField from "../TextField";
-import TextAreaField from "../TextAreaField";
+import TextField from "../input/TextField";
+import TextAreaField from "../input/TextAreaField";
 import { Separator } from "@/components/ui/separator";
 import VerifyDialog from "../dialog/Verify";
 

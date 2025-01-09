@@ -5,36 +5,67 @@ import React from "react";
 export type CustomTabItemProps = {
   title: string;
   description?: string;
-  href: string;
+  href?: string;
   count?: number;
   type?: CustomTabProps["type"];
   active?: boolean;
   hasPassed?: boolean;
   match?: RegExp;
   replace?: CustomTabProps["replace"];
+  onClick?: React.ComponentProps<"button">["onClick"];
+  value?: unknown;
 };
 
-type CustomTabProps = {
+export type CustomTabProps = {
   tabs: CustomTabItemProps[];
   active: string | null;
   type?: "ONBOARD" | "NAVIGATOR";
   className?: string;
   replace?: boolean;
+  onChange?: (value: unknown) => void;
+};
+
+const CustomTabItemWrapper = (
+  props: CustomTabItemProps & {
+    children: React.ReactNode;
+  }
+) => {
+  let className = cn(
+    "relative  pt-4 text-sm before:content-[''] before:absolute before:w-full before:h-3 md:before:h-1  before:rounded-full md:before:rounded-none before:top-0 before:bg-gray-100 w-20 md:flex-1 md:shrink-0 text-foreground-body",
+    (props.active || props.hasPassed) && "before:bg-primary",
+    props.active && "text-primary"
+  );
+  if (props?.type === "NAVIGATOR") {
+    className = `px-6 py-3 text-sm font-semibold border-b-2 transition-colors duration-200 leading-normal ${
+      props.active
+        ? "border-primary text-primary"
+        : "border-transparent text-gray-500 hover:text-primary"
+    }`;
+  }
+
+  if (props.href) {
+    return (
+      <Link
+        replace={props.replace}
+        href={props.href || ""}
+        passHref
+        className={className}
+      >
+        {props.children}
+      </Link>
+    );
+  }
+  return (
+    <button onClick={props.onClick} className={className}>
+      {props.children}
+    </button>
+  );
 };
 
 const CustomTabItem = (props: CustomTabItemProps) => {
   if (props?.type === "NAVIGATOR") {
     return (
-      <Link
-        replace={props.replace}
-        href={props.href}
-        passHref
-        className={`px-6 py-3 text-sm font-semibold border-b-2 transition-colors duration-200 leading-normal ${
-          props.active
-            ? "border-primary text-primary"
-            : "border-transparent text-gray-500 hover:text-primary"
-        }`}
-      >
+      <CustomTabItemWrapper {...props}>
         {props.title}
         {props.count !== undefined && (
           <span
@@ -46,23 +77,15 @@ const CustomTabItem = (props: CustomTabItemProps) => {
             {props.count}
           </span>
         )}
-      </Link>
+      </CustomTabItemWrapper>
     );
   }
 
   return (
-    <Link
-      replace={props.replace}
-      href={props.href}
-      className={cn(
-        "relative  pt-4 text-sm before:content-[''] before:absolute before:w-full before:h-3 md:before:h-1  before:rounded-full md:before:rounded-none before:top-0 before:bg-gray-100 w-20 md:flex-1 md:shrink-0 text-foreground-body",
-        (props.active || props.hasPassed) && "before:bg-primary",
-        props.active && "text-primary"
-      )}
-    >
+    <CustomTabItemWrapper {...props}>
       <span className="hidden md:block mb-5 font-semibold ">{props.title}</span>
       <span className="hidden lg:block ">{props.description}</span>
-    </Link>
+    </CustomTabItemWrapper>
   );
 };
 

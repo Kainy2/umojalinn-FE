@@ -13,7 +13,10 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import CustomSelect, { CustomSelectProps } from "@/components/custom/Select";
-import { FieldProps, FormFieldProps } from "@/components/custom/TextField";
+import {
+  FieldProps,
+  FormFieldProps,
+} from "@/components/custom/input/TextField";
 import { Label } from "@/components/ui/label";
 import {
   FormControl,

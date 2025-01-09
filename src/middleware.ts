@@ -25,6 +25,10 @@ export default withAuth(
   async function middleware(request: NextRequestWithAuth) {
     const pathname = request.nextUrl.pathname;
     const token = request.nextauth.token;
+    const searchParams = request.nextUrl.searchParams;
+    const redirectTo = searchParams.get("redirectTo");
+    const inviterTag = searchParams.get("inviterTag");
+
     const isUserLoggedIn = !!token;
 
     // Determine if the request is a guest route, shared route, or private route
@@ -52,6 +56,16 @@ export default withAuth(
 
     // Handle guest routes
     if (isUserLoggedIn && isGuestRoute) {
+      if (inviterTag) {
+        return NextResponse.redirect(
+          absoluteUrl(`/project/create?inviterTag=${inviterTag}`, request)
+        );
+      }
+      if (redirectTo) {
+        return NextResponse.redirect(
+          absoluteUrl(decodeURIComponent(redirectTo), request)
+        );
+      }
       return NextResponse.redirect(absoluteUrl(DASHBOARD_PAGE_URL, request));
     }
 

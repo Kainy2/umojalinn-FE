@@ -1,4 +1,4 @@
-import { CustomSidebarMenuItemProps } from "@/components/custom/SidebarMenuItem";
+import { CustomSidebarMenuItemProps } from "@/components/custom/sidebar/MenuItem";
 import Activity from "@/icons/Activity";
 import Bank from "@/icons/Bank";
 import Grid01 from "@/icons/Grid01";
@@ -24,8 +24,9 @@ export const BUYERS_SIDEBAR_CONTENT: CustomSidebarMenuItemProps[] = [
   },
   {
     title: "Sizing Templates",
-    url: "#",
+    url: "/sizing-templates",
     icon: <Tag03 />,
+    regex: /^\/sizing-templates$/,
   },
   {
     title: "Messages",

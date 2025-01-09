@@ -1,5 +1,5 @@
 "use client";
-import TextField from "@/components/custom/TextField";
+import TextField from "@/components/custom/input/TextField";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";

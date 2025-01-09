@@ -17,6 +17,7 @@ import {
 import { ArrayApiResponse, SingleApiResponse } from "@/types/util";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
+import { BUYER, CLOTHING_TYPES, DESIGNER, PROJECT } from "../keys";
 
 export const useInviteBuyer = (
   options: GenericUseMutationProps<SingleApiResponse, { emails: string[] }>
@@ -44,7 +45,7 @@ export const useGetProjectById = (
   return useQuery({
     ...options,
     enabled: !!me?.user && !!id && options?.enabled !== false,
-    queryKey: ["PROJECT", id],
+    queryKey: [PROJECT, id],
     queryFn: () => getProjectById(id || ""),
   });
 };
@@ -58,7 +59,7 @@ export const useUpdateProjectById = (
     ...options,
     mutationFn: (variable) => updateProjectById(id || "", variable),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: ["PROJECT"] });
+      queryClient.invalidateQueries({ queryKey: [PROJECT] });
       options?.onSuccess?.(data, variables, context);
     },
     onError: (error, variables, context) => {
@@ -76,7 +77,7 @@ export const usePostProjectLive = (
     ...options,
     mutationFn: postProjectLive,
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: ["PROJECT"] });
+      queryClient.invalidateQueries({ queryKey: [PROJECT] });
       options?.onSuccess?.(data, variables, context);
     },
     onError: (error, variables, context) => {
@@ -95,7 +96,7 @@ export const useGetClothingTypes = (
   return useQuery({
     ...options,
     enabled: !!me?.user && options?.enabled !== false,
-    queryKey: ["PROJECT", "CLOTHING_TYPES"],
+    queryKey: [PROJECT, CLOTHING_TYPES],
     queryFn: () => getClothingTypes(),
   });
 };
@@ -112,7 +113,7 @@ export const useGetAllBuyerProject = (
   return useQuery({
     ...options,
     enabled: !!me?.user && options?.enabled !== false,
-    queryKey: ["PROJECT", "BUYER", { apiParams }],
+    queryKey: [PROJECT, BUYER, { apiParams }],
     queryFn: () => getAllBuyerProjects(apiParams),
   });
 };
@@ -129,7 +130,7 @@ export const useGetAllDesignerProject = (
   return useQuery({
     ...options,
     enabled: !!me?.user && options?.enabled !== false,
-    queryKey: ["PROJECT", "DESIGNER", { apiParams }],
+    queryKey: [PROJECT, DESIGNER, { apiParams }],
     queryFn: () => getAllDesignerProjects(apiParams),
   });
 };

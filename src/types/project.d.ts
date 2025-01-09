@@ -7,7 +7,7 @@ export type UmojaLinnProject = {
   id: string;
   title: null | string;
   about: null | string;
-  gender: null | string;
+  gender: null | "MALE" | "FEMALE";
   additionalNotes: null | string;
   dueDate: null | string;
   projectType: "PRIVATE" | "PUBLIC";
@@ -157,6 +157,9 @@ export type UmojaLinnSizingTemplate = {
   unit: "CM" | "INCH";
   gender: "MALE" | "FEMALE";
   status: "DRAFT";
-} & Partial<UmojaLinnMaleSizingTemplateProps> &
-  Partial<UmojaLinnMaleSizingTemplateProps> &
+  buyer?: UmojaLinnUserRoleProfile;
+  projects: UmojaLinnProject[];
+} & Partial<
+  UmojaLinnMaleSizingTemplateProps & UmojaLinnMaleSizingTemplateProps
+> &
   UmojaLinnTimestamp;

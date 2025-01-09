@@ -3,7 +3,7 @@ import FormItemWrapper from "@/components/custom/FormItemWrapper";
 import CustomSelect, {
   FormCustomSelectField,
 } from "@/components/custom/Select";
-import { FormTextField } from "@/components/custom/TextField";
+import { FormTextField } from "@/components/custom/input/TextField";
 import { Form, FormField } from "@/components/ui/form";
 import { requirementsAndBugetSchema } from "@/lib/schema";
 import { cn, jsonToFormData } from "@/lib/utils";

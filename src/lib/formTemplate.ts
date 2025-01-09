@@ -1,4 +1,4 @@
-import { FormTextFieldProps } from "@/components/custom/TextField";
+import { FormTextFieldProps } from "@/components/custom/input/TextField";
 import { LoginSchemaProps, RegistrationSchemaProps } from "@/types/form";
 
 export type RegistrationFormItemProps = FormTextFieldProps & {

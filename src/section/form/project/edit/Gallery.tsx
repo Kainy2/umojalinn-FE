@@ -1,5 +1,5 @@
 "use client";
-import TextField from "@/components/custom/TextField";
+import TextField from "@/components/custom/input/TextField";
 import { Label } from "@/components/ui/label";
 import { RadioGroupItem } from "@/components/ui/radio-group";
 import useFilePicker from "@/hooks/useFilePicker";

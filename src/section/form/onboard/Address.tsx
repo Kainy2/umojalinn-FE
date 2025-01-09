@@ -1,6 +1,6 @@
 "use client";
 import { CustomSelectField } from "@/components/custom/Select";
-import TextField from "@/components/custom/TextField";
+import TextField from "@/components/custom/input/TextField";
 import { Form, FormField } from "@/components/ui/form";
 
 import { onboardingAddressFormSchema } from "@/lib/schema";

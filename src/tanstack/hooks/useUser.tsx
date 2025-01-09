@@ -10,6 +10,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { signOut, useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
+import { ME, USER } from "../keys";
 
 export const useGetMe = (
   options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnUser>>
@@ -19,7 +20,7 @@ export const useGetMe = (
   return useQuery({
     ...options,
     enabled: !!me?.user && options?.enabled !== false,
-    queryKey: ["USER", "ME"],
+    queryKey: [USER, ME],
     queryFn: () => getMe(),
     throwOnError(error: unknown) {
       if (axios.isAxiosError(error) && [400, 401].includes(error.status || 0)) {
@@ -41,7 +42,7 @@ export const useOnboard = (
     ...options,
     mutationFn: onboard,
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: ["USER", "ME"] });
+      queryClient.invalidateQueries({ queryKey: [USER, ME] });
       options?.onSuccess?.(data, variables, context);
     },
   });

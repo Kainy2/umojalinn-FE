@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { SidebarMenu } from "@/components/ui/sidebar";
-import CustomSidebarMenuItem from "@/components/custom/SidebarMenuItem";
+import CustomSidebarMenuItem from "@/components/custom/sidebar/MenuItem";
 import { UmojaLinnUserRole } from "@/types/user";
 import {
   BUYERS_SIDEBAR_CONTENT,

@@ -1,6 +1,6 @@
 "use client";
 import Alert from "@/components/custom/Alert";
-import DeliveryMethodPicker from "@/components/custom/DeliveryMethodPicker";
+import DeliveryMethodPicker from "@/components/custom/picker/DeliveryMethod";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";

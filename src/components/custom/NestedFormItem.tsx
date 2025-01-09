@@ -1,4 +1,4 @@
-import { FormTextField } from "@/components/custom/TextField";
+import { FormTextField } from "@/components/custom/input/TextField";
 import { FormField } from "@/components/ui/form";
 import { RegistrationFormItemProps } from "@/lib/formTemplate";
 import { isPasswordField } from "@/lib/utils";

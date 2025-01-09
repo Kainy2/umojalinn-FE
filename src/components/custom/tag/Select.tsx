@@ -3,7 +3,10 @@ import { ClassValue } from "clsx";
 import React, { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Plus } from "lucide-react";
-import { FieldProps, FormFieldProps } from "@/components/custom/TextField";
+import {
+  FieldProps,
+  FormFieldProps,
+} from "@/components/custom/input/TextField";
 import { Label } from "@/components/ui/label";
 import {
   FormControl,
@@ -29,14 +32,12 @@ const CustomTagSelect = (props: CustomTagSelectProps) => {
   const [intVal, setIntVal] = useState<string[]>(value || []);
 
   const handleToggle = (id: string) => {
-    let newValue: string[] = [];
-    console.log(newValue, "NEW VALUE");
-    if (intVal?.includes(id) || value?.includes(id)) {
-      newValue = intVal?.filter((item) => item !== id) as string[];
-      console.log(newValue, "NEW VALUE2");
+    let newValue: string[];
+    const val = value || intVal;
+    if (val?.includes(id)) {
+      newValue = val?.filter((item) => item !== id);
     } else {
-      newValue = [...intVal, id] as string[];
-      console.log(newValue, "NEW VALUE2B");
+      newValue = [...val, id];
     }
     setIntVal(newValue);
     onChange(newValue);

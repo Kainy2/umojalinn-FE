@@ -6,7 +6,7 @@ import {
   PhoneInputRefType,
   type PhoneInputProps,
 } from "react-international-phone";
-import { FieldProps } from "@/components/custom/TextField";
+import { FieldProps } from "@/components/custom/input/TextField";
 import { Label } from "@/components/ui/label";
 
 const CustomPhonePicker = React.forwardRef<PhoneInputRefType, PhoneInputProps>(

@@ -25,6 +25,7 @@ import {
 import { ArrayApiResponse, SingleApiResponse } from "@/types/util";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
+import { BID, BUYER, DESIGNER } from "../keys";
 
 export const useCreateBid = (
   options?: GenericUseMutationProps<SingleApiResponse<UmojaLinnBid>, string>
@@ -34,7 +35,7 @@ export const useCreateBid = (
     ...options,
     mutationFn: createBid,
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: ["BID"] });
+      queryClient.invalidateQueries({ queryKey: [BID] });
       options?.onSuccess?.(data, variables, context);
     },
     onError: (error, variables, context) => {
@@ -56,7 +57,7 @@ export const useGetDesigerBids = (
   return useQuery({
     ...options,
     enabled: !!me?.user && options?.enabled !== false,
-    queryKey: ["BID", "DESIGNER", apiParams],
+    queryKey: [BID, DESIGNER, apiParams],
     queryFn: () => getDesignerBids(apiParams),
   });
 };
@@ -71,7 +72,7 @@ export const useGetBuyerBids = (
   return useQuery({
     ...options,
     enabled: !!me?.user && options?.enabled !== false,
-    queryKey: ["BID", "BUYER", apiParams],
+    queryKey: [BID, BUYER, apiParams],
     queryFn: () => getBuyerBids(apiParams),
   });
 };
@@ -84,7 +85,7 @@ export const useGetDesignerBidById = (
   return useQuery({
     ...options,
     enabled: !!me?.user && options?.enabled !== false,
-    queryKey: ["BID", "DESIGNER", { id }],
+    queryKey: [BID, DESIGNER, { id }],
     queryFn: () => getDesignerBidById(id),
   });
 };
@@ -97,7 +98,7 @@ export const useGetBuyerBidById = (
   return useQuery({
     ...options,
     enabled: !!me?.user && options?.enabled !== false,
-    queryKey: ["BID", "BUYER", { id }],
+    queryKey: [BID, "BUYER", { id }],
     queryFn: () => getBuyerBidById(id),
   });
 };
@@ -110,7 +111,7 @@ export const useGetBidById = (
   return useQuery({
     ...options,
     enabled: !!me?.user && options?.enabled !== false,
-    queryKey: ["BID", { id, role: me?.user?.profileRole }],
+    queryKey: [BID, { id, role: me?.user?.profileRole }],
     queryFn: () =>
       me?.user?.profileRole === "BUYER"
         ? getBuyerBidById(id)
@@ -130,7 +131,7 @@ export const useCreateMilestone = (
     ...options,
     mutationFn: (variables) => createMilestone(bidId, variables),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: ["BID"] });
+      queryClient.invalidateQueries({ queryKey: [BID] });
       options?.onSuccess?.(data, variables, context);
     },
     onError: (error, variables, context) => {
@@ -154,7 +155,7 @@ export const useUpdateMilestone = (
       return updateMilestone(id || "", others);
     },
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: ["BID"] });
+      queryClient.invalidateQueries({ queryKey: [BID] });
       options?.onSuccess?.(data, variables, context);
     },
     onError: (error, variables, context) => {
@@ -172,7 +173,7 @@ export const useDeleteMilestone = (
     ...options,
     mutationFn: deleteMilestone,
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: ["BID"] });
+      queryClient.invalidateQueries({ queryKey: [BID] });
       options?.onSuccess?.(data, variables, context);
     },
     onError: (error, variables, context) => {
@@ -198,7 +199,7 @@ export const useUpdateBid = (
     ...options,
     mutationFn: (variables) => updateBid(id, variables),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: ["BID"] });
+      queryClient.invalidateQueries({ queryKey: [BID] });
       options?.onSuccess?.(data, variables, context);
     },
     onError: (error, variables, context) => {
@@ -217,7 +218,7 @@ export const useSubmitBid = (
     ...options,
     mutationFn: () => submitBid(id),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: ["BID"] });
+      queryClient.invalidateQueries({ queryKey: [BID] });
       options?.onSuccess?.(data, variables, context);
     },
     onError: (error, variables, context) => {
@@ -242,7 +243,7 @@ export const useAcceptOrRejectBid = (
     ...options,
     mutationFn: (variables) => acceptOrRejectBid(id, variables),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: ["BID"] });
+      queryClient.invalidateQueries({ queryKey: [BID] });
       options?.onSuccess?.(data, variables, context);
     },
     onError: (error, variables, context) => {
