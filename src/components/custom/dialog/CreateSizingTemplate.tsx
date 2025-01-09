@@ -28,8 +28,6 @@ import {
   usePostSizingTemplateLive,
 } from "@/tanstack/hooks/useSizingTemplates";
 import { getSizingTemplateUpdateProps } from "@/lib/project";
-import { SingleApiResponse } from "@/types/util";
-import { AxiosResponse } from "axios";
 import { useRouter } from "next/navigation";
 
 const CreateSizingTemplateDialog = (props: DialogProps) => {
@@ -68,11 +66,23 @@ const CreateSizingTemplateDialog = (props: DialogProps) => {
       }));
     };
 
-  const handleDraft = (
-    onSuccess?: (
-      data: AxiosResponse<SingleApiResponse<UmojaLinnSizingTemplate>>
-    ) => void
-  ) => {
+  const handleDraft = () => {
+    const sizingTemplateProps = {
+      ...getSizingTemplateUpdateProps(gender, value),
+      gender,
+      name,
+    };
+
+    createSizingTemplate(sizingTemplateProps, {
+      onSuccess() {
+        setOpen(false);
+        props.onOpenChange?.(false);
+        router.push("/sizing-templates");
+      },
+    });
+  };
+
+  const handleSave = () => {
     const sizingTemplateProps = {
       ...getSizingTemplateUpdateProps(gender, value),
       gender,
@@ -81,27 +91,15 @@ const CreateSizingTemplateDialog = (props: DialogProps) => {
 
     createSizingTemplate(sizingTemplateProps, {
       onSuccess(data) {
-        if (onSuccess) {
-          onSuccess?.(data);
-        } else {
-          setOpen(false);
-          props.onOpenChange?.(false);
-          router.push("/sizing-templates");
-        }
+        postSizingTemplateLive(data?.data?.data?.id, {
+          onSuccess() {
+            setOpen(false);
+            props.onOpenChange?.(false);
+            router.push("/sizing-templates");
+          },
+        });
       },
     });
-  };
-
-  const handleSave = () => {
-    handleDraft((data) =>
-      postSizingTemplateLive(data?.data?.data?.id, {
-        onSuccess() {
-          setOpen(false);
-          props.onOpenChange?.(false);
-          router.push("/sizing-templates");
-        },
-      })
-    );
   };
 
   return (
@@ -120,6 +118,7 @@ const CreateSizingTemplateDialog = (props: DialogProps) => {
               className="flex-1 w-full"
               maxLength={15}
               onChange={(e) => setName(e?.target?.value)}
+              value={name}
             />
             <TabButtonSelect
               active={gender}
@@ -184,7 +183,7 @@ const CreateSizingTemplateDialog = (props: DialogProps) => {
               Save
             </Button>
             <Button
-              onClick={() => handleSave}
+              onClick={() => handleSave()}
               disabled={isCreatingSizingTemplate || isPostingSizingTemplateLive}
             >
               Submit
@@ -212,7 +211,7 @@ const CreateSizingTemplateDialog = (props: DialogProps) => {
               Save
             </Button>
             <Button
-              onClick={() => handleSave}
+              onClick={() => handleSave()}
               disabled={isCreatingSizingTemplate || isPostingSizingTemplateLive}
             >
               Submit

@@ -10,9 +10,9 @@ const Layout = ({ children }: LayoutProps) => {
         type="NAVIGATOR"
         active="All Templates"
         tabs={[
-          { title: "All Templates", count: 0 },
-          { title: "Templates in use", count: 0 },
-          { title: "Drafts", count: 0 },
+          { title: "All Templates" },
+          { title: "Templates in use" },
+          { title: "Drafts" },
         ]}
       />
       {children}

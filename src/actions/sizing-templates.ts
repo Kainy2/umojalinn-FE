@@ -44,7 +44,7 @@ export const getSizingTemplates = async (options?: ServerActionOption) => {
   return axios.get<
     unknown,
     AxiosResponse<ArrayApiResponse<UmojaLinnSizingTemplate>>
-  >(`/project/all/buyer`);
+  >(`/sizing-template/all`);
 };
 
 export const getSizingTemplateById = async (
