@@ -5,9 +5,18 @@ const DASHBOARD_PAGE_URL = "/";
 const LOGIN_PAGE_URL = "/login";
 const ONBOARDING_PAGE_URL = "/onboard";
 
-const absoluteUrl = (relativeUrl: string, request: NextRequest) => {
+const absoluteUrl = (
+  relativeUrl: string,
+  request: NextRequest,
+  searchParams?: Record<string, string>
+) => {
   const url = request.nextUrl.clone();
   url.pathname = relativeUrl;
+  if (searchParams) {
+    Object.entries(searchParams).forEach(([key, value]) =>
+      url.searchParams.set(key, value)
+    );
+  }
   return url;
 };
 
@@ -58,7 +67,7 @@ export default withAuth(
     if (isUserLoggedIn && isGuestRoute) {
       if (inviterTag) {
         return NextResponse.redirect(
-          absoluteUrl(`/project/create?inviterTag=${inviterTag}`, request)
+          absoluteUrl(`/project/create`, request, { inviterTag })
         );
       }
       if (redirectTo) {
