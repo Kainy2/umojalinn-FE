@@ -16,6 +16,7 @@ export type UmojaLinnProject = {
   designerId: string;
   budget: number | null | string;
   currency: null | UmojaLinnCurrency;
+  sizingtemplateId: string | null;
   deliveryAddress: {
     id: string;
     country: null | string;

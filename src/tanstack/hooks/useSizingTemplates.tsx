@@ -18,6 +18,7 @@ import { ArrayApiResponse, SingleApiResponse } from "@/types/util";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { SIZING_TEMPLATE } from "../keys";
 import { useSession } from "next-auth/react";
+import { requestSizingTemplateInProject } from "@/actions/project";
 
 export const useCreateSizingTemplate = (
   options?: GenericUseMutationProps<
@@ -141,6 +142,20 @@ export const useAddSizingTemplateToProject = (
       queryClient.invalidateQueries({ queryKey: [SIZING_TEMPLATE] });
       options?.onSuccess?.(data, variables, context);
     },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useRequestSizingTemplateInProject = (
+  options?: GenericUseMutationProps<SingleApiResponse, string>
+) => {
+  const { handleError } = useHandleError("Request Sizing Template");
+  return useMutation({
+    ...options,
+    mutationFn: requestSizingTemplateInProject,
     onError: (error, variables, context) => {
       handleError(error);
       options?.onError?.(error, variables, context);

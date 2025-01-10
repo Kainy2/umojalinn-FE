@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { ClassValue } from "clsx";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import React from "react";
 
@@ -6,6 +7,10 @@ type AlertProps = {
   title: string;
   message: string;
   type?: "success" | "error" | "warning" | "info";
+  icon?: React.ReactNode;
+  action?: React.ReactNode;
+  className?: ClassValue;
+  messagesClassName?: ClassValue;
 };
 
 const Alert = (props: AlertProps) => {
@@ -30,13 +35,17 @@ const Alert = (props: AlertProps) => {
       colorStyle = "bg-primary-50 border-primary [&>svg]:text-primary";
       break;
   }
+
   return (
-    <div className={cn("flex gap-2 p-4 border", colorStyle)}>
-      <Icon />
-      <div className="flex-1 text-foreground-body">
+    <div className={cn("flex gap-2 p-4 border", colorStyle, props.className)}>
+      {props.icon || <Icon />}
+      <div
+        className={cn("flex-1 text-foreground-body", props.messagesClassName)}
+      >
         <h3 className="font-semibold mb-1">{props.title}</h3>
         <p className="text-sm">{props.message}</p>
       </div>
+      {props.action}
     </div>
   );
 };

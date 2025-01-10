@@ -95,7 +95,7 @@ const CustomTab = (props: CustomTabProps) => {
     return (
       <div
         className={cn(
-          "flex space-x-4 border-b border-border/50",
+          "flex space-x-4 border-b border-border/50 overflow-scroll",
           props.className
         )}
       >

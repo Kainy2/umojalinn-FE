@@ -13,10 +13,6 @@ const DashboardPage = () => {
     });
   const { data: bidsData, isPending: isLoadingBids } = useGetDesigerBids();
 
-  const { data: draftProjectsData, isPending: isLoadingDraftProjectsData } =
-    useGetAllDesignerProject({
-      projectStatus: "DRAFT",
-    });
   const { data: liveProjectsData, isPending: isLoadingLiveProjectsData } =
     useGetAllDesignerProject({
       projectStatus: "LIVE",
@@ -82,38 +78,12 @@ const DashboardPage = () => {
       </CustomCardHolder>
       <CustomCardHolder
         colour="primary"
-        count={
-          (liveProjectsData?.data?.data?.length || 0) +
-          (draftProjectsData?.data?.data?.length || 0)
-        }
+        count={liveProjectsData?.data?.data?.length || 0}
         title="My Active Jobs"
-        loading={isLoadingLiveProjectsData || isLoadingDraftProjectsData}
-        empty={
-          !liveProjectsData?.data?.data?.length &&
-          !draftProjectsData?.data?.data?.length
-        }
+        loading={isLoadingLiveProjectsData}
+        empty={!liveProjectsData?.data?.data?.length}
       >
         {liveProjectsData?.data?.data?.map((job) => (
-          <JobCard
-            key={job.id}
-            isPrivate={job.projectType === "PRIVATE"}
-            name={job?.title || "No title"}
-            href={`/jobs/${uuidToBase62Safe(job?.id)}`}
-            progress={{
-              value: 0,
-              total: 1,
-            }}
-            img={getCoverImage(job)}
-            dueDate={job.dueDate}
-          />
-        ))}
-
-        <div className="flex gap-2 items-center my-2 [&>hr]:bg-yellow text-gray-400">
-          <hr className="flex-1" />
-          <span className="text-xs">Jobs in draft</span>
-          <hr className="flex-1" />
-        </div>
-        {draftProjectsData?.data?.data?.map((job) => (
           <JobCard
             key={job.id}
             isPrivate={job.projectType === "PRIVATE"}

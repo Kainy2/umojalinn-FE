@@ -123,3 +123,16 @@ export const getAllDesignerProjects = async (
     `/project/all/designer${apiParams ? convertApiParams(apiParams) : ""}`
   );
 };
+
+export const requestSizingTemplateInProject = async (
+  id: string,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/project/request-sizing-template/${base62ToUuidSafe(id)}`
+  );
+};

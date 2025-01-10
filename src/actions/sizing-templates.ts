@@ -1,4 +1,5 @@
 import { clientAxios, getServerAxiosWithToken } from "@/lib/axios";
+import { base62ToUuidSafe } from "@/lib/uuid";
 import { UmojaLinnSizingTemplate } from "@/types/project";
 import {
   ArrayApiResponse,
@@ -58,7 +59,7 @@ export const getSizingTemplateById = async (
   return axios.get<
     unknown,
     AxiosResponse<SingleApiResponse<UmojaLinnSizingTemplate>>
-  >(`/sizing-template/${id}`);
+  >(`/sizing-template/${base62ToUuidSafe(id)}`);
 };
 
 export const deleteSizingTemplate = async (
@@ -70,7 +71,7 @@ export const deleteSizingTemplate = async (
     axios = await getServerAxiosWithToken();
   }
   return axios.delete<unknown, AxiosResponse<SingleApiResponse>>(
-    `/sizing-template/${id}/delete`
+    `/sizing-template/${base62ToUuidSafe(id)}/delete`
   );
 };
 
@@ -85,7 +86,7 @@ export const postSizingTemplateLive = async (
   return axios.post<
     unknown,
     AxiosResponse<SingleApiResponse<UmojaLinnSizingTemplate>>
-  >(`/sizing-template/${id}/post-live`);
+  >(`/sizing-template/${base62ToUuidSafe(id)}/post-live`);
 };
 
 export const addSizingTemplateToProject = async (
@@ -100,8 +101,8 @@ export const addSizingTemplateToProject = async (
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
     `/sizing-template/add-to-project`,
     {
-      projectId,
-      sizingTemplateId,
+      projectId: base62ToUuidSafe(projectId),
+      sizingTemplateId: base62ToUuidSafe(sizingTemplateId),
     }
   );
 };
