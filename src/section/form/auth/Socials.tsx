@@ -47,12 +47,7 @@ const SocialsForm = (props: SocialsFormProps) => {
             type="button"
             onClick={() => {
               if (btn?.id) {
-                signIn(btn?.id, {
-                  redirect: true,
-                  callbackUrl: inviterTag
-                    ? `/project/create?${inviterTag}`
-                    : "/",
-                });
+                signIn(btn?.id);
               }
             }}
           >
