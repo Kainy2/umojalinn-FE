@@ -1,6 +1,6 @@
 import Image from "next/image";
 import React from "react";
-import LoginForm from "@/section/form/Login";
+import LoginForm from "@/section/form/auth/Login";
 import { PageProps } from "@/types/util";
 
 const LoginPage = async (props: PageProps) => {

@@ -1,6 +1,6 @@
 "use server";
 import { verifyEmail } from "@/actions/auth";
-import VerifyErrorResendForm from "@/section/form/VerifyErrorResend";
+import VerifyErrorResendForm from "@/section/form/auth/VerifyErrorResend";
 import { PageProps } from "@/types/util";
 import { redirect } from "next/navigation";
 import React from "react";

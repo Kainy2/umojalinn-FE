@@ -1,6 +1,6 @@
 import Image from "next/image";
 import React from "react";
-import RegistrationForm from "@/section/form/Registration";
+import RegistrationForm from "@/section/form/auth/Registration";
 import { PageProps } from "@/types/util";
 
 const RegistrationPage = async (props: PageProps) => {
