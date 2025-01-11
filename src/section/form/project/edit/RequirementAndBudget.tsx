@@ -6,7 +6,7 @@ import CustomSelect, {
 import { FormTextField } from "@/components/custom/input/TextField";
 import { Form, FormField } from "@/components/ui/form";
 import { requirementsAndBugetSchema } from "@/lib/schema";
-import { cn, jsonToFormData } from "@/lib/utils";
+import { jsonToFormData } from "@/lib/utils";
 import {
   useGetProjectById,
   useUpdateProjectById,
@@ -21,6 +21,8 @@ import NairaSign from "@/icons/NairaSign";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { uuidToBase62Safe } from "@/lib/uuid";
+import { ProjectFormProps } from "./Description";
+import TabButtonSelect from "@/components/custom/tab/ButtonSelect";
 
 const EXPERIENCE_ENUMS = [
   "1 - 2 years",
@@ -30,7 +32,7 @@ const EXPERIENCE_ENUMS = [
   "All",
 ] as const;
 
-const RequirementsBudgetForm = (props: { id: string }) => {
+const RequirementsBudgetForm = (props: ProjectFormProps) => {
   const { data, isPending: loadingProject } = useGetProjectById(props.id);
   const { mutate: updateProject, isPending: isUpdating } = useUpdateProjectById(
     props.id
@@ -73,12 +75,14 @@ const RequirementsBudgetForm = (props: { id: string }) => {
             router.push(
               mode === "DRAFT"
                 ? "/projects"
-                : `/project/${uuidToBase62Safe(props.id)}/review`
+                : `${
+                    !!props.isOnboarding && "/onboard"
+                  }/project/${uuidToBase62Safe(props.id)}/review`
             );
           },
         });
       },
-    [props.id, router, updateProject]
+    [props.id, props.isOnboarding, router, updateProject]
   );
 
   if (loadingProject) {
@@ -120,21 +124,14 @@ const RequirementsBudgetForm = (props: { id: string }) => {
                 control={form.control}
                 name="experienceLevel"
                 render={({ field }) => (
-                  <div className="p-1 flex flex-wrap justify-between gap-1 bg-gray-100">
-                    {EXPERIENCE_ENUMS.map((experience) => (
-                      <button
-                        key={experience}
-                        className={cn(
-                          "py-1.5 px-4 text-sm font-semibold text-gray-500",
-                          field.value === experience &&
-                            "bg-white border-primary border text-primary"
-                        )}
-                        onClick={() => field.onChange(experience)}
-                      >
-                        {experience}
-                      </button>
-                    ))}
-                  </div>
+                  <TabButtonSelect
+                    active={field.value || null}
+                    onChange={field.onChange}
+                    tabs={EXPERIENCE_ENUMS.map((exp) => ({
+                      value: exp,
+                      title: exp,
+                    }))}
+                  />
                 )}
               />
             </FormItemWrapper>

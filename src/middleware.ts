@@ -27,6 +27,8 @@ const guestRouteRegex =
 const sharedRouteRegex = /^\/privacy-policy$/;
 // Regular expression for matching onboarding route
 const onboardingRouteRegex = /^\/onboard.*/;
+// Regular expression for matching onboarding project route
+const onboardingProjectRouteRegex = /^\/(onboard\/project.*|project\/create$)/;
 // Regular expression for matching onboarding congratulations route
 const onboardingCongratulationsRouteRegex = /^\/onboard\/congratulations/;
 
@@ -47,6 +49,7 @@ export default withAuth(
     const isCongratulations =
       onboardingCongratulationsRouteRegex.test(pathname);
     const isPrivateRoute = !(isGuestRoute || isSharedRoute);
+    const isOnboardingProject = onboardingProjectRouteRegex.test(pathname);
 
     const hasOnboarded = !!token?.user?.hasOnboarded;
 
@@ -58,7 +61,12 @@ export default withAuth(
         );
       } else if (!hasOnboarded && !isOnboarding) {
         return NextResponse.redirect(absoluteUrl(ONBOARDING_PAGE_URL, request));
-      } else if (hasOnboarded && isOnboarding && !isCongratulations) {
+      } else if (
+        hasOnboarded &&
+        isOnboarding &&
+        !isCongratulations &&
+        !isOnboardingProject
+      ) {
         return NextResponse.redirect(absoluteUrl(DASHBOARD_PAGE_URL, request));
       }
     }

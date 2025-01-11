@@ -18,8 +18,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { uuidToBase62Safe } from "@/lib/uuid";
+import { ProjectFormProps } from "./Description";
 
-const ProjectGalleryForm = (props: { id: string }) => {
+const ProjectGalleryForm = (props: ProjectFormProps) => {
   const id = useId();
   const { data, isPending: loadingProject } = useGetProjectById(props.id);
   const { mutate: updateProject, isPending: isUpdating } = useUpdateProjectById(
@@ -145,7 +146,9 @@ const ProjectGalleryForm = (props: { id: string }) => {
               router.push(
                 mode === "DRAFT"
                   ? "/projects"
-                  : `/project/${uuidToBase62Safe(
+                  : `${
+                      !!props.isOnboarding && "/onboard"
+                    }/project/${uuidToBase62Safe(
                       props.id
                     )}/requirements-and-budget`
               );
@@ -153,7 +156,14 @@ const ProjectGalleryForm = (props: { id: string }) => {
           }
         );
       },
-    [data?.data?.data?.Gallery, props.id, router, updateProject, values]
+    [
+      data?.data?.data?.Gallery,
+      props.id,
+      props.isOnboarding,
+      router,
+      updateProject,
+      values,
+    ]
   );
 
   if (loadingProject) {

@@ -4,7 +4,7 @@ import FormItemWrapper from "@/components/custom/FormItemWrapper";
 import TextField, { FormTextField } from "@/components/custom/input/TextField";
 import { Textarea } from "@/components/ui/textarea";
 import { Info, UserPlus } from "lucide-react";
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 import { countries } from "country-list-json";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -27,16 +27,19 @@ import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { uuidToBase62Safe } from "@/lib/uuid";
 
-type ProjectDescriptionFormProps = {
+export type ProjectFormProps = {
   id: string;
+  isOnboarding?: boolean;
 };
 
-const ProjectDescriptionForm = (props: ProjectDescriptionFormProps) => {
+const ProjectDescriptionForm = (props: ProjectFormProps) => {
   const { data, isPending: loadingProject } = useGetProjectById(props.id);
   const { data: clothingTypes } = useGetClothingTypes();
   const { mutate: updateProject, isPending: isUpdating } = useUpdateProjectById(
     props.id
   );
+
+  const [useSizingTemplate, setUseSizingTemplate] = useState(false);
 
   const router = useRouter();
 
@@ -103,12 +106,14 @@ const ProjectDescriptionForm = (props: ProjectDescriptionFormProps) => {
           router.push(
             mode === "DRAFT"
               ? "/projects"
-              : `/project/${uuidToBase62Safe(props.id)}/gallery`
+              : `${
+                  !!props.isOnboarding && "/onboard"
+                }/project/${uuidToBase62Safe(props.id)}/gallery`
           );
         },
       });
     },
-    [props.id, router, updateProject]
+    [props.id, props.isOnboarding, router, updateProject]
   );
 
   if (loadingProject) {
@@ -355,27 +360,37 @@ const ProjectDescriptionForm = (props: ProjectDescriptionFormProps) => {
             render={({ field }) => <Textarea {...field} />}
           />
         </FormItemWrapper>
-        <FormItemWrapper
-          title="Sizing Template"
-          description="Choose appropriate sizing templates."
-        >
-          <div className="flex flex-col gap-4">
-            <Switch />
-            <div className="flex gap-2 items-center bg-gray-200 p-2">
-              <Info className="text-primary h-6 w-6" />
-              <span className="text-sm">
-                Include Sizing template in your Project description or at
-                project start
-              </span>
+        {!props.isOnboarding && (
+          <FormItemWrapper
+            title="Sizing Template"
+            description="Choose appropriate sizing templates."
+          >
+            <div className="flex flex-col gap-4">
+              <Switch
+                onCheckedChange={setUseSizingTemplate}
+                checked={useSizingTemplate}
+              />
+              {useSizingTemplate && (
+                <>
+                  <div className="flex gap-2 items-center bg-gray-200 p-2">
+                    <Info className="text-primary h-6 w-6" />
+                    <span className="text-sm">
+                      Include Sizing template in your Project description or at
+                      project start
+                    </span>
+                  </div>
+                  <CustomSelect placeholder="Select sizing templates" />
+                </>
+              )}
             </div>
-            <CustomSelect placeholder="Select sizing templates" />
-          </div>
-        </FormItemWrapper>
+          </FormItemWrapper>
+        )}
 
         <ProjectEditFooter
           handleSave={form.handleSubmit(onSubmit("SAVE"))}
           handleDraft={form.handleSubmit(onSubmit("DRAFT"))}
           loading={isUpdating}
+          hideBack={props.isOnboarding}
         />
       </form>
     </Form>

@@ -9,6 +9,7 @@ type ProjectEditFooterProps = {
   handleDraft?: React.ComponentProps<"button">["onClick"];
   handleSave?: React.ComponentProps<"button">["onClick"];
   hideDraft?: boolean;
+  hideBack?: boolean;
 };
 
 const ProjectEditFooter = (props: ProjectEditFooterProps) => {
@@ -17,9 +18,11 @@ const ProjectEditFooter = (props: ProjectEditFooterProps) => {
     <div className="mt-6">
       <Separator className="bg-gray-200" />
       <div className="flex flex-col md:flex-row gap-2 mt-4">
-        <Button type="button" variant="ghost" onClick={() => router.back()}>
-          Back
-        </Button>
+        {!props.hideBack && (
+          <Button type="button" variant="ghost" onClick={() => router.back()}>
+            Back
+          </Button>
+        )}
         <div className="flex-1" />
         {!props.hideDraft && (
           <Button

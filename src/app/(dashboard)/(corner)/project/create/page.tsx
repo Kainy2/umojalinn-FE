@@ -1,5 +1,5 @@
 "use server";
-import { createProject } from "@/actions/project";
+import { createProject, getAllBuyerProjects } from "@/actions/project";
 import { handleAPIError } from "@/lib/axios";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { PageProps } from "@/types/util";
@@ -11,6 +11,7 @@ const CreateProjectPage = async (
   let url = "/unauthorized";
   try {
     const tag = await props.searchParams;
+
     const res = await createProject(
       {
         tag: tag?.inviterTag,
@@ -18,7 +19,17 @@ const CreateProjectPage = async (
       },
       { isServerAction: true }
     );
-    url = `/project/${uuidToBase62Safe(res?.data?.data?.id)}`;
+
+    if (tag?.inviterTag) {
+      const projectRes = await getAllBuyerProjects(undefined, {
+        isServerAction: true,
+      });
+      url = `${
+        projectRes?.data?.data?.length === 1 && "/onboard"
+      }/project/${uuidToBase62Safe(res?.data?.data?.id)}`;
+    } else {
+      url = `/project/${uuidToBase62Safe(res?.data?.data?.id)}`;
+    }
   } catch (error) {
     handleAPIError(error);
   } finally {

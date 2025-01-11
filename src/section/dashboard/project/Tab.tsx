@@ -1,10 +1,11 @@
 "use client";
 import CustomTab from "@/components/custom/tab";
 import { uuidToBase62Safe } from "@/lib/uuid";
+import { ProjectFormProps } from "@/section/form/project/edit/Description";
 import { useParams, usePathname } from "next/navigation";
 import React, { useMemo } from "react";
 
-const ProjectTab = () => {
+const ProjectTab = (props: Pick<ProjectFormProps, "isOnboarding">) => {
   const path = usePathname();
   const params = useParams<{ id: string }>();
 
@@ -12,22 +13,30 @@ const ProjectTab = () => {
     () => [
       {
         title: "Project Description",
-        href: `/project/${uuidToBase62Safe(params.id)}`,
+        href: `${!!props.isOnboarding && "/onboard"}/project/${uuidToBase62Safe(
+          params.id
+        )}`,
       },
       {
         title: "Gallery",
-        href: `/project/${uuidToBase62Safe(params.id)}/gallery`,
+        href: `${!!props.isOnboarding && "/onboard"}/project/${uuidToBase62Safe(
+          params.id
+        )}/gallery`,
       },
       {
         title: "Requirements & Budget",
-        href: `/project/${uuidToBase62Safe(params.id)}/requirements-and-budget`,
+        href: `${!!props.isOnboarding && "/onboard"}/project/${uuidToBase62Safe(
+          params.id
+        )}/requirements-and-budget`,
       },
       {
         title: "Review",
-        href: `/project/${uuidToBase62Safe(params.id)}/review`,
+        href: `${!!props.isOnboarding && "/onboard"}/project/${uuidToBase62Safe(
+          params.id
+        )}/review`,
       },
     ],
-    [params.id]
+    [params.id, props.isOnboarding]
   );
 
   const active = useMemo(
