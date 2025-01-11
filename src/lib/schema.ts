@@ -33,6 +33,26 @@ export const loginFormSchema = z.object({
   }),
 });
 
+export const forgotPasswordFormSchema = z.object({
+  email: z.string().email({
+    message: "Please provide valid email.",
+  }),
+});
+
+export const resetPasswordFormSchema = z
+  .object({
+    password: z.string().min(8, {
+      message: "Password must be 8 characters or more.",
+    }),
+    confirmPassword: z.string().min(8, {
+      message: "Password must be 8 characters or more.",
+    }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
+
 export const onboardingDetailsFormSchema = z
   .object({
     gender: z.string().optional(),

@@ -22,7 +22,7 @@ const absoluteUrl = (
 
 // Regular expression for matching guest routes
 const guestRouteRegex =
-  /^\/(login|register|confirm|verify-email\/.*|register\/verify)$/;
+  /^\/(login|register|confirm|verify-email\/.*|register\/verify|forgot-password|forgot-password\/requested|reset-password\/.*)$/;
 // Regular expression for matching shared routes
 const sharedRouteRegex = /^\/privacy-policy$/;
 // Regular expression for matching onboarding route

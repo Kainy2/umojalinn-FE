@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import NestedFormItem from "@/components/custom/NestedFormItem";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const LoginForm = (props: {
   redirectHref: string | string[] | undefined;
@@ -90,6 +91,14 @@ const LoginForm = (props: {
             />
           );
         })}
+        <div>
+          <Link
+            href="/forgot-password"
+            className="text-sm text-foreground-body"
+          >
+            Forgot password
+          </Link>
+        </div>
         <Button loading={loading} fullWidth type="submit">
           Login
         </Button>

@@ -26,7 +26,7 @@ const VerifyErrorResendForm = (props: { email?: string }) => {
   };
 
   return (
-    <form className="text-center flex flex-col items-center container max-w-[700px] text-md">
+    <div className="text-center flex flex-col items-center container max-w-[700px] text-md">
       <span className="icon-wrapper error mb-4">
         <Mail />
       </span>
@@ -56,7 +56,7 @@ const VerifyErrorResendForm = (props: { email?: string }) => {
           <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
         </p>
       )}
-    </form>
+    </div>
   );
 };
 
