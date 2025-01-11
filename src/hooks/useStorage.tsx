@@ -5,17 +5,17 @@ const useStorage = () => {
   const [loaded, setLoaded] = useState<boolean>(false);
   /* eslint-disable  @typescript-eslint/no-explicit-any */
   const getItem = useCallback((key: string): Record<string, any> | null => {
-    const val = localStorage.getItem(key);
+    const val = localStorage?.getItem(key);
     return val !== null ? JSON.parse(val) : null;
   }, []);
 
   const setItem = useCallback(
     (key: string, value: Record<string, unknown>) =>
-      localStorage.setItem(key, JSON.stringify(value)),
+      localStorage?.setItem(key, JSON.stringify(value)),
     []
   );
   const deleteItem = useCallback(
-    (key: string) => localStorage.removeItem(key),
+    (key: string) => localStorage?.removeItem(key),
     []
   );
 

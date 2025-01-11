@@ -10,14 +10,14 @@ import React, { useMemo } from "react";
 
 const ForgotPasswordSuccess = () => {
   const router = useRouter();
-  const { getItem } = useStorage();
+  const { getItem, loaded } = useStorage();
   const { handleError } = useHandleError("Forgot Password");
 
   const { toast } = useToast();
 
   const email = useMemo(
-    () => getItem("AUTH_FORGOT_PASSWORD_EMAIL")?.email,
-    [getItem]
+    () => (loaded ? getItem("AUTH_FORGOT_PASSWORD_EMAIL")?.email : ""),
+    [getItem, loaded]
   );
 
   const handleClick = async () => {
