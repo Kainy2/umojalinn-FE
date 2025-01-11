@@ -15,7 +15,7 @@ const Layout = ({ children }: LayoutProps) => {
       </Sidebar>
       <main className="relative">
         {/* <SidebarTrigger /> */}
-        <div className="h-24 p-12 md:pl-0 flex  items-center justify-between sticky z-50 top-0 bg-background">
+        <div className="h-24 p-4 md:p-8 lg:p-12 md:pl-0 flex  items-center justify-between sticky z-50 top-0 bg-background">
           <DashboardAppbarContent />
         </div>
         <div className="dashboard-content">{children}</div>

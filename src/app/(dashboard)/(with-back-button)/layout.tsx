@@ -5,7 +5,7 @@ const LayoutWithBackButton = ({ children }: LayoutProps) => {
   return (
     <>
       <BackButton />
-      <div className="p-12">{children}</div>
+      <div className="p-4 md:p-8 lg:p-12">{children}</div>
     </>
   );
 };
