@@ -10,21 +10,24 @@ const DashboardPage = () => {
   const { data: myBidsWithDraft, isPending: isLoadingMyBidsWithDraft } =
     useGetDesigerBids({
       bidStatus: ["PENDING", "REJECTED", "DRAFT"],
+      projectStatus: "ADS",
     });
 
   const { data: draftBidData, isPending: isLoadingDraftBidData } =
     useGetDesigerBids({
       bidStatus: "DRAFT",
+      projectStatus: "ADS",
     });
 
   const { data: myBidsData, isPending: isLoadingMyBidsData } =
     useGetDesigerBids({
       bidStatus: ["PENDING", "REJECTED"],
+      projectStatus: "ADS",
     });
 
   const { data: liveProjectsData, isPending: isLoadingLiveProjectsData } =
     useGetAllDesignerProject({
-      projectStatus: ["LIVE", "ADS"],
+      projectStatus: "LIVE",
     });
 
   const {

@@ -17,6 +17,7 @@ import {
   UmojaLinnBid,
   UmojaLinnDeliveryMethod,
   UmojaLinnMilestone,
+  UmojaLinnProject,
 } from "@/types/project";
 import {
   GenericUseMutationProps,
@@ -50,6 +51,9 @@ export const useGetDesigerBids = (
     lastId: string;
     limit: number;
     bidStatus: UmojaLinnBid["status"] | Array<UmojaLinnBid["status"]>;
+    projectStatus:
+      | UmojaLinnProject["status"]
+      | Array<UmojaLinnProject["status"]>;
   }>,
   options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnBid>>
 ) => {
@@ -67,6 +71,9 @@ export const useGetBuyerBids = (
     lastId: string;
     limit: number;
     bidStatus: UmojaLinnBid["status"] | Array<UmojaLinnBid["status"]>;
+    projectStatus:
+      | UmojaLinnProject["status"]
+      | Array<UmojaLinnProject["status"]>;
   }>,
   options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnBid>>
 ) => {

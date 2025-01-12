@@ -5,6 +5,7 @@ import {
   UmojaLinnBid,
   UmojaLinnDeliveryMethod,
   UmojaLinnMilestone,
+  UmojaLinnProject,
 } from "@/types/project";
 import {
   ArrayApiResponse,
@@ -31,6 +32,9 @@ export const getDesignerBids = async (
     lastId: string;
     limit: number;
     bidStatus: UmojaLinnBid["status"] | Array<UmojaLinnBid["status"]>;
+    projectStatus:
+      | UmojaLinnProject["status"]
+      | Array<UmojaLinnProject["status"]>;
   }>,
   options?: ServerActionOption
 ) => {
@@ -48,6 +52,9 @@ export const getBuyerBids = async (
     lastId: string;
     limit: number;
     bidStatus: UmojaLinnBid["status"] | Array<UmojaLinnBid["status"]>;
+    projectStatus:
+      | UmojaLinnProject["status"]
+      | Array<UmojaLinnProject["status"]>;
   }>,
   options?: ServerActionOption
 ) => {

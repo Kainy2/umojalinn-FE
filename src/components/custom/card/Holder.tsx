@@ -2,6 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import React from "react";
 import { CustomCardProps } from ".";
+import { replaceSubsection } from "@/lib/string";
 
 type CustomCardHolderProps = {
   title?: string;
@@ -14,7 +15,7 @@ type CustomCardHolderProps = {
 };
 
 const CustomCardHolderChildren = (
-  props: Pick<CustomCardHolderProps, "children" | "empty" | "loading">
+  props: Pick<CustomCardHolderProps, "title" | "children" | "empty" | "loading">
 ) => {
   if (props.loading) {
     return new Array(4)
@@ -24,7 +25,9 @@ const CustomCardHolderChildren = (
   if (props.empty) {
     return (
       <p className="h-52 flex items-center justify-center text-foreground-body/50 text-center text-sm">
-        No data available.
+        {`No ${
+          replaceSubsection(props.title || "", "My") || "data available."
+        } available`}
       </p>
     );
   }
@@ -72,7 +75,7 @@ const CustomCardHolder = (props: CustomCardHolderProps) => {
         {title}
       </h6>
       <div className="flex flex-col gap-2">
-        <CustomCardHolderChildren {...{ empty, loading }}>
+        <CustomCardHolderChildren {...{ title, empty, loading }}>
           {children}
         </CustomCardHolderChildren>
       </div>
