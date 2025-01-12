@@ -64,14 +64,21 @@ export const useUpdateSizingTemplate = (
 };
 
 export const useGetAllSizingTemplates = (
+  apiParams?: Partial<{
+    lastId: string;
+    limit: number;
+    sizingTemplateStatus:
+      | UmojaLinnSizingTemplate["status"]
+      | Array<UmojaLinnSizingTemplate["status"]>;
+  }>,
   options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnSizingTemplate>>
 ) => {
   const { data: me } = useSession();
   return useQuery({
     ...options,
     enabled: !!me?.user && options?.enabled !== false,
-    queryKey: [SIZING_TEMPLATE],
-    queryFn: () => getSizingTemplates(),
+    queryKey: [SIZING_TEMPLATE, apiParams],
+    queryFn: () => getSizingTemplates(apiParams),
   });
 };
 

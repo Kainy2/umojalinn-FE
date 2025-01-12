@@ -1,4 +1,5 @@
 import { clientAxios, getServerAxiosWithToken } from "@/lib/axios";
+import { convertApiParams } from "@/lib/request";
 import { base62ToUuidSafe } from "@/lib/uuid";
 import { UmojaLinnSizingTemplate } from "@/types/project";
 import {
@@ -37,7 +38,16 @@ export const updateSizingTemplate = async (
   >(`/sizing-template/${id}/update`, body);
 };
 
-export const getSizingTemplates = async (options?: ServerActionOption) => {
+export const getSizingTemplates = async (
+  apiParams?: Partial<{
+    lastId: string;
+    limit: number;
+    sizingTemplateStatus:
+      | UmojaLinnSizingTemplate["status"]
+      | Array<UmojaLinnSizingTemplate["status"]>;
+  }>,
+  options?: ServerActionOption
+) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
@@ -45,7 +55,7 @@ export const getSizingTemplates = async (options?: ServerActionOption) => {
   return axios.get<
     unknown,
     AxiosResponse<ArrayApiResponse<UmojaLinnSizingTemplate>>
-  >(`/sizing-template/all`);
+  >(`/sizing-template/all${apiParams ? convertApiParams(apiParams) : ""}`);
 };
 
 export const getSizingTemplateById = async (
