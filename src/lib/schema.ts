@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { isPhoneValid } from "./utils";
+// import { isPhoneValid } from "./utils";
 
 export const registrationFormSchema = z
   .object({
@@ -59,10 +59,10 @@ export const onboardingDetailsFormSchema = z
     dateOfBirth: z.union([z.date().nullable().optional(), z.string()]),
     phoneNumber: z.string().optional(),
   })
-  .refine((data) => !data.phoneNumber || isPhoneValid(data.phoneNumber), {
-    message: "Phone number not valid.",
-    path: ["phoneNumber"],
-  })
+  // .refine((data) => !data.phoneNumber || isPhoneValid(data.phoneNumber), {
+  //   message: "Phone number not valid.",
+  //   path: ["phoneNumber"],
+  // })
   .refine((data) => !!data.dateOfBirth, {
     message: "Field cannot be empty.",
     path: ["dateOfBirth"],
