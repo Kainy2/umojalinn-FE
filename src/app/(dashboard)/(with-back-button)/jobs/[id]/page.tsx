@@ -9,6 +9,7 @@ import { useCreateBid } from "@/tanstack/hooks/useBid";
 import { useGetProjectById } from "@/tanstack/hooks/useProject";
 import { formatDate } from "date-fns";
 import { CircleDollarSign, MoreVertical } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import React from "react";
@@ -19,6 +20,8 @@ const JobPage = () => {
   const project = data?.data?.data;
   const { toast } = useToast();
   const router = useRouter();
+
+  const { data: session } = useSession();
 
   const { mutate: createBid, isPending: isCreatingBid } = useCreateBid({
     onSuccess(data) {
@@ -94,13 +97,16 @@ const JobPage = () => {
             <Button variant="outline">
               <MoreVertical />
             </Button>
-            <Button
-              variant="default"
-              onClick={() => createBid(id)}
-              loading={isCreatingBid}
-            >
-              Create Bid
-            </Button>
+            {!project?.bids?.length &&
+              session?.user?.profileRole === "DESIGNER" && (
+                <Button
+                  variant="default"
+                  onClick={() => createBid(id)}
+                  loading={isCreatingBid}
+                >
+                  Create Bid
+                </Button>
+              )}
           </div>
         </div>
       </div>

@@ -16,7 +16,7 @@ import {
 } from "@/types/tanstack";
 import { ArrayApiResponse, SingleApiResponse } from "@/types/util";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { SIZING_TEMPLATE } from "../keys";
+import { PROJECT, SIZING_TEMPLATE } from "../keys";
 import { useSession } from "next-auth/react";
 import { requestSizingTemplateInProject } from "@/actions/project";
 
@@ -139,7 +139,7 @@ export const useAddSizingTemplateToProject = (
         variables.projectId
       ),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: [SIZING_TEMPLATE] });
+      queryClient.invalidateQueries({ queryKey: [PROJECT] });
       options?.onSuccess?.(data, variables, context);
     },
     onError: (error, variables, context) => {

@@ -8,6 +8,7 @@ type SizingTemplateInputFieldProps = {
   value?: number;
   onValueChange?: React.ComponentProps<"input">["onChange"];
   onFocus?: React.ComponentProps<"input">["onFocus"];
+  disabled?: boolean;
 };
 
 const SizingTemplateInputField = (props: SizingTemplateInputFieldProps) => {
@@ -36,6 +37,7 @@ const SizingTemplateInputField = (props: SizingTemplateInputFieldProps) => {
           placeholder="0"
           onFocus={props.onFocus}
           autoComplete="off"
+          disabled={props.disabled}
         />
         <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
           {props.unit}

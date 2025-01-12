@@ -11,9 +11,10 @@ const TabButtonSelect = (props: CustomTabProps) => {
           : props.active === tab.title;
         return (
           <button
+            disabled={props.disabled}
             key={index}
             className={cn(
-              "px-3 py-2 text-foreground-body shrink-0",
+              "px-3 py-2 text-foreground-body shrink-0 disabled:cursor-not-allowed",
               active && "bg-background border border-primary text-primary"
             )}
             onClick={(e) => {

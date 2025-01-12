@@ -138,7 +138,9 @@ const ProjectReviewView = (props: {
           avatar={{
             src: props?.project?.designer?.user?.profilePhotoUri,
           }}
-          label={`${props?.project?.designer?.user?.firstName} ${props?.project?.designer?.user?.lastName}`}
+          label={`${props?.project?.designer?.user?.firstName || ""} ${
+            props?.project?.designer?.user?.lastName || ""
+          }`}
         />
       </div>
     </>

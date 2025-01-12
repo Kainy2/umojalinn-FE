@@ -16,7 +16,7 @@ export type UmojaLinnProject = {
   designerId: string;
   budget: number | null | string;
   currency: null | UmojaLinnCurrency;
-  sizingtemplateId: string | null;
+  sizingTemplateId: string | null;
   deliveryAddress: {
     id: string;
     country: null | string;
@@ -58,6 +58,7 @@ export type UmojaLinnProject = {
       name: string;
     } & UmojaLinnTimestamp
   > | null;
+  bids: UmojaLinnBid[] | null;
 } & UmojaLinnTimestamp;
 
 export type UmojaLinnDeliveryMethod =
@@ -157,7 +158,7 @@ export type UmojaLinnSizingTemplate = {
   name: string;
   unit: "CM" | "INCH";
   gender: "MALE" | "FEMALE";
-  status: "DRAFT";
+  status: "DRAFT" | "LIVE";
   buyer?: UmojaLinnUserRoleProfile;
   projects: UmojaLinnProject[];
 } & Partial<

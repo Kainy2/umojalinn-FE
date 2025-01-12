@@ -25,7 +25,10 @@ export const inviteBuyer = async (
 };
 
 export const createProject = async (
-  body?: { tag?: string; projectType: UmojaLinnProject["projectType"] },
+  body?: {
+    tag?: string;
+    projectType: UmojaLinnProject["projectType"];
+  },
   options?: ServerActionOption
 ) => {
   let axios = clientAxios;
@@ -94,7 +97,7 @@ export const getAllBuyerProjects = async (
   apiParams?: Partial<{
     lastId: string;
     limit: number;
-    bidStatus: UmojaLinnProject["status"];
+    bidStatus: UmojaLinnProject["status"] | Array<UmojaLinnProject["status"]>;
   }>,
   options?: ServerActionOption
 ) => {
@@ -111,7 +114,7 @@ export const getAllDesignerProjects = async (
   apiParams?: Partial<{
     lastId: string;
     limit: number;
-    bidStatus: UmojaLinnProject["status"];
+    bidStatus: UmojaLinnProject["status"] | Array<UmojaLinnProject["status"]>;
   }>,
   options?: ServerActionOption
 ) => {

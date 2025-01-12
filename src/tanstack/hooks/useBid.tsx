@@ -49,7 +49,7 @@ export const useGetDesigerBids = (
   apiParams?: Partial<{
     lastId: string;
     limit: number;
-    bidStatus: UmojaLinnBid["status"];
+    bidStatus: UmojaLinnBid["status"] | Array<UmojaLinnBid["status"]>;
   }>,
   options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnBid>>
 ) => {
@@ -65,6 +65,8 @@ export const useGetDesigerBids = (
 export const useGetBuyerBids = (
   apiParams?: Partial<{
     lastId: string;
+    limit: number;
+    bidStatus: UmojaLinnBid["status"] | Array<UmojaLinnBid["status"]>;
   }>,
   options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnBid>>
 ) => {

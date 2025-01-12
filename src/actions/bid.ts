@@ -30,7 +30,7 @@ export const getDesignerBids = async (
   apiParams?: Partial<{
     lastId: string;
     limit: number;
-    bidStatus: UmojaLinnBid["status"];
+    bidStatus: UmojaLinnBid["status"] | Array<UmojaLinnBid["status"]>;
   }>,
   options?: ServerActionOption
 ) => {
@@ -46,6 +46,8 @@ export const getDesignerBids = async (
 export const getBuyerBids = async (
   apiParams?: Partial<{
     lastId: string;
+    limit: number;
+    bidStatus: UmojaLinnBid["status"] | Array<UmojaLinnBid["status"]>;
   }>,
   options?: ServerActionOption
 ) => {

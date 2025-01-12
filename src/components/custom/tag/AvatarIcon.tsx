@@ -9,11 +9,13 @@ type AvatarIconTagProps = {
   label: string;
   icon?: "CHECK" | React.ReactNode;
   className?: string;
+  onClick?: React.ComponentProps<"button">["onClick"];
 };
 
 const AvatarIconTag = (props: AvatarIconTagProps) => {
   return (
-    <p
+    <button
+      onClick={props.onClick}
       className={cn(
         "p-1 text-sm inline-flex items-center gap-2 rounded-full shrink-0 bg-gray-100 text-foreground-body",
         !props.icon && "pr-3",
@@ -35,7 +37,7 @@ const AvatarIconTag = (props: AvatarIconTagProps) => {
       )}
       <span className="whitespace-nowrap">{props?.label}</span>
       {props.icon}
-    </p>
+    </button>
   );
 };
 

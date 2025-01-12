@@ -8,6 +8,7 @@ export type CustomTabItemProps = {
   href?: string;
   count?: number;
   type?: CustomTabProps["type"];
+  disabled?: CustomTabProps["disabled"];
   active?: boolean;
   hasPassed?: boolean;
   match?: RegExp;
@@ -23,6 +24,7 @@ export type CustomTabProps = {
   className?: string;
   replace?: boolean;
   onChange?: (value: unknown) => void;
+  disabled?: boolean;
 };
 
 const CustomTabItemWrapper = (
@@ -33,14 +35,17 @@ const CustomTabItemWrapper = (
   let className = cn(
     "relative  pt-4 text-sm before:content-[''] before:absolute before:w-full before:h-3 md:before:h-1  before:rounded-full md:before:rounded-none before:top-0 before:bg-gray-100 w-20 md:flex-1 md:shrink-0 text-foreground-body",
     (props.active || props.hasPassed) && "before:bg-primary",
-    props.active && "text-primary"
+    props.active && "text-primary",
+    props.disabled && "cursor-not-allowed pointer-events-none"
   );
   if (props?.type === "NAVIGATOR") {
-    className = `px-6 py-3 text-sm font-semibold border-b-2 transition-colors duration-200 leading-normal ${
+    className = cn(
+      "px-6 py-3 text-sm font-semibold border-b-2 transition-colors duration-200 leading-normal",
       props.active
         ? "border-primary text-primary"
-        : "border-transparent text-gray-500 hover:text-primary"
-    }`;
+        : "border-transparent text-gray-500 hover:text-primary",
+      props.disabled && "cursor-not-allowed pointer-events-none"
+    );
   }
 
   if (props.href) {
@@ -56,7 +61,11 @@ const CustomTabItemWrapper = (
     );
   }
   return (
-    <button onClick={props.onClick} className={className}>
+    <button
+      disabled={props.disabled}
+      onClick={props.onClick}
+      className={className}
+    >
       {props.children}
     </button>
   );
@@ -119,6 +128,7 @@ const CustomTab = (props: CustomTabProps) => {
         {tabs?.map((tab, index) => (
           <CustomTabItem
             {...tab}
+            disabled={props.disabled}
             key={tab.title}
             active={tab.title === props.active}
             hasPassed={

@@ -37,7 +37,12 @@ export const convertApiParams = (params: Record<string, unknown>) => {
   return (
     "?" +
     Object.entries(params)
-      .map((entries) => `${entries[0]}=${entries[1]}`)
+      .map(
+        (entries) =>
+          `${entries[0]}=${
+            Array.isArray(entries[1]) ? entries[1]?.join(",") : entries[1]
+          }`
+      )
       .join("&")
   );
 };

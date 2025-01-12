@@ -1,12 +1,12 @@
 "use client";
 import AvatarIconTag from "@/components/custom/tag/AvatarIcon";
 import SectionTitle from "@/components/custom/SectionTitle";
-import CheckCircle from "@/icons/CheckCircle";
 import { useGetProjectById } from "@/tanstack/hooks/useProject";
 import { format } from "date-fns";
 import { CalendarPlus } from "lucide-react";
 import { useParams } from "next/navigation";
 import React from "react";
+import SizingTemplateTag from "@/components/custom/tag/SizingTemplate";
 
 const ActiveProjectSummary = () => {
   const params = useParams<{ id: string }>();
@@ -32,10 +32,7 @@ const ActiveProjectSummary = () => {
         </span>
         <span className="text-sm text-foreground-body">Sizing Template</span>
         <span>
-          <AvatarIconTag
-            label="View sizing templates"
-            icon={<CheckCircle className="text-success" />}
-          />
+          <SizingTemplateTag projectId={params?.id} />
         </span>
         <span className="text-sm text-foreground-body">Timeline</span>
         <span>

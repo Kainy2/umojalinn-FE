@@ -92,7 +92,7 @@ export const projectFormDetailsSchema = z.object({
   zipCode: z.string().optional(),
   clothingTypes: z.array(z.string()).max(8).optional(),
   submit: z.string().optional(),
-
+  sizingTemplateId: z.string().optional(),
   //
   // budget
 });

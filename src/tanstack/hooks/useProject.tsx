@@ -105,7 +105,12 @@ export const useGetAllBuyerProject = (
   apiParams?: Partial<{
     lastId: string;
     limit: number;
-    projectStatus: UmojaLinnProject["status"];
+    projectStatus:
+      | UmojaLinnProject["status"]
+      | Array<UmojaLinnProject["status"]>;
+    projectType:
+      | UmojaLinnProject["projectType"]
+      | Array<UmojaLinnProject["projectType"]>;
   }>,
   options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnProject>>
 ) => {
@@ -122,7 +127,12 @@ export const useGetAllDesignerProject = (
   apiParams?: Partial<{
     lastId: string;
     limit: number;
-    projectStatus: UmojaLinnProject["status"];
+    projectStatus:
+      | UmojaLinnProject["status"]
+      | Array<UmojaLinnProject["status"]>;
+    projectType:
+      | UmojaLinnProject["projectType"]
+      | Array<UmojaLinnProject["projectType"]>;
   }>,
   options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnProject>>
 ) => {

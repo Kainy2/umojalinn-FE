@@ -26,6 +26,7 @@ import ProjectEditFooter from "./Footer";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { uuidToBase62Safe } from "@/lib/uuid";
+import { useGetAllSizingTemplates } from "@/tanstack/hooks/useSizingTemplates";
 
 export type ProjectFormProps = {
   id: string;
@@ -47,6 +48,9 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
     resolver: zodResolver(projectFormDetailsSchema),
     defaultValues: {},
   });
+
+  const { data: sizingTemplateData, isPending: loadingSizingTemplate } =
+    useGetAllSizingTemplates();
 
   useEffect(() => {
     if (data?.data?.data?.buyer?.user) {
@@ -85,6 +89,10 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
     }
     if (data?.data?.data?.additionalNotes) {
       form.setValue("additionalNotes", data?.data?.data?.additionalNotes);
+    }
+    if (data?.data?.data?.sizingTemplateId) {
+      setUseSizingTemplate(true);
+      form.setValue("sizingTemplateId", data?.data?.data?.sizingTemplateId);
     }
     if (data?.data?.data?.clothingTypes?.length) {
       form.setValue(
@@ -365,24 +373,41 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
             title="Sizing Template"
             description="Choose appropriate sizing templates."
           >
-            <div className="flex flex-col gap-4">
-              <Switch
-                onCheckedChange={setUseSizingTemplate}
-                checked={useSizingTemplate}
-              />
-              {useSizingTemplate && (
-                <>
-                  <div className="flex gap-2 items-center bg-gray-200 p-2">
-                    <Info className="text-primary h-6 w-6" />
-                    <span className="text-sm">
-                      Include Sizing template in your Project description or at
-                      project start
-                    </span>
-                  </div>
-                  <CustomSelect placeholder="Select sizing templates" />
-                </>
+            <FormField
+              control={form.control}
+              name="sizingTemplateId"
+              render={({ field }) => (
+                <div className="flex flex-col gap-4">
+                  <Switch
+                    onCheckedChange={setUseSizingTemplate}
+                    checked={useSizingTemplate}
+                  />
+                  {useSizingTemplate && (
+                    <>
+                      <div className="flex gap-2 items-center bg-gray-200 p-2">
+                        <Info className="text-primary h-6 w-6" />
+                        <span className="text-sm">
+                          Include Sizing template in your Project description or
+                          at project start
+                        </span>
+                      </div>
+                      <CustomSelect
+                        {...field}
+                        disabled={loadingSizingTemplate}
+                        onValueChange={field.onChange}
+                        options={sizingTemplateData?.data?.data?.map(
+                          (template) => ({
+                            children: template?.name,
+                            value: template?.id,
+                          })
+                        )}
+                        placeholder="Select sizing templates"
+                      />
+                    </>
+                  )}
+                </div>
               )}
-            </div>
+            />
           </FormItemWrapper>
         )}
 

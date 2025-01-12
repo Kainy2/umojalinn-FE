@@ -7,16 +7,26 @@ import { useGetDesigerBids } from "@/tanstack/hooks/useBid";
 import { useGetAllDesignerProject } from "@/tanstack/hooks/useProject";
 
 const DashboardPage = () => {
-  const { data: draftBidData, isPending: isLoadingDraftBids } =
+  const { data: myBidsWithDraft, isPending: isLoadingMyBidsWithDraft } =
+    useGetDesigerBids({
+      bidStatus: ["PENDING", "REJECTED", "DRAFT"],
+    });
+
+  const { data: draftBidData, isPending: isLoadingDraftBidData } =
     useGetDesigerBids({
       bidStatus: "DRAFT",
     });
-  const { data: bidsData, isPending: isLoadingBids } = useGetDesigerBids();
+
+  const { data: myBidsData, isPending: isLoadingMyBidsData } =
+    useGetDesigerBids({
+      bidStatus: ["PENDING", "REJECTED"],
+    });
 
   const { data: liveProjectsData, isPending: isLoadingLiveProjectsData } =
     useGetAllDesignerProject({
       projectStatus: "LIVE",
     });
+
   const {
     data: completedProjectsData,
     isPending: isLoadingCompletedProjectsData,
@@ -27,35 +37,29 @@ const DashboardPage = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 justify-stretch mt-4">
       <CustomCardHolder
-        count={
-          bidsData?.data?.data?.filter(
-            (bid) => !["ACCEPTED"].includes(bid.status)
-          ).length || 0
-        }
+        count={myBidsWithDraft?.data?.data?.length || 0}
         title="My Bids"
-        loading={isLoadingDraftBids || isLoadingBids}
-        empty={
-          !bidsData?.data?.data?.filter(
-            (bid) => !["ACCEPTED"].includes(bid.status)
-          ).length
+        loading={
+          isLoadingMyBidsWithDraft ||
+          isLoadingDraftBidData ||
+          isLoadingMyBidsData
         }
+        empty={!myBidsWithDraft?.data?.data?.length}
       >
-        {bidsData?.data?.data
-          ?.filter((bid) => !["DRAFT", "ACCEPTED"].includes(bid.status))
-          .map((bid) => (
-            <JobCard
-              key={bid.id}
-              isPrivate={bid.project?.projectType === "PRIVATE"}
-              name={bid?.project?.title || "No title"}
-              href={`/bids/${uuidToBase62Safe(bid?.id)}/edit`}
-              progress={{
-                value: 0,
-                total: 1,
-              }}
-              img={getCoverImage(bid.project)}
-              dueDate={bid?.project?.dueDate}
-            />
-          ))}
+        {myBidsData?.data?.data?.map((bid) => (
+          <JobCard
+            key={bid.id}
+            isPrivate={bid.project?.projectType === "PRIVATE"}
+            name={bid?.project?.title || "No title"}
+            href={`/bids/${uuidToBase62Safe(bid?.id)}/edit`}
+            progress={{
+              value: 0,
+              total: 1,
+            }}
+            img={getCoverImage(bid.project)}
+            dueDate={bid?.project?.dueDate}
+          />
+        ))}
         <div className="flex gap-2 items-center my-2 [&>hr]:bg-yellow text-gray-400">
           <hr className="flex-1" />
           <span className="text-xs">Bids in draft</span>
