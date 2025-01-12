@@ -9,6 +9,7 @@ import { getServerSession } from "next-auth";
 
 import GoogleProvider from "next-auth/providers/google";
 import { login, retrieveUserInfoFromGoogle } from "@/actions/auth";
+import { serverInstance } from "./rollbar";
 
 export const authOptions: NextAuthOptions = {
   // adapter: PrismaAdapter(prisma) as Adapter,
@@ -135,6 +136,8 @@ export const authOptions: NextAuthOptions = {
           email: profile?.email,
         });
 
+        serverInstance.info("Google Response", res || {});
+
         if (res) {
           token.accessToken = res?.data?.data?.authToken;
           token.user = {
@@ -148,7 +151,7 @@ export const authOptions: NextAuthOptions = {
               null,
           };
 
-          console.log(token, "<<< TOKEN");
+          serverInstance.info("Token from Google Response", token || {});
           return token;
         }
       }
