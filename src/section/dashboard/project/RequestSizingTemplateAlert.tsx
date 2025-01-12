@@ -27,7 +27,7 @@ const RequestSizingTemplateAlert = () => {
   if (
     bid &&
     project?.id &&
-    !project?.sizingtemplateId &&
+    !project?.sizingTemplateId &&
     me?.data?.data?.designerProfile?.id === bid?.designerId
   ) {
     return (
