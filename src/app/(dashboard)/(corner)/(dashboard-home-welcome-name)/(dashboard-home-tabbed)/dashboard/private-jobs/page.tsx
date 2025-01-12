@@ -24,7 +24,7 @@ const PrivateJobPage = () => {
 
   const { data: liveProjectsData, isPending: isLoadingLiveProjectsData } =
     useGetAllDesignerProject({
-      projectStatus: "LIVE",
+      projectStatus: ["LIVE", "ADS"],
       projectType: "PRIVATE",
     });
 
