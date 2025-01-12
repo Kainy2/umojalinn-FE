@@ -55,6 +55,9 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
     if (data?.data?.data?.negotiable) {
       form.setValue("negotiable", data?.data?.data?.negotiable);
     }
+    if (data?.data?.data?.projectType === "PRIVATE") {
+      form.setValue("negotiable", true);
+    }
     // if (data?.data?.data?.specialist) {
     //   form.setValue("specialist", data?.data?.data?.specialist);
     // }
@@ -146,14 +149,12 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
               name="negotiable"
               render={({ field }) => (
                 <button
+                  disabled={data?.data?.data?.projectType === "PRIVATE"}
                   type="button"
                   onClick={() => field.onChange(!field.value)}
+                  className="[&>svg]:size-5 text-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {field.value ? (
-                    <Unlock className="h-5 w-5 text-primary" />
-                  ) : (
-                    <Lock className="h-5 w-5 text-primary" />
-                  )}
+                  {field.value ? <Unlock /> : <Lock />}
                 </button>
               )}
             />
