@@ -155,7 +155,7 @@ const SizingTemplateDialog = (
 
   if (
     !props.id ||
-    (sizingTemplateData?.data?.data?.status === "DRAFT" &&
+    (sizingTemplateData?.data?.data?.status !== "IN_USE" &&
       sizingTemplateData?.data?.data?.buyerId ===
         meData?.data?.data?.buyerProfile?.id)
   ) {
