@@ -13,27 +13,27 @@ const ProjectTab = (props: Pick<ProjectFormProps, "isOnboarding">) => {
     () => [
       {
         title: "Project Description",
-        href: `${!!props.isOnboarding && "/onboard"}/project/${uuidToBase62Safe(
-          params.id
-        )}`,
+        href: `${
+          !!props.isOnboarding ? "/onboard" : ""
+        }/project/${uuidToBase62Safe(params.id)}`,
       },
       {
         title: "Gallery",
-        href: `${!!props.isOnboarding && "/onboard"}/project/${uuidToBase62Safe(
-          params.id
-        )}/gallery`,
+        href: `${
+          !!props.isOnboarding ? "/onboard" : ""
+        }/project/${uuidToBase62Safe(params.id)}/gallery`,
       },
       {
         title: "Requirements & Budget",
-        href: `${!!props.isOnboarding && "/onboard"}/project/${uuidToBase62Safe(
-          params.id
-        )}/requirements-and-budget`,
+        href: `${
+          !!props.isOnboarding ? "/onboard" : ""
+        }/project/${uuidToBase62Safe(params.id)}/requirements-and-budget`,
       },
       {
         title: "Review",
-        href: `${!!props.isOnboarding && "/onboard"}/project/${uuidToBase62Safe(
-          params.id
-        )}/review`,
+        href: `${
+          !!props.isOnboarding ? "/onboard" : ""
+        }/project/${uuidToBase62Safe(params.id)}/review`,
       },
     ],
     [params.id, props.isOnboarding]
