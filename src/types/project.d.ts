@@ -158,7 +158,7 @@ export type UmojaLinnSizingTemplate = {
   name: string;
   unit: "CM" | "INCH";
   gender: "MALE" | "FEMALE";
-  status: "DRAFT" | "LIVE";
+  status: "DRAFT" | "LIVE" | "IN_USE";
   buyer?: UmojaLinnUserRoleProfile;
   projects: UmojaLinnProject[];
 } & Partial<
