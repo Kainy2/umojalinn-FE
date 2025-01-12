@@ -147,7 +147,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
                 mode === "DRAFT"
                   ? "/projects"
                   : `${
-                      !!props.isOnboarding && "/onboard"
+                      !!props.isOnboarding ? "/onboard" : ""
                     }/project/${uuidToBase62Safe(
                       props.id
                     )}/requirements-and-budget`
