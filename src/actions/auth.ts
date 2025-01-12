@@ -1,4 +1,4 @@
-import { clientAxios } from "@/lib/axios";
+import { clientAxios, handleAPIError } from "@/lib/axios";
 import { UmojaLinnLoginResponse, UmojaLinnUser } from "@/types/user";
 import { SingleApiResponse } from "@/types/util";
 import { AxiosResponse } from "axios";
@@ -77,16 +77,8 @@ export const retrieveUserInfoFromGoogle = async (
     });
     return res;
   } catch (error) {
-    console.error(
-      error,
-      "RETRIEVE <<<",
-      process.env.SERVER_SECRET,
-      "<<< SERVER SECRET",
-      hash,
-      "<<< HASH",
-      body,
-      "<<< BODY"
-    );
+    handleAPIError({ hash, secret: process.env.SERVER_SECRET, body });
+    handleAPIError(error);
     return null;
   }
 };
