@@ -25,7 +25,7 @@ const CreateProjectPage = async (
         isServerAction: true,
       });
       url = `${
-        projectRes?.data?.data?.length === 1 && "/onboard"
+        projectRes?.data?.data?.length === 1 ? "/onboard" : ""
       }/project/${uuidToBase62Safe(res?.data?.data?.id)}`;
     } else {
       url = `/project/${uuidToBase62Safe(res?.data?.data?.id)}`;
