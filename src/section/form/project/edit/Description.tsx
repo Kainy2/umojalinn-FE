@@ -50,7 +50,9 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
   });
 
   const { data: sizingTemplateData, isPending: loadingSizingTemplate } =
-    useGetAllSizingTemplates();
+    useGetAllSizingTemplates({
+      sizingTemplateStatus: "LIVE",
+    });
 
   useEffect(() => {
     if (data?.data?.data?.buyer?.user) {

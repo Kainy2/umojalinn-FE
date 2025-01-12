@@ -24,7 +24,9 @@ const SizingTemplateTag = (props: SizingTemplateTagProps) => {
     props.projectId
   );
   const { data: sizingTemplateData, isPending: loadingSizingTemplate } =
-    useGetAllSizingTemplates();
+    useGetAllSizingTemplates({
+      sizingTemplateStatus: "LIVE",
+    });
 
   const [openSizingTemplate, setOpenSizingTemplate] = useState(false);
 
