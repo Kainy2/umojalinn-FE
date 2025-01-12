@@ -21,7 +21,7 @@ const IndividualBidPage = () => {
   const router = useRouter();
   const { mutate: acceptOrReject } = useAcceptOrRejectBid(id, {
     onSuccess() {
-      router.push("/dashboard");
+      router.push(`/projects/${bid?.projectId || ""}`);
     },
   });
 
