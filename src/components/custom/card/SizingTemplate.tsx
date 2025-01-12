@@ -22,7 +22,7 @@ const SizingTemplateCard = (props: { template: UmojaLinnSizingTemplate }) => {
         />
         <div
           className={cn(
-            "absolute bottom-0 p-4 backdrop-blur-lg bg-white/50 border-t-1 border-white/50 w-full",
+            "absolute bottom-0 p-4 backdrop-blur-md bg-white/30 border-t-1 border-white/50 w-full",
             inUse &&
               "h-full border-none flex flex-col items-center justify-center "
           )}
