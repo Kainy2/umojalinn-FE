@@ -26,7 +26,8 @@ export const BUYERS_SIDEBAR_CONTENT: CustomSidebarMenuItemProps[] = [
     title: "Sizing Templates",
     url: "/sizing-templates",
     icon: <Tag03 />,
-    regex: /^\/sizing-templates$/,
+    regex:
+      /^\/(sizing-templates$|sizing-templates\/in-use$|sizing-templates\/drafts$)/,
   },
   {
     title: "Messages",

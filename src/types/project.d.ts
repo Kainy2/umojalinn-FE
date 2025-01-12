@@ -86,6 +86,7 @@ export type UmojaLinnBid = {
   project: UmojaLinnProject;
   designer: UmojaLinnUserRoleProfile;
   milestones: UmojaLinnMilestone[];
+  sizingTemplateRequested: boolean;
   history: Array<
     {
       id: string;

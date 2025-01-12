@@ -1,6 +1,6 @@
 import BidTab from "@/section/dashboard/project/bid/tab";
 import BidTitle from "@/section/dashboard/project/bid/Title";
-import RequestSizingTemplateAlert from "@/section/dashboard/project/RequestSizingTemplateAlert";
+import RequestSizingTemplateAlert from "@/section/sizing-template/RequestAlert";
 import React, { Suspense } from "react";
 
 const BidLayout = ({ children }: LayoutProps) => {
