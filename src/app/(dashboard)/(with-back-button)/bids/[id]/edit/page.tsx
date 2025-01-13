@@ -362,7 +362,7 @@ const BidPage = () => {
           </div>
         )}
         <TotalPriceError
-          negotiable={!!bid.project?.negotiable}
+          negotiable={!!bid?.project?.negotiable}
           open={showExcessDialog}
           onOpenChange={setShowExcessDialog}
           excess={excess}

@@ -105,22 +105,25 @@ const InviteClient = () => {
         <div className="flex flex-col gap-4">
           <Label>Email</Label>
           <TagInput value={tags} onChange={handleTags} />
-          {!!me?.data?.data?.tag && (
-            <button
-              className="text-primary text-sm flex items-center gap-1 "
-              onClick={() =>
-                handleCopy(
-                  `${
-                    process.env.NEXT_PUBLIC_WEB_URL ||
-                    "https://dev.d1451lqyj8o4u7.amplifyapp.com"
-                  }/login?inviterTag=${me?.data?.data?.tag}`
-                )
-              }
-            >
-              <Copy className="h-4 w-4" />
-              Copy link
-            </button>
-          )}
+          {!!me?.data?.data?.tag &&
+            (!!tags?.length ||
+              !!me?.data?.data?.designerProfile?.projectInvitations
+                ?.length) && (
+              <button
+                className="text-primary text-sm flex items-center gap-1 "
+                onClick={() =>
+                  handleCopy(
+                    `${
+                      process.env.NEXT_PUBLIC_WEB_URL ||
+                      "https://dev.d1451lqyj8o4u7.amplifyapp.com"
+                    }/login?inviterTag=${me?.data?.data?.tag}`
+                  )
+                }
+              >
+                <Copy className="h-4 w-4" />
+                Copy link
+              </button>
+            )}
         </div>
         <DialogFooter>
           <Button
