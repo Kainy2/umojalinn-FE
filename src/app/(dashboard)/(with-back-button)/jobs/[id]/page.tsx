@@ -23,7 +23,11 @@ const JobPage = () => {
 
   const { data: session } = useSession();
 
-  const { mutate: createBid, isPending: isCreatingBid } = useCreateBid({
+  const {
+    mutate: createBid,
+    isPending: isCreatingBid,
+    isSuccess: bidCreated,
+  } = useCreateBid({
     onSuccess(data) {
       router.push(`/bids/${uuidToBase62Safe(data?.data?.data?.id)}/edit`);
       toast({ description: "Please wait" });
@@ -97,16 +101,17 @@ const JobPage = () => {
             <Button variant="outline">
               <MoreVertical />
             </Button>
-            {!project?.bids?.length &&
-              session?.user?.profileRole === "DESIGNER" && (
-                <Button
-                  variant="default"
-                  onClick={() => createBid(id)}
-                  loading={isCreatingBid}
-                >
-                  Create Bid
-                </Button>
-              )}
+            {!bidCreated ||
+              (!project?.bids?.length &&
+                session?.user?.profileRole === "DESIGNER" && (
+                  <Button
+                    variant="default"
+                    onClick={() => createBid(id)}
+                    loading={isCreatingBid}
+                  >
+                    Create Bid
+                  </Button>
+                ))}
           </div>
         </div>
       </div>
