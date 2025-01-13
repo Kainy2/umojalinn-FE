@@ -32,7 +32,7 @@ const AcceptBidSizingTemplateInterrupt = (
       <DialogTrigger asChild onClick={() => setOpen(true)}>
         {props.children}
       </DialogTrigger>
-      <DialogContent className="flex flex-col [&>div]:flex-1 [&>div]:shrink-0 [&>div]:p-3 min-w-[70vw]">
+      <DialogContent className="flex flex-col [&>div]:flex-1 [&>div]:shrink-0 [&>div]:p-3 min-w-[40vw]">
         <DialogHeader className="flex gap-2 flex-col">
           <div className="icon-wrapper success mb-4">
             <CircleHelp />
@@ -81,7 +81,7 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
         <DialogTrigger asChild onClick={() => setOpen(true)}>
           {props.children}
         </DialogTrigger>
-        <DialogContent className="flex flex-col [&>div]:flex-1 [&>div]:shrink-0 [&>div]:p-3 min-w-[70vw]">
+        <DialogContent className="flex flex-col [&>div]:flex-1 [&>div]:shrink-0 [&>div]:p-3 min-w-[40vw]">
           <DialogHeader className="flex gap-2 flex-col">
             <div>
               <DialogTitle className="font-semibold text-left">
@@ -105,7 +105,7 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
             </span>
           </div>
           <DialogFooter>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 w-full">
               <Button
                 disabled={props.loading}
                 fullWidth
@@ -136,7 +136,7 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
       <DialogTrigger asChild onClick={() => setOpen(true)}>
         {props.children}
       </DialogTrigger>
-      <DialogContent className="flex flex-col [&>div]:flex-1 [&>div]:shrink-0 [&>div]:p-3 min-w-[70vw]">
+      <DialogContent className="flex flex-col [&>div]:flex-1 [&>div]:shrink-0 [&>div]:p-3 min-w-[40vw]">
         <DialogHeader className="flex gap-2 flex-col lg:flex-row">
           <div>
             <DialogTitle className="font-semibold text-left">
@@ -155,7 +155,7 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
               <button
                 onClick={() => selectSizingTemplateId(template.id)}
                 className={cn(
-                  "flex flex-row items-center p-2 gap-2 border border-gray-100",
+                  "flex flex-row items-center px-2 py-1 gap-2 border border-gray-100",
                   active && "border-none ring-2 ring-primary bg-primary-25"
                 )}
                 key={template?.id}
@@ -163,11 +163,11 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
                 <div className="icon-wrapper primary">
                   <Tag />
                 </div>
-                <span className="flex-1">{template?.name}</span>
+                <span className="flex-1 text-left">{template?.name}</span>
                 {active ? (
-                  <CheckCircle className="size-3 text-primary shrink-0" />
+                  <CheckCircle className="size-6 text-primary shrink-0" />
                 ) : (
-                  <span className="border border-gray-400 rounded-full size-3 shrink-0" />
+                  <span className="border border-gray-400 rounded-full size-6 shrink-0" />
                 )}
               </button>
             );

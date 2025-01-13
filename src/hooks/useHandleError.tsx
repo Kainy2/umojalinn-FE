@@ -23,6 +23,15 @@ const useHandleError = (errorTitle: string) => {
             description: "Please check your network connection",
             variant: "destructive",
           });
+          // @ts-expect-error Error message is custom
+        } else if (axiosError?.response?.data?.errorMessage) {
+          toast({
+            title: `${errorTitle || ""} error`,
+            description:
+              // @ts-expect-error Error message is custom
+              axiosError?.response?.data?.errorMessage || "Please try again!",
+            variant: "destructive",
+          });
         } else if (Array.isArray(axiosError?.response?.data?.message)) {
           axiosError?.response?.data?.message?.map((m) =>
             toast({

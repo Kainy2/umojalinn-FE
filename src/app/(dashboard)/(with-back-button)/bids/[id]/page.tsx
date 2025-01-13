@@ -42,6 +42,9 @@ const IndividualBidPage = () => {
   } = useAddSizingTemplateToProject({
     onSuccess() {
       setInterruptOpen(null);
+      acceptOrReject({
+        status: "ACCEPTED",
+      });
     },
   });
 
