@@ -35,6 +35,7 @@ import { useGetMe } from "@/tanstack/hooks/useUser";
 const SizingTemplateDialog = (
   props: DialogProps & {
     id?: string;
+    handleSuccess?: (template?: UmojaLinnSizingTemplate) => void;
   }
 ) => {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -86,19 +87,24 @@ const SizingTemplateDialog = (
     }
   }, [sizingTemplateData?.data?.data]);
 
-  const handleSuccess = () => {
+  const handleSuccess = (template: UmojaLinnSizingTemplate) => {
     setOpen(false);
     props.onOpenChange?.(false);
+    props?.handleSuccess?.(template);
   };
 
   const { mutate: createSizingTemplate, isPending: isCreatingSizingTemplate } =
     useCreateSizingTemplate({
-      onSuccess: handleSuccess,
+      onSuccess(data) {
+        handleSuccess(data?.data?.data);
+      },
     });
 
   const { mutate: updateSizingTemplate, isPending: isUpdatingSizingTemplate } =
     useUpdateSizingTemplate(props.id, {
-      onSuccess: handleSuccess,
+      onSuccess(data) {
+        handleSuccess(data?.data?.data);
+      },
     });
 
   const handleChange =
