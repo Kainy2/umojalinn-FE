@@ -32,7 +32,7 @@ const AcceptBidSizingTemplateInterrupt = (
       <DialogTrigger asChild onClick={() => setOpen(true)}>
         {props.children}
       </DialogTrigger>
-      <DialogContent className="flex [&>div]:flex-1 [&>div]:shrink-0 [&>div]:p-3 min-w-[70vw]">
+      <DialogContent className="flex flex-col [&>div]:flex-1 [&>div]:shrink-0 [&>div]:p-3 min-w-[70vw]">
         <DialogHeader className="flex gap-2 flex-col">
           <div className="icon-wrapper success mb-4">
             <CircleHelp />
