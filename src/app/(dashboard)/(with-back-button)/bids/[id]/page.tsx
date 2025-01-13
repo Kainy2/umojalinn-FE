@@ -162,6 +162,7 @@ const IndividualBidPage = () => {
       <SizingTemplateDialog
         open={createSizingTemplateOpen}
         onOpenChange={setCreateSizingTemplateOpen}
+        handleSuccess={() => setInterruptOpen("INTERRUPT")}
       />
     </div>
   );
