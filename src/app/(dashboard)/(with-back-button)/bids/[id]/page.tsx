@@ -1,5 +1,9 @@
 "use client";
 import Alert from "@/components/custom/Alert";
+import AcceptBidSizingTemplateInterrupt, {
+  AcceptBidSizingTemplateInterruptConfirm,
+} from "@/components/custom/dialog/AcceptBidSizingTemplateInterrupt";
+import SizingTemplateDialog from "@/components/custom/dialog/SizingTemplate";
 import DeliveryMethodPicker from "@/components/custom/picker/DeliveryMethod";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -8,10 +12,11 @@ import PragraphSpacing from "@/icons/PragraphSpacing";
 import { getCurrencySymbol } from "@/lib/string";
 import RejectButton from "@/section/dashboard/project/bid/button/Reject";
 import { useAcceptOrRejectBid, useGetBidById } from "@/tanstack/hooks/useBid";
+import { useAddSizingTemplateToProject } from "@/tanstack/hooks/useSizingTemplates";
 import { useGetMe } from "@/tanstack/hooks/useUser";
 
 import { useParams, useRouter } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 
 const IndividualBidPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -22,6 +27,21 @@ const IndividualBidPage = () => {
   const { mutate: acceptOrReject } = useAcceptOrRejectBid(id, {
     onSuccess() {
       router.push(`/projects/${bid?.projectId || ""}`);
+    },
+  });
+
+  const [interruptOpen, setInterruptOpen] = useState<
+    "INTERRUPT" | "SELECT" | null
+  >(null);
+  const [createSizingTemplateOpen, setCreateSizingTemplateOpen] =
+    useState(false);
+
+  const {
+    mutate: addSizingTemplateToProject,
+    isPending: isAddingSizingTemplateToProject,
+  } = useAddSizingTemplateToProject({
+    onSuccess() {
+      setInterruptOpen(null);
     },
   });
 
@@ -104,17 +124,42 @@ const IndividualBidPage = () => {
               <RejectButton bidId={id} />
               <Button
                 variant="success"
-                onClick={() =>
-                  acceptOrReject({
-                    status: "ACCEPTED",
-                  })
-                }
+                onClick={() => {
+                  if (bid?.project?.sizingTemplateId) {
+                    acceptOrReject({
+                      status: "ACCEPTED",
+                    });
+                  } else {
+                    setInterruptOpen("INTERRUPT");
+                  }
+                }}
               >
                 Accept proposal
               </Button>
             </div>
           </>
         )}
+      <AcceptBidSizingTemplateInterrupt
+        open={interruptOpen === "INTERRUPT"}
+        onConfirm={() => setInterruptOpen("SELECT")}
+        onOpenChange={(value) => setInterruptOpen(value ? "INTERRUPT" : null)}
+      />
+      <AcceptBidSizingTemplateInterruptConfirm
+        open={interruptOpen === "SELECT"}
+        loading={isAddingSizingTemplateToProject}
+        onOpenChange={(value) => setInterruptOpen(value ? "SELECT" : null)}
+        handleCreateNewSizingTemplate={() => setCreateSizingTemplateOpen(true)}
+        handleAddSizingTemplateToProject={(templateId) => {
+          addSizingTemplateToProject({
+            projectId: bid?.projectId || "",
+            sizingTemplateId: templateId,
+          });
+        }}
+      />
+      <SizingTemplateDialog
+        open={createSizingTemplateOpen}
+        onOpenChange={setCreateSizingTemplateOpen}
+      />
     </div>
   );
 };

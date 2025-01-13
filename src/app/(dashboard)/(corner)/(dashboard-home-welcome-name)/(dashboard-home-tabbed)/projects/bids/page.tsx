@@ -5,12 +5,24 @@ import { useGetBuyerBids } from "@/tanstack/hooks/useBid";
 import React from "react";
 
 const BidPage = () => {
-  const { data, isPending } = useGetBuyerBids();
+  const { data, isPending } = useGetBuyerBids({
+    bidStatus: ["PENDING", "REJECTED"],
+  });
 
   if (isPending) {
     return (
       <div className="flex flex-col gap-4">
-        <Skeleton className="h-24" />
+        {new Array(4).fill("").map((_, i) => (
+          <Skeleton className="h-32" key={i} />
+        ))}
+      </div>
+    );
+  }
+
+  if (!data?.data?.data?.length) {
+    return (
+      <div className="h-[50vh] flex items-center justify-center text-muted-foreground">
+        <span>No Bids available</span>
       </div>
     );
   }

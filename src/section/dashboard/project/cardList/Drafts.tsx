@@ -23,6 +23,14 @@ const DraftCardList = () => {
     );
   }
 
+  if (!data?.data?.data?.length) {
+    return (
+      <div className="h-[50vh] flex items-center justify-center text-muted-foreground">
+        <span>No Drafts available</span>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-8">
       {data?.data?.data?.map((project) => {
