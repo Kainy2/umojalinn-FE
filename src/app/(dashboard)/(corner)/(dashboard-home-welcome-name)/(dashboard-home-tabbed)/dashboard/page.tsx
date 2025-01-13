@@ -27,7 +27,7 @@ const DashboardPage = () => {
 
   const { data: liveProjectsData, isPending: isLoadingLiveProjectsData } =
     useGetAllDesignerProject({
-      projectStatus: "LIVE",
+      projectStatus: ["LIVE", "ADS"],
     });
 
   const {
