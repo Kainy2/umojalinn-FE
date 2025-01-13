@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import PragraphSpacing from "@/icons/PragraphSpacing";
 import { getCurrencySymbol } from "@/lib/string";
+import { uuidToBase62Safe } from "@/lib/uuid";
 import RejectButton from "@/section/dashboard/project/bid/button/Reject";
 import { useAcceptOrRejectBid, useGetBidById } from "@/tanstack/hooks/useBid";
 import { useAddSizingTemplateToProject } from "@/tanstack/hooks/useSizingTemplates";
@@ -26,7 +27,7 @@ const IndividualBidPage = () => {
   const router = useRouter();
   const { mutate: acceptOrReject } = useAcceptOrRejectBid(id, {
     onSuccess() {
-      router.push(`/projects/${bid?.projectId || ""}`);
+      router.push(`/projects/${uuidToBase62Safe(bid?.projectId || "")}`);
     },
   });
 
