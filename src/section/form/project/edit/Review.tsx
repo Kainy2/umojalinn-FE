@@ -56,7 +56,7 @@ const ReviewForm = (props: ProjectFormProps) => {
       <ProjectEditFooter
         handleSave={async () => goLive(props.id)}
         loading={isPending}
-        hideDraft
+        handleDraft={() => router?.push("/projects")}
       />
     </div>
   );

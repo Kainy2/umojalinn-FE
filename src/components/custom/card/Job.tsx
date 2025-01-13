@@ -1,13 +1,12 @@
 import React from "react";
 import CustomCard from ".";
-import { MessageSquare, Paperclip } from "lucide-react";
+import { EyeOff, MessageSquare, Paperclip } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/ui/avatar";
 import { AvatarImage } from "@radix-ui/react-avatar";
 import JoinMeet from "@/icons/JoinMeet";
 import { Separator } from "@/components/ui/separator";
-import Lock04 from "@/icons/Lock04";
 import MilestoneProgress from "../MilestoneProgress";
 
 type JobCardProps = {
@@ -38,7 +37,7 @@ const JobCard = (props: JobCardProps) => {
       href={props.href}
       preTitle={
         props?.isPrivate ? (
-          <Lock04 className="text-teal-500 h-6 w-6" />
+          <EyeOff className="text-teal-500 h-6 w-6" />
         ) : undefined
       }
       title={props.name}

@@ -13,7 +13,7 @@ import {
 } from "@/tanstack/hooks/useProject";
 import { ProjectFormRequirementsAndBugetProps } from "@/types/form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DollarSign, Euro, Lock, Unlock } from "lucide-react";
+import { Euro, Lock, Unlock } from "lucide-react";
 import React, { useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import ProjectEditFooter from "./Footer";
@@ -178,9 +178,7 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
                           <Euro />
                         ) : currencyField?.value === "NAIRA" ? (
                           <NairaSign />
-                        ) : (
-                          <DollarSign />
-                        )}
+                        ) : null}
                       </span>
                     }
                     endAdornment={

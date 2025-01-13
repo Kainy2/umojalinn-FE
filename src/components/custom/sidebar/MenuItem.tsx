@@ -37,8 +37,8 @@ const CustomSidebarMenuItem = (props: CustomSidebarMenuItemProps) => {
 
   const badge = useMemo(() => {
     switch (props?.title?.toLocaleUpperCase?.()) {
-      case "DASHBOARD":
-        return 10;
+      // case "DASHBOARD":
+      //   return 10;
       default:
         return 0;
     }
