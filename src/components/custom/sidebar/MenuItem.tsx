@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { useGetAllDesignerProject } from "@/tanstack/hooks/useProject";
 
 type GenericCustomSidebarMenuItemProps = {
   title: string;
@@ -34,15 +35,21 @@ export type CustomSidebarMenuItemProps =
 const CustomSidebarMenuItem = (props: CustomSidebarMenuItemProps) => {
   const pathName = usePathname();
   const active = !!props.regex?.test?.(pathName);
+  const { data: privateJobAdsWithoutBidProjectsData } =
+    useGetAllDesignerProject({
+      projectStatus: "ADS",
+      projectType: "PRIVATE",
+      hasBid: false,
+    });
 
   const badge = useMemo(() => {
     switch (props?.title?.toLocaleUpperCase?.()) {
-      // case "DASHBOARD":
-      //   return 10;
+      case "JOBS":
+        return privateJobAdsWithoutBidProjectsData?.data?.data?.length || 0;
       default:
         return 0;
     }
-  }, [props?.title]);
+  }, [privateJobAdsWithoutBidProjectsData?.data?.data?.length, props?.title]);
 
   if (props.isAd) {
     return (

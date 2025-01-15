@@ -27,7 +27,7 @@ const DashboardPage = () => {
 
   const { data: liveProjectsData, isPending: isLoadingLiveProjectsData } =
     useGetAllDesignerProject({
-      projectStatus: ["LIVE", "ADS"],
+      projectStatus: "LIVE",
     });
 
   const {
@@ -63,11 +63,13 @@ const DashboardPage = () => {
             dueDate={bid?.project?.dueDate}
           />
         ))}
-        <div className="flex gap-2 items-center my-2 [&>hr]:bg-yellow text-gray-400">
-          <hr className="flex-1" />
-          <span className="text-xs">Bids in draft</span>
-          <hr className="flex-1" />
-        </div>
+        {!!draftBidData?.data?.data?.length && (
+          <div className="flex gap-2 items-center my-2 [&>hr]:bg-yellow text-gray-400">
+            <hr className="flex-1" />
+            <span className="text-xs">Bids in draft</span>
+            <hr className="flex-1" />
+          </div>
+        )}
         {draftBidData?.data?.data?.map((bid) => (
           <JobCard
             key={bid.id}

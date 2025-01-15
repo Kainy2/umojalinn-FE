@@ -67,13 +67,13 @@ export const DESIGNERS_SIDEBAR_CONTENT: CustomSidebarMenuItemProps[] = [
     title: "Dashboard",
     url: "/",
     icon: <Grid01 />,
-    regex: /(^\/$|^\/dashboard|^\/dashboard\/.*)/,
+    regex: /(^\/$|^\/dashboard|^\/dashboard\/.*|^\/bids$|^\/bids\/.*)/,
   },
   {
     title: "Jobs",
-    url: "#",
+    url: "/jobs",
     icon: <SearchRefracted />,
-    regex: /(^\/jobs$|^\/jobs\/.*|^\/bids$|^\/bids\/.*)/,
+    regex: /(^\/jobs$|^\/jobs\/.*)/,
   },
   {
     title: "Sizing Templates",

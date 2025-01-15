@@ -133,6 +133,7 @@ export const useGetAllDesignerProject = (
     projectType:
       | UmojaLinnProject["projectType"]
       | Array<UmojaLinnProject["projectType"]>;
+    hasBid?: boolean;
   }>,
   options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnProject>>
 ) => {

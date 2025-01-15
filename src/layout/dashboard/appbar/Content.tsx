@@ -37,7 +37,11 @@ const DashboardAppbarContent = () => {
         </Button>
         <Button variant="ghost">
           <Avatar>
-            <AvatarImage src={me?.profilePhotoUri || ""} alt={me?.firstName} />
+            <AvatarImage
+              className="object-cover"
+              src={me?.profilePhotoUri || ""}
+              alt={me?.firstName}
+            />
             <AvatarFallback>
               {me?.firstName?.[0]?.toLocaleUpperCase?.()}
               {me?.lastName?.[0]?.toLocaleUpperCase?.()}

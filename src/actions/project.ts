@@ -115,6 +115,7 @@ export const getAllDesignerProjects = async (
     lastId: string;
     limit: number;
     bidStatus: UmojaLinnProject["status"] | Array<UmojaLinnProject["status"]>;
+    hasBid?: boolean;
   }>,
   options?: ServerActionOption
 ) => {

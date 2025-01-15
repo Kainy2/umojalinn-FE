@@ -14,7 +14,7 @@ export type BidCardProps = {
   bid: UmojaLinnBid;
 };
 
-const BidCardFooterValues = (props: {
+export const BidCardFooterValues = (props: {
   value?: string | null | number;
   label: string | null;
 }) => {

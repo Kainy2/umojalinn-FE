@@ -40,7 +40,11 @@ export const convertApiParams = (params: Record<string, unknown>) => {
       .map(
         (entries) =>
           `${entries[0]}=${
-            Array.isArray(entries[1]) ? entries[1]?.join(",") : entries[1]
+            Array.isArray(entries[1])
+              ? entries[1]?.join(",")
+              : typeof entries[1] === "boolean"
+              ? entries[1]?.toString?.()
+              : entries[1]
           }`
       )
       .join("&")
