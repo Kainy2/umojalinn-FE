@@ -63,8 +63,8 @@ const BidPage = () => {
     if (bid?.milestones?.length) {
       setMilestones(
         bid.milestones.map((milestone) => ({
-          title: milestone?.title,
-          description: milestone?.description,
+          title: milestone?.title || "",
+          description: milestone?.description || "",
           price: milestone?.amount || 0,
           id: milestone?.id,
         }))
