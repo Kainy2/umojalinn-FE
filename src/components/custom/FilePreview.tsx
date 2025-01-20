@@ -35,11 +35,11 @@ const FilePreview = (props: FilePreviewProps) => {
             <span
               className="h-full block bg-primary"
               style={{
-                width: `${props.progress}%`,
+                width: `${(props.progress || 0) * 100}%`,
               }}
             />
           </div>
-          <p>{props.progress}%</p>
+          <p>{Math.round((props.progress || 0) * 100)}%</p>
         </div>
       </div>
     </div>
