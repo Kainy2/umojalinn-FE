@@ -1,6 +1,6 @@
 "use client";
-import { CustomDatePickerField } from "@/components/custom/picker/DatePicker";
-import { CustomPhonePickerField } from "@/components/custom/picker/PhonePicker";
+import { CustomDatePickerField } from "@/components/custom/picker/Date";
+import { CustomPhonePickerField } from "@/components/custom/picker/Phone";
 import { CustomSelectField } from "@/components/custom/Select";
 import { Form, FormField } from "@/components/ui/form";
 

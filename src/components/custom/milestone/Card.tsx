@@ -8,6 +8,7 @@ import TextField from "../input/TextField";
 import TextAreaField from "../input/TextAreaField";
 import { Separator } from "@/components/ui/separator";
 import VerifyDialog from "../dialog/Verify";
+import { formatCurrencyValue } from "@/lib/number";
 
 type MileStoneCardProps = {
   id?: string;
@@ -55,7 +56,7 @@ export const MileStoneCardFooter = (
       <div className="flex w-fit gap-2 items-center [&>*>svg]:text-primary ">
         {view ? (
           <span>
-            {getCurrencySymbol(currency)} {price}
+            {getCurrencySymbol(currency)} {formatCurrencyValue(price)}
           </span>
         ) : (
           <>

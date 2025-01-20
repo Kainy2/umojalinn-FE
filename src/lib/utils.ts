@@ -151,3 +151,20 @@ export function parseStringToNumber(input: string): ParsedNumber {
   // If no valid number is found
   return { value: null, type: "invalid" };
 }
+
+export function formatFileSize(file: File): string {
+  const sizeInBytes = file.size;
+  const units = ["Bytes", "KB", "MB", "GB", "TB"];
+  let unitIndex = 0;
+  let size = sizeInBytes;
+
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex++;
+  }
+
+  // Format size to a maximum of 2 decimal places and remove trailing zeros
+  const formattedSize = parseFloat(size.toFixed(2)).toString();
+
+  return `${formattedSize} ${units[unitIndex]}`;
+}

@@ -7,7 +7,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { AvatarImage } from "@radix-ui/react-avatar";
 import JoinMeet from "@/icons/JoinMeet";
 import { Separator } from "@/components/ui/separator";
-import MilestoneProgress from "../MilestoneProgress";
+import MilestoneProgress from "../milestone/Progress";
 
 type JobCardProps = {
   isPrivate?: boolean;

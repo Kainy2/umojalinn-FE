@@ -1,7 +1,12 @@
 import { fileToPreviewUrl } from "@/lib/utils";
 import React, { useRef, useState } from "react";
 
-const useFilePicker = (props: { onSelect?: (file: File | null) => void }) => {
+export type FilePickerOptions = {
+  accept?: React.ComponentProps<"input">["accept"];
+  onSelect?: (file: File | null) => void;
+};
+
+const useFilePicker = (props: FilePickerOptions) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [preview, setPreview] = useState<string | null>(null);
@@ -21,7 +26,7 @@ const useFilePicker = (props: { onSelect?: (file: File | null) => void }) => {
     Input: () => (
       <input
         type="file"
-        accept="image/*"
+        accept={props.accept}
         className="hidden"
         ref={inputRef}
         onChange={handleFileChange}

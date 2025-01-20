@@ -7,6 +7,7 @@ import {
   DialogFooter,
   DialogHeader,
 } from "@/components/ui/dialog";
+import { formatCurrencyValue } from "@/lib/number";
 import { getCurrencySymbol } from "@/lib/string";
 import { UmojaLinnCurrency } from "@/types/project";
 import { DialogProps, DialogTitle } from "@radix-ui/react-dialog";
@@ -36,7 +37,7 @@ const TotalPriceError = (props: TotalPriceErrorProps) => {
               Your total price is{" "}
               <strong>
                 {getCurrencySymbol(props?.currency)}
-                {props.excess}
+                {formatCurrencyValue(props.excess)}
               </strong>{" "}
               above the project budget
             </DialogDescription>

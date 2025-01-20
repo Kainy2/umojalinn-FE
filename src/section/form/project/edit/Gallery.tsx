@@ -2,14 +2,13 @@
 import TextField from "@/components/custom/input/TextField";
 import { Label } from "@/components/ui/label";
 import { RadioGroupItem } from "@/components/ui/radio-group";
-import useFilePicker from "@/hooks/useFilePicker";
 import { cn, fileToPreviewUrl, jsonToFormData } from "@/lib/utils";
 import {
   useGetProjectById,
   useUpdateProjectById,
 } from "@/tanstack/hooks/useProject";
 import { RadioGroup } from "@radix-ui/react-radio-group";
-import { Trash2, UploadCloud } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import Image from "next/image";
 import React, { useCallback, useId, useMemo, useState } from "react";
 import ProjectEditFooter from "./Footer";
@@ -19,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { ProjectFormProps } from "./Description";
+import FileUploadPicker from "@/components/custom/picker/FileUpload";
 
 const ProjectGalleryForm = (props: ProjectFormProps) => {
   const id = useId();
@@ -64,8 +64,8 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
 
   const [entryTitle, setEntryTitle] = useState("");
 
-  const { Input, onClick } = useFilePicker({
-    onSelect: (file: File | null) => {
+  const handleFileSelect = useCallback(
+    (file: File | null) => {
       const fileObject = file as File;
 
       if (fileObject.size / (1024 * 1024) < 50) {
@@ -91,7 +91,8 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
         });
       }
     },
-  });
+    [entryTitle, toast]
+  );
 
   const handleTitleChange =
     (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -238,21 +239,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
               onChange={(e) => setEntryTitle(e.currentTarget.value)}
               hint={`${entryTitle?.length || 0} / 15 characters`}
             />
-            <button
-              onClick={onClick}
-              className="border border-gray-300 p-12 flex flex-col items-center"
-            >
-              <span className="icon-wrapper mb-2">
-                <UploadCloud />
-              </span>
-              <p className="text-sm">
-                <span className="text-primary font-semibold">
-                  Click to upload
-                </span>{" "}
-                or drag and drop <br /> Pictures (max. 50mb)
-              </p>
-              <Input />
-            </button>
+            <FileUploadPicker accept="image/*" onSelect={handleFileSelect} />
           </div>
         </div>
       </FormItemWrapper>

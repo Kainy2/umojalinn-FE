@@ -1,4 +1,4 @@
-import MilestoneProgress from "@/components/custom/MilestoneProgress";
+import MilestoneProgress from "@/components/custom/milestone/Progress";
 import { Button } from "@/components/ui/button";
 import { CircleAlert, MoreVertical } from "lucide-react";
 import React from "react";

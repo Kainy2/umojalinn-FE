@@ -1,14 +1,14 @@
 import { clientAxios, getServerAxiosWithToken } from "@/lib/axios";
 import { convertApiParams } from "@/lib/request";
 import { base62ToUuidSafe } from "@/lib/uuid";
-import { UmojaLinnProject } from "@/types/project";
+import { UmojaLinnMilestone, UmojaLinnProject } from "@/types/project";
 
 import {
   ArrayApiResponse,
   ServerActionOption,
   SingleApiResponse,
 } from "@/types/util";
-import { AxiosResponse } from "axios";
+import { AxiosProgressEvent, AxiosResponse } from "axios";
 
 export const inviteBuyer = async (
   body: { emails: string[] },
@@ -138,5 +138,68 @@ export const requestSizingTemplateInProject = async (
   }
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
     `/project/request-sizing-template/${base62ToUuidSafe(id)}`
+  );
+};
+
+export const getProjectMilestones = async (
+  projectId: string,
+  apiParams?: Record<string, unknown>,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.get<
+    unknown,
+    AxiosResponse<ArrayApiResponse<UmojaLinnMilestone>>
+  >(
+    `/project/${base62ToUuidSafe(projectId)}/milestones${
+      apiParams ? convertApiParams(apiParams) : ""
+    }`
+  );
+};
+
+export const fundProject = async (
+  id: string,
+  body: FormData,
+  onUploadProgress?: (event: AxiosProgressEvent) => void,
+  apiParams?: Record<string, unknown>,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/project/fund-project/${base62ToUuidSafe(id)}${
+      apiParams ? convertApiParams(apiParams) : ""
+    }`,
+    body,
+    {
+      onUploadProgress,
+    }
+  );
+};
+
+export const fundMilestone = async (
+  id: string,
+  body: FormData,
+  onUploadProgress?: (event: AxiosProgressEvent) => void,
+  apiParams?: Record<string, unknown>,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/project/fund-milestone/${base62ToUuidSafe(id)}${
+      apiParams ? convertApiParams(apiParams) : ""
+    }`,
+    body,
+    {
+      onUploadProgress,
+    }
   );
 };

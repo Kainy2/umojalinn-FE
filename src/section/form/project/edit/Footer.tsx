@@ -5,11 +5,12 @@ import { useRouter } from "next/navigation";
 import React from "react";
 
 type ProjectEditFooterProps = {
-  loading: boolean;
+  loading?: boolean;
   handleDraft?: React.ComponentProps<"button">["onClick"];
   handleSave?: React.ComponentProps<"button">["onClick"];
   hideDraft?: boolean;
   hideBack?: boolean;
+  saveText?: string;
 };
 
 const ProjectEditFooter = (props: ProjectEditFooterProps) => {
@@ -44,7 +45,7 @@ const ProjectEditFooter = (props: ProjectEditFooterProps) => {
           variant="default"
           onClick={props.handleSave}
         >
-          Continue
+          {props.saveText || "Continue"}
         </Button>
       </div>
     </div>

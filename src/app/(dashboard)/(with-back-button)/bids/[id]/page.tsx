@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import PragraphSpacing from "@/icons/PragraphSpacing";
+import { formatCurrencyValue } from "@/lib/number";
 import { getCurrencySymbol } from "@/lib/string";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import RejectButton from "@/section/dashboard/project/bid/button/Reject";
@@ -80,7 +81,7 @@ const IndividualBidPage = () => {
             <p>Milestone payment</p>
             <p>
               {getCurrencySymbol(bid?.project?.currency)}
-              {milestone?.amount}
+              {formatCurrencyValue(milestone?.amount)}
             </p>
           </div>
         </div>

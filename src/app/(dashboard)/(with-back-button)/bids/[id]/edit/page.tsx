@@ -2,7 +2,7 @@
 import Alert from "@/components/custom/Alert";
 import MilestoneCard, {
   MileStoneCardFooter,
-} from "@/components/custom/card/Milestone";
+} from "@/components/custom/milestone/Card";
 import DeliveryMethodPicker from "@/components/custom/picker/DeliveryMethod";
 import TotalPriceError from "@/components/custom/dialog/TotalPriceError";
 import TextAreaField from "@/components/custom/input/TextAreaField";
@@ -27,6 +27,7 @@ import { Separator } from "@radix-ui/react-separator";
 import { Plus } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
+import { formatCurrencyValue } from "@/lib/number";
 
 const MILESTONE_TEMPLATE = {
   title: "",
@@ -301,14 +302,14 @@ const BidPage = () => {
             <span className="text-foreground-body">Total Price</span>
             <span>
               {getCurrencySymbol(project?.currency)}
-              {totalPrice}
+              {formatCurrencyValue(totalPrice)}
             </span>
           </p>
           <p className="flex justify-between">
             <span className="text-foreground-body">Commission fee</span>
             <span>
               -{getCurrencySymbol(project?.currency)}
-              {totalPrice * 0.1}
+              {formatCurrencyValue(totalPrice * 0.1)}
             </span>
           </p>
         </div>
@@ -317,7 +318,7 @@ const BidPage = () => {
           <span className="text-foreground-body">You recieve</span>
           <span>
             {getCurrencySymbol(project?.currency)}
-            {totalPrice * 0.9}
+            {formatCurrencyValue(totalPrice * 0.9)}
           </span>
         </p>
       </div>
@@ -326,7 +327,7 @@ const BidPage = () => {
         {"  "}
         <span>
           {getCurrencySymbol(project?.currency)}
-          {totalPrice}
+          {formatCurrencyValue(totalPrice)}
         </span>
       </p>
       <Separator className="bg-gray-200 h-px" orientation="horizontal" />

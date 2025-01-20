@@ -1,15 +1,18 @@
 import {
+  fundMilestone,
+  fundProject,
   getAllBuyerProjects,
   getAllDesignerProjects,
   getClothingTypes,
   getProjectById,
+  getProjectMilestones,
   inviteBuyer,
   postProjectLive,
   updateProjectById,
 } from "@/actions/project";
 import { queryClient } from "@/components/provider/TanstackQueryClient";
 import useHandleError from "@/hooks/useHandleError";
-import { UmojaLinnProject } from "@/types/project";
+import { UmojaLinnMilestone, UmojaLinnProject } from "@/types/project";
 import {
   GenericUseMutationProps,
   GenericUseQueryProps,
@@ -17,7 +20,8 @@ import {
 import { ArrayApiResponse, SingleApiResponse } from "@/types/util";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
-import { BUYER, CLOTHING_TYPES, DESIGNER, PROJECT } from "../keys";
+import { BUYER, CLOTHING_TYPES, DESIGNER, MILESTONE, PROJECT } from "../keys";
+import { AxiosProgressEvent } from "axios";
 
 export const useInviteBuyer = (
   options: GenericUseMutationProps<SingleApiResponse, { emails: string[] }>
@@ -117,7 +121,8 @@ export const useGetAllBuyerProject = (
   const { data: me } = useSession();
   return useQuery({
     ...options,
-    enabled: !!me?.user && options?.enabled !== false,
+    enabled:
+      !!(me?.user?.profileRole === "BUYER") && options?.enabled !== false,
     queryKey: [PROJECT, BUYER, { apiParams }],
     queryFn: () => getAllBuyerProjects(apiParams),
   });
@@ -140,8 +145,62 @@ export const useGetAllDesignerProject = (
   const { data: me } = useSession();
   return useQuery({
     ...options,
-    enabled: !!me?.user && options?.enabled !== false,
+    enabled:
+      !!(me?.user?.profileRole === "DESIGNER") && options?.enabled !== false,
     queryKey: [PROJECT, DESIGNER, { apiParams }],
     queryFn: () => getAllDesignerProjects(apiParams),
+  });
+};
+
+export const useGetProjectMilestones = (
+  projectId: string,
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnMilestone>>
+) => {
+  const { data: me } = useSession();
+  return useQuery({
+    ...options,
+    enabled: !!projectId && !!me?.user && options?.enabled !== false,
+    queryKey: [PROJECT, MILESTONE, { projectId }],
+    queryFn: () => getProjectMilestones(projectId),
+  });
+};
+
+export const useFundProject = (
+  id: string,
+  onUploadProgress?: (event: AxiosProgressEvent) => void,
+  options?: GenericUseMutationProps<SingleApiResponse, FormData>
+) => {
+  const { handleError } = useHandleError("Fund Project");
+  return useMutation({
+    ...options,
+    mutationFn: (variables) => fundProject(id, variables, onUploadProgress),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [PROJECT] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useFundMilestone = (
+  id: string,
+  onUploadProgress?: (event: AxiosProgressEvent) => void,
+  options?: GenericUseMutationProps<SingleApiResponse, FormData>
+) => {
+  const { handleError } = useHandleError("Fund Milestone");
+  return useMutation({
+    ...options,
+    mutationFn: (variables) => fundMilestone(id, variables, onUploadProgress),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [PROJECT] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
   });
 };

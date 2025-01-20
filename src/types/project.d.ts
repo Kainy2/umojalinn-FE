@@ -15,6 +15,9 @@ export type UmojaLinnProject = {
   buyerId: string;
   designerId: string;
   budget: number | null | string;
+  escrowBalance: number | null;
+  amountFunded: number | null;
+  approvedBudget: number | null;
   currency: null | UmojaLinnCurrency;
   sizingTemplateId: string | null;
   deliveryAddress: {
@@ -68,9 +71,16 @@ export type UmojaLinnDeliveryMethod =
 
 export type UmojaLinnMilestone = {
   id: string;
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
   amount: null | number;
+  bidId: string;
+  state?: string;
+  city?: string;
+  country?: string;
+  deliveryMethod?: UmojaLinnDeliveryMethod;
+  status: "PENDING" | "ACTIVE" | "COMPLETE";
+  transactionStatus: "AWAITING_FUND" | "PROCESSING" | "PAID";
 } & UmojaLinnTimestamp;
 
 export type UmojaLinnBid = {

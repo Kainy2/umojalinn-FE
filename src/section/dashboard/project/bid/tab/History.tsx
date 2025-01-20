@@ -1,5 +1,5 @@
 "use client";
-import MilestoneProgress from "@/components/custom/MilestoneProgress";
+import MilestoneProgress from "@/components/custom/milestone/Progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getCurrencySymbol } from "@/lib/string";
 import { useGetBidById } from "@/tanstack/hooks/useBid";

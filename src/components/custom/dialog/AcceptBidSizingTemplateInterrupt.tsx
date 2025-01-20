@@ -6,8 +6,6 @@ import {
   DialogHeader,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import CheckCircle from "@/icons/CheckCircle";
-import { cn } from "@/lib/utils";
 import { useGetAllSizingTemplates } from "@/tanstack/hooks/useSizingTemplates";
 import {
   DialogDescription,
@@ -18,6 +16,7 @@ import {
 import { CircleHelp, Tag } from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
+import DialogListPickerItem from "./ListPickerItem";
 
 type ButtonOnClickProp = React.ComponentProps<"button">["onClick"];
 
@@ -152,24 +151,13 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
           liveSizingTemplates?.data?.data?.map?.((template) => {
             const active = template?.id === sizingTemplateId;
             return (
-              <button
+              <DialogListPickerItem
                 onClick={() => selectSizingTemplateId(template.id)}
-                className={cn(
-                  "flex flex-row items-center px-2 py-1 gap-2 border border-gray-100",
-                  active && "border-none ring-2 ring-primary bg-primary-25"
-                )}
                 key={template?.id}
-              >
-                <div className="icon-wrapper primary">
-                  <Tag />
-                </div>
-                <span className="flex-1 text-left">{template?.name}</span>
-                {active ? (
-                  <CheckCircle className="size-6 text-primary shrink-0" />
-                ) : (
-                  <span className="border border-gray-400 rounded-full size-6 shrink-0" />
-                )}
-              </button>
+                icon={<Tag />}
+                active={active}
+                title={template?.name}
+              />
             );
           })
         ) : (

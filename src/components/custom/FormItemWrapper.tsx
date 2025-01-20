@@ -1,5 +1,6 @@
 import React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 type FormItemWrapperProps = {
   loading?: boolean;
@@ -7,12 +8,13 @@ type FormItemWrapperProps = {
   title?: string;
   description?: string;
   endAdornment?: React.ReactNode;
+  className?: string;
 };
 
 const FormItemWrapper = (props: FormItemWrapperProps) => {
   if (props.loading) {
     return (
-      <div className="grid grid-cols-12 gap-4">
+      <div className={cn("grid grid-cols-12 gap-4", props.className)}>
         <div className="col-span-12 lg:col-span-3 pt-2">
           <Skeleton className="h-6 w-full max-w-24 mb-2" />
           <Skeleton className="h-4 w-full max-w-32 " />
@@ -28,7 +30,7 @@ const FormItemWrapper = (props: FormItemWrapperProps) => {
   }
 
   return (
-    <div className="grid grid-cols-12 gap-4">
+    <div className={cn("grid grid-cols-12 gap-4", props.className)}>
       <div className="col-span-12 lg:col-span-3 pt-2">
         <h3 className="font-semibold text-md text-foreground-label mb-1">
           {props.title}

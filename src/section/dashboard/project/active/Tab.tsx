@@ -21,10 +21,10 @@ const ActiveProjectTab = () => {
       //   title: "Chat",
       //   href: `/projects/${uuidToBase62Safe(params.id)}/chat`,
       // },
-      {
-        title: "Media & links",
-        href: `/projects/${uuidToBase62Safe(params.id)}/media-and-links`,
-      },
+      // {
+      //   title: "Media & links",
+      //   href: `/projects/${uuidToBase62Safe(params.id)}/media-and-links`,
+      // },
       {
         title: "Details",
         href: `/projects/${uuidToBase62Safe(params.id)}/details`,
