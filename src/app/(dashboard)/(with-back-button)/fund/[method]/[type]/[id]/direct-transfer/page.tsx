@@ -149,6 +149,11 @@ const DirectTransferPage = () => {
         {transactionRecieptFile ? (
           <FilePreview
             file={transactionRecieptFile}
+            onDelete={
+              isErrorFundingMilestone || isErrorFundingProject
+                ? () => setTransactionRecieptFile(null)
+                : undefined
+            }
             progress={
               isErrorFundingMilestone || isErrorFundingProject
                 ? undefined

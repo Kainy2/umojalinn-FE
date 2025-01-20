@@ -1,12 +1,13 @@
 import CheckCircle from "@/icons/CheckCircle";
 import { cn, formatFileSize } from "@/lib/utils";
-import { File } from "lucide-react";
+import { File, Trash } from "lucide-react";
 import React from "react";
 
 type FilePreviewProps = {
   file: File;
   progress?: number;
   showFilename?: boolean;
+  onDelete?: () => void;
 };
 
 const FilePreview = (props: FilePreviewProps) => {
@@ -23,7 +24,14 @@ const FilePreview = (props: FilePreviewProps) => {
             </p>
             <p>{formatFileSize(props.file)}</p>
           </div>
-          <CheckCircle className="text-primary" />
+
+          {props.onDelete ? (
+            <button className="text-primary" onClick={props.onDelete}>
+              <Trash />
+            </button>
+          ) : (
+            <CheckCircle className="text-primary" />
+          )}
         </div>
         <div
           className={cn(
