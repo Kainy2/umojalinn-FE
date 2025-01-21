@@ -8,16 +8,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrencyValue } from "@/lib/number";
 import { getCurrencySymbol } from "@/lib/string";
 import { jsonToFormData } from "@/lib/utils";
-import { useGetBidById } from "@/tanstack/hooks/useBid";
+import { uuidToBase62Safe } from "@/lib/uuid";
 import {
   useFundMilestone,
   useFundProject,
+  useGetMilestoneById,
   useGetProjectById,
-  useGetProjectMilestones,
 } from "@/tanstack/hooks/useProject";
 import Link from "next/link";
 import { useParams, usePathname, useRouter } from "next/navigation";
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 
 const DirectTransferPage = () => {
   const pathname = usePathname();
@@ -31,42 +31,34 @@ const DirectTransferPage = () => {
     type: "project" | "milestone";
     id: string;
   }>();
+  const isProject = params.type === "project";
+
   const { data: projectData, isPending: loadingProjectData } =
     useGetProjectById(params.id, {
-      enabled: params.type === "project",
+      enabled: isProject,
     });
 
-  const { data: milestonesData, isPending: loadingMilestonesData } =
-    useGetProjectMilestones(params.id, {
-      enabled: params.type === "milestone",
+  const { data: milestoneData, isPending: loadingMilestoneData } =
+    useGetMilestoneById(params.id, {
+      enabled: !isProject,
     });
 
-  const milestone = useMemo(
-    () => milestonesData?.data?.data?.find?.((m) => m?.id === params.id),
-    [milestonesData?.data?.data, params.id]
-  );
+  const { data: milestoneProjectData, isPending: loadingMilestoneProjectData } =
+    useGetProjectById(milestoneData?.data?.data?.projectId || "", {
+      enabled: !isProject,
+    });
 
-  const { data: bidData, isPending: loadingBidData } = useGetBidById(
-    milestone?.bidId || "",
-    {
-      enabled: params.type === "milestone",
-    }
-  );
+  const currency = isProject
+    ? projectData?.data?.data?.currency
+    : milestoneProjectData?.data?.data?.currency;
 
-  const currency =
-    params.type === "project"
-      ? projectData?.data?.data?.currency
-      : bidData?.data?.data?.project?.currency;
+  const value = isProject
+    ? projectData?.data?.data?.approvedBudget
+    : milestoneData?.data?.data?.amount;
 
-  const value =
-    params.type === "project"
-      ? projectData?.data?.data?.approvedBudget
-      : milestone?.amount;
-
-  const loading =
-    params.type === "project"
-      ? loadingProjectData
-      : loadingBidData || loadingMilestonesData;
+  const loading = isProject
+    ? loadingProjectData
+    : loadingMilestoneData || loadingMilestoneProjectData;
 
   const {
     mutate: fundProject,
@@ -79,7 +71,11 @@ const DirectTransferPage = () => {
     },
     {
       onSuccess() {
-        router.push(`/projects/${params.id}`);
+        router.push(
+          `/projects/${uuidToBase62Safe(
+            (isProject ? params.id : milestoneData?.data?.data?.projectId) || ""
+          )}`
+        );
       },
     }
   );

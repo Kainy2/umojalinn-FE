@@ -4,17 +4,9 @@ export const handleQueryParams = (
   req: NextRequest,
   initiating: boolean | undefined
 ) => {
-  const searchParams = req.nextUrl.toString();
-
-  const addedParam = getAllSearchParameters(searchParams, initiating);
-
-  return addedParam;
-};
-
-function getAllSearchParameters(url: string, initiating?: boolean): string {
   try {
-    const urlObject = new URL(url);
-    const searchParams = urlObject.searchParams;
+    const searchParams = req.nextUrl.searchParams;
+
     const entries = searchParams.entries();
 
     // Build the string representation of parameters
@@ -31,7 +23,7 @@ function getAllSearchParameters(url: string, initiating?: boolean): string {
     // Handle invalid URL or other errors
     return "";
   }
-}
+};
 
 export const convertApiParams = (params: Record<string, unknown>) => {
   return (

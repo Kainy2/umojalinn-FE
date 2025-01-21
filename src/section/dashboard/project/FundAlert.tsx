@@ -2,6 +2,7 @@
 import Alert from "@/components/custom/Alert";
 import SelectFundingMethodDialog from "@/components/custom/dialog/SelectFundingMethod";
 import { Button } from "@/components/ui/button";
+import { uuidToBase62Safe } from "@/lib/uuid";
 import {
   useGetProjectById,
   useGetProjectMilestones,
@@ -35,10 +36,10 @@ const FundProjectAlert = () => {
         action={
           <div className="flex gap-1">
             <SelectFundingMethodDialog
-              id={firstFundMilestone?.id || ""}
+              id={uuidToBase62Safe(firstFundMilestone?.id || "")}
               type="milestone"
             >
-              <Button variant="outline" disabled={true || !firstFundMilestone}>
+              <Button variant="outline" disabled={!firstFundMilestone}>
                 Fund Milestone
               </Button>
             </SelectFundingMethodDialog>

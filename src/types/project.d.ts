@@ -81,6 +81,7 @@ export type UmojaLinnMilestone = {
   deliveryMethod?: UmojaLinnDeliveryMethod;
   status: "PENDING" | "ACTIVE" | "COMPLETE";
   transactionStatus: "AWAITING_FUND" | "PROCESSING" | "PAID";
+  projectId: string | null;
 } & UmojaLinnTimestamp;
 
 export type UmojaLinnBid = {

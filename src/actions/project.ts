@@ -203,3 +203,17 @@ export const fundMilestone = async (
     }
   );
 };
+
+export const getMilestoneById = async (
+  id: string,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.get<
+    unknown,
+    AxiosResponse<SingleApiResponse<UmojaLinnMilestone>>
+  >(`/project/milestone/${base62ToUuidSafe(id)}`);
+};

@@ -4,6 +4,7 @@ import {
   getAllBuyerProjects,
   getAllDesignerProjects,
   getClothingTypes,
+  getMilestoneById,
   getProjectById,
   getProjectMilestones,
   inviteBuyer,
@@ -202,5 +203,18 @@ export const useFundMilestone = (
       handleError(error);
       options?.onError?.(error, variables, context);
     },
+  });
+};
+
+export const useGetMilestoneById = (
+  id?: string,
+  options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnMilestone>>
+) => {
+  const { data: me } = useSession();
+  return useQuery({
+    ...options,
+    enabled: !!me?.user && !!id && options?.enabled !== false,
+    queryKey: [PROJECT, MILESTONE, id],
+    queryFn: () => getMilestoneById(id || ""),
   });
 };
