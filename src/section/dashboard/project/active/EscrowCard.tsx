@@ -27,8 +27,10 @@ const EscrowCard = (props: EscrowCardProps) => {
       <MilestoneProgress
         total={props?.milestones?.length}
         value={
-          props?.milestones?.filter?.(
-            (milestone) => milestone?.status !== "IN_ACTIVE"
+          props?.milestones?.filter?.((milestone) =>
+            ["PENDING", "ACTIVE", "IN_REVIEW", "APPROVED"].includes(
+              milestone?.status
+            )
           )?.length
         }
       />
