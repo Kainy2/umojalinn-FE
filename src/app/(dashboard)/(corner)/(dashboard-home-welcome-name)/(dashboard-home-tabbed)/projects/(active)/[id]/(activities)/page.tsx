@@ -5,6 +5,7 @@ import {
   useGetProjectById,
   useGetProjectMilestones,
 } from "@/tanstack/hooks/useProject";
+import { useGetMe } from "@/tanstack/hooks/useUser";
 import { useParams } from "next/navigation";
 import React from "react";
 
@@ -16,7 +17,9 @@ const ActiveProjectPage = () => {
   const { data: projectData, isPending: isLoadingProject } =
     useGetProjectById(id);
 
-  if (isLoadingProjectMilestones || isLoadingProject)
+  const { data: meData, isPending: isLoadingMe } = useGetMe();
+
+  if (isLoadingProjectMilestones || isLoadingProject || isLoadingMe)
     return (
       <div className="h-[30vh] flex items-center justify-center text-muted-foreground text-sm">
         <span>Loading...</span>
@@ -26,8 +29,11 @@ const ActiveProjectPage = () => {
   return (
     <div className="flex flex-col md:flex-row gap-12">
       <MilestoneTimeline
-        currency="EURO"
-        isBuyer
+        currency={projectData?.data?.data?.currency || null}
+        isBuyer={
+          projectData?.data?.data?.buyerId ===
+          meData?.data?.data?.buyerProfile?.id
+        }
         milestones={projectMilestonesData?.data?.data || []}
         className="flex-1"
       />

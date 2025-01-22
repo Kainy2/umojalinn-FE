@@ -44,14 +44,15 @@ const getMilestoneStatus = (
   status: UmojaLinnMilestone["status"],
   transactionStatus: UmojaLinnMilestone["transactionStatus"]
 ): MilestoneTimelineItem["status"] => {
-  if (status === "PENDING") {
+  if (status === "IN_ACTIVE") {
     return MilestoneStatus.INACTIVE;
   }
-  if (status === "COMPLETE") return MilestoneStatus.COMPLETED;
-  if (transactionStatus === "AWAITING_FUND")
+  if (status === "APPROVED") return MilestoneStatus.COMPLETED;
+  if (status === "PENDING" && transactionStatus === "AWAITING_FUND")
     return MilestoneStatus.AWAITING_FUND;
   if (transactionStatus === "PAID") return MilestoneStatus.PAID;
-  if (transactionStatus === "PROCESSING") return MilestoneStatus.IN_REVIEW;
+  if (transactionStatus === "PROCESSING") return MilestoneStatus.REVIEW;
+  if (status === "IN_REVIEW") return MilestoneStatus.IN_REVIEW;
   return MilestoneStatus.INACTIVE;
 };
 
