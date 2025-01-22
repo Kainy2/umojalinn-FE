@@ -8,7 +8,7 @@ export function formatNumberTo2DecimalPlace(value: number): string {
 
 export function formatCurrencyValue(amount?: number | null): string {
   // Handle edge cases where the amount is not a number or is null/undefined
-  if (!amount || isNaN(amount)) {
+  if ((amount !== 0 && !amount) || isNaN(amount)) {
     return "";
   }
 

@@ -37,7 +37,13 @@ const Alert = (props: AlertProps) => {
   }
 
   return (
-    <div className={cn("flex gap-2 p-4 border", colorStyle, props.className)}>
+    <div
+      className={cn(
+        "flex flex-col md:flex-row gap-2 p-4 border",
+        colorStyle,
+        props.className
+      )}
+    >
       {props.icon || <Icon />}
       <div
         className={cn("flex-1 text-foreground-body", props.messagesClassName)}

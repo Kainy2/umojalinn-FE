@@ -179,7 +179,7 @@ const SizingTemplateDialog = (
               <TextField
                 placeholder="Template name"
                 className="flex-1 w-full"
-                maxLength={15}
+                maxLength={30}
                 onChange={(e) => setName(e?.target?.value)}
                 value={name}
               />

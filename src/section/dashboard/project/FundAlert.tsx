@@ -20,12 +20,15 @@ const FundProjectAlert = () => {
   const firstFundMilestone = useMemo(
     () =>
       projectMilestonesData?.data?.data?.find?.(
-        (milestone) => milestone?.transactionStatus === "AWAITING_FUND"
+        (milestone) => milestone?.status === "PENDING"
       ),
     [projectMilestonesData?.data?.data]
   );
 
-  if (projectData?.data?.data?.amountFunded === 0)
+  if (
+    projectData?.data?.data?.fundStatus === "AWAITING_FUND" &&
+    projectData?.data?.data?.amountFunded === 0
+  )
     return (
       <Alert
         className="fixed w-[90vw] lg:w-[70vw] top-28 z-[50] rounded-lg shadow-md shadow-error-700/25"
@@ -34,17 +37,21 @@ const FundProjectAlert = () => {
         title="Awaiting fund"
         message="fund escrow to start project"
         action={
-          <div className="flex gap-1">
+          <div className="flex flex-col md:flex-row gap-1">
             <SelectFundingMethodDialog
               id={uuidToBase62Safe(firstFundMilestone?.id || "")}
               type="milestone"
             >
-              <Button variant="outline" disabled={!firstFundMilestone}>
+              <Button
+                className="w-full md:w-auto"
+                variant="outline"
+                disabled={!firstFundMilestone}
+              >
                 Fund Milestone
               </Button>
             </SelectFundingMethodDialog>
             <SelectFundingMethodDialog id={params.id} type="project">
-              <Button>Fund Project</Button>
+              <Button className="w-full md:w-auto">Fund Project</Button>
             </SelectFundingMethodDialog>
           </div>
         }

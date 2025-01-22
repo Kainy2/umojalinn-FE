@@ -1,9 +1,21 @@
 import MilestoneProgress from "@/components/custom/milestone/Progress";
 import { Button } from "@/components/ui/button";
+import { formatCurrencyValue } from "@/lib/number";
+import { getCurrencySymbol } from "@/lib/string";
+import { cn } from "@/lib/utils";
+import { UmojaLinnMilestone, UmojaLinnProject } from "@/types/project";
 import { CircleAlert, MoreVertical } from "lucide-react";
 import React from "react";
 
-const EscrowCard = () => {
+type EscrowCardProps = {
+  milestones: UmojaLinnMilestone[];
+  paidOut: number;
+  escrowBalance: number;
+  currency?: UmojaLinnProject["currency"];
+  projectPrice: number;
+};
+
+const EscrowCard = (props: EscrowCardProps) => {
   return (
     <div className="flex flex-col gap-4 bg-gray-50 rounded-md p-4 py-8">
       <div className="flex justify-between items-center mb-2">
@@ -12,22 +24,48 @@ const EscrowCard = () => {
           <MoreVertical className="text-primary" />
         </button>
       </div>
-      <MilestoneProgress total={4} value={1} />
+      <MilestoneProgress
+        total={props?.milestones?.length}
+        value={
+          props?.milestones?.filter?.(
+            (milestone) => milestone?.status !== "IN_ACTIVE"
+          )?.length
+        }
+      />
       <div className="label-grid mb-4">
         <p className="text-md">Paid Out</p>
-        <p className="text-md font-semibold">$60,000</p>
-        <p>Milestone 1</p>
-        <p>$60,000</p>
-        <p>Milestone 2</p>
-        <p>$30,000</p>
-        <p>Delivery milestone</p>
-        <p>$30,000</p>
+        <p className="text-md font-semibold">
+          {getCurrencySymbol(props?.currency)}
+          {formatCurrencyValue(props.paidOut)}
+        </p>
+        {props.milestones?.map?.((milestone) => (
+          <React.Fragment key={milestone.id}>
+            <p className="truncate">
+              {milestone?.title || "Delivery Milestone"}
+            </p>
+            <p
+              className={cn(
+                ["FUNDED", "PAID"].includes(milestone?.transactionStatus) &&
+                  "line-through"
+              )}
+            >
+              {getCurrencySymbol(props?.currency)}
+              {formatCurrencyValue(milestone?.amount)}
+            </p>
+          </React.Fragment>
+        ))}
       </div>
       <div className="label-grid gap-8">
         <p className="text-md">Escrow Balance</p>
-        <p className="text-md font-semibold">$60,000</p>
+        <p className="text-md font-semibold">
+          {getCurrencySymbol(props?.currency)}
+          {formatCurrencyValue(props.escrowBalance)}
+        </p>
         <p className="text-md">Project Price</p>
-        <p className="text-md font-semibold">$60,000</p>
+        <p className="text-md font-semibold">
+          {getCurrencySymbol(props?.currency)}
+          {formatCurrencyValue(props.projectPrice)}
+        </p>
       </div>
       <Button variant="outline" fullWidth>
         Invoice

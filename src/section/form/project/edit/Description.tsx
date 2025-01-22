@@ -220,8 +220,8 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
               <FormTextField
                 containerClassName="w-full"
                 {...field}
-                maxLength={15}
-                hint={`${field.value?.length || 0}/15 characters`}
+                maxLength={30}
+                hint={`${field.value?.length || 0}/30 characters`}
                 divider
                 endAdornment={
                   <FormField

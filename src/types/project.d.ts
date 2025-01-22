@@ -12,6 +12,7 @@ export type UmojaLinnProject = {
   dueDate: null | string;
   projectType: "PRIVATE" | "PUBLIC";
   status: "DRAFT" | "ADS" | "LIVE" | "COMPLETED";
+  fundStatus: "AWAITING_FUND" | "PROCESSING" | "FUNDED";
   buyerId: string;
   designerId: string;
   budget: number | null | string;
@@ -79,8 +80,8 @@ export type UmojaLinnMilestone = {
   city?: string;
   country?: string;
   deliveryMethod?: UmojaLinnDeliveryMethod;
-  status: "PENDING" | "ACTIVE" | "COMPLETE";
-  transactionStatus: "AWAITING_FUND" | "PROCESSING" | "PAID";
+  status: "IN_ACTIVE" | "PENDING" | "ACTIVE" | "IN_REVIEW" | "APPROVED";
+  transactionStatus: "AWAITING_FUND" | "PROCESSING" | "FUNDED" | "PAID";
   projectId: string | null;
 } & UmojaLinnTimestamp;
 

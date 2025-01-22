@@ -2,8 +2,8 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import React from "react";
 
-type MenuButtonProps = {
-  children: string;
+export type MenuButtonProps = {
+  children: React.ReactNode;
   onClick?: () => void;
   href?: string;
   className?: string;

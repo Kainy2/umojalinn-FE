@@ -81,7 +81,7 @@ export const projectFormDetailsSchema = z.object({
   lastName: z.string().optional(),
   designerId: z.string().optional(),
   about: z.string().optional(),
-  title: z.string().max(15).optional(),
+  title: z.string().max(30).optional(),
   gender: z.string().optional(),
   additionalNotes: z.string().optional(),
   dueDate: z.union([z.string(), z.date()]).optional(),

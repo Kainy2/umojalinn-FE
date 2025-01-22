@@ -1,12 +1,13 @@
 "use client";
 import TextField from "@/components/custom/input/TextField";
+import PopoverMenu from "@/components/custom/PopoverMenu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import InviteClient from "@/section/dashboard/appbar/InviteClient";
 import { useGetMe } from "@/tanstack/hooks/useUser";
-import { Bell, ChevronDown, Search } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { Bell, ChevronDown, LogOut, Search } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
 import React from "react";
 
 const DashboardAppbarContent = () => {
@@ -17,13 +18,15 @@ const DashboardAppbarContent = () => {
   return (
     <>
       <div className="flex-1 max-w-96">
-        <TextField
-          className="focus-visible:!ring-transparent !ring-transparent transition-none"
-          placeholder="Search"
-          startAdornment={
-            <Search className="text-muted-foreground icon-base" />
-          }
-        />
+        <div className="hidden lg:block">
+          <TextField
+            className=" focus-visible:!ring-transparent !ring-transparent transition-none"
+            placeholder="Search"
+            startAdornment={
+              <Search className="text-muted-foreground icon-base" />
+            }
+          />
+        </div>
       </div>
       <div className="flex space-x-1 items-center ">
         {session?.user?.profileRole === "DESIGNER" && (
@@ -35,20 +38,30 @@ const DashboardAppbarContent = () => {
         <Button variant="ghost" className="font-normal">
           <Bell className="icon-base" />
         </Button>
-        <Button variant="ghost">
-          <Avatar>
-            <AvatarImage
-              className="object-cover"
-              src={me?.profilePhotoUri || ""}
-              alt={me?.firstName}
-            />
-            <AvatarFallback>
-              {me?.firstName?.[0]?.toLocaleUpperCase?.()}
-              {me?.lastName?.[0]?.toLocaleUpperCase?.()}
-            </AvatarFallback>
-          </Avatar>
-          <ChevronDown className="icon-base" />
-        </Button>
+        <PopoverMenu
+          menus={[
+            {
+              onClick: () => signOut(),
+              children: "Logout",
+              icon: <LogOut className="text-error" />,
+            },
+          ]}
+        >
+          <Button variant="ghost">
+            <Avatar>
+              <AvatarImage
+                className="object-cover"
+                src={me?.profilePhotoUri || ""}
+                alt={me?.firstName}
+              />
+              <AvatarFallback>
+                {me?.firstName?.[0]?.toLocaleUpperCase?.()}
+                {me?.lastName?.[0]?.toLocaleUpperCase?.()}
+              </AvatarFallback>
+            </Avatar>
+            <ChevronDown className="icon-base" />
+          </Button>
+        </PopoverMenu>
       </div>
     </>
   );

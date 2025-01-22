@@ -20,7 +20,7 @@ const ActiveProjectSummary = () => {
         size="large"
         title={data?.data?.data?.title || "No Title"}
       />
-      <div className="grid grid-cols-2 gap-4 max-w-screen-sm items-center justify-start">
+      <div className="grid grid-cols-1  md:grid-cols-2 gap-2 md:gap-4 max-w-screen-sm items-center justify-start">
         <span className="text-sm text-foreground-body">Detail</span>
         <span>
           <AvatarIconTag

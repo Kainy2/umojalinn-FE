@@ -65,17 +65,17 @@ const DraftCardList = () => {
                 Created: {timeago?.format(project?.createdAt)}
               </p>
 
-              <p className="flex-1 truncate">{project?.about}</p>
+              <p className="flex-1 line-clamp-3">{project?.about}</p>
               <div className="flex flex-row items-center gap-4 w-full">
                 <div className="block w-full flex-1 bg-gray-100 h-3 rounded-full">
                   <div
                     className={`bg-primary h-full rounded-full`}
                     style={{
-                      width: `${50}%`,
+                      width: `${0}%`,
                     }}
                   />
                 </div>
-                <p>50%</p>
+                <p>{0}%</p>
               </div>
             </div>
           </Link>

@@ -1,17 +1,11 @@
 "use client";
-import MenuButton from "@/components/custom/MenuButton";
+import PopoverMenu from "@/components/custom/PopoverMenu";
 import SectionTitle from "@/components/custom/SectionTitle";
 import SizingTemplateTag from "@/components/custom/tag/SizingTemplate";
 import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import ProjectReviewView from "@/section/dashboard/project/Review";
 import { useGetProjectById } from "@/tanstack/hooks/useProject";
-import { PopoverClose } from "@radix-ui/react-popover";
 import { Edit, MoreVertical, Trash } from "lucide-react";
 import { useParams } from "next/navigation";
 import React from "react";
@@ -28,30 +22,25 @@ const AdsProjectPage = () => {
         loading={isPending}
         title={data?.data?.data?.title || "No title"}
         action={
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="ghost" size="sm">
-                <MoreVertical className="h-4 w-4 text-primary" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent align="end" className="w-48 p-0">
-              <PopoverClose asChild>
-                <MenuButton
-                  href={`/project/${uuidToBase62Safe(
-                    data?.data?.data?.id || ""
-                  )}`}
-                  icon={<Edit />}
-                >
-                  Edit
-                </MenuButton>
-              </PopoverClose>
-              <PopoverClose asChild>
-                <MenuButton icon={<Trash className="text-error" />}>
-                  Delete job ad
-                </MenuButton>
-              </PopoverClose>
-            </PopoverContent>
-          </Popover>
+          <PopoverMenu
+            menus={[
+              {
+                href: `/project/${uuidToBase62Safe(
+                  data?.data?.data?.id || ""
+                )}`,
+                icon: <Edit />,
+                children: " Edit",
+              },
+              {
+                icon: <Trash className="text-error" />,
+                children: "Delete job ad",
+              },
+            ]}
+          >
+            <Button variant="ghost" size="sm">
+              <MoreVertical className="h-4 w-4 text-primary" />
+            </Button>
+          </PopoverMenu>
         }
       />
 
