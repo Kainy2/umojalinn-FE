@@ -46,6 +46,7 @@ const getMilestoneStatus = (
   if (status === "IN_ACTIVE") {
     return MilestoneStatus.INACTIVE;
   }
+  if (status === "ACTIVE") return MilestoneStatus.ACTIVE;
   if (status === "APPROVED") return MilestoneStatus.COMPLETED;
   if (status === "PENDING" && transactionStatus === "AWAITING_FUND")
     return MilestoneStatus.AWAITING_FUND;
