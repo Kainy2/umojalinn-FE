@@ -72,7 +72,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
           date: item.updatedAt,
           title: item.title || "Delivery Method",
           description: item.description,
-          isCurrent: item.status === "PENDING",
+          isCurrent: ["PENDING", "ACTIVE", "IN_REVIEW"].includes(item.status),
         };
         const isCompletedOrCurrent =
           milestone.status === MilestoneStatus.COMPLETED || milestone.isCurrent;
