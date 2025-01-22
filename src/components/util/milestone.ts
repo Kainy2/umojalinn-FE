@@ -20,9 +20,9 @@ export const getPillWrapperStyle = (
 ): React.ComponentProps<"span">["className"] => {
   switch (status) {
     case MilestoneStatus.IN_REVIEW:
-      return "border-gray-500 text-gray-500";
+      return "border-gray-400 text-gray-400";
     case MilestoneStatus.ACTIVE:
-      return "border-gray-700 text-gray-700";
+      return "border-gray-500 text-gray-500";
     case MilestoneStatus.REVIEW:
     case MilestoneStatus.AWAITING_FUND:
       return "border-error-400 text-error-400";
@@ -40,7 +40,7 @@ export const getPillValueStyle = (
 ): React.ComponentProps<"span">["className"] => {
   switch (status) {
     case MilestoneStatus.ACTIVE:
-      return "bg-gray-700 text-white";
+      return "bg-gray-500 text-white";
     case MilestoneStatus.REVIEW:
     case MilestoneStatus.AWAITING_FUND:
       return "bg-error-400 text-error-50";
