@@ -10,7 +10,7 @@ import {
 const MilestoneAction: React.FC<
   MilestoneTimelineItem & Pick<MilestoneTimelineProps, "isBuyer" | "isDesigner">
 > = ({ isCurrent, isBuyer, status }) => {
-  if (status === MilestoneStatus.REVIEW && isCurrent && isBuyer)
+  if (status === MilestoneStatus.IN_REVIEW && isCurrent && isBuyer)
     return (
       <>
         <Separator className="my-3" />

@@ -25,7 +25,6 @@ export type MilestoneTimelineItem = {
   date: string;
   additionalContent?: React.ReactNode;
   isCurrent?: boolean;
-
   retries?: unknown[];
   amount: number;
   status?: keyof typeof MilestoneStatus;
@@ -73,7 +72,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
           date: item.updatedAt,
           title: item.title || "Delivery Method",
           description: item.description,
-          isCurrent: item.status === "ACTIVE",
+          isCurrent: item.status === "PENDING",
         };
         const isCompletedOrCurrent =
           milestone.status === MilestoneStatus.COMPLETED || milestone.isCurrent;
