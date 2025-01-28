@@ -121,7 +121,7 @@ const BidPage = () => {
         title: "Bid Live",
         description: "Your bid has been published successfully.",
       });
-      router.push(`/jobs/${uuidToBase62Safe(project?.id || "")}`);
+      router.push("/dashboard");
     },
   });
 
@@ -245,12 +245,18 @@ const BidPage = () => {
       )}
       {milestones.map((milestone, index) => (
         <MilestoneCard
-          hideActions={!!editing && index !== editing}
+          hideActions={
+            (!!editing && index !== editing) ||
+            ["DRAFT", "REJECTED"].includes(bid?.status || "")
+          }
           onDelete={() => deleteMilestone(milestone?.id || "")}
           onCancel={handleToggle(index)}
           onSave={handleSave(index)}
           key={index}
-          view={index !== editing}
+          view={
+            index !== editing ||
+            !["DRAFT", "REJECTED"].includes(bid?.status || "")
+          }
           {...milestone}
           onEdit={handleToggle(index)}
           currency={project?.currency || null}
