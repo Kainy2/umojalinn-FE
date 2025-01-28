@@ -9,7 +9,7 @@ const SizingTemplateCard = (props: { template: UmojaLinnSizingTemplate }) => {
 
   const inUse = template?.status === "IN_USE";
   const projectInUse = inUse
-    ? template?.projects?.find((temp) => temp.status !== "COMPLETED")
+    ? template?.projects?.find((temp) => temp?.status !== "COMPLETED")
     : undefined;
   return (
     <SizingTemplateDialog id={template?.id}>

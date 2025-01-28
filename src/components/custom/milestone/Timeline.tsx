@@ -74,17 +74,18 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
       {milestones.map((item, index) => {
         const milestone: MilestoneTimelineItem = {
           id: item?.id,
-          status: getMilestoneStatus(item.status, item.transactionStatus),
-          amount: item.amount || 0,
-          date: item.updatedAt,
-          title: item.title || "Delivery Method",
-          description: item.description,
+          status: getMilestoneStatus(item?.status, item?.transactionStatus),
+          amount: item?.amount || 0,
+          date: item?.updatedAt,
+          title: item?.title || "Delivery Method",
+          description: item?.description,
           isCurrent: ["PENDING", "ACTIVE", "REJECTED", "IN_REVIEW"].includes(
-            item.status
+            item?.status
           ),
         };
         const isCompletedOrCurrent =
-          milestone.status === MilestoneStatus.COMPLETED || milestone.isCurrent;
+          milestone?.status === MilestoneStatus.COMPLETED ||
+          milestone?.isCurrent;
         return (
           <li key={index} className="flex flex-col gap-1.5">
             <div className="flex flex-row gap-3">
@@ -98,7 +99,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                   isCompletedOrCurrent && "text-foreground-body"
                 )}
               >
-                {milestone.title}
+                {milestone?.title}
               </h3>
             </div>
             <div className="flex flex-row items-stretch gap-3">
@@ -118,11 +119,11 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                     isCompletedOrCurrent && "text-foreground-body"
                   )}
                 >
-                  {milestone.description}
+                  {milestone?.description}
                 </p>
-                {milestone.additionalContent}
+                {milestone?.additionalContent}
                 <MilestoneSubmissionsPreview
-                  status={milestone.status}
+                  status={milestone?.status}
                   milestoneId={item?.id}
                   {...{
                     isBuyer,
@@ -136,7 +137,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                     isBuyer,
                     message,
                     files,
-                    status: milestone.status,
+                    status: milestone?.status,
                     onFilesChange: setFiles,
                     onMessageChange: setMessage,
                   }}
@@ -147,7 +148,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                     isCompletedOrCurrent && "text-foreground-body"
                   )}
                 >
-                  {milestone.date && isCompletedOrCurrent && (
+                  {milestone?.date && isCompletedOrCurrent && (
                     <time
                       className={cn(
                         "text-gray-400 text-sm",
@@ -155,13 +156,13 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                       )}
                     >
                       {format(
-                        new Date(milestone.date),
+                        new Date(milestone?.date),
                         "MMM dd, yyyy • hh:mmaaa"
                       )}
                     </time>
                   )}
                   <MilestonePill currency={currency} {...milestone} />
-                  {milestone.status === MilestoneStatus.AWAITING_FUND &&
+                  {milestone?.status === MilestoneStatus.AWAITING_FUND &&
                     isBuyer && (
                       <SelectFundingMethodDialog
                         id={milestone?.id}
@@ -172,17 +173,17 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                         </button>
                       </SelectFundingMethodDialog>
                     )}
-                  {(milestone.retries?.length || 0) > 1 && (
+                  {(milestone?.retries?.length || 0) > 1 && (
                     <>
                       <span
                         className={cn(
                           "text-gray-400",
-                          (milestone.status === MilestoneStatus.COMPLETED ||
-                            milestone.isCurrent) &&
+                          (milestone?.status === MilestoneStatus.COMPLETED ||
+                            milestone?.isCurrent) &&
                             "text-foreground-body"
                         )}
                       >
-                        {milestone.retries?.length}{" "}
+                        {milestone?.retries?.length}{" "}
                       </span>
                       <button className="text-sm underline text-primary">
                         retries
@@ -192,12 +193,12 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                   <span
                     className={cn(
                       "text-gray-400",
-                      (milestone.status === MilestoneStatus.COMPLETED ||
-                        milestone.isCurrent) &&
+                      (milestone?.status === MilestoneStatus.COMPLETED ||
+                        milestone?.isCurrent) &&
                         "text-foreground-body"
                     )}
                   >
-                    {milestone.info}
+                    {milestone?.info}
                   </span>
                 </div>
                 <MilestoneAction

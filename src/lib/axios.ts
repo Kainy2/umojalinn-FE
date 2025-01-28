@@ -51,8 +51,8 @@ export const handleAPIError = (error: unknown) => {
 
     // Handle generic errors with similar structure
     const genericError = error as Record<string, unknown>;
-    const status = (genericError.status || 500) as number;
-    const message = genericError.message || "An unexpected error occurred";
+    const status = (genericError?.status || 500) as number;
+    const message = genericError?.message || "An unexpected error occurred";
 
     return NextResponse.json({ message }, { status });
   }

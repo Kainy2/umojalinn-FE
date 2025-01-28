@@ -23,7 +23,10 @@ export const useGetMe = (
     queryKey: [USER, ME],
     queryFn: () => getMe(),
     throwOnError(error: unknown) {
-      if (axios.isAxiosError(error) && [400, 401].includes(error.status || 0)) {
+      if (
+        axios.isAxiosError(error) &&
+        [400, 401].includes(error?.status || 0)
+      ) {
         queryClient.clear();
         signOut({
           callbackUrl: `/login?redirectTo=${path}`,

@@ -19,14 +19,14 @@ type MilestoneInputSectionProps = {
 const MilestoneInputSection = (props: MilestoneInputSectionProps) => {
   const { previewUrls, getPreview } = useImagePreviewUrls();
 
-  if (props.status === MilestoneStatus.ACTIVE && props.isDesigner) {
+  if (props?.status === MilestoneStatus.ACTIVE && props?.isDesigner) {
     return (
       <div className="flex flex-col gap-4">
         <TextField
-          value={props.message}
-          onChange={(e) => props.onMessageChange?.(e.target.value)}
+          value={props?.message}
+          onChange={(e) => props?.onMessageChange?.(e.target.value)}
         />
-        {props.files && previewUrls?.length ? (
+        {props?.files && previewUrls?.length ? (
           <div className="flex gap-4 relative">
             {previewUrls.map((url) => (
               <Image
@@ -39,7 +39,7 @@ const MilestoneInputSection = (props: MilestoneInputSectionProps) => {
               />
             ))}
             <button
-              onClick={() => props.onFilesChange?.(null)}
+              onClick={() => props?.onFilesChange?.(null)}
               className="bg-error text-white [&>svg]:size-4 p-1.5 rounded-full absolute -left-2 -top-2"
             >
               <Trash2 />
@@ -53,7 +53,7 @@ const MilestoneInputSection = (props: MilestoneInputSectionProps) => {
             onSelect={(files) => {
               console.log(files);
               if (files && files instanceof FileList) {
-                props.onFilesChange?.(files);
+                props?.onFilesChange?.(files);
                 getPreview(files);
               }
             }}

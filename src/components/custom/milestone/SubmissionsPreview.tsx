@@ -25,7 +25,7 @@ const MilestoneSubmissionsPreviewUser = (
     <div className="flex items-center gap-2">
       <Image
         alt=""
-        src={props.user?.profilePhotoUri || "/img/webp/user.webp"}
+        src={props?.user?.profilePhotoUri || "/img/webp/user.webp"}
         height={25}
         width={25}
         className="rounded-full shrink-0 relative"
@@ -33,7 +33,7 @@ const MilestoneSubmissionsPreviewUser = (
       <h5 className="whitespace-nowrap truncate font-semibold">
         {props?.isMe
           ? "You"
-          : `${props.user?.firstName || ""} ${props.user?.lastName || ""}`}
+          : `${props?.user?.firstName || ""} ${props?.user?.lastName || ""}`}
       </h5>
     </div>
   );
@@ -51,7 +51,7 @@ const MilestoneSubmissionsPreview = (
     <div
       className={cn(
         "flex flex-col-reverse gap-4",
-        props.status === MilestoneStatus.INACTIVE
+        props?.status === MilestoneStatus.INACTIVE
           ? "text-muted-foreground"
           : "text-foreground-body"
       )}
@@ -60,7 +60,7 @@ const MilestoneSubmissionsPreview = (
         <div key={submission?.id} className="flex flex-col gap-2">
           <MilestoneSubmissionsPreviewUser
             user={submission.milestone?.project?.designer?.user}
-            isMe={props.isDesigner}
+            isMe={props?.isDesigner}
           />
           <p className=" text-sm">{submission.description}</p>
           <div className="flex gap-2">
@@ -79,7 +79,7 @@ const MilestoneSubmissionsPreview = (
             <>
               <MilestoneSubmissionsPreviewUser
                 user={submission.milestone?.project?.buyer?.user}
-                isMe={props.isBuyer}
+                isMe={props?.isBuyer}
               />
               <p className="text-sm">{submission.rejectionReason}</p>
             </>
