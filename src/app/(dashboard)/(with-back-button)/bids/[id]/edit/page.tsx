@@ -208,7 +208,7 @@ const BidPage = () => {
     [deliveryMilestonePrice, milestones]
   );
 
-  const editMode = editMode;
+  const editMode = ["DRAFT", "REJECTED"].includes(bid?.status || "");
 
   if (isPending) {
     return (
