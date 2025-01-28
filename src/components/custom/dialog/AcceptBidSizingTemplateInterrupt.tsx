@@ -98,7 +98,7 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
             <span>
               {
                 liveSizingTemplates?.data?.data?.find(
-                  (template) => template.id === sizingTemplateId
+                  (template) => template?.id === sizingTemplateId
                 )?.name
               }
             </span>
@@ -152,7 +152,7 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
             const active = template?.id === sizingTemplateId;
             return (
               <DialogListPickerItem
-                onClick={() => selectSizingTemplateId(template.id)}
+                onClick={() => selectSizingTemplateId(template?.id)}
                 key={template?.id}
                 icon={<Tag />}
                 active={active}

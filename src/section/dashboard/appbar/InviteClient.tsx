@@ -82,7 +82,7 @@ const InviteClient = () => {
             ?.slice?.(0, 4)
             ?.map?.((invite) => (
               <div
-                key={invite.id}
+                key={invite?.id}
                 className="bg-gray-100 flex justify-between p-2 text-sm text-foreground-body"
               >
                 <span>

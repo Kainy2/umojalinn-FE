@@ -46,9 +46,9 @@ const ActiveProjectCardList = (props: ActiveProjectCardListProps) => {
     <CustomCardHolder type="PROJECT" loading={isPending}>
       {projectsData?.map((project) => (
         <CustomCard
-          key={project.id}
+          key={project?.id}
           preTitle={
-            uuidToBase62Safe(params.id) === uuidToBase62Safe(project.id)
+            uuidToBase62Safe(params?.id) === uuidToBase62Safe(project?.id)
           }
           img={
             project?.Gallery?.find((gallery) => gallery.isCoverImage)?.imageUrl
@@ -56,9 +56,9 @@ const ActiveProjectCardList = (props: ActiveProjectCardListProps) => {
           title={project.title || "No title"}
           type="PROJECT"
           href={
-            uuidToBase62Safe(params.id) === uuidToBase62Safe(project.id)
+            uuidToBase62Safe(params?.id) === uuidToBase62Safe(project?.id)
               ? `/${baseUrlSlug}`
-              : `/${baseUrlSlug}/${uuidToBase62Safe(project.id)}`
+              : `/${baseUrlSlug}/${uuidToBase62Safe(project?.id)}`
           }
         />
       ))}

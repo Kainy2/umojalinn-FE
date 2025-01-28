@@ -34,12 +34,12 @@ const DirectTransferPage = () => {
   const isProject = params.type === "project";
 
   const { data: projectData, isPending: loadingProjectData } =
-    useGetProjectById(params.id, {
+    useGetProjectById(params?.id, {
       enabled: isProject,
     });
 
   const { data: milestoneData, isPending: loadingMilestoneData } =
-    useGetMilestoneById(params.id, {
+    useGetMilestoneById(params?.id, {
       enabled: !isProject,
     });
 
@@ -65,7 +65,7 @@ const DirectTransferPage = () => {
     isPending: isFundingProject,
     isError: isErrorFundingProject,
   } = useFundProject(
-    params.id,
+    params?.id,
     (e) => {
       setProgress(e?.progress);
     },
@@ -73,7 +73,7 @@ const DirectTransferPage = () => {
       onSuccess() {
         router.push(
           `/projects/${uuidToBase62Safe(
-            (isProject ? params.id : milestoneData?.data?.data?.projectId) || ""
+            (isProject ? params?.id : milestoneData?.data?.data?.projectId) || ""
           )}`
         );
       },
@@ -84,7 +84,7 @@ const DirectTransferPage = () => {
     isPending: isFundingMilestone,
     isError: isErrorFundingMilestone,
   } = useFundMilestone(
-    params.id,
+    params?.id,
     (e) => {
       setProgress(e?.progress);
     },

@@ -10,7 +10,7 @@ export const POST = async (
   try {
     await setBearerToken(req);
 
-    const id = (await params).id;
+    const id = (await params)?.id;
 
     const body = await req.json();
 

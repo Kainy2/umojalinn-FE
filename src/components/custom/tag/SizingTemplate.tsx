@@ -59,7 +59,7 @@ const SizingTemplateTag = (props: SizingTemplateTagProps) => {
                   onClick={() =>
                     addSizingTemplateToProject({
                       projectId: props.projectId,
-                      sizingTemplateId: template.id,
+                      sizingTemplateId: template?.id,
                     })
                   }
                 >

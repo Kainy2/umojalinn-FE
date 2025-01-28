@@ -38,7 +38,7 @@ const BidTabHistorySection = () => {
   return (
     <div className="flex flex-col gap-4">
       {data?.data?.data?.history.map((bid) => (
-        <div key={bid.id} className="card flex flex-col gap-4 ">
+        <div key={bid?.id} className="card flex flex-col gap-4 ">
           <p>
             {format(
               new Date(bid?.createdAt),

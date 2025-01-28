@@ -14,12 +14,12 @@ import React from "react";
 
 const ReviewPage = () => {
   const params = useParams<{ id: string }>();
-  const { data, isPending: projectLoading } = useGetProjectById(params.id);
+  const { data, isPending: projectLoading } = useGetProjectById(params?.id);
   const { toast } = useToast();
   const router = useRouter();
   const { mutate: goLive, isPending } = usePostProjectLive({
     onSuccess: () => {
-      router.push(`/projects/${uuidToBase62Safe(params.id)}`);
+      router.push(`/projects/${uuidToBase62Safe(params?.id)}`);
       toast({
         title: "Project Live!",
         description: "This project has been pushed live successfully",
@@ -54,7 +54,7 @@ const ReviewPage = () => {
       <Separator className="bg-gray-200" />
       <ProjectReviewView project={data?.data?.data} />
       <ProjectEditFooter
-        handleSave={async () => goLive(params.id)}
+        handleSave={async () => goLive(params?.id)}
         loading={isPending}
         hideDraft
       />

@@ -22,9 +22,9 @@ import FileUploadPicker from "@/components/custom/picker/FileUpload";
 
 const ProjectGalleryForm = (props: ProjectFormProps) => {
   const id = useId();
-  const { data, isPending: loadingProject } = useGetProjectById(props.id);
+  const { data, isPending: loadingProject } = useGetProjectById(props?.id);
   const { mutate: updateProject, isPending: isUpdating } = useUpdateProjectById(
-    props.id
+    props?.id
   );
   const { toast } = useToast();
   const router = useRouter();
@@ -43,7 +43,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
     if (data?.data?.data?.Gallery) {
       setValues(
         data?.data?.data?.Gallery?.map((gallery) => ({
-          id: gallery.id,
+          id: gallery?.id,
           title: gallery.title,
           fileName: gallery.imageUrl,
           isCoverImage: gallery.isCoverImage,
@@ -127,7 +127,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
       (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.preventDefault();
         const oldIdList = values
-          ?.map((val) => val.id)
+          ?.map((val) => val?.id)
           .filter((val) => typeof val === "string");
         const toAdd = values?.filter((val) => typeof val?.image !== "string");
         updateProject(
@@ -139,7 +139,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
             })),
             "gallery-images": toAdd.map(({ image }) => image),
             imagesToRemove: data?.data?.data?.Gallery?.filter(
-              (gallery) => !oldIdList.includes(gallery.id)
+              (gallery) => !oldIdList.includes(gallery?.id)
             )?.map(({ id }) => id),
           }),
           {
@@ -150,7 +150,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
                   : `${
                       !!props.isOnboarding ? "/onboard" : ""
                     }/project/${uuidToBase62Safe(
-                      props.id
+                      props?.id
                     )}/requirements-and-budget`
               );
             },
@@ -159,7 +159,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
       },
     [
       data?.data?.data?.Gallery,
-      props.id,
+      props?.id,
       props.isOnboarding,
       router,
       updateProject,
@@ -186,7 +186,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
       >
         <div className="flex flex-col gap-8 mb-8">
           {preview.map((value, index) => (
-            <div key={value.id} className="flex flex-col gap-4">
+            <div key={value?.id} className="flex flex-col gap-4">
               <TextField
                 value={value.title}
                 onChange={handleTitleChange(index)}

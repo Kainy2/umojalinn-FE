@@ -36,10 +36,10 @@ export type ProjectFormProps = {
 };
 
 const ProjectDescriptionForm = (props: ProjectFormProps) => {
-  const { data, isPending: loadingProject } = useGetProjectById(props.id);
+  const { data, isPending: loadingProject } = useGetProjectById(props?.id);
   const { data: clothingTypes } = useGetClothingTypes();
   const { mutate: updateProject, isPending: isUpdating } = useUpdateProjectById(
-    props.id
+    props?.id
   );
 
   const [useSizingTemplate, setUseSizingTemplate] = useState(false);
@@ -101,7 +101,7 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
     if (data?.data?.data?.clothingTypes?.length) {
       form.setValue(
         "clothingTypes",
-        data?.data?.data?.clothingTypes?.map?.((type) => type.id)
+        data?.data?.data?.clothingTypes?.map?.((type) => type?.id)
       );
     }
   }, [data?.data?.data, form]);
@@ -120,12 +120,12 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
               ? "/projects"
               : `${
                   !!props.isOnboarding ? "/onboard" : ""
-                }/project/${uuidToBase62Safe(props.id)}/gallery`
+                }/project/${uuidToBase62Safe(props?.id)}/gallery`
           );
         },
       });
     },
-    [props.id, props.isOnboarding, router, updateProject]
+    [props?.id, props.isOnboarding, router, updateProject]
   );
 
   if (loadingProject) {
@@ -275,7 +275,7 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
                 hint={`${field.value?.length || 0}/8 tags`}
                 options={
                   clothingTypes?.data?.data?.map?.((type) => ({
-                    value: type.id,
+                    value: type?.id,
                     label: type.name,
                   })) || []
                 }

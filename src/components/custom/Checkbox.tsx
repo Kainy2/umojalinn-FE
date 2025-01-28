@@ -11,7 +11,7 @@ const CustomCheckbox = (props: CustomCheckboxProps) => {
     <div className="flex items-center space-x-3">
       <Checkbox {...props} />
       <label
-        htmlFor={props.id}
+        htmlFor={props?.id}
         className={cn(
           "text-md font-normal text-foreground-label leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
           typeof props.label !== "string" && props.label?.className

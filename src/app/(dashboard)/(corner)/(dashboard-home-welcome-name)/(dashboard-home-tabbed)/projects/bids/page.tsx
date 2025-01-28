@@ -30,7 +30,7 @@ const BidPage = () => {
   return (
     <div className="flex flex-col">
       {data?.data?.data?.map((bid) => (
-        <BidCard key={bid.id} bid={bid} />
+        <BidCard key={bid?.id} bid={bid} />
       ))}
     </div>
   );

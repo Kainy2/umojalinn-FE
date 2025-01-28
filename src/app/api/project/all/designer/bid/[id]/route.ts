@@ -11,7 +11,7 @@ export const GET = async (
   try {
     await setBearerToken(req);
 
-    const id = (await params).id;
+    const id = (await params)?.id;
     const response = await customAxios.get<
       unknown,
       AxiosResponse<SingleApiResponse<UmojaLinnBid>, unknown>

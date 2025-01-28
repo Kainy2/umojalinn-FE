@@ -57,7 +57,7 @@ const MilestoneSubmissionsPreview = (
       )}
     >
       {milestoneSubmissions?.map((submission) => (
-        <div key={submission.id} className="flex flex-col gap-2">
+        <div key={submission?.id} className="flex flex-col gap-2">
           <MilestoneSubmissionsPreviewUser
             user={submission.milestone?.project?.designer?.user}
             isMe={props.isDesigner}

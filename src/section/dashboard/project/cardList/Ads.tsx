@@ -16,9 +16,9 @@ const AdsProjectCardList = () => {
     <CustomCardHolder type="PROJECT" loading={isPending}>
       {data?.data?.data?.map((project) => (
         <CustomCard
-          key={project.id}
+          key={project?.id}
           preTitle={
-            uuidToBase62Safe(params.id) === uuidToBase62Safe(project.id)
+            uuidToBase62Safe(params?.id) === uuidToBase62Safe(project?.id)
           }
           img={
             project?.Gallery?.find((gallery) => gallery.isCoverImage)?.imageUrl
@@ -26,9 +26,9 @@ const AdsProjectCardList = () => {
           title={project.title || "No title"}
           type="PROJECT"
           href={
-            uuidToBase62Safe(params.id) === uuidToBase62Safe(project.id)
+            uuidToBase62Safe(params?.id) === uuidToBase62Safe(project?.id)
               ? "/projects/ads"
-              : `/projects/ads/${uuidToBase62Safe(project.id)}`
+              : `/projects/ads/${uuidToBase62Safe(project?.id)}`
           }
         />
       ))}

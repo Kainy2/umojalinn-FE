@@ -4,7 +4,7 @@ import React from "react";
 
 const RequirementsBudgetPage = async (props: PageProps<{ id: string }>) => {
   const params = await props.params;
-  return <RequirementsBudgetForm id={params.id} isOnboarding />;
+  return <RequirementsBudgetForm id={params?.id} isOnboarding />;
 };
 
 export default RequirementsBudgetPage;

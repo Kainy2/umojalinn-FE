@@ -14,12 +14,12 @@ import React from "react";
 import { ProjectFormProps } from "./Description";
 
 const ReviewForm = (props: ProjectFormProps) => {
-  const { data, isPending: projectLoading } = useGetProjectById(props.id);
+  const { data, isPending: projectLoading } = useGetProjectById(props?.id);
   const { toast } = useToast();
   const router = useRouter();
   const { mutate: goLive, isPending } = usePostProjectLive({
     onSuccess: () => {
-      router.push(`/projects/ads/${uuidToBase62Safe(props.id)}`);
+      router.push(`/projects/ads/${uuidToBase62Safe(props?.id)}`);
       toast({
         title: "Project Live!",
         description: "This project has been pushed live successfully",
@@ -54,7 +54,7 @@ const ReviewForm = (props: ProjectFormProps) => {
       <Separator className="bg-gray-200" />
       <ProjectReviewView project={data?.data?.data} />
       <ProjectEditFooter
-        handleSave={async () => goLive(props.id)}
+        handleSave={async () => goLive(props?.id)}
         loading={isPending}
         handleDraft={() => router?.push("/projects")}
       />

@@ -51,7 +51,7 @@ const SizingTemplateDialog = (
   const [name, setName] = useState<string>("");
 
   const { data: sizingTemplateData, isPending: isLoadingSizingTemplate } =
-    useGetSizingTemplateById(props.id);
+    useGetSizingTemplateById(props?.id);
 
   const { data: meData, isPending: loadingMe } = useGetMe();
 
@@ -101,7 +101,7 @@ const SizingTemplateDialog = (
     });
 
   const { mutate: updateSizingTemplate, isPending: isUpdatingSizingTemplate } =
-    useUpdateSizingTemplate(props.id, {
+    useUpdateSizingTemplate(props?.id, {
       onSuccess(data) {
         handleSuccess(data?.data?.data);
       },
@@ -139,12 +139,12 @@ const SizingTemplateDialog = (
     );
   };
 
-  const loading = props.id
+  const loading = props?.id
     ? isUpdatingSizingTemplate
     : isCreatingSizingTemplate;
 
   if (
-    props.id &&
+    props?.id &&
     (isLoadingSizingTemplate || loadingMe || !sizingTemplateData?.data?.data)
   ) {
     return (
@@ -163,7 +163,7 @@ const SizingTemplateDialog = (
   }
 
   if (
-    !props.id ||
+    !props?.id ||
     (sizingTemplateData?.data?.data?.status !== "IN_USE" &&
       sizingTemplateData?.data?.data?.buyerId ===
         meData?.data?.data?.buyerProfile?.id)

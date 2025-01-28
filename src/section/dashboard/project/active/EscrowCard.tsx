@@ -41,7 +41,7 @@ const EscrowCard = (props: EscrowCardProps) => {
           {formatCurrencyValue(props.paidOut)}
         </p>
         {props.milestones?.map?.((milestone) => (
-          <React.Fragment key={milestone.id}>
+          <React.Fragment key={milestone?.id}>
             <p className="truncate">
               {milestone?.title || "Delivery Milestone"}
             </p>

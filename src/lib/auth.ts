@@ -197,7 +197,7 @@ export const authOptions: NextAuthOptions = {
 
       session.accessToken = token?.accessToken;
       if (session.user) {
-        session.user.id = token.user?.id;
+        session.user?.id = token.user?.id;
         session.user.hasOnboarded = token.user?.hasOnboarded || false;
         session.user.profileRole = token.user?.profileRole;
       }

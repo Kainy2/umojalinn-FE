@@ -13,9 +13,9 @@ import React, { useMemo } from "react";
 
 const FundProjectAlert = () => {
   const params = useParams<{ id: string }>();
-  const { data: projectData } = useGetProjectById(params.id);
+  const { data: projectData } = useGetProjectById(params?.id);
 
-  const { data: projectMilestonesData } = useGetProjectMilestones(params.id);
+  const { data: projectMilestonesData } = useGetProjectMilestones(params?.id);
 
   const firstFundMilestone = useMemo(
     () =>
@@ -50,7 +50,7 @@ const FundProjectAlert = () => {
                 Fund Milestone
               </Button>
             </SelectFundingMethodDialog>
-            <SelectFundingMethodDialog id={params.id} type="project">
+            <SelectFundingMethodDialog id={params?.id} type="project">
               <Button className="w-full md:w-auto">Fund Project</Button>
             </SelectFundingMethodDialog>
           </div>

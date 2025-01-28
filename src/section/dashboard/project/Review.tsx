@@ -85,7 +85,7 @@ const ProjectReviewView = (props: {
         <div className="flex flex-row gap-4">
           {props?.project?.Gallery?.map?.((gallery) => (
             <Image
-              key={gallery.id}
+              key={gallery?.id}
               alt=""
               src={gallery.imageUrl || "/img/svg/null.svg"}
               className="shrink-0 aspect-video object-cover"

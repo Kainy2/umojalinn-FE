@@ -14,28 +14,28 @@ const ActiveProjectTab = (props: ActiveProjectTabProps) => {
   const path = usePathname();
   const params = useParams<{ id: string }>();
 
-  const { data } = useGetProjectById(params.id);
+  const { data } = useGetProjectById(params?.id);
 
   const tabs = useMemo(
     () => [
       {
         title: "Activities",
-        href: `/${baseUrlSlug}/${uuidToBase62Safe(params.id)}`,
+        href: `/${baseUrlSlug}/${uuidToBase62Safe(params?.id)}`,
       },
       // {
       //   title: "Chat",
-      //   href: `/${baseUrlSlug}/${uuidToBase62Safe(params.id)}/chat`,
+      //   href: `/${baseUrlSlug}/${uuidToBase62Safe(params?.id)}/chat`,
       // },
       // {
       //   title: "Media & links",
-      //   href: `/${baseUrlSlug}/${uuidToBase62Safe(params.id)}/media-and-links`,
+      //   href: `/${baseUrlSlug}/${uuidToBase62Safe(params?.id)}/media-and-links`,
       // },
       {
         title: "Details",
-        href: `/${baseUrlSlug}/${uuidToBase62Safe(params.id)}/details`,
+        href: `/${baseUrlSlug}/${uuidToBase62Safe(params?.id)}/details`,
       },
     ],
-    [baseUrlSlug, params.id]
+    [baseUrlSlug, params?.id]
   );
 
   const active = useMemo(

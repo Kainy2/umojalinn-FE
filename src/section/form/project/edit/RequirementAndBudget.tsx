@@ -33,9 +33,9 @@ const EXPERIENCE_ENUMS = [
 ] as const;
 
 const RequirementsBudgetForm = (props: ProjectFormProps) => {
-  const { data, isPending: loadingProject } = useGetProjectById(props.id);
+  const { data, isPending: loadingProject } = useGetProjectById(props?.id);
   const { mutate: updateProject, isPending: isUpdating } = useUpdateProjectById(
-    props.id
+    props?.id
   );
 
   const router = useRouter();
@@ -80,12 +80,12 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
                 ? "/projects"
                 : `${
                     !!props.isOnboarding ? "/onboard" : ""
-                  }/project/${uuidToBase62Safe(props.id)}/review`
+                  }/project/${uuidToBase62Safe(props?.id)}/review`
             );
           },
         });
       },
-    [props.id, props.isOnboarding, router, updateProject]
+    [props?.id, props.isOnboarding, router, updateProject]
   );
 
   if (loadingProject) {

@@ -15,28 +15,28 @@ const ProjectTab = (props: Pick<ProjectFormProps, "isOnboarding">) => {
         title: "Project Description",
         href: `${
           !!props.isOnboarding ? "/onboard" : ""
-        }/project/${uuidToBase62Safe(params.id)}`,
+        }/project/${uuidToBase62Safe(params?.id)}`,
       },
       {
         title: "Gallery",
         href: `${
           !!props.isOnboarding ? "/onboard" : ""
-        }/project/${uuidToBase62Safe(params.id)}/gallery`,
+        }/project/${uuidToBase62Safe(params?.id)}/gallery`,
       },
       {
         title: "Requirements & Budget",
         href: `${
           !!props.isOnboarding ? "/onboard" : ""
-        }/project/${uuidToBase62Safe(params.id)}/requirements-and-budget`,
+        }/project/${uuidToBase62Safe(params?.id)}/requirements-and-budget`,
       },
       {
         title: "Review",
         href: `${
           !!props.isOnboarding ? "/onboard" : ""
-        }/project/${uuidToBase62Safe(params.id)}/review`,
+        }/project/${uuidToBase62Safe(params?.id)}/review`,
       },
     ],
-    [params.id, props.isOnboarding]
+    [params?.id, props.isOnboarding]
   );
 
   const active = useMemo(

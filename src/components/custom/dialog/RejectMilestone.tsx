@@ -17,7 +17,7 @@ const RejectMilestoneDialog = (props: DialogProps & { id: string }) => {
   const [open, setOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
 
-  const { mutate, isPending } = useApproveOrRejectMilestone(props.id, {
+  const { mutate, isPending } = useApproveOrRejectMilestone(props?.id, {
     onSuccess() {
       setOpen(false);
     },

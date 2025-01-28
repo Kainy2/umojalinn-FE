@@ -73,7 +73,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
     <ol className={cn("flex flex-col gap-1.5", className)}>
       {milestones.map((item, index) => {
         const milestone: MilestoneTimelineItem = {
-          id: item.id,
+          id: item?.id,
           status: getMilestoneStatus(item.status, item.transactionStatus),
           amount: item.amount || 0,
           date: item.updatedAt,
@@ -123,7 +123,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                 {milestone.additionalContent}
                 <MilestoneSubmissionsPreview
                   status={milestone.status}
-                  milestoneId={item.id}
+                  milestoneId={item?.id}
                   {...{
                     isBuyer,
                     isDesigner,
@@ -164,7 +164,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                   {milestone.status === MilestoneStatus.AWAITING_FUND &&
                     isBuyer && (
                       <SelectFundingMethodDialog
-                        id={milestone.id}
+                        id={milestone?.id}
                         type="milestone"
                       >
                         <button className="text-sm underline text-primary">

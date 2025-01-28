@@ -50,7 +50,7 @@ const PrivateJobPage = () => {
       >
         {myBidsData?.data?.data?.map((bid) => (
           <JobCard
-            key={bid.id}
+            key={bid?.id}
             isPrivate={bid.project?.projectType === "PRIVATE"}
             name={bid?.project?.title || "No title"}
             href={`/bids/${uuidToBase62Safe(bid?.id)}/edit`}
@@ -71,7 +71,7 @@ const PrivateJobPage = () => {
         )}
         {draftBidData?.data?.data?.map((bid) => (
           <JobCard
-            key={bid.id}
+            key={bid?.id}
             isPrivate={bid.project?.projectType === "PRIVATE"}
             name={bid?.project?.title || "No title"}
             href={`/bids/${uuidToBase62Safe(bid?.id)}/edit`}
@@ -93,7 +93,7 @@ const PrivateJobPage = () => {
       >
         {liveProjectsData?.data?.data?.map((job) => (
           <JobCard
-            key={job.id}
+            key={job?.id}
             isPrivate={job.projectType === "PRIVATE"}
             name={job?.title || "No title"}
             href={`/active-jobs/${uuidToBase62Safe(job?.id)}`}
@@ -115,7 +115,7 @@ const PrivateJobPage = () => {
       >
         {completedProjectsData?.data?.data?.map((job) => (
           <JobCard
-            key={job.id}
+            key={job?.id}
             isPrivate={job.projectType === "PRIVATE"}
             name={job?.title || "No title"}
             href={`/jobs/${uuidToBase62Safe(job?.id)}`}
@@ -137,7 +137,7 @@ const PrivateJobPage = () => {
       >
         {completedProjectsData?.data?.data?.map((job) => (
           <JobCard
-            key={job.id}
+            key={job?.id}
             isPrivate={job.projectType === "PRIVATE"}
             name={job?.title || "No title"}
             href={`/jobs/${uuidToBase62Safe(job?.id)}`}

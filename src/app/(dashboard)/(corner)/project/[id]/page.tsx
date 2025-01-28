@@ -5,7 +5,7 @@ import { PageProps } from "@/types/util";
 const ProjectDescriptionPage = async (props: PageProps<{ id: string }>) => {
   const params = await props.params;
 
-  return <ProjectDescriptionForm id={params.id} />;
+  return <ProjectDescriptionForm id={params?.id} />;
 };
 
 export default ProjectDescriptionPage;

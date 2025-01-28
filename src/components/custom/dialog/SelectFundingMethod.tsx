@@ -90,7 +90,7 @@ const SelectFundingMethodDialog = (
               onClick={() =>
                 !!paymentMethod &&
                 router.push(
-                  getPaymentMethodUrl(paymentMethod, props.type, props.id)
+                  getPaymentMethodUrl(paymentMethod, props.type, props?.id)
                 )
               }
               disabled={!paymentMethod}

@@ -165,7 +165,7 @@ const JobPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {project?.Gallery?.map((gallery) => (
             <Image
-              key={gallery.id}
+              key={gallery?.id}
               alt={gallery?.title}
               src={gallery?.imageUrl}
               height={500}
