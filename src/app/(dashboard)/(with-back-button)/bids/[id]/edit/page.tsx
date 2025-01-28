@@ -208,6 +208,8 @@ const BidPage = () => {
     [deliveryMilestonePrice, milestones]
   );
 
+  const editMode = editMode;
+
   if (isPending) {
     return (
       <div className="flex flex-col gap-8">
@@ -245,18 +247,12 @@ const BidPage = () => {
       )}
       {milestones.map((milestone, index) => (
         <MilestoneCard
-          hideActions={
-            (!!editing && index !== editing) ||
-            ["DRAFT", "REJECTED"].includes(bid?.status || "")
-          }
+          hideActions={(!!editing && index !== editing) || !editMode}
           onDelete={() => deleteMilestone(milestone?.id || "")}
           onCancel={handleToggle(index)}
           onSave={handleSave(index)}
           key={index}
-          view={
-            index !== editing ||
-            !["DRAFT", "REJECTED"].includes(bid?.status || "")
-          }
+          view={index !== editing || !editMode}
           {...milestone}
           onEdit={handleToggle(index)}
           currency={project?.currency || null}
@@ -277,23 +273,21 @@ const BidPage = () => {
           </p>
         </div>
         <DeliveryMethodPicker
-          disabled={
-            !!editing || !["DRAFT", "REJECTED"].includes(bid?.status || "")
-          }
+          disabled={!!editing || !editMode}
           value={deliveryMethod || ""}
           onValueChange={(value: UmojaLinnDeliveryMethod) =>
             setDeliveryMethod(value)
           }
         />
         <MileStoneCardFooter
-          view={!!editing || !["DRAFT", "REJECTED"].includes(bid?.status || "")}
+          view={!!editing || !editMode}
           currency={project?.currency || null}
           label="Milestone Payment"
           price={deliveryMilestonePrice}
           onPriceChange={setDeliveryMilestonePrice}
         />
       </div>
-      {["DRAFT", "REJECTED"].includes(bid?.status || "") && !editing && (
+      {editMode && !editing && (
         <button
           className="text-left w-fit flex text-sm text-primary  [&>svg]:size-5 gap-2"
           onClick={handleAdd}
@@ -337,7 +331,7 @@ const BidPage = () => {
         </span>
       </p>
       <Separator className="bg-gray-200 h-px" orientation="horizontal" />
-      {["DRAFT", "REJECTED"].includes(bid?.status || "") && addNote && (
+      {editMode && addNote && (
         <div className="card p-8">
           <TextAreaField
             label="Additional note to client"
@@ -356,7 +350,7 @@ const BidPage = () => {
           />{" "}
           <Label htmlFor="add-note-switch">Add note</Label>
         </div>
-        {["DRAFT", "REJECTED"].includes(bid?.status || "") && (
+        {editMode && (
           <div className="flex gap-4">
             {bid?.status === "DRAFT" && (
               <Button variant="outline" onClick={() => handleUpdate("UPDATE")}>
