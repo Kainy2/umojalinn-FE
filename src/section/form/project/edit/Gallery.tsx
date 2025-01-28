@@ -239,7 +239,10 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
               onChange={(e) => setEntryTitle(e.currentTarget.value)}
               hint={`${entryTitle?.length || 0} / 15 characters`}
             />
-            <FileUploadPicker accept="image/*" onSelect={handleFileSelect} />
+            <FileUploadPicker
+              accept="image/*"
+              onSelect={(file) => handleFileSelect(file as File)}
+            />
           </div>
         </div>
       </FormItemWrapper>

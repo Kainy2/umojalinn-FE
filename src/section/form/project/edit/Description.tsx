@@ -21,7 +21,9 @@ import { addYears } from "date-fns";
 
 import { FormCustomTagSelectField } from "@/components/custom/tag/Select";
 import { jsonToFormData } from "@/lib/utils";
-import CustomSelect from "@/components/custom/Select";
+import CustomSelect, {
+  CustomGroupedOptionsProps,
+} from "@/components/custom/Select";
 import ProjectEditFooter from "./Footer";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -227,18 +229,24 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
                   <FormField
                     control={form.control}
                     name="gender"
-                    render={({ field }) => (
-                      <CustomSelect
-                        {...field}
-                        placeholder="Gender"
-                        onValueChange={(value) => field.onChange(value)}
-                        adornment
-                        options={[
-                          { value: "MALE", children: "Male" },
-                          { value: "FEMALE", children: "Female" },
-                        ]}
-                      />
-                    )}
+                    render={({ field }) => {
+                      const options = [
+                        { value: "MALE", children: "Male" },
+                        { value: "FEMALE", children: "Female" },
+                      ];
+                      return (
+                        <CustomSelect
+                          {...field}
+                          placeholder="Gender"
+                          renderValue={(value) =>
+                            options.find((opt) => opt.value === value)?.children
+                          }
+                          onValueChange={(value) => field.onChange(value)}
+                          adornment
+                          options={options}
+                        />
+                      );
+                    }}
                   />
                 }
               />
@@ -306,27 +314,33 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
             <FormField
               control={form.control}
               name="country"
-              render={({ field }) => (
-                <CustomSelect
-                  {...field}
-                  onValueChange={field.onChange}
-                  placeholder="Country"
-                  options={countries.map((country) => {
-                    return {
-                      type: "option",
-                      value: country?.name,
-                      children: (
-                        <span className="flex gap-2 items-center">
-                          <span className="text-md rounded-full object-cover overflow-hidden">
-                            {country?.flag}
-                          </span>
-                          <span>{country?.name}</span>
+              render={({ field }) => {
+                const options = countries.map((country) => {
+                  return {
+                    type: "option",
+                    value: country?.name,
+                    children: (
+                      <span className="flex gap-2 items-center">
+                        <span className="text-md rounded-full object-cover overflow-hidden">
+                          {country?.flag}
                         </span>
-                      ),
-                    };
-                  })}
-                />
-              )}
+                        <span>{country?.name}</span>
+                      </span>
+                    ),
+                  } as CustomGroupedOptionsProps;
+                });
+                return (
+                  <CustomSelect
+                    {...field}
+                    onValueChange={field.onChange}
+                    placeholder="Country"
+                    options={options}
+                    renderValue={(value) =>
+                      options.find((opt) => opt.value === value)?.children
+                    }
+                  />
+                );
+              }}
             />
             <FormField
               control={form.control}

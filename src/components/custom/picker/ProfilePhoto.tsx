@@ -8,7 +8,7 @@ const ProfilePhotoPicker = (props: {
   onSelect: (file: File | null) => void;
 }) => {
   const { Input, onClick, previewUrl } = useFilePicker({
-    onSelect: props.onSelect,
+    onSelect: (file) => props.onSelect(file as File),
   });
 
   return (

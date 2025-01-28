@@ -1,19 +1,28 @@
 import {
+  approveOrRejectMilestone,
   fundMilestone,
   fundProject,
   getAllBuyerProjects,
   getAllDesignerProjects,
   getClothingTypes,
   getMilestoneById,
+  getMilestoneSubmissions,
   getProjectById,
+  getProjectMediaAndLinks,
   getProjectMilestones,
   inviteBuyer,
   postProjectLive,
+  submitMilestone,
   updateProjectById,
 } from "@/actions/project";
 import { queryClient } from "@/components/provider/TanstackQueryClient";
 import useHandleError from "@/hooks/useHandleError";
-import { UmojaLinnMilestone, UmojaLinnProject } from "@/types/project";
+import {
+  UmojaLinnMediaLink,
+  UmojaLinnMilestone,
+  UmojaLinnMilestoneSubmission,
+  UmojaLinnProject,
+} from "@/types/project";
 import {
   GenericUseMutationProps,
   GenericUseQueryProps,
@@ -21,7 +30,15 @@ import {
 import { ArrayApiResponse, SingleApiResponse } from "@/types/util";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
-import { BUYER, CLOTHING_TYPES, DESIGNER, MILESTONE, PROJECT } from "../keys";
+import {
+  BUYER,
+  CLOTHING_TYPES,
+  DESIGNER,
+  MEDIA_AND_LINK,
+  MILESTONE,
+  PROJECT,
+  SUBMISSION,
+} from "../keys";
 import { AxiosProgressEvent } from "axios";
 
 export const useInviteBuyer = (
@@ -216,5 +233,72 @@ export const useGetMilestoneById = (
     enabled: !!me?.user && !!id && options?.enabled !== false,
     queryKey: [PROJECT, MILESTONE, id],
     queryFn: () => getMilestoneById(id || ""),
+  });
+};
+
+export const useGetMilestoneSubmissions = (
+  id?: string,
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnMilestoneSubmission>>
+) => {
+  const { data: me } = useSession();
+  return useQuery({
+    ...options,
+    enabled: !!me?.user && !!id && options?.enabled !== false,
+    queryKey: [PROJECT, MILESTONE, SUBMISSION, id],
+    queryFn: () => getMilestoneSubmissions(id || ""),
+  });
+};
+
+export const useGetProjectMediaAndlinks = (
+  id?: string,
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnMediaLink>>
+) => {
+  const { data: me } = useSession();
+  return useQuery({
+    ...options,
+    enabled: !!me?.user && !!id && options?.enabled !== false,
+    queryKey: [PROJECT, MEDIA_AND_LINK, id],
+    queryFn: () => getProjectMediaAndLinks(id || ""),
+  });
+};
+
+export const useApproveOrRejectMilestone = (
+  id: string,
+  options?: GenericUseMutationProps<
+    SingleApiResponse,
+    Pick<UmojaLinnMilestoneSubmission, "status" | "rejectionReason">
+  >
+) => {
+  const { handleError } = useHandleError("Submit Milestone");
+  return useMutation({
+    ...options,
+    mutationFn: (variables) => approveOrRejectMilestone(id, variables),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [PROJECT] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useSubmitMilestone = (
+  id: string,
+  options?: GenericUseMutationProps<SingleApiResponse, FormData>
+) => {
+  const { handleError } = useHandleError("Submit Milestone");
+  return useMutation({
+    ...options,
+    mutationFn: (variables) => submitMilestone(id, variables),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [PROJECT] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
   });
 };

@@ -5,8 +5,10 @@ import { UmojaLinnMilestone, UmojaLinnProject } from "@/types/project";
 
 import MilestoneIndicator from "./Indicator";
 import MilestonePill from "./Pill";
-import MilestoneAction from "./Action";
+import MilestoneAction, { MilestoneActionType } from "./Action";
 import SelectFundingMethodDialog from "../dialog/SelectFundingMethod";
+import MilestoneInputSection from "./InputSection";
+import MilestoneSubmissionsPreview from "./SubmissionsPreview";
 
 export enum MilestoneStatus {
   INACTIVE = "INACTIVE",
@@ -29,6 +31,7 @@ export type MilestoneTimelineItem = {
   amount: number;
   status?: keyof typeof MilestoneStatus;
   info?: string;
+  onActionClick?: (action: MilestoneActionType) => void;
 };
 
 export type MilestoneTimelineProps = {
@@ -46,7 +49,8 @@ const getMilestoneStatus = (
   if (status === "IN_ACTIVE") {
     return MilestoneStatus.INACTIVE;
   }
-  if (status === "ACTIVE") return MilestoneStatus.ACTIVE;
+  if (status === "ACTIVE" || status === "REJECTED")
+    return MilestoneStatus.ACTIVE;
   if (status === "APPROVED") return MilestoneStatus.COMPLETED;
   if (status === "PENDING" && transactionStatus === "AWAITING_FUND")
     return MilestoneStatus.AWAITING_FUND;
@@ -63,6 +67,8 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
   isDesigner,
   currency,
 }) => {
+  const [message, setMessage] = React.useState<string>("");
+  const [files, setFiles] = React.useState<FileList | null>(null);
   return (
     <ol className={cn("flex flex-col gap-1.5", className)}>
       {milestones.map((item, index) => {
@@ -73,7 +79,9 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
           date: item.updatedAt,
           title: item.title || "Delivery Method",
           description: item.description,
-          isCurrent: ["PENDING", "ACTIVE", "IN_REVIEW"].includes(item.status),
+          isCurrent: ["PENDING", "ACTIVE", "REJECTED", "IN_REVIEW"].includes(
+            item.status
+          ),
         };
         const isCompletedOrCurrent =
           milestone.status === MilestoneStatus.COMPLETED || milestone.isCurrent;
@@ -113,13 +121,33 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                   {milestone.description}
                 </p>
                 {milestone.additionalContent}
+                <MilestoneSubmissionsPreview
+                  status={milestone.status}
+                  milestoneId={item.id}
+                  {...{
+                    isBuyer,
+                    isDesigner,
+                  }}
+                />
+                {/* Input */}
+                <MilestoneInputSection
+                  {...{
+                    isDesigner,
+                    isBuyer,
+                    message,
+                    files,
+                    status: milestone.status,
+                    onFilesChange: setFiles,
+                    onMessageChange: setMessage,
+                  }}
+                />
                 <div
                   className={cn(
                     "flex gap-2 flex-wrap items-center text-sm",
                     isCompletedOrCurrent && "text-foreground-body"
                   )}
                 >
-                  {milestone.date && (
+                  {milestone.date && isCompletedOrCurrent && (
                     <time
                       className={cn(
                         "text-gray-400 text-sm",
@@ -172,7 +200,19 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                     {milestone.info}
                   </span>
                 </div>
-                <MilestoneAction {...milestone} {...{ isBuyer, isDesigner }} />
+                <MilestoneAction
+                  {...milestone}
+                  message={message}
+                  files={files}
+                  clear={() => {
+                    setMessage("");
+                    setFiles(null);
+                  }}
+                  {...{ isBuyer, isDesigner }}
+                  onActionClick={(action) => {
+                    console.log(action);
+                  }}
+                />
               </div>
             </div>
           </li>

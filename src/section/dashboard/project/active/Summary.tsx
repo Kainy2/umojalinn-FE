@@ -8,7 +8,12 @@ import { useParams } from "next/navigation";
 import React from "react";
 import SizingTemplateTag from "@/components/custom/tag/SizingTemplate";
 
-const ActiveProjectSummary = () => {
+type ActiveProjectSummaryProps = {
+  isDesigner?: boolean;
+};
+
+const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
+  const { isDesigner = true } = props;
   const params = useParams<{ id: string }>();
   const { data, isPending } = useGetProjectById(params.id);
   if (isPending) {
@@ -21,12 +26,24 @@ const ActiveProjectSummary = () => {
         title={data?.data?.data?.title || "No Title"}
       />
       <div className="grid grid-cols-1  md:grid-cols-2 gap-2 md:gap-4 max-w-screen-sm items-center justify-start">
-        <span className="text-sm text-foreground-body">Detail</span>
+        <span className="text-sm text-foreground-body">
+          {!isDesigner ? "Designer" : "Client"}
+        </span>
         <span>
           <AvatarIconTag
-            label={`${data?.data?.data?.designer?.user?.firstName} ${data?.data?.data?.designer?.user?.lastName}`}
+            label={
+              !isDesigner
+                ? `${data?.data?.data?.designer?.user?.firstName || ""} ${
+                    data?.data?.data?.designer?.user?.lastName || ""
+                  }`
+                : `${data?.data?.data?.buyer?.user?.firstName || ""} ${
+                    data?.data?.data?.buyer?.user?.lastName || ""
+                  }`
+            }
             avatar={{
-              src: data?.data?.data?.designer?.user?.profilePhotoUri,
+              src: !isDesigner
+                ? data?.data?.data?.designer?.user?.profilePhotoUri
+                : data?.data?.data?.buyer?.user?.profilePhotoUri,
             }}
           />
         </span>

@@ -3,7 +3,8 @@ import React, { useRef, useState } from "react";
 
 export type FilePickerOptions = {
   accept?: React.ComponentProps<"input">["accept"];
-  onSelect?: (file: File | null) => void;
+  multiple?: React.ComponentProps<"input">["multiple"];
+  onSelect?: (file: File | FileList | null) => void;
 };
 
 const useFilePicker = (props: FilePickerOptions) => {
@@ -12,11 +13,14 @@ const useFilePicker = (props: FilePickerOptions) => {
   const [preview, setPreview] = useState<string | null>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] || null;
+    const file =
+      (props.multiple ? event.target.files : event.target.files?.[0]) || null;
     props.onSelect?.(file);
 
-    if (file) {
+    if (file && file instanceof File) {
       setPreview(fileToPreviewUrl(file));
+    } else if (file && file instanceof FileList) {
+      setPreview(fileToPreviewUrl(file[0]));
     } else {
       setPreview(null);
     }
@@ -27,6 +31,7 @@ const useFilePicker = (props: FilePickerOptions) => {
       <input
         type="file"
         accept={props.accept}
+        multiple={props.multiple}
         className="hidden"
         ref={inputRef}
         onChange={handleFileChange}

@@ -36,6 +36,11 @@ export function jsonToFormData<T extends Record<string, unknown>>(
     if (value instanceof File) {
       // Append File instances directly
       formData.append(key, value);
+    } else if (value instanceof FileList) {
+      // Append File instances directly
+      for (let i = 0; i < value.length; i++) {
+        formData.append(key, value[i]);
+      }
     } else if (Object.prototype.toString.call(value) === "[object Date]") {
       // Append Date instances as strings
       formData.append(key, (value as Date).toISOString());

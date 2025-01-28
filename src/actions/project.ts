@@ -1,7 +1,12 @@
 import { clientAxios, getServerAxiosWithToken } from "@/lib/axios";
 import { convertApiParams } from "@/lib/request";
 import { base62ToUuidSafe } from "@/lib/uuid";
-import { UmojaLinnMilestone, UmojaLinnProject } from "@/types/project";
+import {
+  UmojaLinnMediaLink,
+  UmojaLinnMilestone,
+  UmojaLinnMilestoneSubmission,
+  UmojaLinnProject,
+} from "@/types/project";
 
 import {
   ArrayApiResponse,
@@ -216,4 +221,62 @@ export const getMilestoneById = async (
     unknown,
     AxiosResponse<SingleApiResponse<UmojaLinnMilestone>>
   >(`/project/milestone/${base62ToUuidSafe(id)}`);
+};
+
+export const getMilestoneSubmissions = async (
+  id: string,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.get<
+    unknown,
+    AxiosResponse<ArrayApiResponse<UmojaLinnMilestoneSubmission>>
+  >(`/project/milestone/submissions/${base62ToUuidSafe(id)}`);
+};
+
+export const getProjectMediaAndLinks = async (
+  id: string,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.get<
+    unknown,
+    AxiosResponse<ArrayApiResponse<UmojaLinnMediaLink>>
+  >(`/project/media-and-links/${base62ToUuidSafe(id)}`);
+};
+
+export const approveOrRejectMilestone = async (
+  id: string,
+  body: Pick<UmojaLinnMilestoneSubmission, "status" | "rejectionReason">,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/project/milestone/approve-or-reject/${base62ToUuidSafe(id)}`,
+    body
+  );
+};
+
+export const submitMilestone = async (
+  id: string,
+  body: FormData,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/project/milestone/submit/${base62ToUuidSafe(id)}`,
+    body
+  );
 };

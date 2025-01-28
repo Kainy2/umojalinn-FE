@@ -1,4 +1,4 @@
-import { UmojaLinnUserRoleProfile } from "./user";
+import { UmojaLinnUser, UmojaLinnUserRoleProfile } from "./user";
 import { UmojaLinnTimestamp } from "./util";
 
 export type UmojaLinnCurrency = "EURO" | "NAIRA";
@@ -80,7 +80,13 @@ export type UmojaLinnMilestone = {
   city?: string;
   country?: string;
   deliveryMethod?: UmojaLinnDeliveryMethod;
-  status: "IN_ACTIVE" | "PENDING" | "ACTIVE" | "IN_REVIEW" | "APPROVED";
+  status:
+    | "IN_ACTIVE"
+    | "PENDING"
+    | "ACTIVE"
+    | "IN_REVIEW"
+    | "REJECTED"
+    | "APPROVED";
   transactionStatus: "AWAITING_FUND" | "PROCESSING" | "FUNDED" | "PAID";
   projectId: string | null;
 } & UmojaLinnTimestamp;
@@ -178,3 +184,29 @@ export type UmojaLinnSizingTemplate = {
   UmojaLinnMaleSizingTemplateProps & UmojaLinnMaleSizingTemplateProps
 > &
   UmojaLinnTimestamp;
+
+export type UmojaLinnMilestoneSubmission = {
+  id: string;
+  milestoneId: string;
+  description: string;
+  images: Array<string>;
+  links: Array<string>;
+  status: "APPROVED" | "REJECTED" | "PENDING";
+  rejectionReason?: null | string;
+  milestone: {
+    project: {
+      buyer: {
+        user: UmojaLinnUser;
+      };
+      designer: {
+        user: UmojaLinnUser;
+      };
+    };
+  };
+} & UmojaLinnTimestamp;
+
+export type UmojaLinnMediaLink = {
+  type: "link" | "media";
+  url: string;
+  createdAt: string;
+};

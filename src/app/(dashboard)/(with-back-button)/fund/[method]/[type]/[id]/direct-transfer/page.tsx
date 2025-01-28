@@ -159,7 +159,7 @@ const DirectTransferPage = () => {
         ) : (
           <FileUploadPicker
             onSelect={(file) => {
-              setTransactionRecieptFile(file);
+              setTransactionRecieptFile(file as File);
             }}
             rounded
             cta="Upload"

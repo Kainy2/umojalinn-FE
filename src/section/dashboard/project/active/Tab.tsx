@@ -5,7 +5,12 @@ import { useGetProjectById } from "@/tanstack/hooks/useProject";
 import { useParams, usePathname } from "next/navigation";
 import React, { useMemo } from "react";
 
-const ActiveProjectTab = () => {
+type ActiveProjectTabProps = {
+  baseUrlSlug?: "projects" | "active-jobs";
+};
+
+const ActiveProjectTab = (props: ActiveProjectTabProps) => {
+  const { baseUrlSlug = "projects" } = props;
   const path = usePathname();
   const params = useParams<{ id: string }>();
 
@@ -15,22 +20,22 @@ const ActiveProjectTab = () => {
     () => [
       {
         title: "Activities",
-        href: `/projects/${uuidToBase62Safe(params.id)}`,
+        href: `/${baseUrlSlug}/${uuidToBase62Safe(params.id)}`,
       },
       // {
       //   title: "Chat",
-      //   href: `/projects/${uuidToBase62Safe(params.id)}/chat`,
+      //   href: `/${baseUrlSlug}/${uuidToBase62Safe(params.id)}/chat`,
       // },
       // {
       //   title: "Media & links",
-      //   href: `/projects/${uuidToBase62Safe(params.id)}/media-and-links`,
+      //   href: `/${baseUrlSlug}/${uuidToBase62Safe(params.id)}/media-and-links`,
       // },
       {
         title: "Details",
-        href: `/projects/${uuidToBase62Safe(params.id)}/details`,
+        href: `/${baseUrlSlug}/${uuidToBase62Safe(params.id)}/details`,
       },
     ],
-    [params.id]
+    [baseUrlSlug, params.id]
   );
 
   const active = useMemo(

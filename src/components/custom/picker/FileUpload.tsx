@@ -14,6 +14,7 @@ const FileUploadPicker = (props: FileUploadPickerProps) => {
   const { Input, onClick } = useFilePicker({
     onSelect: props.onSelect,
     accept: props.accept,
+    multiple: props.multiple,
   });
   return (
     <button

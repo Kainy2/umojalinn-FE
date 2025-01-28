@@ -143,7 +143,10 @@ const SizingTemplateDialog = (
     ? isUpdatingSizingTemplate
     : isCreatingSizingTemplate;
 
-  if (props.id && (isLoadingSizingTemplate || loadingMe)) {
+  if (
+    props.id &&
+    (isLoadingSizingTemplate || loadingMe || !sizingTemplateData?.data?.data)
+  ) {
     return (
       <Dialog open={open} onOpenChange={setOpen} {...props}>
         <DialogTrigger asChild onClick={() => setOpen(true)}>

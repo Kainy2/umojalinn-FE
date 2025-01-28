@@ -97,7 +97,7 @@ const DashboardPage = () => {
             key={job.id}
             isPrivate={job.projectType === "PRIVATE"}
             name={job?.title || "No title"}
-            href={`/jobs/${uuidToBase62Safe(job?.id)}`}
+            href={`/active-jobs/${uuidToBase62Safe(job?.id)}`}
             progress={{
               value: 0,
               total: 1,
