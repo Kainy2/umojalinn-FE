@@ -107,7 +107,8 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
               <span
                 className={cn(
                   "flex flex-col justify-center items-center w-8 shrink-0 before:content-[''] before:w-0.5 before:h-full before:bg-gray-200 before:flex-1 before:rounded-full ",
-                  status === MilestoneStatus.COMPLETED && "before:bg-success",
+                  milestone?.status === MilestoneStatus.COMPLETED &&
+                    "before:bg-success",
                   milestone?.isCurrent && "before:bg-gray-500"
                 )}
               />
