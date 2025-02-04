@@ -2,10 +2,16 @@ import { clientAxios, getServerAxiosWithToken } from "@/lib/axios";
 import { convertApiParams } from "@/lib/request";
 import { base62ToUuidSafe } from "@/lib/uuid";
 import {
+  CreateWithdrawalMethodPayload,
+  RequestWithdrawalPayload,
+} from "@/section/form/withdraw/WithdrawalAmount";
+import {
   UmojaLinnMediaLink,
   UmojaLinnMilestone,
   UmojaLinnMilestoneSubmission,
   UmojaLinnProject,
+  UmojalinnWallet,
+  UmojaLinnWithdrawalMethod,
 } from "@/types/project";
 
 import {
@@ -277,6 +283,55 @@ export const submitMilestone = async (
   }
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
     `/project/milestone/submit/${base62ToUuidSafe(id)}`,
+    body
+  );
+};
+
+export const getWallet = async (options?: ServerActionOption) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.get<unknown, AxiosResponse<SingleApiResponse<UmojalinnWallet>>>(
+    `/wallet`
+  );
+};
+
+export const getWithdrawalMethods = async (options?: ServerActionOption) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.get<
+    unknown,
+    AxiosResponse<ArrayApiResponse<UmojaLinnWithdrawalMethod>>
+  >(`/wallet/withdrawal-methods`);
+};
+
+export const createWithdrawalMethod = async (
+  body: CreateWithdrawalMethodPayload,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<
+    unknown,
+    AxiosResponse<SingleApiResponse<UmojaLinnWithdrawalMethod>>
+  >(`/wallet/add-withdrawal-method`, body);
+};
+
+export const requestWithdrawal = async (
+  body: RequestWithdrawalPayload,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/wallet/withdraw`,
     body
   );
 };

@@ -1,5 +1,6 @@
 import {
   approveOrRejectMilestone,
+  createWithdrawalMethod,
   fundMilestone,
   fundProject,
   getAllBuyerProjects,
@@ -10,8 +11,11 @@ import {
   getProjectById,
   getProjectMediaAndLinks,
   getProjectMilestones,
+  getWallet,
+  getWithdrawalMethods,
   inviteBuyer,
   postProjectLive,
+  requestWithdrawal,
   submitMilestone,
   updateProjectById,
 } from "@/actions/project";
@@ -22,6 +26,8 @@ import {
   UmojaLinnMilestone,
   UmojaLinnMilestoneSubmission,
   UmojaLinnProject,
+  UmojalinnWallet,
+  UmojaLinnWithdrawalMethod,
 } from "@/types/project";
 import {
   GenericUseMutationProps,
@@ -38,8 +44,14 @@ import {
   MILESTONE,
   PROJECT,
   SUBMISSION,
+  WALLET,
+  WITHDRAWAL_METHODS,
 } from "../keys";
 import { AxiosProgressEvent } from "axios";
+import {
+  CreateWithdrawalMethodPayload,
+  RequestWithdrawalPayload,
+} from "@/section/form/withdraw/WithdrawalAmount";
 
 export const useInviteBuyer = (
   options: GenericUseMutationProps<SingleApiResponse, { emails: string[] }>
@@ -294,6 +306,73 @@ export const useSubmitMilestone = (
     mutationFn: (variables) => submitMilestone(id, variables),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: [PROJECT] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useGetWallet = (
+  options?: GenericUseQueryProps<SingleApiResponse<UmojalinnWallet>>
+) => {
+  const { data: me } = useSession();
+  return useQuery({
+    ...options,
+    enabled: !!me?.user && options?.enabled !== false,
+    queryKey: [PROJECT, WALLET],
+    queryFn: () => getWallet(),
+  });
+};
+
+export const useGetWithdrawalMethods = (
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnWithdrawalMethod>>
+) => {
+  const { data: me } = useSession();
+  return useQuery({
+    ...options,
+    enabled: !!me?.user && options?.enabled !== false,
+    queryKey: [PROJECT, WALLET, WITHDRAWAL_METHODS],
+    queryFn: () => getWithdrawalMethods(),
+  });
+};
+
+export const useCreateWithdrawalMethod = (
+  options?: GenericUseMutationProps<
+    SingleApiResponse<UmojaLinnWithdrawalMethod>,
+    CreateWithdrawalMethodPayload
+  >
+) => {
+  const { handleError } = useHandleError("Create Withdrawal Method");
+  return useMutation({
+    ...options,
+    mutationFn: (variables) => createWithdrawalMethod(variables),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: [PROJECT, WALLET, WITHDRAWAL_METHODS],
+      });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useRequestWithdrawal = (
+  options?: GenericUseMutationProps<SingleApiResponse, RequestWithdrawalPayload>
+) => {
+  const { handleError } = useHandleError("Request Withdrawal");
+  return useMutation({
+    ...options,
+    mutationFn: (variables) => requestWithdrawal(variables),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: [PROJECT, WALLET, WITHDRAWAL_METHODS],
+      });
       options?.onSuccess?.(data, variables, context);
     },
     onError: (error, variables, context) => {

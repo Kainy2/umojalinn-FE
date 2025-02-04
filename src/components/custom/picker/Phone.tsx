@@ -75,7 +75,7 @@ export const CustomPhonePickerField = React.forwardRef<
           <Label {...label} />
         ))}
       <CustomPhonePicker {...inputProps} ref={ref} />
-      {hint && <p className="text-sm mt-2">{hint}</p>}
+      {hint && <p className="text-sm mt-2 text-foreground-body">{hint}</p>}
     </div>
   );
 });

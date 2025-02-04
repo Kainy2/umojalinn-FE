@@ -41,6 +41,7 @@ export type CustomSelectProps = SelectProps &
     adornment?: boolean;
     renderValue?: (val?: unknown) => React.ReactNode;
     startAdornment?: React.ReactNode;
+    value?: string | null;
   }>;
 
 export type CustomSelectFieldProps = CustomSelectProps & FieldProps;
@@ -126,7 +127,7 @@ export const CustomSelectField = React.forwardRef<
           <Label {...label} />
         ))}
       <CustomSelect {...selectProps} ref={ref} />
-      {hint && <p className="text-sm mt-2">{hint}</p>}
+      {hint && <p className="text-sm mt-2 text-foreground-body">{hint}</p>}
     </div>
   );
 });

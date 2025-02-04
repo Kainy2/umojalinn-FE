@@ -33,7 +33,7 @@ const JobsPage = () => {
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col gap-4">
       {privateJobAdsWithoutBidProjectsData?.data?.data?.map?.((ad) => (
         <AdCard project={ad} key={ad?.id} />
       ))}
