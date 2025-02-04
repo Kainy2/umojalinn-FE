@@ -7,7 +7,7 @@ import CustomSelect, { CustomSelectField } from "@/components/custom/Select";
 import Bank from "@/icons/Bank";
 import NairaSign from "@/icons/NairaSign";
 import { UmojaLinnCurrency, UmojaLinnWithdrawalMethod } from "@/types/project";
-import { CircleCheck, Euro, Mail, MessageSquareWarning } from "lucide-react";
+import { Euro, Mail, MessageSquareWarning } from "lucide-react";
 import React, { useState } from "react";
 import ProjectEditFooter from "../project/edit/Footer";
 import { countries } from "country-list-json";
@@ -18,6 +18,8 @@ import {
 } from "@/tanstack/hooks/useProject";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import Paypal from "@/icons/Paypal";
+import CheckCircle from "@/icons/CheckCircle";
 
 const noPaypal = ["Nigeria"];
 const noPaypalOption = [
@@ -46,6 +48,15 @@ const getOptions = (country: string | null) => {
     return paypalOption;
   }
   return [];
+};
+
+const getIcon = (channel: UmojaLinnWithdrawalMethod["channel"]) => {
+  switch (channel) {
+    case "PAYPAL":
+      return <Paypal className="shrink-0 mt-2" />;
+    default:
+      return <Bank className="shrink-0 mt-1" />;
+  }
 };
 
 export type RequestWithdrawalPayload = {
@@ -241,10 +252,10 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
                       withdrawalMethod === method?.id && "border-primary"
                     )}
                   >
-                    <Bank className="shrink-0" />
+                    {getIcon(method?.channel)}
                     <div className="text-foreground-body">
                       <p>{method?.paypalEmail || method?.bankName}</p>
-                      <p className="text-sm">{method?.accountNumber}</p>
+                      <p className="text-sm mb-2">{method?.accountNumber}</p>
                       <div className="flex items-center gap-2">
                         <button className="font-bold">Set as default</button>
                         <button className="text-primary font-semibold">
@@ -253,9 +264,9 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
                       </div>
                     </div>
                     {withdrawalMethod === method?.id ? (
-                      <CircleCheck className="size-6 text-primary shrink-0 absolute top-4 right-4" />
+                      <CheckCircle className="size-5 text-primary shrink-0 absolute top-4 right-4" />
                     ) : (
-                      <span className="border border-gray-400 rounded-full size-6 shrink-0 absolute top-4 right-4" />
+                      <span className="border border-gray-400 rounded-full size-5 shrink-0 absolute top-4 right-4" />
                     )}
                   </button>
                 ))}
