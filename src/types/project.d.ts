@@ -211,10 +211,12 @@ export type UmojaLinnMediaLink = {
   createdAt: string;
 };
 
+export type UmojalinnPaymentChannels = "PAYPAL" | "DIRECT_TRANSFER"; //  | "STRIPE"
+
 export type UmojaLinnWithdrawalMethod = {
   id: string;
   userId: string;
-  channel: "PAYPAL" | "DIRECT_TRANSFER"; //  | "STRIPE"
+  channel: UmojalinnPaymentChannels;
   currency: UmojaLinnCurrency;
   paypalEmail: string;
   accountName: null | string;
@@ -228,9 +230,16 @@ export type UmojaLinnWithdrawalMethod = {
 
 export type UmojalinnWalletTransaction = {
   id: string;
-  channel: "PAYPAL" | "STRIPE" | "DIRECT_TRANSFER";
+  paymentChannel: UmojalinnPaymentChannels;
   currency: UmojaLinnCurrency;
-};
+  amount: number;
+  transactionId: string;
+  status: "PENDING";
+  transactionType: "FUND_ESCROW";
+  receiptUrl: string;
+  projectId: string;
+  walletId: null | string;
+} & UmojaLinnTimestamp;
 
 export type UmojalinnWallet = {
   id: string;

@@ -1,12 +1,13 @@
 "use client";
 import TextField from "@/components/custom/input/TextField";
+import NotificationPopover from "@/components/custom/popover/Notification";
 import PopoverMenu from "@/components/custom/PopoverMenu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import InviteClient from "@/section/dashboard/appbar/InviteClient";
 import { useGetMe } from "@/tanstack/hooks/useUser";
-import { Bell, ChevronDown, LogOut, Search } from "lucide-react";
+import { ChevronDown, LogOut, Search } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import React from "react";
 
@@ -35,9 +36,7 @@ const DashboardAppbarContent = () => {
             <Separator orientation="vertical" className="h-8" />
           </>
         )}
-        <Button variant="ghost" className="font-normal">
-          <Bell className="icon-base" />
-        </Button>
+        <NotificationPopover />
         <PopoverMenu
           menus={[
             {

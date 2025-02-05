@@ -13,6 +13,7 @@ import {
   UmojalinnWallet,
   UmojaLinnWithdrawalMethod,
 } from "@/types/project";
+import { UmojaLinnNotification } from "@/types/user";
 
 import {
   ArrayApiResponse,
@@ -334,4 +335,27 @@ export const requestWithdrawal = async (
     `/wallet/withdraw`,
     body
   );
+};
+export const markNotificationAsRead = async (
+  id: string,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.put<unknown, AxiosResponse<SingleApiResponse>>(
+    `/notification/${id}/mark-as-read`
+  );
+};
+
+export const getNotifications = async (options?: ServerActionOption) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.get<
+    unknown,
+    AxiosResponse<ArrayApiResponse<UmojaLinnNotification>>
+  >(`/notification/all`);
 };

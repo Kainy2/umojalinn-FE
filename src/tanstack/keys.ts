@@ -11,3 +11,4 @@ export const CLOTHING_TYPES = "CLOTHING_TYPES";
 export const SIZING_TEMPLATE = "SIZING_TEMPLATE";
 export const USER = "USER";
 export const ME = "ME";
+export const NOTIFICATION = "NOTIFICATION";

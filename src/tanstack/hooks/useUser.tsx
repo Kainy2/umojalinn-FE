@@ -4,13 +4,14 @@ import {
   GenericUseMutationProps,
   GenericUseQueryProps,
 } from "@/types/tanstack";
-import { UmojaLinnUser } from "@/types/user";
-import { SingleApiResponse } from "@/types/util";
+import { UmojaLinnNotification, UmojaLinnUser } from "@/types/user";
+import { ArrayApiResponse, SingleApiResponse } from "@/types/util";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { signOut, useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
-import { ME, USER } from "../keys";
+import { ME, NOTIFICATION, USER } from "../keys";
+import { getNotifications, markNotificationAsRead } from "@/actions/project";
 
 export const useGetMe = (
   options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnUser>>
@@ -48,5 +49,30 @@ export const useOnboard = (
       queryClient.invalidateQueries({ queryKey: [USER, ME] });
       options?.onSuccess?.(data, variables, context);
     },
+  });
+};
+
+export const useMarkNotificationAsRead = (
+  options?: GenericUseMutationProps<SingleApiResponse, string>
+) => {
+  return useMutation({
+    ...options,
+    mutationFn: markNotificationAsRead,
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [NOTIFICATION] });
+      options?.onSuccess?.(data, variables, context);
+    },
+  });
+};
+
+export const useGetNotifications = (
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnNotification>>
+) => {
+  const { data: me } = useSession();
+  return useQuery({
+    ...options,
+    enabled: !!me?.user && options?.enabled !== false,
+    queryKey: [NOTIFICATION],
+    queryFn: () => getNotifications(),
   });
 };

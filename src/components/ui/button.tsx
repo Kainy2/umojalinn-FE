@@ -1,4 +1,5 @@
 import * as React from "react";
+import Link from "next/link";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 
@@ -40,13 +41,18 @@ export interface ButtonProps
   asChild?: boolean;
   fullWidth?: boolean;
   loading?: boolean;
+  href?: string;
 }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+const Button = React.forwardRef<
+  HTMLButtonElement & HTMLAnchorElement,
+  ButtonProps
+>(
   (
     {
       className,
       variant,
+      href,
       size,
       asChild = false,
       fullWidth,
@@ -57,21 +63,23 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    const Comp = asChild ? Slot : "button";
+    const Comp: React.ElementType = asChild ? Slot : href ? Link : "button";
+
     return (
       <Comp
         className={cn(
           buttonVariants({ variant, size, className }),
           fullWidth && "w-full"
         )}
-        ref={ref}
+        ref={ref as React.Ref<HTMLButtonElement & HTMLAnchorElement>}
+        {...(href ? { href } : {})}
         {...props}
         disabled={loading || disabled}
       >
         {loading ? (
           <svg
             aria-hidden="true"
-            className="w-8 h-8 text-gray-200 animate-spin  fill-purple"
+            className="w-8 h-8 text-gray-200 animate-spin fill-purple"
             viewBox="0 0 100 101"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"

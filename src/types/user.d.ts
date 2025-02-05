@@ -51,3 +51,16 @@ export type UmojaLinnLoginResponse = {
   authToken: string;
   user: UmojaLinnUser;
 };
+
+export type UmojaLinnNotification = {
+  id: string;
+  userId: string;
+  isRead: boolean;
+  message: string;
+  metadata?: {
+    projectId?: string;
+    projectName?: string;
+  };
+  senderName: string;
+  senderProfileUrl: null | string;
+} & UmojaLinnTimestamp;
