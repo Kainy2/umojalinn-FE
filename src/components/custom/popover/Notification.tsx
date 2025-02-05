@@ -1,5 +1,5 @@
 "use client";
-import { Button, ButtonProps } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
@@ -12,8 +12,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import NotificationCard from "../card/Notification";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
-import { UmojaLinnNotification } from "@/types/user";
-import { uuidToBase62, uuidToBase62Safe } from "@/lib/uuid";
 
 const NotificationPopover = () => {
   const { data: notificationData, isPending: loadingNotification } =

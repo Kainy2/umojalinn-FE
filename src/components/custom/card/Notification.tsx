@@ -4,8 +4,9 @@ import Image from "next/image";
 import React from "react";
 import * as timeAgo from "timeago.js";
 import NotificationMessage from "../NotificationMessage";
-import { UmojaLinnNotification } from "@/types/user";
+import { UmojaLinnNotification, UmojaLinnUserRole } from "@/types/user";
 import { uuidToBase62Safe } from "@/lib/uuid";
+import { useSession } from "next-auth/react";
 
 type NotificationCardProps = {
   id: string;
@@ -19,14 +20,18 @@ type NotificationCardProps = {
 };
 
 const getActions = (
-  metadata: UmojaLinnNotification["metadata"]
+  metadata: UmojaLinnNotification["metadata"],
+  role: UmojaLinnUserRole
 ): ButtonProps[] | undefined => {
   const keys = Object.keys(metadata || {});
   if (keys.includes("projectId")) {
     return [
       {
-        children: "View Project",
-        href: `/projects/${uuidToBase62Safe(metadata?.projectId || "")}`,
+        children: role === "BUYER" ? "View Project" : "View Job",
+        href:
+          role === "BUYER"
+            ? `/projects/${uuidToBase62Safe(metadata?.projectId || "")}`
+            : `/jobs/${uuidToBase62Safe(metadata?.projectId || "")}`,
         variant: "outline",
       },
     ];
@@ -46,6 +51,7 @@ const NotificationCard = (props: NotificationCardProps) => {
   } = props;
 
   const { mutate: markNotificationRead } = useMarkNotificationAsRead();
+  const { data: session } = useSession();
 
   return (
     <button
@@ -84,9 +90,11 @@ const NotificationCard = (props: NotificationCardProps) => {
         </div>
       </div>
       <div className="flex gap-2 justify-end w-full">
-        {getActions(metadata)?.map?.((button, index) => (
-          <Button key={index} {...button} size="sm" />
-        ))}
+        {!!session?.user?.profileRole &&
+          !!metadata &&
+          getActions(metadata, session?.user?.profileRole)?.map?.(
+            (button, index) => <Button key={index} {...button} size="sm" />
+          )}
       </div>
       {!isRead && (
         <span className="size-2 bg-success absolute top-2 right-2 rounded-full" />

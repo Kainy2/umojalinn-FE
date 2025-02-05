@@ -2,7 +2,6 @@ import { ArrayApiResponse } from "@/types/util";
 import { customAxios, handleAPIError, setBearerToken } from "@/lib/axios";
 import { AxiosResponse } from "axios";
 import { NextRequest, NextResponse } from "next/server";
-import { UmojaLinnProject } from "@/types/project";
 import { handleQueryParams } from "@/lib/request";
 import { UmojaLinnNotification } from "@/types/user";
 

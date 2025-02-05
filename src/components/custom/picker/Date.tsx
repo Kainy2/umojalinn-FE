@@ -119,7 +119,7 @@ export const CustomDatePicker = React.forwardRef<
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          ref={ref}
+          ref={ref as React.Ref<HTMLButtonElement & HTMLAnchorElement>}
           variant={"outline"}
           className={cn(
             "w-full justify-between text-left font-normal",
