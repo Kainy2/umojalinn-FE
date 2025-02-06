@@ -66,7 +66,7 @@ const MilestoneInputSection = (props: MilestoneInputSectionProps) => {
       (isDeliveryMilestoneEditable ? editedDeliveryDetails : lastSubmission) ||
       {};
 
-    switch (props.deliveryMethod) {
+    switch (props?.deliveryMethod) {
       case "NON_TRACKED":
         return (
           <>

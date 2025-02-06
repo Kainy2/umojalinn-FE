@@ -189,7 +189,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                     onFilesChange: setFiles,
                     onMessageChange: setMessage,
                     isDeliveryMilestone: milestone.isDelivery,
-                    deliveryMethod: item.deliveryMethod,
+                    deliveryMethod: item?.deliveryMethod,
                     editedDeliveryDetails: editableDeliverySubmission,
                     onChangeDeliveryDetails: (value) =>
                       setEditableDeliverySubmission((prev) => ({

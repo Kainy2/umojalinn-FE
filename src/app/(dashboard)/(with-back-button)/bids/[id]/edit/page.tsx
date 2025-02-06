@@ -72,7 +72,7 @@ const BidPage = () => {
       setEditing(null);
     }
     if (bid?.deliveryMilestone?.deliveryMethod) {
-      setDeliveryMethod(bid.deliveryMilestone.deliveryMethod);
+      setDeliveryMethod(bid?.deliveryMilestone?.deliveryMethod);
     }
     if (bid?.deliveryMilestone?.amount) {
       setDeliveryMilestonePrice(bid?.deliveryMilestone?.amount);
