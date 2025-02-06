@@ -19,7 +19,7 @@ const ReviewPage = () => {
   const router = useRouter();
   const { mutate: goLive, isPending } = usePostProjectLive({
     onSuccess: () => {
-      router.push(`/projects/${uuidToBase62Safe(params?.id)}`);
+      router.push(`/projects/ads/${uuidToBase62Safe(params?.id)}`);
       toast({
         title: "Project Live!",
         description: "This project has been pushed live successfully",
