@@ -1,7 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { UmojaLinnMilestone, UmojaLinnProject } from "@/types/project";
+import {
+  UmojaLinnDeliveryMilestoneReviewProps,
+  UmojaLinnMilestone,
+  UmojaLinnProject,
+} from "@/types/project";
 
 import MilestoneIndicator from "./Indicator";
 import MilestonePill from "./Pill";
@@ -34,6 +38,7 @@ export type MilestoneTimelineItem = {
   info?: string;
   onActionClick?: (action: MilestoneActionType) => void;
   isDelivery?: boolean;
+  deliverySubmission?: UmojaLinnDeliveryMilestoneReviewProps;
 };
 
 export type MilestoneTimelineProps = {
@@ -84,6 +89,19 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
 }) => {
   const [message, setMessage] = React.useState<string>("");
   const [files, setFiles] = React.useState<FileList | null>(null);
+  const [editableDeliverySubmission, setEditableDeliverySubmission] =
+    useState<UmojaLinnDeliveryMilestoneReviewProps>({
+      description: "",
+      city: "",
+      country: "",
+      state: "",
+      street: "",
+      zipCode: "",
+      courierService: "",
+      courierServiceLink: "",
+      trackingId: "",
+    });
+
   return (
     <ol className={cn("flex flex-col gap-1.5", className)}>
       {milestones.map((item, index) => {
@@ -172,6 +190,12 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                     onMessageChange: setMessage,
                     isDeliveryMilestone: milestone.isDelivery,
                     deliveryMethod: item.deliveryMethod,
+                    editedDeliveryDetails: editableDeliverySubmission,
+                    onChangeDeliveryDetails: (value) =>
+                      setEditableDeliverySubmission((prev) => ({
+                        ...prev,
+                        ...value,
+                      })),
                   }}
                 />
                 <div
@@ -241,6 +265,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                     setMessage("");
                     setFiles(null);
                   }}
+                  deliverySubmission={editableDeliverySubmission}
                   {...{ isBuyer, isDesigner }}
                   onActionClick={(action) => {
                     console.log(action);

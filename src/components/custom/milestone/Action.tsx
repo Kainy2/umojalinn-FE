@@ -25,7 +25,18 @@ const MilestoneAction: React.FC<
       files: FileList | null;
       clear: () => void;
     }
-> = ({ isCurrent, isBuyer, isDesigner, status, id, message, files, clear }) => {
+> = ({
+  isCurrent,
+  isBuyer,
+  isDesigner,
+  status,
+  id,
+  message,
+  files,
+  clear,
+  isDelivery,
+  deliverySubmission,
+}) => {
   const { mutate: submitMilestone, isPending: submittingMilestone } =
     useSubmitMilestone(id, {
       onSuccess: () => {
@@ -80,7 +91,9 @@ const MilestoneAction: React.FC<
             size="sm"
             onClick={() =>
               submitMilestone(
-                jsonToFormData({ description: message, media: files })
+                isDelivery
+                  ? jsonToFormData(deliverySubmission || {})
+                  : jsonToFormData({ description: message, media: files })
               )
             }
             variant="success"

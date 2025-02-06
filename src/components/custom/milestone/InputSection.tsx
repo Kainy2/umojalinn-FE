@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import TextField from "../input/TextField";
 import FileUploadPicker from "../picker/FileUpload";
 import { MilestoneStatus, MilestoneTimelineItem } from "./Timeline";
@@ -44,20 +43,9 @@ const MilestoneInputSection = (props: MilestoneInputSectionProps) => {
     deliverySubmissions?.length &&
     deliverySubmissions?.[deliverySubmissions?.length - 1];
 
-  const [editableDeliverySubmission, setEditablDeliverySubmission] =
-    useState<UmojaLinnDeliveryMilestoneReviewProps>({
-      description: "",
-      city: "",
-      country: "",
-      state: "",
-      street: "",
-      zipCode: "",
-      courierService: "",
-      courierServiceLink: "",
-      trackingId: "",
-    });
+  const { editedDeliveryDetails } = props;
 
-  if (props.isDeliveryMilestone) {
+  if (props.isDeliveryMilestone && !loadingMilestoneSubmissions) {
     const isDeliveryMilestoneEditable =
       props.status &&
       props.status === MilestoneStatus.ACTIVE &&
@@ -74,9 +62,9 @@ const MilestoneInputSection = (props: MilestoneInputSectionProps) => {
       street,
       trackingId,
       zipCode,
-    } = isDeliveryMilestoneEditable
-      ? editableDeliverySubmission
-      : lastSubmission || {};
+    } =
+      (isDeliveryMilestoneEditable ? editedDeliveryDetails : lastSubmission) ||
+      {};
 
     switch (props.deliveryMethod) {
       case "NON_TRACKED":
