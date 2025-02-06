@@ -9,6 +9,7 @@ import MilestoneAction, { MilestoneActionType } from "./Action";
 import SelectFundingMethodDialog from "../dialog/SelectFundingMethod";
 import MilestoneInputSection from "./InputSection";
 import MilestoneSubmissionsPreview from "./SubmissionsPreview";
+import { capitalizeFirstLetter } from "@/lib/string";
 
 export enum MilestoneStatus {
   INACTIVE = "INACTIVE",
@@ -32,6 +33,7 @@ export type MilestoneTimelineItem = {
   status?: keyof typeof MilestoneStatus;
   info?: string;
   onActionClick?: (action: MilestoneActionType) => void;
+  isDelivery?: boolean;
 };
 
 export type MilestoneTimelineProps = {
@@ -40,6 +42,19 @@ export type MilestoneTimelineProps = {
   isDesigner?: boolean;
   isBuyer?: boolean;
   currency: UmojaLinnProject["currency"];
+};
+
+export type DeliveryMilestoneReviewProps = {
+  description: string;
+  media: string[] | File[] | FileList;
+  city?: string; // only required for IN_PERSON_PICKUP
+  country?: string; // only required for IN_PERSON_PICKUP
+  state?: string; // only required for IN_PERSON_PICKUP
+  street?: string; // only required for IN_PERSON_PICKUP
+  zipCode?: string; // only required for IN_PERSON_PICKUP
+  courierService?: string; // only required for TRACKED and NON_TRACKED
+  courierServiceLink?: string; // only required for TRACKED
+  trackingId?: string; // only required for TRACKED
 };
 
 const getMilestoneStatus = (
@@ -77,11 +92,15 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
           status: getMilestoneStatus(item?.status, item?.transactionStatus),
           amount: item?.amount || 0,
           date: item?.updatedAt,
-          title: item?.title || "Delivery Method",
+          title:
+            item?.title ||
+            (!!item?.deliveryMethod && "Delivery Method") ||
+            "No title",
           description: item?.description,
           isCurrent: ["PENDING", "ACTIVE", "REJECTED", "IN_REVIEW"].includes(
             item?.status
           ),
+          isDelivery: !!item?.deliveryMethod,
         };
         const isCompletedOrCurrent =
           milestone?.status === MilestoneStatus.COMPLETED ||
@@ -121,6 +140,16 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                   )}
                 >
                   {milestone?.description}
+                  {milestone?.isDelivery && (
+                    <>
+                      Delivery method{" "}
+                      <span className="text-xs py-1 px-2 border rounded-sm">
+                        {capitalizeFirstLetter(
+                          item?.deliveryMethod || "IN_PERSON_PICKUP"
+                        ).replaceAll("_", " ")}
+                      </span>
+                    </>
+                  )}
                 </p>
                 {milestone?.additionalContent}
                 <MilestoneSubmissionsPreview
@@ -141,6 +170,8 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                     status: milestone?.status,
                     onFilesChange: setFiles,
                     onMessageChange: setMessage,
+                    isDeliveryMilestone: milestone.isDelivery,
+                    deliveryMethod: item.deliveryMethod,
                   }}
                 />
                 <div

@@ -3,14 +3,13 @@ import CustomCheckbox from "@/components/custom/Checkbox";
 import FormItemWrapper from "@/components/custom/FormItemWrapper";
 import TextAreaField from "@/components/custom/input/TextAreaField";
 import TextField from "@/components/custom/input/TextField";
-import CustomSelect, { CustomSelectField } from "@/components/custom/Select";
+import CustomSelect from "@/components/custom/Select";
 import Bank from "@/icons/Bank";
 import NairaSign from "@/icons/NairaSign";
 import { UmojaLinnCurrency, UmojaLinnWithdrawalMethod } from "@/types/project";
 import { Euro, Mail, MessageSquareWarning } from "lucide-react";
 import React, { useState } from "react";
 import ProjectEditFooter from "../project/edit/Footer";
-import { countries } from "country-list-json";
 import {
   useCreateWithdrawalMethod,
   useGetWithdrawalMethods,
@@ -20,6 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import Paypal from "@/icons/Paypal";
 import CheckCircle from "@/icons/CheckCircle";
+import CustomSelectCountry from "@/components/custom/SelectCountry";
 
 const noPaypal = ["Nigeria"];
 const noPaypalOption = [
@@ -188,26 +188,12 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
 
   return (
     <div className="flex flex-col gap-6">
-      <CustomSelectField
+      <CustomSelectCountry
         value={country || ""}
         onValueChange={(val) => setCountry(val)}
         label="Country"
         placeholder="Select your country"
         hint="Our withdrawal options are customized to suit your location, ensuring effective withdrawals."
-        options={countries.map((country) => {
-          return {
-            type: "option",
-            value: country?.name,
-            children: (
-              <span className="flex gap-2 items-center">
-                <span className="text-md rounded-full object-cover overflow-hidden">
-                  {country?.flag}
-                </span>
-                <span>{country?.name}</span>
-              </span>
-            ),
-          };
-        })}
       />
       {!!country && (
         <>

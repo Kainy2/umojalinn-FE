@@ -70,6 +70,19 @@ export type UmojaLinnDeliveryMethod =
   | "NON_TRACKED"
   | "IN_PERSON_PICKUP";
 
+export type UmojaLinnDeliveryMilestoneReviewProps = {
+  description: string;
+  media?: string[] | File[] | FileList;
+  city?: string; // only required for IN_PERSON_PICKUP
+  country?: string; // only required for IN_PERSON_PICKUP
+  state?: string; // only required for IN_PERSON_PICKUP
+  street?: string; // only required for IN_PERSON_PICKUP
+  zipCode?: string; // only required for IN_PERSON_PICKUP
+  courierService?: string; // only required for TRACKED and NON_TRACKED
+  courierServiceLink?: string; // only required for TRACKED
+  trackingId?: string; // only required for TRACKED
+};
+
 export type UmojaLinnMilestone = {
   id: string;
   title?: string;
@@ -203,7 +216,8 @@ export type UmojaLinnMilestoneSubmission = {
       };
     };
   };
-} & UmojaLinnTimestamp;
+} & UmojaLinnTimestamp &
+  UmojaLinnDeliveryMilestoneReviewProps;
 
 export type UmojaLinnMediaLink = {
   type: "link" | "media";

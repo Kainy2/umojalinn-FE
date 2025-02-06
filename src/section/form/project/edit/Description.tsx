@@ -5,7 +5,6 @@ import TextField, { FormTextField } from "@/components/custom/input/TextField";
 import { Textarea } from "@/components/ui/textarea";
 import { Info, UserPlus } from "lucide-react";
 import React, { useEffect, useCallback, useState } from "react";
-import { countries } from "country-list-json";
 import { Switch } from "@/components/ui/switch";
 import {
   useGetClothingTypes,
@@ -21,14 +20,13 @@ import { addYears } from "date-fns";
 
 import { FormCustomTagSelectField } from "@/components/custom/tag/Select";
 import { jsonToFormData } from "@/lib/utils";
-import CustomSelect, {
-  CustomGroupedOptionsProps,
-} from "@/components/custom/Select";
+import CustomSelect from "@/components/custom/Select";
 import ProjectEditFooter from "./Footer";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { useGetAllSizingTemplates } from "@/tanstack/hooks/useSizingTemplates";
+import CustomSelectCountry from "@/components/custom/SelectCountry";
 
 export type ProjectFormProps = {
   id: string;
@@ -315,29 +313,12 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
               control={form.control}
               name="country"
               render={({ field }) => {
-                const options = countries.map((country) => {
-                  return {
-                    type: "option",
-                    value: country?.name,
-                    children: (
-                      <span className="flex gap-2 items-center">
-                        <span className="text-md rounded-full object-cover overflow-hidden">
-                          {country?.flag}
-                        </span>
-                        <span>{country?.name}</span>
-                      </span>
-                    ),
-                  } as CustomGroupedOptionsProps;
-                });
                 return (
-                  <CustomSelect
+                  <CustomSelectCountry
                     {...field}
-                    onValueChange={field.onChange}
-                    placeholder="Country"
-                    options={options}
-                    renderValue={(value) =>
-                      options.find((opt) => opt.value === value)?.children
-                    }
+                    value={field.value}
+                    onValueChange={(val) => field.onChange(val)}
+                    label="Country"
                   />
                 );
               }}

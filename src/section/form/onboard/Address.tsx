@@ -1,5 +1,4 @@
 "use client";
-import { CustomSelectField } from "@/components/custom/Select";
 import TextField from "@/components/custom/input/TextField";
 import { Form, FormField } from "@/components/ui/form";
 
@@ -13,8 +12,8 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 
-import { countries } from "country-list-json";
 import useStorage from "@/hooks/useStorage";
+import CustomSelectCountry from "@/components/custom/SelectCountry";
 
 const OnboardAddressForm = (props: { role: UmojaLinnUserRole }) => {
   const router = useRouter();
@@ -75,25 +74,11 @@ const OnboardAddressForm = (props: { role: UmojaLinnUserRole }) => {
           control={form.control}
           name="country"
           render={({ field }) => (
-            <CustomSelectField
+            <CustomSelectCountry
               {...field}
               value={field.value}
               onValueChange={(val) => field.onChange(val)}
               label="Country"
-              options={countries.map((country) => {
-                return {
-                  type: "option",
-                  value: country?.name,
-                  children: (
-                    <span className="flex gap-2 items-center">
-                      <span className="text-md rounded-full object-cover overflow-hidden">
-                        {country?.flag}
-                      </span>
-                      <span>{country?.name}</span>
-                    </span>
-                  ),
-                };
-              })}
             />
           )}
         />

@@ -1,12 +1,22 @@
-import React from "react";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+"use client";
+import React, { useState } from "react";
 import TextField from "../input/TextField";
 import FileUploadPicker from "../picker/FileUpload";
 import { MilestoneStatus, MilestoneTimelineItem } from "./Timeline";
 import { useImagePreviewUrls } from "@/hooks/useImagePreviewUrls";
 import Image from "next/image";
-import { Trash2 } from "lucide-react";
+import { Link2, Locate, Trash2 } from "lucide-react";
+import {
+  UmojaLinnDeliveryMilestoneReviewProps,
+  UmojaLinnMilestone,
+} from "@/types/project";
+import TextAreaField from "../input/TextAreaField";
+import CustomSelectCountry from "../SelectCountry";
+import { useGetMilestoneSubmissions } from "@/tanstack/hooks/useProject";
 
 type MilestoneInputSectionProps = {
+  id?: string;
   isBuyer?: boolean;
   isDesigner?: boolean;
   onMessageChange?: (message: string) => void;
@@ -14,10 +24,136 @@ type MilestoneInputSectionProps = {
   message?: string;
   files?: FileList | null;
   status?: MilestoneTimelineItem["status"];
+  isDeliveryMilestone?: boolean;
+  deliveryMethod?: UmojaLinnMilestone["deliveryMethod"];
+  deliveryDetails?: UmojaLinnDeliveryMilestoneReviewProps;
+  editedDeliveryDetails?: UmojaLinnDeliveryMilestoneReviewProps;
+  onChangeDeliveryDetails?: (
+    props: Partial<UmojaLinnDeliveryMilestoneReviewProps>
+  ) => void;
 };
 
 const MilestoneInputSection = (props: MilestoneInputSectionProps) => {
   const { previewUrls, getPreview } = useImagePreviewUrls();
+  const { data: milestoneSubmissions, isPending: loadingMilestoneSubmissions } =
+    useGetMilestoneSubmissions(props.id);
+
+  const deliverySubmissions = milestoneSubmissions?.data?.data;
+
+  const lastSubmission =
+    deliverySubmissions?.length &&
+    deliverySubmissions?.[deliverySubmissions?.length - 1];
+
+  const [editableDeliverySubmission, setEditablDeliverySubmission] =
+    useState<UmojaLinnDeliveryMilestoneReviewProps>({
+      description: "",
+      city: "",
+      country: "",
+      state: "",
+      street: "",
+      zipCode: "",
+      courierService: "",
+      courierServiceLink: "",
+      trackingId: "",
+    });
+
+  if (props.isDeliveryMilestone) {
+    const isDeliveryMilestoneEditable =
+      props.status &&
+      props.status === MilestoneStatus.ACTIVE &&
+      props.isDesigner;
+
+    const {
+      description,
+      // media,
+      city,
+      country,
+      courierService,
+      courierServiceLink,
+      state,
+      street,
+      trackingId,
+      zipCode,
+    } = isDeliveryMilestoneEditable
+      ? editableDeliverySubmission
+      : lastSubmission || {};
+
+    switch (props.deliveryMethod) {
+      case "NON_TRACKED":
+        return (
+          <>
+            <TextField
+              value={courierService || ""}
+              disabled={!isDeliveryMilestoneEditable}
+              placeholder="Select courier service"
+            />
+            <TextAreaField
+              value={description || ""}
+              disabled={!isDeliveryMilestoneEditable}
+              placeholder="Enter any other information"
+            />
+          </>
+        );
+      case "TRACKED":
+        return (
+          <>
+            <TextField
+              value={courierService || ""}
+              disabled={!isDeliveryMilestoneEditable}
+              placeholder="Select courier service"
+            />
+            <TextField
+              value={courierServiceLink || ""}
+              disabled={!isDeliveryMilestoneEditable}
+              placeholder="Tracking link"
+              startAdornment={<Link2 className="size-5 text-gray-600" />}
+            />
+            <TextField
+              value={trackingId || ""}
+              disabled={!isDeliveryMilestoneEditable}
+              placeholder="Tracking id"
+              startAdornment={<Locate className="size-5 text-gray-600" />}
+            />
+            <TextAreaField
+              value={description || ""}
+              disabled={!isDeliveryMilestoneEditable}
+              placeholder="Enter any other information"
+            />
+          </>
+        );
+      case "IN_PERSON_PICKUP":
+      default:
+        return (
+          <>
+            <CustomSelectCountry
+              value={country || ""}
+              disabled={!isDeliveryMilestoneEditable}
+              placeholder="Country"
+            />
+            <TextField
+              value={state || ""}
+              disabled={!isDeliveryMilestoneEditable}
+              placeholder="State/Province"
+            />
+            <TextField
+              value={city || ""}
+              disabled={!isDeliveryMilestoneEditable}
+              placeholder="City"
+            />
+            <TextField
+              value={zipCode || ""}
+              disabled={!isDeliveryMilestoneEditable}
+              placeholder="Zip/Postal Code"
+            />
+            <TextAreaField
+              value={street || ""}
+              disabled={!isDeliveryMilestoneEditable}
+              placeholder="Street/Apartment/Suite"
+            />
+          </>
+        );
+    }
+  }
 
   if (props?.status === MilestoneStatus.ACTIVE && props?.isDesigner) {
     return (
