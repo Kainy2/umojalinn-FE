@@ -235,10 +235,11 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
                       return (
                         <CustomSelect
                           {...field}
+                          defaultValue={field.value}
                           placeholder="Gender"
-                          renderValue={(value) =>
-                            options.find((opt) => opt.value === value)?.children
-                          }
+                          // renderValue={(value) =>
+                          //   options.find((opt) => opt.value === value)?.children
+                          // }
                           onValueChange={(value) => field.onChange(value)}
                           adornment
                           options={options}
@@ -317,6 +318,7 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
                   <CustomSelectCountry
                     {...field}
                     value={field.value}
+                    defaultValue={field.value}
                     onValueChange={(val) => field.onChange(val)}
                     label="Country"
                   />

@@ -190,6 +190,7 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
     <div className="flex flex-col gap-6">
       <CustomSelectCountry
         value={country || ""}
+        defaultValue={country || ""}
         onValueChange={(val) => setCountry(val)}
         label="Country"
         placeholder="Select your country"

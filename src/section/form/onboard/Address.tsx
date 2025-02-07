@@ -77,6 +77,7 @@ const OnboardAddressForm = (props: { role: UmojaLinnUserRole }) => {
             <CustomSelectCountry
               {...field}
               value={field.value}
+              defaultValue={field.value}
               onValueChange={(val) => field.onChange(val)}
               label="Country"
             />

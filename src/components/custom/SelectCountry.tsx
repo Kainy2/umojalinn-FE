@@ -25,9 +25,9 @@ const CustomSelectCountry = (props: CustomSelectFieldProps) => {
     <CustomSelectField
       {...props}
       options={options}
-      renderValue={(value) =>
-        options.find((opt) => opt.value === value)?.children
-      }
+      // renderValue={(value) =>
+      //   options.find((opt) => opt.value === value)?.children
+      // }
     />
   );
 };

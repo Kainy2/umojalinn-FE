@@ -86,7 +86,7 @@ function Calendar({
                 trigger={{
                   className: "max-w-[50px] inline-flex",
                 }}
-                renderValue={() => format(currentMonth, "MMM")}
+                // renderValue={() => format(currentMonth, "MMM")}
                 options={selectItems?.map((item) => ({
                   value: item.value,
                   children: item.label,
@@ -120,7 +120,7 @@ function Calendar({
                   trigger={{
                     className: "max-w-[50px] inline-flex",
                   }}
-                  renderValue={() => currentMonth.getFullYear()}
+                  // renderValue={() => currentMonth.getFullYear()}
                   options={selectItems?.map((item) => ({
                     value: item.value,
                     children: item.label,

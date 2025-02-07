@@ -39,7 +39,7 @@ export type CustomSelectProps = SelectProps &
     trigger: SelectTriggerProps;
     options: Array<CustomOptionsProps>;
     adornment?: boolean;
-    renderValue?: (val?: unknown) => React.ReactNode;
+    // renderValue?: (val?: unknown) => React.ReactNode;
     startAdornment?: React.ReactNode;
     value?: string | null;
   }>;
@@ -76,7 +76,6 @@ const CustomSelect = React.forwardRef<HTMLButtonElement, CustomSelectProps>(
       options,
       adornment,
       startAdornment,
-      renderValue,
       ...selectProps
     } = props;
     return (
@@ -99,13 +98,8 @@ const CustomSelect = React.forwardRef<HTMLButtonElement, CustomSelectProps>(
               {startAdornment}
             </div>
           )}
-          {renderValue ? (
-            renderValue(selectProps?.value)
-          ) : (
-            <SelectValue className="" placeholder={placeholder} />
-          )}
+          <SelectValue className="" placeholder={placeholder} />
         </SelectTrigger>
-
         <SelectContent>{<CustomOption value={options || []} />}</SelectContent>
       </Select>
     );
