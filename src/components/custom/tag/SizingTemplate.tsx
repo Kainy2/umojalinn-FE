@@ -87,12 +87,14 @@ const SizingTemplateTag = (props: SizingTemplateTagProps) => {
   }
 
   return (
-    <SizingTemplateDialog id={projectData?.data?.data?.sizingTemplateId}>
-      <AvatarIconTag
-        label="View sizing template"
-        icon={<CheckCircle className="text-success" />}
-      />
-    </SizingTemplateDialog>
+    <div>
+      <SizingTemplateDialog id={projectData?.data?.data?.sizingTemplateId}>
+        <AvatarIconTag
+          label="View sizing template"
+          icon={<CheckCircle className="text-success" />}
+        />
+      </SizingTemplateDialog>
+    </div>
   );
 };
 

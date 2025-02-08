@@ -76,7 +76,7 @@ const AdCard = (props: { project: UmojaLinnProject }) => {
           </p>
         </div>
 
-        <p className="text-foreground-body flex-1 h-full line-clamp-4">
+        <p className="text-foreground-body flex-1 h-full line-clamp-3">
           {props.project?.about}
         </p>
         <div className="flex justify-between">
