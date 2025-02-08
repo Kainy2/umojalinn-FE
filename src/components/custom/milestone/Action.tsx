@@ -73,7 +73,7 @@ const MilestoneAction: React.FC<
             disabled={isReviewingMilestone}
             fullWidth
           >
-            Submit
+            Accept
           </Button>
         </div>
       </>
