@@ -80,7 +80,7 @@ const CustomSidebarMenuItem = (props: CustomSidebarMenuItemProps) => {
             "bg-primary text-white hover:text-white active:text-white  hover:bg-primary-600 active:bg-primary-700 "
         )}
       >
-        <a href={props.url}>
+        <Link href={props.url}>
           {props.icon}
           <span className="flex-1 h-5 flex items-center">{props.title}</span>
           {!!badge && (
@@ -93,7 +93,7 @@ const CustomSidebarMenuItem = (props: CustomSidebarMenuItemProps) => {
               {badge}
             </span>
           )}
-        </a>
+        </Link>
       </SidebarMenuButton>
     </SidebarMenuItem>
   );
