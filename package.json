@@ -7,8 +7,7 @@
     "build": "next build",
     "start": "next start",
     "type-check": "tsc",
-    "lint": "next lint",
-    "prepare": "husky"
+    "lint": "next lint"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
