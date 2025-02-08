@@ -87,7 +87,7 @@ const BidCard = (props: BidCardProps) => {
             !props.bid?.project?.budget ||
             !props.bid?.amount ||
             typeof props.bid?.project?.budget !== "number"
-              ? "None"
+              ? "No"
               : `${formatNumberTo2DecimalPlace(
                   (props.bid?.project?.budget / props.bid?.amount) * 100
                 )}%`
@@ -96,7 +96,7 @@ const BidCard = (props: BidCardProps) => {
         />
         <BidCardFooterValues
           value={capitalizeFirstLetter(
-            props.bid?.deliveryMilestone?.deliveryMethod || "None"
+            props.bid?.deliveryMilestone?.deliveryMethod || "No"
           )}
           label="Delivery Method"
         />

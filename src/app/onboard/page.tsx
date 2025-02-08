@@ -33,7 +33,7 @@ const onboardButtonsProps: OnboardButtonProps[] = [
     href: "/onboard/designer",
     title: "Onboard as a Designer",
     description:
-      "Ready to join our elite crew of over 16,000 verified designers?",
+      "Ready to join our elite crew of over 16,000 verified designers? Click to continue.",
     alt: "I am a Designer",
     icon: <Verified className="text-primary" />,
   },
@@ -57,7 +57,7 @@ const OnboardPage = async () => {
             props.src
           )}
         >
-          <div className="text-white absolute bottom-0 p-8 lg:p-20  opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all duration-300">
+          <div className="text-white absolute bottom-0 p-8 lg:p-20  opacity-100 lg:opacity-0 __lg:group-hover:opacity-100 transition-all duration-300">
             <h2 className="text-lg md:text-xl font-semibold mb-2">
               {props.title}
             </h2>
@@ -65,11 +65,11 @@ const OnboardPage = async () => {
               <p className="flex-1">{props.description}</p> {props.icon}
             </div>
           </div>
-          <div className="absolute top-0 h-full w-full hidden lg:block lg:opacity-100 lg:group-hover:opacity-0 transition-all duration-300 bg-gradient-to-t from-black/50 to-black/20">
+          {/* <div className="absolute top-0 h-full w-full hidden lg:block lg:opacity-100 lg:group-hover:opacity-0 transition-all duration-300 bg-gradient-to-t from-black/50 to-black/20">
             <h2 className="absolute top-1/2 left-1/2 -translate-x-1/2 text-xl font-semibold text-center text-gray-400 whitespace-nowrap">
               {props.alt}
             </h2>
-          </div>
+          </div> */}
         </Link>
       ))}
     </div>

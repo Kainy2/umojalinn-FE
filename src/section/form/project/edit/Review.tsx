@@ -57,6 +57,7 @@ const ReviewForm = (props: ProjectFormProps) => {
         handleSave={async () => goLive(props?.id)}
         loading={isPending}
         handleDraft={() => router?.push("/projects")}
+        saveText="Post"
       />
     </div>
   );

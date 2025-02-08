@@ -344,7 +344,7 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
                 control={form.control}
                 name="zipCode"
                 render={({ field }) => (
-                  <TextField {...field} type="number" placeholder="Zip code" />
+                  <TextField {...field} placeholder="Zip code" />
                 )}
               />
             </div>
