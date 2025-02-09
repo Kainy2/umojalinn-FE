@@ -72,7 +72,7 @@ export type UmojaLinnDeliveryMethod =
 
 export type UmojaLinnDeliveryMilestoneReviewProps = {
   description: string;
-  media?: string[] | File[] | FileList;
+  media?: string[] | File[] | FileList | null;
   city?: string; // only required for IN_PERSON_PICKUP
   country?: string; // only required for IN_PERSON_PICKUP
   state?: string; // only required for IN_PERSON_PICKUP
@@ -204,6 +204,15 @@ export type UmojaLinnMilestoneSubmission = {
   description: string;
   images: Array<string>;
   links: Array<string>;
+  deliveryMilestoneId: null | string;
+  state: null | string;
+  city: null | string;
+  country: null | string;
+  street: null | string;
+  zipCode: null | string;
+  courierService: strinng | null;
+  courierServiceLink: string | null;
+  trackingId: string | null;
   status: "APPROVED" | "REJECTED" | "PENDING";
   rejectionReason?: null | string;
   milestone: {
@@ -215,7 +224,7 @@ export type UmojaLinnMilestoneSubmission = {
         user: UmojaLinnUser;
       };
     };
-  };
+  } | null;
 } & UmojaLinnTimestamp &
   UmojaLinnDeliveryMilestoneReviewProps;
 
