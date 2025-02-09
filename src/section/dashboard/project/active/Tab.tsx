@@ -22,14 +22,14 @@ const ActiveProjectTab = (props: ActiveProjectTabProps) => {
         title: "Activities",
         href: `/${baseUrlSlug}/${uuidToBase62Safe(params?.id)}`,
       },
-      // {
-      //   title: "Chat",
-      //   href: `/${baseUrlSlug}/${uuidToBase62Safe(params?.id)}/chat`,
-      // },
-      // {
-      //   title: "Media & links",
-      //   href: `/${baseUrlSlug}/${uuidToBase62Safe(params?.id)}/media-and-links`,
-      // },
+      {
+        title: "Chat",
+        href: `/${baseUrlSlug}/${uuidToBase62Safe(params?.id)}/chat`,
+      },
+      {
+        title: "Media & links",
+        href: `/${baseUrlSlug}/${uuidToBase62Safe(params?.id)}/media-and-links`,
+      },
       {
         title: "Details",
         href: `/${baseUrlSlug}/${uuidToBase62Safe(params?.id)}/details`,

@@ -108,6 +108,10 @@ body {
     @apply border-success-50 bg-success-100 text-success;
   }
 
+  .icon-wrapper.warning {
+    @apply border-warning-50 bg-warning-100 text-warning;
+  }
+
   .icon-wrapper.error {
     @apply border-error-50 bg-error-100 text-error;
   }
