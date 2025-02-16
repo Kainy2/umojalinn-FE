@@ -110,7 +110,12 @@ const ChatWindow = (props: ChatWindowProps) => {
   };
 
   return (
-    <div className={cn("min-h-[70vh] flex-1 flex flex-col", props.className)}>
+    <div
+      className={cn(
+        "min-h-[70vh] max-h-[100vh] overflow-scroll flex-1 flex flex-col",
+        props.className
+      )}
+    >
       <div className="flex flex-1 flex-col gap-4">
         {data?.map((d: UmojaLinnChat, i) => {
           return (
