@@ -217,6 +217,12 @@ const MilestoneInputSection = (props: MilestoneInputSectionProps) => {
               disabled={!isDeliveryMilestoneEditable}
               placeholder="Street/Apartment/Suite"
             />
+            <TextAreaField
+              onChange={handleChange("description")}
+              value={description || ""}
+              disabled={!isDeliveryMilestoneEditable}
+              placeholder="Enter any other information"
+            />
             {imagePicker}
           </>
         );
