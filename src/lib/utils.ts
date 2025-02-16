@@ -47,7 +47,9 @@ export function jsonToFormData<T extends Record<string, unknown>>(
     } else if (Array.isArray(value)) {
       // Handle arrays by appending each element as key[]
       value.forEach((item, index) => {
-        const arrayKey = key === "gallery-images" ? key : `${key}[${index}]`;
+        const arrayKey = ["gallery-images", "images"].includes(key)
+          ? key
+          : `${key}[${index}]`;
         appendToFormData(arrayKey, item);
       });
     } else if (typeof value === "object" && value !== null) {
