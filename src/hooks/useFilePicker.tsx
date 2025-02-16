@@ -4,7 +4,7 @@ import React, { useRef, useState } from "react";
 export type FilePickerOptions = {
   accept?: React.ComponentProps<"input">["accept"];
   multiple?: React.ComponentProps<"input">["multiple"];
-  onSelect?: (file: File | FileList | null) => void;
+  onSelect?: (file: File | FileList | null, previewUrl?: string | null) => void;
 };
 
 const useFilePicker = (props: FilePickerOptions) => {
@@ -15,15 +15,17 @@ const useFilePicker = (props: FilePickerOptions) => {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file =
       (props.multiple ? event.target.files : event.target.files?.[0]) || null;
-    props.onSelect?.(file);
+
+    let preview: string | null = null;
 
     if (file && file instanceof File) {
-      setPreview(fileToPreviewUrl(file));
+      preview = fileToPreviewUrl(file);
     } else if (file && file instanceof FileList) {
-      setPreview(fileToPreviewUrl(file[0]));
-    } else {
-      setPreview(null);
+      preview = fileToPreviewUrl(file[0]);
     }
+
+    setPreview(preview);
+    props.onSelect?.(file, preview);
   };
 
   return {

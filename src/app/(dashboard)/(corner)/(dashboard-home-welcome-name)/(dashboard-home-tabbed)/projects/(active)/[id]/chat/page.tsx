@@ -1,5 +1,6 @@
 "use client";
 import EscrowCard from "@/section/dashboard/project/active/EscrowCard";
+import ChatWindow from "@/section/dashboard/project/ChatWindow";
 import {
   useGetProjectById,
   useGetProjectMilestones,
@@ -15,7 +16,7 @@ const ActiveProjectChatPage = () => {
 
   return (
     <div className="flex flex-col md:flex-row gap-12">
-      Active Project Chat
+      <ChatWindow projectId={id} />
       <aside className="md:max-w-80 flex-1 w-full shrink-0">
         <EscrowCard
           milestones={projectMilestonesData?.data?.data || []}

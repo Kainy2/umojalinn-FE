@@ -271,3 +271,19 @@ export type UmojalinnWallet = {
   eurBalance: number;
   transactions: UmojalinnWalletTransaction[];
 } & UmojaLinnTimestamp;
+
+export type UmojaLinnChat = {
+  message?: string;
+  imageUrl?: string;
+  imageMeta?: {
+    fileName: string;
+    fileSize: string;
+  };
+  user?: Pick<
+    UmojaLinnUser,
+    "firstName" | "lastName" | "profilePhotoUri" | "id"
+  >;
+  type: "MESSAGE" | "NOTIFICATION";
+  severity?: "ERROR" | "SUCCESS";
+  createdAt: string | Date;
+};

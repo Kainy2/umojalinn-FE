@@ -15,7 +15,7 @@ const ActiveProjectMediaAndLinksPage = () => {
 
   if (isPending)
     return (
-      <div className="flex flex-col text-foreground-body">
+      <div className="flex flex-col text-foreground-body gap-4">
         {new Array(5).fill("").map((_, i) => (
           <Skeleton key={i} className="h-14" />
         ))}
@@ -25,12 +25,12 @@ const ActiveProjectMediaAndLinksPage = () => {
   if (!mediaAndLinks?.length)
     return (
       <div className="flex items-center justify-center h-[30vh] text-gray-500 text-sm">
-        <p>No transaction data</p>
+        <p>No media data</p>
       </div>
     );
 
   return (
-    <div className="flex flex-col text-foreground-body">
+    <div className="flex flex-col text-foreground-body gap-4">
       {mediaAndLinks?.map((value, index) => (
         <div key={index}>
           {index === 0 ||

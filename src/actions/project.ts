@@ -359,3 +359,21 @@ export const getNotifications = async (options?: ServerActionOption) => {
     AxiosResponse<ArrayApiResponse<UmojaLinnNotification>>
   >(`/notification/all`);
 };
+
+export const sendChatInProject = async (
+  id: string,
+  body: FormData,
+  apiParams?: Record<string, unknown>,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/project/chat/${base62ToUuidSafe(id)}${
+      apiParams ? convertApiParams(apiParams) : ""
+    }`,
+    body
+  );
+};
