@@ -1,0 +1,50 @@
+import React from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
+
+type FormItemWrapperProps = {
+  loading?: boolean;
+  children: React.ReactNode;
+  title?: string;
+  description?: string;
+  endAdornment?: React.ReactNode;
+  className?: string;
+};
+
+const FormItemWrapper = (props: FormItemWrapperProps) => {
+  if (props.loading) {
+    return (
+      <div className={cn("grid grid-cols-12 gap-4", props.className)}>
+        <div className="col-span-12 lg:col-span-3 pt-2">
+          <Skeleton className="h-6 w-full max-w-24 mb-2" />
+          <Skeleton className="h-4 w-full max-w-32 " />
+        </div>
+        <div className="flex items-center col-span-12 lg:grid lg:grid-cols-subgrid lg:col-span-9 gap-4">
+          <div className="flex-1 lg:flex-grow-0 lg:col-span-6">
+            {props.children}
+          </div>
+          <div className="lg:col-span-3"></div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={cn("grid grid-cols-12 gap-4", props.className)}>
+      <div className="col-span-12 lg:col-span-3 pt-2">
+        <h3 className="font-semibold text-md text-foreground-label mb-1">
+          {props.title}
+        </h3>
+        <p className="text-foreground-body text-sm"> {props.description}</p>
+      </div>
+      <div className="flex items-center col-span-12 lg:grid lg:grid-cols-subgrid lg:col-span-9 gap-4">
+        <div className="flex-1 lg:flex-grow-0 lg:col-span-6">
+          {props.children}
+        </div>
+        <div className="lg:col-span-3">{props.endAdornment}</div>
+      </div>
+    </div>
+  );
+};
+
+export default FormItemWrapper;

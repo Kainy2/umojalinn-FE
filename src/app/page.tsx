@@ -1,7 +1,24 @@
-export default function Home() {
-  return (
-    <div className="grid items-center justify-center min-h-screen p-8">
-      <h1 className="text-2xl font-bold">Welcome to Umoja</h1>
-    </div>
-  );
-}
+"use server";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+
+const HomePage = async () => {
+  const session = await auth();
+  let url;
+
+  switch (session?.user?.profileRole) {
+    case "BUYER":
+      url = "/projects";
+      break;
+    case "DESIGNER":
+      url = "/dashboard";
+      break;
+    default:
+      url = "/login";
+      break;
+  }
+
+  redirect(url);
+};
+
+export default HomePage;

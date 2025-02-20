@@ -1,0 +1,14 @@
+export const BID = "BID";
+export const BUYER = "BUYER";
+export const DESIGNER = "DESIGNER";
+export const PROJECT = "PROJECT";
+export const MILESTONE = "MILESTONE";
+export const WALLET = "WALLET";
+export const WITHDRAWAL_METHODS = "WITHDRAWAL_METHODS";
+export const MEDIA_AND_LINK = "MEDIA_AND_LINK";
+export const SUBMISSION = "SUBMISSION";
+export const CLOTHING_TYPES = "CLOTHING_TYPES";
+export const SIZING_TEMPLATE = "SIZING_TEMPLATE";
+export const USER = "USER";
+export const ME = "ME";
+export const NOTIFICATION = "NOTIFICATION";
