@@ -33,7 +33,7 @@ const onboardButtonsProps: OnboardButtonProps[] = [
     href: "/onboard/designer",
     title: "Onboard as a Designer",
     description:
-      "Ready to join our elite crew of over 16,000 verified designers? Click to continue.",
+      "Ready to join our elite crew of over 16,000 verified designers? Click on the screen to continue.",
     alt: "I am a Designer",
     icon: <Verified className="text-primary" />,
   },
@@ -57,7 +57,7 @@ const OnboardPage = async () => {
             props.src
           )}
         >
-          <div className="text-white absolute bottom-0 p-8 lg:p-20  opacity-100 lg:opacity-0 __lg:group-hover:opacity-100 transition-all duration-300">
+          <div className="text-white absolute bottom-0 p-8 lg:p-20  opacity-100 lg:opacity-0 dev:group-hover:opacity-100 dev:transition-all dev:duration-300">
             <h2 className="text-lg md:text-xl font-semibold mb-2">
               {props.title}
             </h2>

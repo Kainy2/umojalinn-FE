@@ -16,6 +16,8 @@ const CongratulationsPage = () => {
     const reload = () => {
       if (!session?.user?.profileRole) {
         router.refresh();
+      } else {
+        router.push("/");
       }
     };
     const timer = setTimeout(reload, 2000);
@@ -46,7 +48,11 @@ const CongratulationsPage = () => {
           alt=""
           className="object-cover"
         />
-        {session?.user?.profileRole && (
+        {!session?.user?.profileRole ? (
+          <p className="font-semibold text-foreground-body">
+            Organizing dashboard
+          </p>
+        ) : (
           <Button asChild fullWidth className="max-w-screen-sm">
             <Link href="/">Continue</Link>
           </Button>

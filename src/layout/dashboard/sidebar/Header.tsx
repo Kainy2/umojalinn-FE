@@ -17,6 +17,7 @@ const DashboardSidebarHeader = async () => {
         fullWidth
         variant="outline"
         className="text-primary text-sm"
+        disabled
       >
         <Link href="/project/create">
           <Plus />

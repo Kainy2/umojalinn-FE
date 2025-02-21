@@ -161,6 +161,10 @@ export function parseStringToNumber(input: string): ParsedNumber {
 
 export function formatFileSize(file: File): string {
   const sizeInBytes = file.size;
+  return formatSize(sizeInBytes);
+}
+
+export function formatSize(sizeInBytes: number): string {
   const units = ["Bytes", "KB", "MB", "GB", "TB"];
   let unitIndex = 0;
   let size = sizeInBytes;
@@ -170,7 +174,6 @@ export function formatFileSize(file: File): string {
     unitIndex++;
   }
 
-  // Format size to a maximum of 2 decimal places and remove trailing zeros
   const formattedSize = parseFloat(size.toFixed(2)).toString();
 
   return `${formattedSize} ${units[unitIndex]}`;

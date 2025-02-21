@@ -1,5 +1,6 @@
 "use client";
 import ProfilePhotoPicker from "@/components/custom/picker/ProfilePhoto";
+import { useFileSizeError } from "@/hooks/useFilePicker";
 import useHandleError from "@/hooks/useHandleError";
 import useStorage from "@/hooks/useStorage";
 import { jsonToFormData } from "@/lib/utils";
@@ -14,6 +15,8 @@ const OnboardProfilePhotoForm = (props: { role: UmojaLinnUserRole }) => {
   const { data } = useGetMe();
 
   const { update } = useSession();
+
+  const { isFileSizeValid } = useFileSizeError(1 * 1024 * 1024);
 
   const { mutateAsync: onboard, isPending: loading } = useOnboard({
     onSuccess: async () => {
@@ -54,7 +57,11 @@ const OnboardProfilePhotoForm = (props: { role: UmojaLinnUserRole }) => {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col items-center justify-center">
-        <ProfilePhotoPicker onSelect={setPhoto} />
+        <ProfilePhotoPicker
+          onSelect={(file) => {
+            if (file && isFileSizeValid(file)) return setPhoto(file);
+          }}
+        />
         {!!tag && (
           <div className="text-center mt-8">
             <h2 className="font-semibold text-lg mb-2.5">

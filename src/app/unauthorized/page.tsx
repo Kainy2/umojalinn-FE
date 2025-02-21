@@ -14,7 +14,7 @@ const UnauthorizedPage = () => {
         <p className="mb-6">You do not have permission to access this page.</p>
 
         <Button asChild fullWidth>
-          <Link href="/">Go Home </Link>
+          <Link href="/">Return to Dashboard</Link>
         </Button>
       </div>
     </div>
