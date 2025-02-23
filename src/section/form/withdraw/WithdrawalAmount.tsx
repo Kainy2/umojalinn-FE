@@ -8,7 +8,7 @@ import Bank from "@/icons/Bank";
 import NairaSign from "@/icons/NairaSign";
 import { UmojaLinnCurrency, UmojaLinnWithdrawalMethod } from "@/types/project";
 import { Euro, Mail, MessageSquareWarning } from "lucide-react";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import ProjectEditFooter from "../project/edit/Footer";
 import {
   useCreateWithdrawalMethod,
@@ -20,8 +20,8 @@ import { cn } from "@/lib/utils";
 import Paypal from "@/icons/Paypal";
 import CheckCircle from "@/icons/CheckCircle";
 import { useGetMe } from "@/tanstack/hooks/useUser";
-import { useRouter } from "next/router";
 import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 // import CustomSelectCountry from "@/components/custom/SelectCountry";
 
 const noPaypal = ["Nigeria"];
@@ -92,8 +92,11 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
   >(null);
   const [agree, setAgree] = useState(false);
   const { data } = useGetMe();
-  const country =
-    data?.data?.data?.designerProfile?.user?.address?.country || "Nigeria";
+  const country = useMemo(
+    () =>
+      data?.data?.data?.designerProfile?.user?.address?.country || "Nigeria",
+    [data?.data?.data?.designerProfile?.user?.address?.country]
+  );
 
   const router = useRouter();
   const { toast } = useToast();
