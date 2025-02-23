@@ -1,26 +1,35 @@
 import { z } from "zod";
 // import { isPhoneValid } from "./utils";
-
 export const registrationFormSchema = z
   .object({
     firstName: z.string().min(1, {
-      message: "Please provide valid name.",
+      message: "Please provide a valid name.",
     }),
     lastName: z.string().min(1, {
-      message: "Please provide valid name.",
+      message: "Please provide a valid name.",
     }),
     email: z.string().email({
-      message: "Please provide valid email.",
+      message: "Please provide a valid email.",
     }),
-    password: z.string().min(8, {
-      message: "Password must be > 8 characters",
-    }),
+    password: z
+      .string()
+      .min(8, { message: "Password must be at least 8 characters." })
+      .regex(/[A-Z]/, {
+        message: "Password must contain at least one uppercase letter.",
+      })
+      .regex(/[a-z]/, {
+        message: "Password must contain at least one lowercase letter.",
+      })
+      .regex(/[0-9]/, { message: "Password must contain at least one number." })
+      .regex(/[^A-Za-z0-9]/, {
+        message: "Password must contain at least one special character.",
+      }),
     confirmPassword: z.string().min(8, {
-      message: "Password must be > 8 characters",
+      message: "Password must be at least 8 characters.",
     }),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
+    message: "Passwords don't match.",
     path: ["confirmPassword"],
   });
 
@@ -28,9 +37,9 @@ export const loginFormSchema = z.object({
   email: z.string().email({
     message: "Please provide valid email.",
   }),
-  password: z.string().min(8, {
-    message: "Password must be 8 characters or more.",
-  }),
+  password: z
+    .string()
+    .min(8, { message: "Password must be at least 8 characters." }),
 });
 
 export const forgotPasswordFormSchema = z.object({

@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { LoginSchemaProps } from "@/types/form";
-import { loginFormTemplate } from "@/lib/formTemplate";
+import { LoginFormItemProps, loginFormTemplate } from "@/lib/formTemplate";
 import SocialsForm from "./Socials";
 import { Button } from "@/components/ui/button";
 import NestedFormItem from "@/components/custom/NestedFormItem";
@@ -84,10 +84,11 @@ const LoginForm = (props: {
         onSubmit={form.handleSubmit(onSubmit)}
       >
         {loginFormTemplate.map((formItem, index) => {
+          const typedFormItem = formItem as LoginFormItemProps;
           return (
             <NestedFormItem
               key={index}
-              {...{ formItem, form, handleToggle, visible }}
+              {...{ formItem: typedFormItem, form, handleToggle, visible }}
             />
           );
         })}

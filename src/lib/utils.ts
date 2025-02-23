@@ -1,4 +1,3 @@
-import { RegistrationSchemaProps } from "@/types/form";
 import { clsx, type ClassValue } from "clsx";
 import { PhoneNumberUtil } from "google-libphonenumber";
 import { twMerge } from "tailwind-merge";
@@ -7,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function isPasswordField(name: keyof RegistrationSchemaProps) {
+export function isPasswordField(name: string) {
   return ["password", "confirmPassword"].includes(name);
 }
 
