@@ -5,7 +5,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { RegistrationSchemaProps } from "@/types/form";
-import { registrationFormTemplate } from "@/lib/formTemplate";
+import {
+  RegistrationFormItemProps,
+  registrationFormTemplate,
+} from "@/lib/formTemplate";
 import SocialsForm from "./Socials";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -67,12 +70,15 @@ const RegistrationForm = (props: { inviterTag?: string }) => {
         className="flex flex-col gap-4"
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        {registrationFormTemplate.map((formItem, index) => (
-          <NestedFormItem
-            key={index}
-            {...{ formItem, form, handleToggle, visible }}
-          />
-        ))}
+        {registrationFormTemplate.map((formItem, index) => {
+          const typedFormItem = formItem as RegistrationFormItemProps;
+          return (
+            <NestedFormItem
+              key={index}
+              {...{ formItem: typedFormItem, form, handleToggle, visible }}
+            />
+          );
+        })}
         <div className="my-4">
           <CustomCheckbox
             checked={agree}

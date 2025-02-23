@@ -184,13 +184,14 @@ const MilestoneInputSection = (props: MilestoneInputSectionProps) => {
         return (
           <>
             <CustomSelectCountry
-              onValueChange={(val) => {
+              onChange={(val: unknown) => {
+                const typedVal = val as { value: string };
                 props?.onChangeDeliveryDetails?.({
-                  country: val,
+                  country: typedVal?.value,
                 });
               }}
               value={country || ""}
-              disabled={!isDeliveryMilestoneEditable}
+              isDisabled={!isDeliveryMilestoneEditable}
               placeholder="Country"
             />
             <TextField

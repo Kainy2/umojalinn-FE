@@ -17,11 +17,16 @@ const NotificationPopover = () => {
   const { data: notificationData, isPending: loadingNotification } =
     useGetNotifications();
   const [open, setOpen] = useState(false);
-  const unreadNotifications = useMemo(() => {
-    return notificationData?.data?.data?.filter?.(
-      (notification) => !notification?.isRead
+
+  const allNotifications = useMemo(() => {
+    return notificationData?.data?.data?.filter(
+      (notification, i) => i < 20 || !notification?.isRead
     );
   }, [notificationData?.data?.data]);
+
+  const unreadNotifications = useMemo(() => {
+    return allNotifications?.filter?.((notification) => !notification?.isRead);
+  }, [allNotifications]);
 
   useEffect(() => {
     if (unreadNotifications?.length) {
@@ -58,13 +63,13 @@ const NotificationPopover = () => {
                 .map((_, index) => (
                   <Skeleton key={index + _} className="h-14" />
                 ))}
-            {!loadingNotification && !unreadNotifications?.length && (
+            {!loadingNotification && !allNotifications?.length && (
               <div className="flex items-center justify-center h-40 text-sm text-gray-500">
-                <p>No unread Notifications</p>
+                <p>No Notifications</p>
               </div>
             )}
             <div className="flex flex-col">
-              {unreadNotifications?.map((notification) => (
+              {allNotifications?.map((notification) => (
                 <React.Fragment key={notification?.id}>
                   <PopoverClose asChild onClick={() => setOpen(false)}>
                     <NotificationCard

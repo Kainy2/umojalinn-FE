@@ -21,6 +21,7 @@ export type UmojaLinnProject = {
   approvedBudget: number | null;
   currency: null | UmojaLinnCurrency;
   sizingTemplateId: string | null;
+  percentageCompleted: number;
   deliveryAddress: {
     id: string;
     country: null | string;
@@ -268,7 +269,9 @@ export type UmojalinnWallet = {
   id: string;
   userId: string;
   ngnBalance: number;
+  ngnEscrowBalance: number;
   eurBalance: number;
+  eurEscrowBalance: number;
   transactions: UmojalinnWalletTransaction[];
 } & UmojaLinnTimestamp;
 

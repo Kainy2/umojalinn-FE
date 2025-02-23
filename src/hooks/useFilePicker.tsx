@@ -1,5 +1,6 @@
-import { fileToPreviewUrl } from "@/lib/utils";
+import { fileToPreviewUrl, formatSize } from "@/lib/utils";
 import React, { useRef, useState } from "react";
+import { useToast } from "./use-toast";
 
 export type FilePickerOptions = {
   accept?: React.ComponentProps<"input">["accept"];
@@ -42,6 +43,45 @@ const useFilePicker = (props: FilePickerOptions) => {
     previewUrl: preview,
     onClick: () => inputRef.current?.click?.(),
   };
+};
+
+export const useFileSizeError = (
+  limit: number,
+  title: string = "File size exceeded"
+) => {
+  const { toast } = useToast();
+
+  const isFileSizeValid = (file: File | FileList | Array<File | FileList>) => {
+    const size = calculateSize(file);
+    const valid = size <= limit;
+    if (!valid) {
+      toast({
+        title: `${title} error`,
+        description: `The file size limit is ${formatSize(
+          limit
+        )} and your file upload size is ${formatSize(size)}`,
+        variant: "destructive",
+      });
+    }
+    return valid;
+  };
+
+  return { isFileSizeValid };
+};
+
+const calculateSize = (
+  file: File | FileList | Array<File | FileList>,
+  size: number = 0
+): number => {
+  if (file instanceof File) {
+    return size + file.size;
+  } else if (file instanceof FileList || Array.isArray(file)) {
+    return Array.from(file).reduce(
+      (total, item) => calculateSize(item, total),
+      size
+    );
+  }
+  return size;
 };
 
 export default useFilePicker;

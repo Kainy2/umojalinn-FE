@@ -1,6 +1,9 @@
 import { FormTextField } from "@/components/custom/input/TextField";
 import { FormField } from "@/components/ui/form";
-import { RegistrationFormItemProps } from "@/lib/formTemplate";
+import {
+  LoginFormItemProps,
+  RegistrationFormItemProps,
+} from "@/lib/formTemplate";
 import { isPasswordField } from "@/lib/utils";
 import { PasswordFieldKeys } from "@/types/form";
 import { Eye, EyeOff } from "lucide-react";
@@ -32,7 +35,11 @@ type NestedFormItemProps = {
     password: boolean;
     confirmPassword: boolean;
   };
-  formItem: RegistrationFormItemProps | Array<RegistrationFormItemProps>;
+  formItem:
+    | RegistrationFormItemProps
+    | Array<RegistrationFormItemProps>
+    | LoginFormItemProps
+    | Array<LoginFormItemProps>;
   handleToggle: (name: "password" | "confirmPassword") => void;
 };
 

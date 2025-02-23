@@ -12,6 +12,8 @@ import { DialogClose, DialogTitle } from "@radix-ui/react-dialog";
 import React from "react";
 
 type VerifyDialogProps = {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   children: React.ReactNode;
   onConfirm: React.ComponentProps<"button">["onClick"];
   title: string;
@@ -27,7 +29,7 @@ type VerifyDialogProps = {
 
 const VerifyDialog = (props: VerifyDialogProps) => {
   return (
-    <Dialog>
+    <Dialog onOpenChange={props.onOpenChange} open={props.open}>
       <DialogTrigger asChild>{props.children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

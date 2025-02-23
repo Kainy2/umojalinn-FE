@@ -62,6 +62,7 @@ const ChatBubble = (props: UmojaLinnChat) => {
           {imageUrl && (
             <a
               download
+              target='_blank'
               href={imageUrl}
               className="w-full text-foreground-body border border-gray-200 rounded-md py-2.5 px-4 rounded-tr-none flex gap-4 items"
             >
@@ -121,6 +122,7 @@ const ChatBubble = (props: UmojaLinnChat) => {
         {imageUrl && (
           <a
             download
+            target="_blank"
             href={imageUrl}
             className="w-full text-foreground-body border border-gray-200 rounded-md py-2.5 px-4 rounded-tl-none flex gap-4 items"
           >

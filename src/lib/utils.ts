@@ -1,4 +1,3 @@
-import { RegistrationSchemaProps } from "@/types/form";
 import { clsx, type ClassValue } from "clsx";
 import { PhoneNumberUtil } from "google-libphonenumber";
 import { twMerge } from "tailwind-merge";
@@ -7,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function isPasswordField(name: keyof RegistrationSchemaProps) {
+export function isPasswordField(name: string) {
   return ["password", "confirmPassword"].includes(name);
 }
 
@@ -161,6 +160,10 @@ export function parseStringToNumber(input: string): ParsedNumber {
 
 export function formatFileSize(file: File): string {
   const sizeInBytes = file.size;
+  return formatSize(sizeInBytes);
+}
+
+export function formatSize(sizeInBytes: number): string {
   const units = ["Bytes", "KB", "MB", "GB", "TB"];
   let unitIndex = 0;
   let size = sizeInBytes;
@@ -170,7 +173,6 @@ export function formatFileSize(file: File): string {
     unitIndex++;
   }
 
-  // Format size to a maximum of 2 decimal places and remove trailing zeros
   const formattedSize = parseFloat(size.toFixed(2)).toString();
 
   return `${formattedSize} ${units[unitIndex]}`;

@@ -7,20 +7,24 @@ import { DayPicker, useDayPicker, useNavigation } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { format, setMonth } from "date-fns";
-import CustomSelect from "../custom/Select";
+import CustomReactSelect from "../custom/ReactSelect";
 
-export type CalendarProps = React.ComponentProps<typeof DayPicker>;
+export type CalendarProps = React.ComponentProps<typeof DayPicker> & {
+  onClosePopover?: () => void;
+};
 
 function Calendar({
   className,
   classNames,
   showOutsideDays = true,
+  onClosePopover,
   ...props
 }: CalendarProps) {
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
       className={cn("p-3", className)}
+      onDayClick={onClosePopover}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
@@ -75,22 +79,21 @@ function Calendar({
               label: format(setMonth(new Date(), i), "MMM"),
             }));
             return (
-              <CustomSelect
-                value={props?.value?.toLocaleString?.()}
-                onValueChange={(newValue) => {
+              <CustomReactSelect
+                placeholder="Month"
+                value={selectItems.find(
+                  ({ value }) => value === props?.value?.toLocaleString?.()
+                )}
+                className="w-18"
+                onChange={(newValue: unknown) => {
+                  const typeValue = newValue as { value: string };
                   const newDate = new Date(currentMonth);
-                  newDate.setMonth(parseInt(newValue));
+                  newDate.setMonth(parseInt(typeValue?.value));
                   goToMonth(newDate);
                 }}
                 adornment
-                trigger={{
-                  className: "max-w-[50px] inline-flex",
-                }}
                 // renderValue={() => format(currentMonth, "MMM")}
-                options={selectItems?.map((item) => ({
-                  value: item.value,
-                  children: item.label,
-                }))}
+                options={selectItems}
               />
             );
           } else if (props.name === "years") {
@@ -109,22 +112,22 @@ function Calendar({
                 })
               );
               return (
-                <CustomSelect
-                  value={props?.value?.toLocaleString?.()}
-                  onValueChange={(newValue) => {
+                <CustomReactSelect
+                  placeholder="Year"
+                  value={selectItems.find(
+                    ({ value }) =>
+                      value ===
+                      (props?.value || new Date().getFullYear())?.toString?.()
+                  )}
+                  className="w-18"
+                  onChange={(newValue: unknown) => {
+                    const typeValue = newValue as { value: string };
                     const newDate = new Date(currentMonth);
-                    newDate.setFullYear(parseInt(newValue));
+                    newDate.setFullYear(parseInt(typeValue?.value));
                     goToMonth(newDate);
                   }}
                   adornment
-                  trigger={{
-                    className: "max-w-[50px] inline-flex",
-                  }}
-                  // renderValue={() => currentMonth.getFullYear()}
-                  options={selectItems?.map((item) => ({
-                    value: item.value,
-                    children: item.label,
-                  }))}
+                  options={selectItems}
                 />
               );
             }
