@@ -27,6 +27,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { useGetAllSizingTemplates } from "@/tanstack/hooks/useSizingTemplates";
 import CustomSelectCountry from "@/components/custom/SelectCountry";
+import CustomReactSelect from "@/components/custom/ReactSelect";
 
 export type ProjectFormProps = {
   id: string;
@@ -208,7 +209,9 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
         >
           <FormTextField
             disabled
-            value={data?.data?.data?.designer?.user?.email || ""}
+            value={`${data?.data?.data?.designer?.user?.firstName || ""} ${
+              data?.data?.data?.designer?.user?.lastName || ""
+            }`}
             startAdornment={<UserPlus className="text-gray-400 h-5 w-5" />}
           />
         </FormItemWrapper>
@@ -229,18 +232,23 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
                     name="gender"
                     render={({ field }) => {
                       const options = [
-                        { value: "MALE", children: "Male" },
-                        { value: "FEMALE", children: "Female" },
+                        { value: "MALE", label: "Male" },
+                        { value: "FEMALE", label: "Female" },
                       ];
                       return (
-                        <CustomSelect
+                        <CustomReactSelect
                           {...field}
-                          defaultValue={field.value}
+                          value={options?.find(
+                            (opt) => opt?.value === field?.value
+                          )}
                           placeholder="Gender"
-                          // renderValue={(value) =>
-                          //   options.find((opt) => opt.value === value)?.children
-                          // }
-                          onValueChange={(value) => field.onChange(value)}
+                          onChange={(newValue: unknown) => {
+                            const typedValue = newValue as {
+                              value: string;
+                              label: string;
+                            };
+                            field.onChange(typedValue?.value);
+                          }}
                           adornment
                           options={options}
                         />
@@ -318,9 +326,14 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
                   <CustomSelectCountry
                     {...field}
                     value={field.value}
-                    defaultValue={field.value}
-                    onValueChange={(val) => field.onChange(val)}
-                    label="Country"
+                    onChange={(newValue: unknown) => {
+                      const typedValue = newValue as {
+                        value: string;
+                        label: string;
+                      };
+                      field.onChange(typedValue?.value);
+                    }}
+                    placeholder="Country"
                   />
                 );
               }}

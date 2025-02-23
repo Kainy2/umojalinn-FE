@@ -1,8 +1,6 @@
 "use client";
 import FormItemWrapper from "@/components/custom/FormItemWrapper";
-import CustomSelect, {
-  FormCustomSelectField,
-} from "@/components/custom/Select";
+import { FormCustomSelectField } from "@/components/custom/Select";
 import { FormTextField } from "@/components/custom/input/TextField";
 import { Form, FormField } from "@/components/ui/form";
 import { requirementsAndBugetSchema } from "@/lib/schema";
@@ -23,6 +21,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { ProjectFormProps } from "./Description";
 import TabButtonSelect from "@/components/custom/tab/ButtonSelect";
+import CustomReactSelect from "@/components/custom/ReactSelect";
 
 const EXPERIENCE_ENUMS = [
   "1 - 2 years",
@@ -182,13 +181,23 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
                       </span>
                     }
                     endAdornment={
-                      <CustomSelect
+                      <CustomReactSelect
                         {...currencyField}
+                        value={[
+                          { value: "EURO", label: "EUR" },
+                          { value: "NAIRA", label: "NGN" },
+                        ]?.find(({ value }) => value === currencyField?.value)}
                         options={[
-                          { value: "EURO", children: "EUR" },
-                          { value: "NAIRA", children: "NGN" },
+                          { value: "EURO", label: "EUR" },
+                          { value: "NAIRA", label: "NGN" },
                         ]}
-                        onValueChange={currencyField.onChange}
+                        onChange={(newValue: unknown) => {
+                          const typedValue = newValue as {
+                            value: "EURO" | "NAIRA";
+                            label: string;
+                          };
+                          currencyField.onChange(typedValue?.value);
+                        }}
                         adornment
                         placeholder="Currency"
                       />

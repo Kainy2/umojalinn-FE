@@ -1,5 +1,5 @@
 "use client";
-import WalletCard from "@/components/custom/card/Wallet";
+import WalletCard, { EscrowCard } from "@/components/custom/card/Wallet";
 import { Separator } from "@/components/ui/separator";
 import { useGetWallet } from "@/tanstack/hooks/useProject";
 import { UmojalinnWalletTransaction } from "@/types/project";
@@ -48,11 +48,12 @@ const WithdrawalPage = () => {
               value={wallet?.eurBalance || 0}
               href="/wallet/withdraw/euro"
             />
-            <WalletCard
-              subtitle="Money in Escrow"
-              currency="EURO"
-              value={0}
-              noAction
+            <EscrowCard
+              subtitle="Money in Escrows"
+              value={{
+                EURO: wallet?.eurEscrowBalance || 0,
+                NAIRA: wallet?.ngnEscrowBalance || 0,
+              }}
             />
           </div>
         </div>

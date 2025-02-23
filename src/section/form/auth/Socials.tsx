@@ -18,14 +18,14 @@ const socialButtonTemplate = [
     icon: "/img/svg/google.svg",
     id: "google",
   },
-  {
-    platform: "Facebook",
-    icon: "/img/svg/fb.svg",
-  },
-  {
-    platform: "Apple",
-    icon: "/img/svg/apple.svg",
-  },
+  // {
+  //   platform: "Facebook",
+  //   icon: "/img/svg/fb.svg",
+  // },
+  // {
+  //   platform: "Apple",
+  //   icon: "/img/svg/apple.svg",
+  // },
 ];
 
 const SocialsForm = (props: SocialsFormProps) => {

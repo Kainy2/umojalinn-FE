@@ -59,7 +59,9 @@ const OnboardProfilePhotoForm = (props: { role: UmojaLinnUserRole }) => {
       <div className="flex flex-col items-center justify-center">
         <ProfilePhotoPicker
           onSelect={(file) => {
-            if (file && isFileSizeValid(file)) return setPhoto(file);
+            if (file && isFileSizeValid(file)) {
+              return setPhoto(file);
+            }
           }}
         />
         {!!tag && (

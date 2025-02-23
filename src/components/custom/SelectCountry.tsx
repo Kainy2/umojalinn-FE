@@ -1,33 +1,33 @@
+"use client";
 import React from "react";
-import {
-  CustomGroupedOptionsProps,
-  CustomSelectField,
-  CustomSelectFieldProps,
-} from "./Select";
 import { countries } from "country-list-json";
+import {
+  CustomReactSelectField,
+  CustomReactSelectFieldProps,
+} from "./ReactSelect";
 
-const CustomSelectCountry = (props: CustomSelectFieldProps) => {
-  const options = countries.map((country) => {
-    return {
-      type: "option",
-      value: country?.name,
-      children: (
-        <span className="flex gap-2 items-center">
-          <span className="text-md rounded-full object-cover overflow-hidden">
-            {country?.flag}
-          </span>
-          <span>{country?.name}</span>
-        </span>
-      ),
-    } as CustomGroupedOptionsProps;
-  });
+import { createFilter } from "react-select";
+
+const options = countries.map((country) => {
+  return {
+    value: country?.name,
+    label: `${country?.flag} ${country?.name}`,
+  };
+});
+
+const filterConfig = {
+  ignoreCase: true,
+  matchFrom: "any" as const,
+};
+
+const CustomSelectCountry = (props: CustomReactSelectFieldProps) => {
+  // return null;
   return (
-    <CustomSelectField
+    <CustomReactSelectField
       {...props}
+      value={options?.find((opt) => opt?.value === props?.value)}
       options={options}
-      // renderValue={(value) =>
-      //   options.find((opt) => opt.value === value)?.children
-      // }
+      filterOption={createFilter(filterConfig)}
     />
   );
 };

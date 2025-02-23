@@ -1,17 +1,20 @@
 "use client";
+import VerifyDialog from "@/components/custom/dialog/Verify";
 import { Skeleton } from "@/components/ui/skeleton";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { useGetAllBuyerProject } from "@/tanstack/hooks/useProject";
 import { Trash2 } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
-import React from "react";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 import * as timeago from "timeago.js";
 
 const DraftCardList = () => {
+  const [verifyDelete, setVerifyDelete] = useState<boolean>(false);
   const { data, isPending } = useGetAllBuyerProject({
     projectStatus: "DRAFT",
   });
+  const router = useRouter();
 
   if (isPending) {
     return (
@@ -38,12 +41,34 @@ const DraftCardList = () => {
           (gallery) => gallery?.isCoverImage
         )?.imageUrl;
         return (
-          <Link
+          <button
             key={project?.id}
-            href={`/project/${uuidToBase62Safe(project?.id)}`}
-            className="relative card flex gap-4 hover:bg-gray-50 transition-colors"
+            onClick={() =>
+              router.push(`/project/${uuidToBase62Safe(project?.id)}`)
+            }
+            className="relative text-left card flex gap-4 hover:bg-gray-50 transition-colors"
           >
-            <Trash2 className="size-5 absolute top-4 right-4" />
+            <VerifyDialog
+              onOpenChange={setVerifyDelete}
+              open={verifyDelete}
+              title="Delete Draft Project"
+              description="Are you sure you want to delete this project? Deleting a project is permanent."
+              destructive
+              confirmText="Yes"
+              cancelText="No"
+              onConfirm={() => {}}
+            >
+              <button
+                className="absolute top-4 right-4 [&>svg]:size-5 p-2 "
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setVerifyDelete(true);
+                }}
+              >
+                <Trash2 />
+              </button>
+            </VerifyDialog>
             {imgSrc ? (
               <Image
                 alt=""
@@ -71,14 +96,14 @@ const DraftCardList = () => {
                   <div
                     className={`bg-primary h-full rounded-full`}
                     style={{
-                      width: `${0}%`,
+                      width: `${project?.percentageCompleted || 0}%`,
                     }}
                   />
                 </div>
-                <p>{0}%</p>
+                <p>{project?.percentageCompleted || 0}%</p>
               </div>
             </div>
-          </Link>
+          </button>
         );
       })}
     </div>

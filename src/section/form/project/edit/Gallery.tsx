@@ -19,6 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { ProjectFormProps } from "./Description";
 import FileUploadPicker from "@/components/custom/picker/FileUpload";
+import { useFileSizeError } from "@/hooks/useFilePicker";
 
 const ProjectGalleryForm = (props: ProjectFormProps) => {
   const id = useId();
@@ -28,6 +29,8 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
   );
   const { toast } = useToast();
   const router = useRouter();
+
+  const { isFileSizeValid } = useFileSizeError(1 * 1024 * 1024);
 
   const [values, setValues] = useState<
     {
@@ -241,7 +244,12 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
             />
             <FileUploadPicker
               accept="image/*"
-              onSelect={(file) => handleFileSelect(file as File)}
+              onSelect={(file) => {
+                const typedFile = file as File;
+                if (isFileSizeValid(typedFile)) {
+                  handleFileSelect(typedFile);
+                }
+              }}
             />
           </div>
         </div>

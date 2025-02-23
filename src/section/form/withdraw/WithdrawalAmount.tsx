@@ -19,7 +19,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import Paypal from "@/icons/Paypal";
 import CheckCircle from "@/icons/CheckCircle";
-import CustomSelectCountry from "@/components/custom/SelectCountry";
+import { useGetMe } from "@/tanstack/hooks/useUser";
+import { useRouter } from "next/router";
+import { useToast } from "@/hooks/use-toast";
+// import CustomSelectCountry from "@/components/custom/SelectCountry";
 
 const noPaypal = ["Nigeria"];
 const noPaypalOption = [
@@ -88,7 +91,13 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
     null | UmojaLinnWithdrawalMethod["channel"]
   >(null);
   const [agree, setAgree] = useState(false);
-  const [country, setCountry] = useState<string | null>(null);
+  const { data } = useGetMe();
+  const country =
+    data?.data?.data?.designerProfile?.user?.address?.country || "Nigeria";
+
+  const router = useRouter();
+  const { toast } = useToast();
+
   const [withdrawalMethod, setWithdrawalMethod] = useState<string | null>(null);
   const [amount, setAmount] = useState<string | null>(null);
 
@@ -148,6 +157,9 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
         swiftCode: "",
       });
       setPaymentMethod(null);
+      toast({
+        description: "Withdrawal method has been successfully created!!!",
+      });
     },
   });
   const { mutate: requestWithdrawal, isPending: isRequestingWithdrawal } =
@@ -166,6 +178,8 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
           swiftCode: "",
         });
         setPaymentMethod(null);
+        router.push("/wallet");
+        toast({ description: "Withdrawal has been successfully requested!!!" });
       },
     });
 
@@ -188,14 +202,6 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
 
   return (
     <div className="flex flex-col gap-6">
-      <CustomSelectCountry
-        value={country || ""}
-        defaultValue={country || ""}
-        onValueChange={(val) => setCountry(val)}
-        label="Country"
-        placeholder="Select your country"
-        hint="Our withdrawal options are customized to suit your location, ensuring effective withdrawals."
-      />
       {!!country && (
         <>
           {!!withdrawalMethodsData?.data?.data?.length && (

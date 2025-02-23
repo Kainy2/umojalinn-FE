@@ -57,6 +57,7 @@ const ReviewPage = () => {
         handleSave={async () => goLive(params?.id)}
         loading={isPending}
         hideDraft
+        saveText="Post"
       />
     </div>
   );

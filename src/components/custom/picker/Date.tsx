@@ -80,6 +80,8 @@ export const CustomDatePicker = React.forwardRef<
     // @ts-expect-error Generic
   >(!findIsDate(initValue) ? initValue : undefined);
 
+  const [open, setOpen] = React.useState<boolean>(false);
+
   const isDefault = type === "default";
 
   const date = React.useMemo(() => {
@@ -116,8 +118,8 @@ export const CustomDatePicker = React.forwardRef<
   }, [date, isDate, placeholder]);
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
+    <Popover {...{ open, onOpenChange: setOpen }}>
+      <PopoverTrigger asChild onClick={() => setOpen(true)}>
         <Button
           ref={ref as React.Ref<HTMLButtonElement & HTMLAnchorElement>}
           variant={"outline"}
@@ -146,6 +148,7 @@ export const CustomDatePicker = React.forwardRef<
         )}
         <div className={cn(preset && "rounded-md border")}>
           <Calendar
+            onClosePopover={() => setOpen(false)}
             mode={isDefault ? "single" : "range"}
             selected={date}
             captionLayout="dropdown-buttons"
