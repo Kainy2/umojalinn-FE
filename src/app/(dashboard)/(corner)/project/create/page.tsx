@@ -9,9 +9,9 @@ const CreateProjectPage = async (
   props: PageProps<unknown, { inviterTag?: string }>
 ) => {
   let url = "/unauthorized";
-  try {
-    const tag = await props.searchParams;
+  const tag = await props.searchParams;
 
+  try {
     const res = await createProject(
       {
         tag: tag?.inviterTag,
