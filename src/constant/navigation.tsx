@@ -1,6 +1,6 @@
 import { CustomSidebarMenuItemProps } from "@/components/custom/sidebar/MenuItem";
 import Activity from "@/icons/Activity";
-// import Bank from "@/icons/Bank";
+import Bank from "@/icons/Bank";
 import Grid01 from "@/icons/Grid01";
 // import MessageSquare02 from "@/icons/MessageSquare02";
 import SearchRefracted from "@/icons/SearchRefracted";
@@ -39,11 +39,12 @@ export const BUYERS_SIDEBAR_CONTENT: CustomSidebarMenuItemProps[] = [
   //   url: "#",
   //   icon: <Wallet02 />,
   // },
-  // {
-  //   title: "Escrow",
-  //   url: "#",
-  //   icon: <Bank />,
-  // },
+  {
+    title: "Escrow",
+    url: "/escrow",
+    icon: <Bank />,
+    regex: /^\/(escrow$|escrow\/.*)/,
+  },
   {
     isAd: true,
     title: "Got any feedback in mind?",

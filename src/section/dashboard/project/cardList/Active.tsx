@@ -10,7 +10,7 @@ import { useParams } from "next/navigation";
 import React from "react";
 
 type ActiveProjectCardListProps = {
-  baseUrlSlug?: "projects" | "active-jobs";
+  baseUrlSlug?: "projects" | "active-jobs" | "escrow";
 };
 
 const ActiveProjectCardList = (props: ActiveProjectCardListProps) => {
@@ -25,6 +25,15 @@ const ActiveProjectCardList = (props: ActiveProjectCardListProps) => {
         enabled: baseUrlSlug === "projects",
       }
     );
+  const { data: escrowProjects, isPending: loadingEscrowProjects } =
+    useGetAllBuyerProject(
+      {
+        projectStatus: ["LIVE", "COMPLETED"],
+      },
+      {
+        enabled: baseUrlSlug === "escrow",
+      }
+    );
   const { data: designerProjects, isPending: loadingDesignerProjects } =
     useGetAllDesignerProject(
       {
@@ -36,11 +45,19 @@ const ActiveProjectCardList = (props: ActiveProjectCardListProps) => {
     );
 
   const projectsData = (
-    baseUrlSlug === "projects" ? buyerProjects : designerProjects
+    baseUrlSlug === "projects"
+      ? buyerProjects
+      : baseUrlSlug === "escrow"
+      ? escrowProjects
+      : designerProjects
   )?.data?.data;
 
   const isPending =
-    baseUrlSlug === "projects" ? loadingBuyerProjects : loadingDesignerProjects;
+    baseUrlSlug === "projects"
+      ? loadingBuyerProjects
+      : baseUrlSlug === "escrow"
+      ? loadingEscrowProjects
+      : loadingDesignerProjects;
 
   return (
     <CustomCardHolder type="PROJECT" loading={isPending}>
