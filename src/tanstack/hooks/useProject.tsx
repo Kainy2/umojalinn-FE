@@ -1,4 +1,5 @@
 import {
+  addProjectReview,
   approveOrRejectMilestone,
   createWithdrawalMethod,
   deleteProjectById,
@@ -392,6 +393,30 @@ export const useDeleteProject = (
     mutationFn: (id) => deleteProjectById(id),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: [PROJECT] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useAddProjectReview = (
+  id: string = "",
+  options?: GenericUseMutationProps<
+    SingleApiResponse<UmojaLinnProject>,
+    FormData
+  >
+) => {
+  const { handleError } = useHandleError("Add Review");
+  return useMutation({
+    ...options,
+    mutationFn: (variables) => addProjectReview(id, variables),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: [PROJECT],
+      });
       options?.onSuccess?.(data, variables, context);
     },
     onError: (error, variables, context) => {

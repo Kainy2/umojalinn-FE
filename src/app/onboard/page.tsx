@@ -57,7 +57,7 @@ const OnboardPage = async () => {
             props.src
           )}
         >
-          <div className="text-white absolute bottom-0 p-8 lg:p-20  opacity-100 lg:opacity-0 dev:group-hover:opacity-100 dev:transition-all dev:duration-300">
+          <div className="text-white absolute bottom-0 p-8 lg:p-20  opacity-100 dev:lg:opacity-0 dev:group-hover:opacity-100 dev:transition-all dev:duration-300">
             <h2 className="text-lg md:text-xl font-semibold mb-2">
               {props.title}
             </h2>

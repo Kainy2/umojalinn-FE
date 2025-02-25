@@ -193,8 +193,8 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
               <TextField
                 value={value.title}
                 onChange={handleTitleChange(index)}
-                maxLength={15}
-                hint={`${value?.title?.length || 0}/15 characters`}
+                maxLength={100}
+                hint={`${value?.title?.length || 0}/100 characters`}
               />
               <div>
                 <div className="relative h-52 mb-4">
@@ -237,10 +237,10 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
             )}
           >
             <TextField
-              maxLength={15}
+              maxLength={100}
               value={entryTitle}
               onChange={(e) => setEntryTitle(e.currentTarget.value)}
-              hint={`${entryTitle?.length || 0} / 15 characters`}
+              hint={`${entryTitle?.length || 0} / 100 characters`}
             />
             <FileUploadPicker
               accept="image/*"

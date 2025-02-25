@@ -40,7 +40,7 @@ const CustomTabItemWrapper = (
   );
   if (props?.type === "NAVIGATOR") {
     className = cn(
-      "px-6 py-3 text-sm font-semibold border-b-2 transition-colors duration-200 leading-normal",
+      "px-6 py-3 text-sm font-semibold border-b-2 transition-colors duration-200 leading-normal whitespace-nowrap",
       props.active
         ? "border-primary text-primary"
         : "border-transparent text-gray-500 hover:text-primary",

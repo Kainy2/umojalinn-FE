@@ -6,10 +6,12 @@ import { usePathname } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { useGetAllDesignerProject } from "@/tanstack/hooks/useProject";
+import { SheetClose } from "@/components/ui/sheet";
 
 type GenericCustomSidebarMenuItemProps = {
   title: string;
   regex?: RegExp;
+  isMobile?: boolean;
 };
 
 type AdCustomSidebarMenuItemProps = GenericCustomSidebarMenuItemProps & {
@@ -51,6 +53,10 @@ const CustomSidebarMenuItem = (props: CustomSidebarMenuItemProps) => {
     }
   }, [privateJobAdsWithoutBidProjectsData?.data?.data?.length, props?.title]);
 
+  const MenuButton = props.isMobile ? SheetClose : SidebarMenuButton;
+
+  // const AdLinkWrapper = props.isMobile ? SheetClose : "div";
+
   if (props.isAd) {
     return (
       <div key={props.title} className="bg-gray-50 px-2 py-6 my-2 block">
@@ -71,8 +77,14 @@ const CustomSidebarMenuItem = (props: CustomSidebarMenuItemProps) => {
   }
 
   return (
-    <SidebarMenuItem key={props.title}>
-      <SidebarMenuButton
+    <SidebarMenuItem
+      className={cn(
+        props.isMobile &&
+          "list-none [&>a]:flex [&>a]:items-center [&>a]:w-full [&>a]:gap-2"
+      )}
+      key={props.title}
+    >
+      <MenuButton
         asChild
         className={cn(
           "rounded-none p-3 h-10",
@@ -94,7 +106,7 @@ const CustomSidebarMenuItem = (props: CustomSidebarMenuItemProps) => {
             </span>
           )}
         </Link>
-      </SidebarMenuButton>
+      </MenuButton>
     </SidebarMenuItem>
   );
 };

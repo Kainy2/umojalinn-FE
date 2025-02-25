@@ -71,7 +71,7 @@ export const getDesignerSizingTemplates = async (
   >(`/sizing-template/designer/all`);
 };
 
-export const getSizingTemplateById = async (
+export const getBuyerSizingTemplateById = async (
   id: string,
   options?: ServerActionOption
 ) => {
@@ -83,6 +83,20 @@ export const getSizingTemplateById = async (
     unknown,
     AxiosResponse<SingleApiResponse<UmojaLinnSizingTemplate>>
   >(`/sizing-template/${base62ToUuidSafe(id)}`);
+};
+
+export const getDesignerSizingTemplateById = async (
+  id: string,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.get<
+    unknown,
+    AxiosResponse<SingleApiResponse<UmojaLinnSizingTemplate>>
+  >(`/sizing-template/designer/${base62ToUuidSafe(id)}`);
 };
 
 export const deleteSizingTemplate = async (

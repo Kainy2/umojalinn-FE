@@ -10,6 +10,7 @@ import { useGetMe } from "@/tanstack/hooks/useUser";
 import { ChevronDown, LogOut, Search } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import React from "react";
+import MobileMenu from "../sidebar/Mobile";
 
 const DashboardAppbarContent = () => {
   const { data: meData } = useGetMe();
@@ -19,6 +20,7 @@ const DashboardAppbarContent = () => {
   return (
     <>
       <div className="flex-1 max-w-96">
+        <MobileMenu />
         <div className="hidden lg:block">
           <TextField
             className=" focus-visible:!ring-transparent !ring-transparent transition-none"

@@ -2,8 +2,9 @@ import {
   addSizingTemplateToProject,
   createSizingTemplate,
   deleteSizingTemplate,
+  getBuyerSizingTemplateById,
+  getDesignerSizingTemplateById,
   getDesignerSizingTemplates,
-  getSizingTemplateById,
   getSizingTemplates,
   postSizingTemplateLive,
   updateSizingTemplate,
@@ -104,7 +105,10 @@ export const useGetSizingTemplateById = (
     ...options,
     enabled: !!me?.user && !!id && options?.enabled !== false,
     queryKey: [SIZING_TEMPLATE, id],
-    queryFn: () => getSizingTemplateById(id || ""),
+    queryFn: () =>
+      (me?.user?.profileRole === "BUYER"
+        ? getBuyerSizingTemplateById
+        : getDesignerSizingTemplateById)(id || ""),
   });
 };
 

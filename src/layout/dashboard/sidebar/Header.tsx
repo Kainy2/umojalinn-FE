@@ -20,7 +20,7 @@ const DashboardSidebarHeader = async () => {
         disabled
       >
         {/* <Link href="/project/create"> */}
-        <span className="flex">
+        <span className="flex items-center gap-1">
           <Plus />
           {token?.user?.profileRole === "DESIGNER"
             ? "Share your work"

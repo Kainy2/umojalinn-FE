@@ -78,23 +78,32 @@ const ProjectReviewView = (props: {
           </p>
         </div>
       </div>
-      <div>
-        <h3 className="text-md font-semibold text-foreground mb-2">
-          Project Gallery
-        </h3>
-        <div className="flex flex-row gap-4">
-          {props?.project?.Gallery?.map?.((gallery) => (
-            <Image
-              key={gallery?.id}
-              alt=""
-              src={gallery.imageUrl || "/img/svg/null.svg"}
-              className="shrink-0 aspect-video object-cover"
-              width={310}
-              height={170}
-            />
-          ))}
+      {props?.project?.Gallery?.length && (
+        <div>
+          <h3 className="text-md font-semibold text-foreground mb-2">
+            Project Gallery
+          </h3>
+          <div className="flex flex-row gap-4 overflow-scroll">
+            {props?.project?.Gallery?.map?.((gallery) => (
+              <div
+                style={{ width: 310, height: 170 }}
+                key={gallery?.id}
+                className="relative aspect-video"
+              >
+                <Image
+                  alt=""
+                  src={gallery.imageUrl || "/img/svg/null.svg"}
+                  className="shrink-0  object-cover absolute"
+                  fill
+                />
+                <p className="truncate absolute bottom-0 px-4 py-2 max-h-full overflow-scroll">
+                  {gallery?.title}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
       <Collapsible title="Delivery Details">
         <LabelBadge
           title="Country"

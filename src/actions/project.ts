@@ -80,6 +80,21 @@ export const deleteProjectById = async (
   >(`/project/${base62ToUuidSafe(id)}`);
 };
 
+export const addProjectReview = async (
+  id: string,
+  review: FormData,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<
+    unknown,
+    AxiosResponse<SingleApiResponse<UmojaLinnProject>>
+  >(`/project/add-review/${base62ToUuidSafe(id)}`, review);
+};
+
 export const getClothingTypes = async (options?: ServerActionOption) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
