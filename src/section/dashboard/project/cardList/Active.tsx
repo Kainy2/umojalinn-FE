@@ -6,6 +6,7 @@ import {
   useGetAllBuyerProject,
   useGetAllDesignerProject,
 } from "@/tanstack/hooks/useProject";
+import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import React from "react";
 
@@ -16,6 +17,9 @@ type ActiveProjectCardListProps = {
 const ActiveProjectCardList = (props: ActiveProjectCardListProps) => {
   const { baseUrlSlug = "projects" } = props;
   const params = useParams<{ id: string }>();
+
+  const { data: session } = useSession();
+
   const { data: buyerProjects, isPending: loadingBuyerProjects } =
     useGetAllBuyerProject(
       {
@@ -25,15 +29,30 @@ const ActiveProjectCardList = (props: ActiveProjectCardListProps) => {
         enabled: baseUrlSlug === "projects",
       }
     );
-  const { data: escrowProjects, isPending: loadingEscrowProjects } =
+  const { data: escrowBuyerProjects, isPending: loadingEscrowBuyerProjects } =
     useGetAllBuyerProject(
       {
         projectStatus: ["LIVE", "COMPLETED"],
       },
       {
-        enabled: baseUrlSlug === "escrow",
+        enabled:
+          baseUrlSlug === "escrow" && session?.user?.profileRole === "BUYER",
       }
     );
+
+  const {
+    data: escrowDesignerProjects,
+    isPending: loadingEscrowDesignerProjects,
+  } = useGetAllDesignerProject(
+    {
+      projectStatus: ["LIVE", "COMPLETED"],
+    },
+    {
+      enabled:
+        baseUrlSlug === "escrow" && session?.user?.profileRole === "DESIGNER",
+    }
+  );
+
   const { data: designerProjects, isPending: loadingDesignerProjects } =
     useGetAllDesignerProject(
       {
@@ -43,6 +62,16 @@ const ActiveProjectCardList = (props: ActiveProjectCardListProps) => {
         enabled: baseUrlSlug === "active-jobs",
       }
     );
+
+  const escrowProjects =
+    session?.user?.profileRole === "DESIGNER"
+      ? escrowDesignerProjects
+      : escrowBuyerProjects;
+
+  const loadingEscrowProjects =
+    session?.user?.profileRole === "DESIGNER"
+      ? loadingEscrowDesignerProjects
+      : loadingEscrowBuyerProjects;
 
   const projectsData = (
     baseUrlSlug === "projects"

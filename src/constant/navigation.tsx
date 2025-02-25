@@ -66,7 +66,7 @@ export const BUYERS_SIDEBAR_CONTENT: CustomSidebarMenuItemProps[] = [
 export const DESIGNERS_SIDEBAR_CONTENT: CustomSidebarMenuItemProps[] = [
   {
     title: "Dashboard",
-    url: "/",
+    url: "/dashboard",
     icon: <Grid01 />,
     regex:
       /(^\/$|^\/dashboard|^\/dashboard\/.*|^\/bids$|^\/bids\/.*|^\/active-jobs$|^\/active-jobs\/.*)/,
@@ -93,11 +93,12 @@ export const DESIGNERS_SIDEBAR_CONTENT: CustomSidebarMenuItemProps[] = [
     icon: <Wallet02 />,
     regex: /(^\/wallet$|^\/wallet\/.*)/,
   },
-  // {
-  //   title: "Escrow",
-  //   url: "#",
-  //   icon: <Bank />,
-  // },
+  {
+    title: "Escrow",
+    url: "/escrow",
+    icon: <Bank />,
+    regex: /^\/(escrow$|escrow\/.*)/,
+  },
   {
     isAd: true,
     title: "Got any feedback in mind?",

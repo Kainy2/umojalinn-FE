@@ -2,7 +2,10 @@
 import VerifyDialog from "@/components/custom/dialog/Verify";
 import { Skeleton } from "@/components/ui/skeleton";
 import { uuidToBase62Safe } from "@/lib/uuid";
-import { useGetAllBuyerProject } from "@/tanstack/hooks/useProject";
+import {
+  useDeleteProject,
+  useGetAllBuyerProject,
+} from "@/tanstack/hooks/useProject";
 import { Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -15,6 +18,8 @@ const DraftCardList = () => {
     projectStatus: "DRAFT",
   });
   const router = useRouter();
+
+  const { mutate: deleteProjectById } = useDeleteProject();
 
   if (isPending) {
     return (
@@ -52,11 +57,14 @@ const DraftCardList = () => {
               onOpenChange={setVerifyDelete}
               open={verifyDelete}
               title="Delete Draft Project"
-              description="Are you sure you want to delete this project? Deleting a project is permanent."
+              description="Are you sure you want to delete your project? This action cannot be undone"
               destructive
               confirmText="Yes"
               cancelText="No"
-              onConfirm={() => {}}
+              onConfirm={() => {
+                deleteProjectById(project?.id);
+                setVerifyDelete(false);
+              }}
             >
               <button
                 className="absolute top-4 right-4 [&>svg]:size-5 p-2 "

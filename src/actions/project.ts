@@ -66,6 +66,20 @@ export const getProjectById = async (
   );
 };
 
+export const deleteProjectById = async (
+  id: string,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.delete<
+    unknown,
+    AxiosResponse<SingleApiResponse<UmojaLinnProject>>
+  >(`/project/${base62ToUuidSafe(id)}`);
+};
+
 export const getClothingTypes = async (options?: ServerActionOption) => {
   let axios = clientAxios;
   if (options?.isServerAction) {

@@ -15,7 +15,7 @@ export type UmojaLinnProject = {
   fundStatus: "AWAITING_FUND" | "PROCESSING" | "FUNDED";
   buyerId: string;
   designerId: string;
-  budget: number | null | string;
+  budget: number | null;
   escrowBalance: number | null;
   amountFunded: number | null;
   approvedBudget: number | null;

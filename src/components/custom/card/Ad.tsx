@@ -7,12 +7,13 @@ import Link from "next/link";
 import React from "react";
 import * as timeago from "timeago.js";
 import { BidCardFooterValues } from "./Bid";
+import { formatCurrencyValue } from "@/lib/number";
 
 const AdCard = (props: { project: UmojaLinnProject }) => {
   return (
     <Link
       href={`/jobs/${uuidToBase62Safe(props.project?.id)}`}
-      className="flex flex-col gap-4 items-stretch lg:flex-row border-2 border-gray-100 rounded-sm p-4"
+      className="flex flex-col gap-4 lg:gap-8 items-stretch lg:flex-row border-2 border-gray-100 rounded-sm p-4"
     >
       <div className="lg:hidden flex gap-2 items-center">
         <Image
@@ -72,7 +73,7 @@ const AdCard = (props: { project: UmojaLinnProject }) => {
           <CircleDollarSign />
           <p>
             {getCurrencySymbol(props.project?.currency)}
-            {props.project?.budget || 0}
+            {formatCurrencyValue(props.project?.budget || 0)}
           </p>
         </div>
 

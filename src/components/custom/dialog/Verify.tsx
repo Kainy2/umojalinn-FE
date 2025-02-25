@@ -14,7 +14,7 @@ import React from "react";
 type VerifyDialogProps = {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   onConfirm: React.ComponentProps<"button">["onClick"];
   title: string;
   description: React.ReactNode;
@@ -30,7 +30,9 @@ type VerifyDialogProps = {
 const VerifyDialog = (props: VerifyDialogProps) => {
   return (
     <Dialog onOpenChange={props.onOpenChange} open={props.open}>
-      <DialogTrigger asChild>{props.children}</DialogTrigger>
+      {props.children && (
+        <DialogTrigger asChild>{props.children}</DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="font-semibold">{props.title}</DialogTitle>

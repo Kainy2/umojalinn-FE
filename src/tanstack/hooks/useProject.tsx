@@ -1,6 +1,7 @@
 import {
   approveOrRejectMilestone,
   createWithdrawalMethod,
+  deleteProjectById,
   fundMilestone,
   fundProject,
   getAllBuyerProjects,
@@ -373,6 +374,24 @@ export const useRequestWithdrawal = (
       queryClient.invalidateQueries({
         queryKey: [PROJECT, WALLET, WITHDRAWAL_METHODS],
       });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useDeleteProject = (
+  options?: GenericUseMutationProps<SingleApiResponse, string>
+) => {
+  const { handleError } = useHandleError("Delete Project");
+  return useMutation({
+    ...options,
+    mutationFn: (id) => deleteProjectById(id),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [PROJECT] });
       options?.onSuccess?.(data, variables, context);
     },
     onError: (error, variables, context) => {
