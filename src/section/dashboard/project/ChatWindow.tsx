@@ -12,7 +12,7 @@ import { UmojaLinnChat } from "@/types/project";
 import { sendChatInProject } from "@/actions/project";
 import ChatBubble from "@/components/custom/chat/Bubble";
 import { ImageIcon, X } from "lucide-react";
-import useFilePicker from "@/hooks/useFilePicker";
+import useFilePicker, { useFileSizeError } from "@/hooks/useFilePicker";
 import Image from "next/image";
 import useHandleError from "@/hooks/useHandleError";
 
@@ -29,9 +29,11 @@ const ChatWindow = (props: ChatWindowProps) => {
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [images, setImages] = useState<File[]>([]);
   const { handleError } = useHandleError("Send Chat");
-  const { Input, onClick } = useFilePicker({
+  const { isFileSizeValid } = useFileSizeError(1 * 1024 * 1024);
+  const { Input, onClick: handleFilePick } = useFilePicker({
     onSelect: (file: File | FileList | null) => {
       let files = images;
+      if (file && !isFileSizeValid(file)) return;
       if (file instanceof FileList) {
         for (const f of file) {
           files = [...files, f];
@@ -142,6 +144,14 @@ const ChatWindow = (props: ChatWindowProps) => {
           onChange={(e) => setMessage(e?.target?.value)}
           placeholder="Send a message"
           className="w-full resize-none mb-4 focus-visible:ring-transparent focus-visible:outline-none"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault(); // Prevent newline
+              if (message.trim()) {
+                handleSend(); // Send message
+              }
+            }
+          }}
         />
         <div className="flex flex-wrap gap-4">
           {previewUrls.map((previewUrl, i) => (
@@ -170,7 +180,7 @@ const ChatWindow = (props: ChatWindowProps) => {
 
         <div className="flex gap-4 justify-end items-center">
           <button
-            onClick={onClick}
+            onClick={handleFilePick}
             className="[&>svg]:size-5 text-foreground-body "
           >
             <ImageIcon />

@@ -58,6 +58,19 @@ export const getSizingTemplates = async (
   >(`/sizing-template/all${apiParams ? convertApiParams(apiParams) : ""}`);
 };
 
+export const getDesignerSizingTemplates = async (
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.get<
+    unknown,
+    AxiosResponse<ArrayApiResponse<UmojaLinnSizingTemplate>>
+  >(`/sizing-template/designer/all`);
+};
+
 export const getSizingTemplateById = async (
   id: string,
   options?: ServerActionOption

@@ -77,11 +77,12 @@ export const DESIGNERS_SIDEBAR_CONTENT: CustomSidebarMenuItemProps[] = [
     icon: <SearchRefracted />,
     regex: /(^\/jobs$|^\/jobs\/.*)/,
   },
-  // {
-  //   title: "Sizing Templates",
-  //   url: "#",
-  //   icon: <Tag03 />,
-  // },
+  {
+    title: "Sizing Templates",
+    url: "/sizing-templates",
+    icon: <Tag03 />,
+    regex: /^\/(sizing-templates$)/,
+  },
   // {
   //   title: "Messages",
   //   url: "#",

@@ -2,6 +2,7 @@ import {
   addSizingTemplateToProject,
   createSizingTemplate,
   deleteSizingTemplate,
+  getDesignerSizingTemplates,
   getSizingTemplateById,
   getSizingTemplates,
   postSizingTemplateLive,
@@ -79,6 +80,18 @@ export const useGetAllSizingTemplates = (
     enabled: !!me?.user && options?.enabled !== false,
     queryKey: [SIZING_TEMPLATE, apiParams],
     queryFn: () => getSizingTemplates(apiParams),
+  });
+};
+
+export const useGetAllDesignerSizingTemplates = (
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnSizingTemplate>>
+) => {
+  const { data: me } = useSession();
+  return useQuery({
+    ...options,
+    enabled: !!me?.user && options?.enabled !== false,
+    queryKey: [SIZING_TEMPLATE, "DESIGNER"],
+    queryFn: () => getDesignerSizingTemplates(),
   });
 };
 

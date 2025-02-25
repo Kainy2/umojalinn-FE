@@ -12,7 +12,7 @@ export const GET = async (req: NextRequest) => {
     const response = await customAxios.get<
       unknown,
       AxiosResponse<ArrayApiResponse<UmojaLinnSizingTemplate>, unknown>
-    >(`/sizing-template/all${handleQueryParams(req, true)}`);
+    >(`/sizing-template/designer/all${handleQueryParams(req, true)}`);
 
     return NextResponse.json(response.data);
   } catch (error) {
