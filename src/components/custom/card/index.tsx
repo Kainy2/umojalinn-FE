@@ -77,7 +77,8 @@ const CustomCard = (props: CustomCardProps) => {
         href={props.href}
         onClick={props.onClick as ComponentProps<"a">["onClick"]}
         className={cn(
-          "relative h-28 min-w-80 flex p-12 items-center justify-center border-b-2 border-primary bg-gray-100",
+          "relative h-28 min-w-80 flex p-12 items-center justify-center border-b-2 border-gray-400 bg-gray-100",
+          props.color === "primary" && "border-primary",
           props.color === "blue" && "border-blue-500",
           props.color === "error" && "border-error",
           props.color === "success" && "border-success"

@@ -93,8 +93,11 @@ const ActiveProjectCardList = (props: ActiveProjectCardListProps) => {
       {projectsData?.map((project) => (
         <CustomCard
           key={project?.id}
-          preTitle={
+          preTitle={project?.projectType === "PRIVATE"}
+          color={
             uuidToBase62Safe(params?.id) === uuidToBase62Safe(project?.id)
+              ? "primary"
+              : undefined
           }
           img={
             project?.Gallery?.find((gallery) => gallery.isCoverImage)?.imageUrl

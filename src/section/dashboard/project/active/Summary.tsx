@@ -13,7 +13,7 @@ type ActiveProjectSummaryProps = {
 };
 
 const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
-  const { isDesigner = true } = props;
+  const { isDesigner = false } = props;
   const params = useParams<{ id: string }>();
   const { data, isPending } = useGetProjectById(params?.id);
   if (isPending) {
