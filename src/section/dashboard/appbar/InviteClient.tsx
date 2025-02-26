@@ -62,7 +62,8 @@ const InviteClient = () => {
           variant="ghost"
           className={cn("font-normal", !me?.data?.data && "hidden")}
         >
-          <UserRoundPlus className="icon-base" /> Invite Client
+          <UserRoundPlus className="icon-base" />{" "}
+          <span className="hidden md:inline">Invite Client</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
@@ -70,8 +71,10 @@ const InviteClient = () => {
           <span className="mb-2 border border-border/50 rounded-md h-12 w-12 flex items-center justify-center">
             <UserRoundPlus className="icon-base" />
           </span>
-          <DialogTitle className="text-[18px]">Invite Client</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-[18px] text-left">
+            Invite Client
+          </DialogTitle>
+          <DialogDescription className="text-left">
             Manage all your jobs in one place - invite client to create their
             project with you here on Umoja linn. Click enter after typing each
             valid email.

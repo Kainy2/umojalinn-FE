@@ -34,6 +34,8 @@ const SizigTemplateTab = () => {
     },
   ];
 
+  if (!session?.user?.profileRole) return null;
+
   if (session?.user?.profileRole === "DESIGNER") {
     return (
       <p className="text-foreground-body mb-4">

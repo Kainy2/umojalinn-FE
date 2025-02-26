@@ -9,6 +9,7 @@ import {
   SheetContent,
   SheetFooter,
   SheetHeader,
+  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { signOut, useSession } from "next-auth/react";
@@ -28,6 +29,7 @@ const MobileMenu = () => {
       </SheetTrigger>
       <SheetContent side="left" className="w-[350px] flex flex-col">
         <SheetHeader>
+          <SheetTitle className="hidden">Menu</SheetTitle>
           <Image
             src="/img/png/umoja.png"
             alt="Umoja logo"
