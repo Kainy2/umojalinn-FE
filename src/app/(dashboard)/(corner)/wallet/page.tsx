@@ -67,7 +67,7 @@ const WithdrawalPage = () => {
           <Separator className="bg-border/50" />
           {transactions?.map?.((trans: UmojalinnWalletTransaction) => (
             <div
-              className="flex items-center text-foreground-body gap-1 border-b border-border/50"
+              className="flex items-center text-foreground-body gap-1 border-b border-border/50 py-2"
               key={trans?.id}
             >
               {trans?.paymentChannel && (
