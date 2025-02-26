@@ -111,7 +111,7 @@ const EscrowCard = (props: EscrowCardProps) => {
           wallet.
         </span>
       </div>
-      {props?.reviews?.length && <Separator className="my-4" />}
+      {!!props?.reviews?.length && <Separator className="my-4" />}
       <div className="flex flex-col gap-8">
         {props.reviews?.map?.((review) => {
           return (

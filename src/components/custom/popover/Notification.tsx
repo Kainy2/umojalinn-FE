@@ -68,7 +68,7 @@ const NotificationPopover = () => {
                 <p>No Notifications</p>
               </div>
             )}
-            <div className="flex flex-col">
+            <div className="flex flex-col max-h-[70vh] overflow-scroll">
               {allNotifications?.map((notification) => (
                 <React.Fragment key={notification?.id}>
                   <PopoverClose asChild onClick={() => setOpen(false)}>
