@@ -47,6 +47,7 @@ export type MilestoneTimelineProps = {
   isDesigner?: boolean;
   isBuyer?: boolean;
   currency: UmojaLinnProject["currency"];
+  projectId?: string;
 };
 
 const getMilestoneStatus = (
@@ -73,6 +74,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
   isBuyer,
   isDesigner,
   currency,
+  projectId
 }) => {
   const [message, setMessage] = React.useState<string>("");
   const [files, setFiles] = React.useState<FileList | null>(null);
@@ -250,7 +252,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                     setFiles(null);
                   }}
                   deliverySubmission={editableDeliverySubmission}
-                  {...{ isBuyer, isDesigner, isDelivery }}
+                  {...{ isBuyer, isDesigner, isDelivery, projectId }}
                   onActionClick={(action) => {
                     console.log(action);
                   }}

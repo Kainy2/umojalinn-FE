@@ -19,6 +19,7 @@ const ActiveProjectChatPage = () => {
       <ChatWindow projectId={id} />
       <aside className="md:max-w-80 flex-1 w-full shrink-0">
         <EscrowCard
+          projectId={projectData?.data?.data?.id}
           milestones={projectMilestonesData?.data?.data || []}
           paidOut={projectData?.data?.data?.amountFunded || 0}
           currency={projectData?.data?.data?.currency}

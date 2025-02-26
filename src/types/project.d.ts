@@ -22,6 +22,7 @@ export type UmojaLinnProject = {
   currency: null | UmojaLinnCurrency;
   sizingTemplateId: string | null;
   percentageCompleted: number;
+  reviews: Array<UmojaLinnProjectReview> | null;
   deliveryAddress: {
     id: string;
     country: null | string;
@@ -289,4 +290,17 @@ export type UmojaLinnChat = {
   type: "MESSAGE" | "NOTIFICATION";
   severity?: "ERROR" | "SUCCESS";
   createdAt: string | Date;
+};
+
+export type UmojaLinnProjectReview = {
+  id: string;
+  designerId: null | string;
+  buyerId: null | string;
+  projectId: string;
+  rating: number;
+  message: string;
+  images: string[];
+  reviewType: "EXPERIENCE" | "CLOTHING_QUALITY";
+  buyer: Pick<UmojaLinnUserRoleProfile, "user"> | null;
+  designer: Pick<UmojaLinnUserRoleProfile, "user"> | null;
 };

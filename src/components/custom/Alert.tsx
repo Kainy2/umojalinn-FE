@@ -3,7 +3,7 @@ import { ClassValue } from "clsx";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import React from "react";
 
-type AlertProps = {
+export type AlertProps = {
   title: string;
   message: string;
   type?: "success" | "error" | "warning" | "info";

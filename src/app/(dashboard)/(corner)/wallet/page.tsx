@@ -10,6 +10,7 @@ import Bank from "@/icons/Bank";
 import { capitalizeFirstLetter, getCurrencySymbol } from "@/lib/string";
 import { formatCurrencyValue } from "@/lib/number";
 import { formatDate } from "date-fns";
+import { useSession } from "next-auth/react";
 
 const getTransactionIcon = (
   channel: UmojalinnWalletTransaction["paymentChannel"]
@@ -27,6 +28,8 @@ const WithdrawalPage = () => {
   const { data: walletData } = useGetWallet();
   const wallet = walletData?.data?.data;
   const { transactions } = wallet || {};
+  const { data: session } = useSession();
+  const isDesigner = session?.user?.profileRole === "DESIGNER";
 
   return (
     <>
@@ -48,13 +51,15 @@ const WithdrawalPage = () => {
               value={wallet?.eurBalance || 0}
               href="/wallet/withdraw/euro"
             />
-            <EscrowCard
-              subtitle="Money in Escrows"
-              value={{
-                EURO: wallet?.eurEscrowBalance || 0,
-                NAIRA: wallet?.ngnEscrowBalance || 0,
-              }}
-            />
+            {isDesigner && (
+              <EscrowCard
+                subtitle="Money in Escrows"
+                value={{
+                  EURO: wallet?.eurEscrowBalance || 0,
+                  NAIRA: wallet?.ngnEscrowBalance || 0,
+                }}
+              />
+            )}
           </div>
         </div>
         <div className="flex-1 shrink-0  lg:max-w-[500px] p-8 border border-border/50">

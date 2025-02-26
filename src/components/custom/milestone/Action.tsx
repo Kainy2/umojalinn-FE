@@ -12,6 +12,7 @@ import {
 } from "@/tanstack/hooks/useProject";
 import { jsonToFormData } from "@/lib/utils";
 import RejectMilestoneDialog from "../dialog/RejectMilestone";
+import ReviewDialog from "../dialog/Review";
 
 export enum MilestoneActionType {
   SUBMIT = "SUBMIT",
@@ -20,7 +21,7 @@ export enum MilestoneActionType {
 
 const MilestoneAction: React.FC<
   MilestoneTimelineItem &
-    Pick<MilestoneTimelineProps, "isBuyer" | "isDesigner"> & {
+    Pick<MilestoneTimelineProps, "isBuyer" | "isDesigner" | "projectId"> & {
       message: string;
       files: FileList | null;
       clear: () => void;
@@ -36,6 +37,7 @@ const MilestoneAction: React.FC<
   clear,
   isDelivery,
   deliverySubmission,
+  projectId,
 }) => {
   const { mutate: submitMilestone, isPending: submittingMilestone } =
     useSubmitMilestone(id, {
@@ -44,8 +46,14 @@ const MilestoneAction: React.FC<
       },
     });
 
+  const [openReview, setOpenReview] = React.useState(false);
+
   const { mutate: approveOrRejectMilestone, isPending: isReviewingMilestone } =
-    useApproveOrRejectMilestone(id);
+    useApproveOrRejectMilestone(id, {
+      onSuccess: () => {
+        if (isDelivery) setOpenReview(true);
+      },
+    });
 
   if (status === MilestoneStatus.IN_REVIEW && isCurrent && isBuyer)
     return (
@@ -84,9 +92,6 @@ const MilestoneAction: React.FC<
       <>
         <Separator className="my-3" />
         <div className="flex gap-4 flex-col md:flex-row">
-          {/* <Button size="sm" variant="outline" fullWidth>
-            Cancel
-          </Button> */}
           <Button
             size="sm"
             onClick={() =>
@@ -107,6 +112,21 @@ const MilestoneAction: React.FC<
         </div>
       </>
     );
+
+  if (isDelivery) {
+    return (
+      <ReviewDialog
+        reviewType="EXPERIENCE"
+        projectId={projectId || ""}
+        open={openReview}
+        onOpenChange={setOpenReview}
+        fullWidthActions
+        hideCancel
+        confirmText="Submit"
+        persist
+      />
+    );
+  }
 };
 
 export default MilestoneAction;
