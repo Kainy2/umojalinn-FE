@@ -18,7 +18,8 @@ const RequestSizingTemplateViewCard = (
       className={cn(
         "flex gap-2 bg-white border border-gray-200 text-foreground-body text-sm rounded-lg p-3",
         props.className,
-        !open && "size-14 aspect-square flex items-center justify-center"
+        !open &&
+          "size-7 aspect-square flex items-center justify-center cursor-pointer p-0"
       )}
       onClick={() => setOpen(true)}
     >
@@ -36,7 +37,12 @@ const RequestSizingTemplateViewCard = (
             <p className="font-semibold">{props.title}</p>
             <p>{props.review}</p>
           </div>
-          <button onClick={() => setOpen(false)}>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpen(false);
+            }}
+          >
             <X className="size-5" />
           </button>
         </>

@@ -291,7 +291,7 @@ const SizingTemplateDialog = (
                 ]}
               />
             </div>
-            <div className="flex justify-between font-semibold p-2 text-muted-foreground">
+            <div className="flex justify-between font-semibold p-2 text-muted-foreground text-sm">
               <p>Measurement Point</p>
               <p>Measurement</p>
             </div>
@@ -418,7 +418,7 @@ const SizingTemplateDialog = (
               ]}
             />
           </div>
-          <div className="flex justify-between font-semibold p-2 text-muted-foreground">
+          <div className="flex justify-between font-semibold p-2 text-muted-foreground text-sm">
             <p>Measurement Point</p>
             <p>Measurement</p>
           </div>
@@ -492,7 +492,7 @@ const SizingTemplateDialog = (
                 disabled={loading}
                 onClick={() => setRecommendationMode(true)}
               >
-                Recommmendation mode
+                Recommendation mode
               </Button>
             </div>
           )}
@@ -552,7 +552,7 @@ const SizingTemplateDialog = (
                 disabled={loading}
                 onClick={() => setRecommendationMode(true)}
               >
-                Recommmendation mode
+                Recommendation mode
               </Button>
             </div>
           )}
