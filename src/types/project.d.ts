@@ -166,7 +166,8 @@ export type UmojaLinnMaleSizingTemplateProps = {
 
 export type UmojaLinnFemaleSizingTemplateProps = {
   height: number | null;
-  neckSize: number | null;
+  neckCircumference: number | null;
+
   totalBust: number | null;
   highestPointOfHips: number | null;
   widestPointOfHips: number | null;
@@ -195,6 +196,13 @@ export type UmojaLinnSizingTemplate = {
   status: "DRAFT" | "LIVE" | "IN_USE";
   buyer?: UmojaLinnUserRoleProfile;
   projects: UmojaLinnProject[];
+  metadata?: {
+    reviews?: Record<
+      keyof (UmojaLinnMaleSizingTemplateProps &
+        UmojaLinnFemaleSizingTemplateProps),
+      string
+    > | null;
+  };
 } & Partial<
   UmojaLinnMaleSizingTemplateProps & UmojaLinnMaleSizingTemplateProps
 > &

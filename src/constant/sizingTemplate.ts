@@ -14,6 +14,13 @@ type MaleSizingTemplateProp = {
   img: string;
 };
 
+type AllSizingTemplateProp = {
+  name: string;
+  prop: keyof (UmojaLinnMaleSizingTemplateProps &
+    UmojaLinnFemaleSizingTemplateProps);
+  img: string;
+};
+
 export const FEMALE_SIZING_TEMPLATE: FemaleSizingTemplateProp[] = [
   {
     name: "Height",
@@ -21,8 +28,8 @@ export const FEMALE_SIZING_TEMPLATE: FemaleSizingTemplateProp[] = [
     img: "/img/png/sizing-template/female/female_1.png",
   },
   {
-    name: "Neck size",
-    prop: "neckSize",
+    name: "Neck Circumference",
+    prop: "neckCircumference",
     img: "/img/png/sizing-template/female/female_2.png",
   },
   {
@@ -224,3 +231,14 @@ export const MALE_SIZING_TEMPLATE: MaleSizingTemplateProp[] = [
     img: "/img/png/sizing-template/male/male_22.png",
   },
 ];
+
+// @ts-expect-error Fix type
+export const ALL_SIZING_TEMPLATES: AllSizingTemplateProp[] =
+  MALE_SIZING_TEMPLATE?.reduce(
+    (prev, curr) =>
+      // @ts-expect-error Fix type
+      prev?.find((template) => template?.prop === curr?.prop)
+        ? prev
+        : [...prev, curr],
+    FEMALE_SIZING_TEMPLATE
+  );

@@ -16,8 +16,9 @@ import DialogListPickerItem from "./ListPickerItem";
 import { Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import Paypal from "@/icons/Paypal";
 
-const PAYMENT_METHOD = ["OTHER"] as const;
+const PAYMENT_METHOD = ["OTHER", "PAYPAL"] as const;
 
 type PaymentMethodType = (typeof PAYMENT_METHOD)[number];
 export type PaymentFundingType = "milestone" | "project";
@@ -48,9 +49,17 @@ const SelectFundingMethodDialog = (
 
   const getPaymentListProps = (prop: PaymentMethodType) => {
     switch (prop) {
+      case "PAYPAL":
+        return {
+          icon: <Paypal />,
+          title: "Paypal",
+          description: "Coming soon",
+          disabled: true,
+        };
       case "OTHER":
       default:
         return {
+          icon: <Wallet />,
           title: "Other Payment",
           description: "Other payment options",
         };
@@ -80,7 +89,6 @@ const SelectFundingMethodDialog = (
             key={method}
             onClick={() => setPaymentMethod(method)}
             active={paymentMethod === method}
-            icon={<Wallet />}
           />
         ))}
         <DialogFooter>

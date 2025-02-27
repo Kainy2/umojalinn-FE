@@ -15,7 +15,7 @@ export type VerifyDialogProps = {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   children?: React.ReactNode;
-  onConfirm?: () => void;
+  onConfirm?: React.ComponentProps<"button">["onClick"];
   title: string;
   description: React.ReactNode;
   additionalComponent?: React.ReactNode;

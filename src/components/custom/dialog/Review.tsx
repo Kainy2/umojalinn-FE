@@ -93,11 +93,11 @@ const ReviewDialog = (props: CustomReviewDialogProps) => {
         setRating(0);
         setImages(null);
         onOpenChange?.(false);
-        props.onConfirm?.();
       },
     });
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e?.preventDefault?.();
     addProjectReview(
       jsonToFormData(
         reviewType === "CLOTHING_QUALITY"

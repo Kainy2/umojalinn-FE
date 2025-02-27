@@ -7,11 +7,16 @@ import {
   getDesignerSizingTemplates,
   getSizingTemplates,
   postSizingTemplateLive,
+  requestChangeOnSizingTemplate,
   updateSizingTemplate,
 } from "@/actions/sizing-templates";
 import { queryClient } from "@/components/provider/TanstackQueryClient";
 import useHandleError from "@/hooks/useHandleError";
-import { UmojaLinnSizingTemplate } from "@/types/project";
+import {
+  UmojaLinnFemaleSizingTemplateProps,
+  UmojaLinnMaleSizingTemplateProps,
+  UmojaLinnSizingTemplate,
+} from "@/types/project";
 import {
   GenericUseMutationProps,
   GenericUseQueryProps,
@@ -32,6 +37,35 @@ export const useCreateSizingTemplate = (
   return useMutation({
     ...options,
     mutationFn: createSizingTemplate,
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [SIZING_TEMPLATE] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useRequestChangeSizingTemplate = (
+  id?: string,
+  options?: GenericUseMutationProps<
+    SingleApiResponse<UmojaLinnSizingTemplate>,
+    Partial<
+      Record<
+        keyof (UmojaLinnMaleSizingTemplateProps &
+          UmojaLinnFemaleSizingTemplateProps),
+        string
+      >
+    >
+  >
+) => {
+  const { handleError } = useHandleError("Request Change in Sizing Template");
+  return useMutation({
+    ...options,
+    mutationFn: (variables) =>
+      requestChangeOnSizingTemplate(id || "", variables),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: [SIZING_TEMPLATE] });
       options?.onSuccess?.(data, variables, context);

@@ -1,7 +1,11 @@
 import { clientAxios, getServerAxiosWithToken } from "@/lib/axios";
 import { convertApiParams } from "@/lib/request";
 import { base62ToUuidSafe } from "@/lib/uuid";
-import { UmojaLinnSizingTemplate } from "@/types/project";
+import {
+  UmojaLinnFemaleSizingTemplateProps,
+  UmojaLinnMaleSizingTemplateProps,
+  UmojaLinnSizingTemplate,
+} from "@/types/project";
 import {
   ArrayApiResponse,
   ServerActionOption,
@@ -97,6 +101,30 @@ export const getDesignerSizingTemplateById = async (
     unknown,
     AxiosResponse<SingleApiResponse<UmojaLinnSizingTemplate>>
   >(`/sizing-template/designer/${base62ToUuidSafe(id)}`);
+};
+
+export const requestChangeOnSizingTemplate = async (
+  id: string,
+  requestedChanges: Partial<
+    Record<
+      keyof (UmojaLinnMaleSizingTemplateProps &
+        UmojaLinnFemaleSizingTemplateProps),
+      string
+    >
+  >,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<
+    unknown,
+    AxiosResponse<SingleApiResponse<UmojaLinnSizingTemplate>>
+  >(
+    `/sizing-template/designer/${base62ToUuidSafe(id)}/request-change`,
+    requestedChanges
+  );
 };
 
 export const deleteSizingTemplate = async (

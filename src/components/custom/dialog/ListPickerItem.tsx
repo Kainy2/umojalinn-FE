@@ -9,6 +9,7 @@ type DialogListPickerItemProps = {
   description?: React.ReactNode;
   rounded?: boolean;
   noIconWrapper?: boolean;
+  disabled?: boolean;
 };
 
 const DialogListPickerItem = (props: DialogListPickerItemProps) => {
@@ -18,8 +19,10 @@ const DialogListPickerItem = (props: DialogListPickerItemProps) => {
       className={cn(
         "flex flex-row items-center px-2 py-1 gap-2 border border-gray-100",
         props.active && "border-none ring-2 ring-primary bg-primary-25",
-        props.rounded && "rounded"
+        props.rounded && "rounded",
+        props.disabled && "cursor-not-allowed opacity-60"
       )}
+      disabled={props.disabled}
     >
       <div
         className={cn(

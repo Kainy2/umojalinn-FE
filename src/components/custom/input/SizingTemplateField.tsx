@@ -9,14 +9,26 @@ type SizingTemplateInputFieldProps = {
   onValueChange?: React.ComponentProps<"input">["onChange"];
   onFocus?: React.ComponentProps<"input">["onFocus"];
   disabled?: boolean;
+  highlighted?: boolean;
+  onClick?: () => void;
+  hasMetaData?: boolean;
 };
 
 const SizingTemplateInputField = (props: SizingTemplateInputFieldProps) => {
   const id = useId();
   return (
-    <div className="flex justify-between items-center p-2 text-foreground-body focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 m-1 transition-all">
+    <div
+      onClick={props.onClick}
+      className={cn(
+        "flex justify-between items-center p-2 text-foreground-body focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 m-1 transition-all",
+        props.highlighted && "ring-2 ring-offset-2 ring-ring"
+      )}
+    >
       <label
-        className="[&+*>input]:focus:bg-gray-100 bg-background"
+        className={cn(
+          "[&+*>input]:focus:bg-gray-100 bg-background",
+          props.hasMetaData && "text-error-700 font-semibold"
+        )}
         htmlFor={id}
       >
         {props.label}
