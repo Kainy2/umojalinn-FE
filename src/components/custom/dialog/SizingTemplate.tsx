@@ -509,7 +509,8 @@ const SizingTemplateDialog = (
               />
             )}
           </div>
-          {highlighted &&
+          {!hasLiveProject &&
+            highlighted &&
             (reviewsEdit?.[highlighted] ||
               sizingTemplateData?.data?.data?.metadata?.reviews?.[
                 highlighted
