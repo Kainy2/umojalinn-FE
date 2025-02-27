@@ -51,7 +51,7 @@ const SizingTemplateCard = (props: { template: UmojaLinnSizingTemplate }) => {
               <Image
                 alt=""
                 src={
-                  template?.buyer?.user?.profilePhotoUri || "/img/svg/null.svg"
+                  template?.buyer?.user?.profilePhotoUri || "/img/webp/user.webp"
                 }
                 height={150}
                 width={150}

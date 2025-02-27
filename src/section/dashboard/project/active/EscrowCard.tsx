@@ -131,7 +131,7 @@ const EscrowCard = (props: EscrowCardProps) => {
                         src={
                           review?.buyer?.user?.profilePhotoUri ||
                           review?.designer?.user?.profilePhotoUri ||
-                          "/img/svg/null.svg"
+                          "/img/webp/user.webp"
                         }
                         alt=""
                         height={100}
