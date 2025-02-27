@@ -8,6 +8,7 @@ import { getCurrencySymbol } from "@/lib/string";
 import { EyeOff } from "lucide-react";
 import { useGetBidById } from "@/tanstack/hooks/useBid";
 import { Skeleton } from "@/components/ui/skeleton";
+import GalleryImages from "@/components/custom/GalleryImages";
 
 const BidTabProjectDetailsSection = () => {
   const { id } = useParams<{ id: string }>();
@@ -95,13 +96,13 @@ const BidTabProjectDetailsSection = () => {
         </p>
         <div className="grid grid-cols-2 gap-4">
           {project?.Gallery?.map?.((gallery) => (
-            <Image
-              key={gallery?.id}
+            <GalleryImages
+              title={gallery?.title}
               src={gallery?.imageUrl}
-              alt=""
               height={500}
               width={500}
-              className="w-full aspect-square object-cover"
+              wrapperClassName="aspect-square"
+              key={gallery.id}
             />
           )) || (
             <Image

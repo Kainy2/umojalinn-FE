@@ -1,4 +1,5 @@
 "use client";
+import GalleryImages from "@/components/custom/GalleryImages";
 import LabelValue from "@/components/custom/LabelValue";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -164,13 +165,13 @@ const JobPage = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {project?.Gallery?.map((gallery) => (
-            <Image
-              key={gallery?.id}
-              alt={gallery?.title}
+            <GalleryImages
+              title={gallery?.title}
               src={gallery?.imageUrl}
               height={500}
               width={500}
-              className="object-cover aspect-square h-full"
+              wrapperClassName="aspect-square"
+              key={gallery.id}
             />
           )) || (
             <Image

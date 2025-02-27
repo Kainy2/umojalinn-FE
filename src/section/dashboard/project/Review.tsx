@@ -5,8 +5,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getCurrencySymbol } from "@/lib/string";
 import { UmojaLinnProject } from "@/types/project";
 import { formatDate } from "date-fns";
-import Image from "next/image";
 import React from "react";
+import GalleryImages from "@/components/custom/GalleryImages";
 
 const ProjectReviewView = (props: {
   project?: UmojaLinnProject;
@@ -85,21 +85,14 @@ const ProjectReviewView = (props: {
           </h3>
           <div className="flex flex-row gap-4 overflow-scroll">
             {props?.project?.Gallery?.map?.((gallery) => (
-              <div
-                style={{ width: 310, height: 170 }}
+              <GalleryImages
                 key={gallery?.id}
-                className="relative aspect-video"
-              >
-                <Image
-                  alt=""
-                  src={gallery.imageUrl || "/img/svg/null.svg"}
-                  className="shrink-0  object-cover absolute"
-                  fill
-                />
-                <p className="truncate absolute bottom-0 px-4 py-2 max-h-full overflow-scroll">
-                  {gallery?.title}
-                </p>
-              </div>
+                width={310}
+                height={170}
+                src={gallery.imageUrl}
+                title={gallery?.title}
+                wrapperClassName="aspect-video"
+              />
             ))}
           </div>
         </div>
