@@ -13,7 +13,6 @@ const RequestSizingTemplateViewCard = (
   props: RequestSizingTemplateViewCardProps
 ) => {
   const [open, setOpen] = useState(true);
-  const toggleOpen = () => setOpen(!open);
   return (
     <div
       className={cn(
@@ -21,7 +20,7 @@ const RequestSizingTemplateViewCard = (
         props.className,
         !open && "size-14 aspect-square flex items-center justify-center"
       )}
-      onClick={toggleOpen}
+      onClick={() => setOpen(true)}
     >
       <span
         className={cn(
