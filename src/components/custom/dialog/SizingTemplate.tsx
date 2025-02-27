@@ -308,9 +308,14 @@ const SizingTemplateDialog = (
                   label={template.name}
                   onFocus={() => setPreviewImage(template.img)}
                   highlighted={highlighted === template.prop}
-                  hasMetaData={Object.keys(
-                    sizingTemplateData?.data?.data?.metadata?.reviews || {}
-                  )?.includes(template?.prop)}
+                  hasLiveProject={hasLiveProject}
+                  metadata={{
+                    review:
+                      sizingTemplateData?.data?.data?.metadata?.reviews?.[
+                        template.prop
+                      ],
+                    img: template?.img,
+                  }}
                   onClick={() => {
                     setPreviewImage(template.img);
                     setHighlighted(template.prop);
@@ -435,13 +440,14 @@ const SizingTemplateDialog = (
                 key={template.prop}
                 label={template.name}
                 highlighted={highlighted === template.prop}
-                hasMetaData={
-                  (!hasLiveProject &&
-                    Object.keys(
-                      sizingTemplateData?.data?.data?.metadata?.reviews || {}
-                    )?.includes(template?.prop)) ||
-                  Object.keys(reviewsEdit)?.includes(template?.prop)
-                }
+                hasLiveProject={hasLiveProject}
+                metadata={{
+                  review:
+                    sizingTemplateData?.data?.data?.metadata?.reviews?.[
+                      template.prop
+                    ],
+                  img: template?.img,
+                }}
                 onClick={() => {
                   setPreviewImage(template.img);
                   setHighlighted(template.prop);

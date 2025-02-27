@@ -16,7 +16,7 @@ const RequestSizingTemplateViewCard = (
   return (
     <div
       className={cn(
-        "flex gap-2 bg-white border border-gray-200 text-foreground-body text-sm rounded-lg p-3",
+        "flex gap-2 bg-white border border-gray-200 text-foreground-body text-sm rounded-lg p-3 w-full",
         props.className,
         !open &&
           "size-7 aspect-square flex items-center justify-center cursor-pointer p-0"
