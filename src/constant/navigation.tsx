@@ -4,7 +4,7 @@ import Bank from "@/icons/Bank";
 import Grid01 from "@/icons/Grid01";
 // import MessageSquare02 from "@/icons/MessageSquare02";
 import SearchRefracted from "@/icons/SearchRefracted";
-// import Settings01 from "@/icons/Settings01";
+import Settings01 from "@/icons/Settings01";
 import Tag03 from "@/icons/Tag03";
 import Wallet02 from "@/icons/Wallet02";
 
@@ -56,11 +56,12 @@ export const BUYERS_SIDEBAR_CONTENT: CustomSidebarMenuItemProps[] = [
       href: "/",
     },
   },
-  // {
-  //   title: "Settings",
-  //   url: "#",
-  //   icon: <Settings01 />,
-  // },
+  {
+    title: "Settings",
+    url: "/settings",
+    icon: <Settings01 />,
+    regex: /^\/(settings$|settings\/.*)/,
+  },
 ];
 
 export const DESIGNERS_SIDEBAR_CONTENT: CustomSidebarMenuItemProps[] = [
@@ -111,9 +112,10 @@ export const DESIGNERS_SIDEBAR_CONTENT: CustomSidebarMenuItemProps[] = [
       href: "/",
     },
   },
-  // {
-  //   title: "Settings",
-  //   url: "#",
-  //   icon: <Settings01 />,
-  // },
+  {
+    title: "Settings",
+    url: "/settings",
+    icon: <Settings01 />,
+    regex: /^\/(settings$|settings\/.*)/,
+  },
 ];
