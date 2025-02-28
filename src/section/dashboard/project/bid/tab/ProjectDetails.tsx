@@ -99,9 +99,7 @@ const BidTabProjectDetailsSection = () => {
             <GalleryImages
               title={gallery?.title}
               src={gallery?.imageUrl}
-              height={500}
-              width={500}
-              wrapperClassName="aspect-square"
+              wrapperClassName="aspect-square w-full h-auto"
               key={gallery.id}
             />
           )) || (

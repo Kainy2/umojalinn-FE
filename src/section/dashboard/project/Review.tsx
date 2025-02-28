@@ -91,7 +91,7 @@ const ProjectReviewView = (props: {
                 height={170}
                 src={gallery.imageUrl}
                 title={gallery?.title}
-                wrapperClassName="aspect-video"
+                wrapperClassName="aspect-video "
               />
             ))}
           </div>
