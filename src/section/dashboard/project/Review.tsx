@@ -137,6 +137,7 @@ const ProjectReviewView = (props: {
           Designer
         </h3>
         <AvatarIconTag
+          disabled
           avatar={{
             src: props?.project?.designer?.user?.profilePhotoUri,
           }}

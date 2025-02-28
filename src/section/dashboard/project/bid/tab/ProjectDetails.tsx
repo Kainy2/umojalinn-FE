@@ -5,10 +5,13 @@ import { useParams } from "next/navigation";
 import React from "react";
 import { format } from "date-fns";
 import { getCurrencySymbol } from "@/lib/string";
-import { EyeOff } from "lucide-react";
+import { CircleAlert, EyeOff } from "lucide-react";
 import { useGetBidById } from "@/tanstack/hooks/useBid";
 import { Skeleton } from "@/components/ui/skeleton";
 import GalleryImages from "@/components/custom/GalleryImages";
+import SizingTemplateDialog from "@/components/custom/dialog/SizingTemplate";
+import AvatarIconTag from "@/components/custom/tag/AvatarIcon";
+import CheckCircle from "@/icons/CheckCircle";
 
 const BidTabProjectDetailsSection = () => {
   const { id } = useParams<{ id: string }>();
@@ -87,6 +90,36 @@ const BidTabProjectDetailsSection = () => {
         label="Aditional note"
         value={project?.additionalNotes || "None"}
       />
+      <span>
+        {project?.sizingTemplateId ? (
+          <SizingTemplateDialog id={project?.sizingTemplateId}>
+            <AvatarIconTag
+              label="View sizing template"
+              icon={<CheckCircle className="text-success" />}
+            />
+          </SizingTemplateDialog>
+        ) : bid?.sizingTemplateRequested ? (
+          <AvatarIconTag
+            label="Sizing template requested"
+            icon={
+              <span className="text-white [&>svg]:size-5 size-7 rounded-full bg-primary flex items-center justify-center">
+                <CircleAlert />
+              </span>
+            }
+            disabled
+          />
+        ) : (
+          <AvatarIconTag
+            label="No sizing template"
+            icon={
+              <span className="text-white [&>svg]:size-5 size-7 rounded-full bg-error flex items-center justify-center">
+                <CircleAlert />
+              </span>
+            }
+            disabled
+          />
+        )}
+      </span>
       <div>
         <h3 className="mb-2 font-semibold text-subtitle-2">
           Styling Inspirations

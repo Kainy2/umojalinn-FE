@@ -96,11 +96,14 @@ const SizingTemplateDialog = (
 
   const { data: session } = useSession();
 
-  const hasLiveProject = useMemo(() => {
-    return !!sizingTemplateData?.data?.data?.projects?.find(
-      (project) => project?.status === "LIVE"
-    );
-  }, [sizingTemplateData?.data?.data?.projects]);
+  const [hasLiveProject, isDraft] = useMemo(() => {
+    return [
+      !!sizingTemplateData?.data?.data?.projects?.find(
+        (project) => project?.status === "LIVE"
+      ),
+      sizingTemplateData?.data?.data?.status === "DRAFT",
+    ];
+  }, [sizingTemplateData?.data?.data]);
 
   const highlightedSizingName = useMemo(
     () =>
@@ -231,8 +234,8 @@ const SizingTemplateDialog = (
     );
   }
 
-  // THE EDITABLE SCREEN THAT A BUYER SEES 
-  // TO EITHER CREATE A NEW TEMPLATE OR 
+  // THE EDITABLE SCREEN THAT A BUYER SEES
+  // TO EITHER CREATE A NEW TEMPLATE OR
   // EDIT AN OLD ONE WHEN A LIVE PROJECT IS NOT ATTACHED
   if (
     !props?.id ||
@@ -333,9 +336,11 @@ const SizingTemplateDialog = (
               >
                 Save
               </Button>
-              <Button onClick={() => handleSubmit(true)} disabled={loading}>
-                Submit
-              </Button>
+              {isDraft && (
+                <Button onClick={() => handleSubmit(true)} disabled={loading}>
+                  Submit
+                </Button>
+              )}
             </div>
           </div>
           <div className="hidden lg:flex flex-col gap-2 relative">
@@ -372,9 +377,11 @@ const SizingTemplateDialog = (
               >
                 Save
               </Button>
-              <Button onClick={() => handleSubmit(true)} disabled={loading}>
-                Submit
-              </Button>
+              {isDraft && (
+                <Button onClick={() => handleSubmit(true)} disabled={loading}>
+                  Submit
+                </Button>
+              )}
             </div>
           </div>
         </DialogContent>

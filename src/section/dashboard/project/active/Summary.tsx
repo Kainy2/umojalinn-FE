@@ -31,6 +31,7 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
         </span>
         <span>
           <AvatarIconTag
+            disabled
             label={
               !isDesigner
                 ? `${data?.data?.data?.designer?.user?.firstName || ""} ${
@@ -54,6 +55,7 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
         <span className="text-sm text-foreground-body">Timeline</span>
         <span>
           <AvatarIconTag
+            disabled
             label={`${format(
               new Date(data?.data.data?.createdAt || 0),
               "MMM dd, yyy"
