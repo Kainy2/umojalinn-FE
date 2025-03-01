@@ -12,6 +12,7 @@ import GalleryImages from "@/components/custom/GalleryImages";
 import SizingTemplateDialog from "@/components/custom/dialog/SizingTemplate";
 import AvatarIconTag from "@/components/custom/tag/AvatarIcon";
 import CheckCircle from "@/icons/CheckCircle";
+import { formatCurrencyValue } from "@/lib/number";
 
 const BidTabProjectDetailsSection = () => {
   const { id } = useParams<{ id: string }>();
@@ -56,13 +57,15 @@ const BidTabProjectDetailsSection = () => {
   return (
     <div className="flex flex-col gap-8">
       <div className="relative bg-stone-100 border-l-4 border-stone-600 p-4">
-        <span className="absolute rounded-full p-2 [&>svg]:size-5 text-primary bg-background top-2 right-2">
-          <EyeOff />
-        </span>
+        {project.projectType === "PRIVATE" && (
+          <span className="absolute rounded-full p-2 [&>svg]:size-5 text-primary bg-background top-2 right-2">
+            <EyeOff />
+          </span>
+        )}
         <p className="text-sm">Project Budget</p>
         <p className="text-lg font-semibold truncate">
           {getCurrencySymbol(project?.currency)}
-          {project?.budget}
+          {formatCurrencyValue(project?.budget)}
         </p>
       </div>
       <p className="mb-2">{project?.about}</p>
