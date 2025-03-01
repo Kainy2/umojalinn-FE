@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import Paypal from "@/icons/Paypal";
 
-const PAYMENT_METHOD = ["OTHER", "PAYPAL"] as const;
+const PAYMENT_METHOD = ["PAYPAL", "OTHER"] as const;
 
 type PaymentMethodType = (typeof PAYMENT_METHOD)[number];
 export type PaymentFundingType = "milestone" | "project";

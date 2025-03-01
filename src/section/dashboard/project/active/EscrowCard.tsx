@@ -112,7 +112,7 @@ const EscrowCard = (props: EscrowCardProps) => {
         </span>
       </div>
       {!!props?.reviews?.length && <Separator className="my-4" />}
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-8 text-sm">
         {props.reviews?.map?.((review) => {
           return (
             <div
@@ -136,7 +136,7 @@ const EscrowCard = (props: EscrowCardProps) => {
                         alt=""
                         height={100}
                         width={100}
-                        className="object-cover rounded-full aspect-square shrink-0 size-14"
+                        className="object-cover rounded-full aspect-square shrink-0 size-12"
                       />
                       <h4 className="text-subtitle-2 font-semibold truncate">
                         {(review?.buyer || review?.designer)?.user?.firstName}{" "}
@@ -178,6 +178,7 @@ const EscrowCard = (props: EscrowCardProps) => {
             <div className="flex flex-col gap-2  text-foreground-body">
               <p>Your Quality Experience Feedback</p>
               <Alert
+                small
                 title="Please take note"
                 message={
                   isBuyer
@@ -209,6 +210,7 @@ const EscrowCard = (props: EscrowCardProps) => {
               message="We kindly request that you provide this review after confirming the product to assist us in enhancing our services to you."
               type="error"
               icon={<CircleAlert />}
+              small
             />
             <ReviewDialog
               reviewType="CLOTHING_QUALITY"
@@ -224,6 +226,7 @@ const EscrowCard = (props: EscrowCardProps) => {
                   "We kindly request that you provide this review after confirming the product to assist us in enhancing our services to you.",
                 type: "error",
                 icon: <CircleAlert />,
+                small: true,
               }}
             >
               <Button fullWidth>Submit Feedback</Button>

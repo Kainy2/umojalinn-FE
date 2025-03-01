@@ -24,15 +24,16 @@ type ReviewRatingStarsProps = {
   rating: number;
   setRating?: (rating: number) => void;
   disabled?: boolean;
+  small?: boolean;
 };
 
 export const ReviewRatingStars = (props: ReviewRatingStarsProps) => {
   return (
-    <div className="inline-flex gap-2">
+    <div className="inline-flex gap-2 items-center">
       {new Array(5).fill(0).map((_, index) => (
         <button
           key={index}
-          className="focus:outline-none"
+          className={"focus:outline-none"}
           onClick={() => props.setRating?.(index + 1)}
           disabled={props.disabled}
         >
@@ -40,7 +41,8 @@ export const ReviewRatingStars = (props: ReviewRatingStarsProps) => {
             <RatingStar
               stroke="#FAC515"
               className={cn(
-                "w-6 h-6",
+                "size-6",
+                props.small && "size-4",
                 index < props.rating ? "text-primary-600" : "text-transparent"
               )}
             />
@@ -48,7 +50,14 @@ export const ReviewRatingStars = (props: ReviewRatingStarsProps) => {
         </button>
       ))}
       {props.rating && (
-        <p className="text-subtitle-1 font-semibold">{props.rating}.0</p>
+        <p
+          className={cn(
+            "text-subtitle-1 font-semibold",
+            props.small && "text-lg"
+          )}
+        >
+          {props.rating || "0"}.0
+        </p>
       )}
     </div>
   );

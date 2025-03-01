@@ -90,7 +90,7 @@ const BidTabProjectDetailsSection = () => {
         value={project?.clothingTypes?.map((type) => type?.name) || "None"}
       />
       <LabelValue
-        label="Aditional note"
+        label="Additional note"
         value={project?.additionalNotes || "None"}
       />
       <span>
