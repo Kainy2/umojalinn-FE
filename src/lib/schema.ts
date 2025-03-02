@@ -131,11 +131,15 @@ export const updateProfileSchema = z.object({
   gender: z.enum(["MALE", "FEMALE"]),
   dateOfBirth: z.union([z.date().nullable(), z.string()]).optional(),
   email: z.string().email("Invalid email address"),
-  altEmail: z.string().email("Invalid email address").nullable().optional(),
+  alternativeEmail: z
+    .string()
+    .email("Invalid email address")
+    .nullable()
+    .optional(),
   specialistTypeId: z.string().optional(),
   // clothingType: z.array(z.string()).max(8, "Select up to 8 clothing types"),
   experience: z.enum([...EXPERIENCE_ENUMS_VALUES]),
-  language: z.string().min(1, "Language is required"),
+  language: z.string().optional(),
   phone: z.string().min(10, "Invalid phone number"),
   country: z.string().min(1, "Country is required"),
   state: z.string().min(1, "State is required"),

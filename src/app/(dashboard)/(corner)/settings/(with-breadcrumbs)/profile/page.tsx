@@ -14,7 +14,10 @@ import { Separator } from "@/components/ui/separator";
 import useClipboard from "@/hooks/useClipboard";
 import { updateProfileKeys, updateProfileSchema } from "@/lib/schema";
 import { jsonToFormData } from "@/lib/utils";
-import { EXPERIENCE_ENUMS } from "@/section/form/project/edit/RequirementAndBudget";
+import {
+  EXPERIENCE_ENUMS,
+  EXPERIENCE_ENUMS_VALUES,
+} from "@/section/form/project/edit/RequirementAndBudget";
 // import { useGetClothingTypes } from "@/tanstack/hooks/useProject";
 import { useGetMe, useUpdateUserDetails } from "@/tanstack/hooks/useUser";
 import { UpdateProfileProps } from "@/types/form";
@@ -48,9 +51,8 @@ const SettingsProfilePage = () => {
       tag: "",
       dateOfBirth: null,
       email: "",
-      altEmail: null,
+      alternativeEmail: null,
       // clothingType: [],
-      language: "",
       phone: "",
       country: "",
       state: "",
@@ -258,7 +260,7 @@ const SettingsProfilePage = () => {
         >
           <FormField
             control={form.control}
-            name="altEmail"
+            name="alternativeEmail"
             render={({ field }) => (
               <FormTextField
                 placeholder="youplus@example.com"
@@ -324,8 +326,8 @@ const SettingsProfilePage = () => {
                     active={field?.value || null}
                     className="truncate [&>*]:truncate"
                     disabled={disableForm}
-                    tabs={EXPERIENCE_ENUMS.map((exp) => ({
-                      value: exp,
+                    tabs={EXPERIENCE_ENUMS.map((exp, i) => ({
+                      value: EXPERIENCE_ENUMS_VALUES?.[i],
                       title: exp,
                     }))}
                     onChange={(value) => field.onChange(value)}
