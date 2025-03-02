@@ -3,6 +3,7 @@ import SettingsCard, {
   SettingsCardProps,
 } from "@/components/custom/card/Settings";
 import { Separator } from "@/components/ui/separator";
+import { capitalizeFirstLetter } from "@/lib/string";
 import { BellRing, CreditCard, FileText, ShieldCheck } from "lucide-react";
 import { useSession } from "next-auth/react";
 import React from "react";
@@ -45,7 +46,11 @@ const SettingPage = () => {
     <>
       <h1 className="text-subtitle-1 font-bold mb-1">Settings</h1>
       <p className="text-foreground-body mb-4">
-        Make changes to your <strong>Buyers</strong> default settings
+        Make changes to your{" "}
+        <strong>
+          {capitalizeFirstLetter(session?.user?.profileRole || "")}
+        </strong>{" "}
+        default settings
       </p>
 
       <Separator className="bg-border/50 mb-8" />

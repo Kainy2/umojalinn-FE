@@ -1,5 +1,21 @@
+import { EXPERIENCE_ENUMS_VALUES } from "@/section/form/project/edit/RequirementAndBudget";
 import { z } from "zod";
 // import { isPhoneValid } from "./utils";
+
+const passwordValidation = z
+  .string()
+  .min(8, { message: "Password must be at least 8 characters." })
+  .regex(/[A-Z]/, {
+    message: "Password must contain at least one uppercase letter.",
+  })
+  .regex(/[a-z]/, {
+    message: "Password must contain at least one lowercase letter.",
+  })
+  .regex(/[0-9]/, { message: "Password must contain at least one number." })
+  .regex(/[^A-Za-z0-9]/, {
+    message: "Password must contain at least one special character.",
+  });
+
 export const registrationFormSchema = z
   .object({
     firstName: z.string().min(1, {
@@ -11,19 +27,7 @@ export const registrationFormSchema = z
     email: z.string().email({
       message: "Please provide a valid email.",
     }),
-    password: z
-      .string()
-      .min(8, { message: "Password must be at least 8 characters." })
-      .regex(/[A-Z]/, {
-        message: "Password must contain at least one uppercase letter.",
-      })
-      .regex(/[a-z]/, {
-        message: "Password must contain at least one lowercase letter.",
-      })
-      .regex(/[0-9]/, { message: "Password must contain at least one number." })
-      .regex(/[^A-Za-z0-9]/, {
-        message: "Password must contain at least one special character.",
-      }),
+    password: passwordValidation,
     confirmPassword: z.string().min(8, {
       message: "Password must be at least 8 characters.",
     }),
@@ -102,9 +106,9 @@ export const projectFormDetailsSchema = z.object({
   clothingTypes: z.array(z.string()).max(8).optional(),
   submit: z.string().optional(),
   sizingTemplateId: z.string().optional(),
-  //
-  // budget
 });
+
+export const projectFormDetailsKeys = projectFormDetailsSchema?.keyof().options;
 
 export const requirementsAndBugetSchema = z.object({
   currency: z.string().optional(),
@@ -118,3 +122,51 @@ export const requirementsAndBugetSchema = z.object({
     .optional(),
   negotiable: z.boolean().optional(),
 });
+export const updateProfileSchema = z.object({
+  about: z.string().max(300, "Bio must be at most 300 characters").optional(),
+  firstName: z.string().min(1, "First Name is required"),
+  lastName: z.string().min(1, "Last Name is required"),
+  brandName: z.string().optional(),
+  tag: z.string().min(1, "Tag is required"),
+  gender: z.enum(["MALE", "FEMALE"]),
+  dateOfBirth: z.union([z.date().nullable(), z.string()]).optional(),
+  email: z.string().email("Invalid email address"),
+  altEmail: z.string().email("Invalid email address").nullable().optional(),
+  specialistTypeId: z.string().optional(),
+  // clothingType: z.array(z.string()).max(8, "Select up to 8 clothing types"),
+  experience: z.enum([...EXPERIENCE_ENUMS_VALUES]),
+  language: z.string().min(1, "Language is required"),
+  phone: z.string().min(10, "Invalid phone number"),
+  country: z.string().min(1, "Country is required"),
+  state: z.string().min(1, "State is required"),
+  city: z.string().min(1, "City is required"),
+  zip: z.string().min(1, "Zip/Postal code is required"),
+  address: z.string().min(1, "Home address is required"),
+});
+
+export const updateProfileKeys = updateProfileSchema?.keyof().options;
+
+export const passwordUpdateSchema = z
+  .object({
+    currentPassword: passwordValidation,
+    newPassword: passwordValidation,
+    confirmPassword: z.string().min(8, {
+      message: "Password must be at least 8 characters.",
+    }),
+  })
+  .refine((data) => data.currentPassword === data.confirmPassword, {
+    message: "Passwords don't match.",
+    path: ["confirmPassword"],
+  });
+
+export const notificationSettingsSchema = z.object({
+  tagPushNotifications: z.boolean(),
+  tagEmailNotifications: z.boolean(),
+  reminderPushNotifications: z.boolean(),
+  reminderEmailNotifications: z.boolean(),
+  productUpdates: z.boolean(),
+  productUpdatesEmail: z.boolean(),
+});
+
+export const notificationSettingsKey =
+  notificationSettingsSchema?.keyof().options;

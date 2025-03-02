@@ -26,7 +26,17 @@ export type FormCustomReactSelectFieldProps = CustomReactSelectProps &
 const CustomControl: React.FC<
   ControlProps & Pick<CustomReactSelectFieldProps, "startAdornment">
 > = ({ children, startAdornment, ...props }) => (
-  <components.Control {...props}>
+  <components.Control
+    {...props}
+    getStyles={(prop, opt) => ({
+      ...props?.getStyles?.(prop, opt),
+      ...(props.isDisabled && {
+        backgroundColor: "#f3f4f6",
+        opacity: "50%",
+        cursor: "not-allowed",
+      }),
+    })}
+  >
     {startAdornment && (
       <span className="relative left-3">{startAdornment}</span>
     )}

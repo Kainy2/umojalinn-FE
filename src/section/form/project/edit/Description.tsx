@@ -12,7 +12,7 @@ import {
   useUpdateProjectById,
 } from "@/tanstack/hooks/useProject";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { projectFormDetailsSchema } from "@/lib/schema";
+import { projectFormDetailsKeys, projectFormDetailsSchema } from "@/lib/schema";
 import { ProjectFormDetailsProps } from "@/types/form";
 import { useForm } from "react-hook-form";
 import { Form, FormField } from "@/components/ui/form";
@@ -56,52 +56,39 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
     });
 
   useEffect(() => {
-    if (data?.data?.data?.buyer?.user) {
-      form.setValue("firstName", data?.data?.data?.buyer?.user?.firstName);
-      form.setValue("lastName", data?.data?.data?.buyer?.user?.lastName);
+    if (data?.data?.data) {
+      Object.entries(data.data.data).forEach(([key, value]) => {
+        if (
+          value !== null &&
+          typeof value !== "object" &&
+          projectFormDetailsKeys?.includes(key as keyof ProjectFormDetailsProps)
+        ) {
+          if (key === "sizingTemplateId" && !!value) setUseSizingTemplate(true);
+          form.setValue(key as keyof ProjectFormDetailsProps, value.toString());
+        }
+        if (key === "deliveryAddress" && !!value && typeof value !== "object") {
+          Object.entries(value).forEach(([key, value]) => {
+            if (value !== null && typeof value !== "object") {
+              form.setValue(
+                key as keyof ProjectFormDetailsProps,
+                value.toString()
+              );
+            }
+          });
+        }
+      });
     }
-    if (data?.data?.data?.designerId) {
-      form.setValue("designerId", data?.data?.data?.designerId);
-    }
-    if (data?.data?.data?.title) {
-      form.setValue("title", data?.data?.data?.title);
-    }
-    if (data?.data?.data?.gender) {
-      form.setValue("gender", data?.data?.data?.gender);
-    }
-    if (data?.data?.data?.about) {
-      form.setValue("about", data?.data?.data?.about);
-    }
-    if (data?.data?.data?.dueDate) {
-      form.setValue("dueDate", data?.data?.data?.dueDate);
-    }
-    if (data?.data?.data?.deliveryAddress?.city) {
-      form.setValue("city", data?.data?.data?.deliveryAddress?.city);
-    }
-    if (data?.data?.data?.deliveryAddress?.country) {
-      form.setValue("country", data?.data?.data?.deliveryAddress?.country);
-    }
-    if (data?.data?.data?.deliveryAddress?.address) {
-      form.setValue("address", data?.data?.data?.deliveryAddress?.address);
-    }
-    if (data?.data?.data?.deliveryAddress?.state) {
-      form.setValue("state", data?.data?.data?.deliveryAddress?.state);
-    }
-    if (data?.data?.data?.deliveryAddress?.zipCode) {
-      form.setValue("zipCode", data?.data?.data?.deliveryAddress?.zipCode);
-    }
-    if (data?.data?.data?.additionalNotes) {
-      form.setValue("additionalNotes", data?.data?.data?.additionalNotes);
-    }
-    if (data?.data?.data?.sizingTemplateId) {
-      setUseSizingTemplate(true);
-      form.setValue("sizingTemplateId", data?.data?.data?.sizingTemplateId);
-    }
+
     if (data?.data?.data?.clothingTypes?.length) {
       form.setValue(
         "clothingTypes",
         data?.data?.data?.clothingTypes?.map?.((type) => type?.id)
       );
+    }
+
+    if (data?.data?.data?.buyer?.user) {
+      form.setValue("firstName", data?.data?.data?.buyer?.user?.firstName);
+      form.setValue("lastName", data?.data?.data?.buyer?.user?.lastName);
     }
   }, [data?.data?.data, form]);
 

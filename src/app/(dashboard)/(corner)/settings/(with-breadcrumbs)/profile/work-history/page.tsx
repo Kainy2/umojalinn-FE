@@ -1,7 +1,7 @@
 import React from "react";
 
-const WorkHistory = () => {
-  return <div>WorkHistory</div>;
+const SettingsProfileWorkHistoryPage = () => {
+  return <div>{/* SettingsProfileWorkHistoryPage */}</div>;
 };
 
-export default WorkHistory;
+export default SettingsProfileWorkHistoryPage;

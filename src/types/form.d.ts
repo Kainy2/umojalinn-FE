@@ -7,6 +7,9 @@ import {
   requirementsAndBugetSchema,
   forgotPasswordFormSchema,
   resetPasswordFormSchema,
+  updateProfileSchema,
+  passwordUpdateSchema,
+  notificationSettingsSchema,
 } from "@/lib/schema";
 import { z } from "zod";
 
@@ -26,4 +29,10 @@ export type OnboardingProps = {
 export type ProjectFormDetailsProps = z.infer<typeof projectFormDetailsSchema>;
 export type ProjectFormRequirementsAndBugetProps = z.infer<
   typeof requirementsAndBugetSchema
+>;
+
+export type UpdateProfileProps = z.infer<typeof updateProfileSchema>;
+export type PasswordUpdateProps = z.infer<typeof passwordUpdateSchema>;
+export type NotificationSettingsProps = z.infer<
+  typeof notificationSettingsSchema
 >;

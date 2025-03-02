@@ -25,7 +25,7 @@ const CustomSidebarMenu = (props: {
       : BUYERS_SIDEBAR_CONTENT;
 
   return (
-    <Menu className={cn(props.isMobile && "flex flex-col gap-1")}>
+    <Menu className={cn(props.isMobile && "flex flex-col gap-1 pb-8")}>
       {items.map((item) => (
         <CustomSidebarMenuItem
           {...item}

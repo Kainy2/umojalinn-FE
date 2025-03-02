@@ -5,13 +5,13 @@ import CustomSidebarMenu from "@/components/custom/sidebar/Menu";
 import { Button } from "@/components/ui/button";
 import { LogOut, Menu, Plus } from "lucide-react";
 import {
-  Sheet,
-  SheetContent,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+  Drawer,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 
@@ -21,15 +21,15 @@ const MobileMenu = () => {
   const isDesigner = session?.user?.profileRole === "DESIGNER";
 
   return (
-    <Sheet>
-      <SheetTrigger asChild>
+    <Drawer direction="left">
+      <DrawerTrigger asChild>
         <Button className="md:hidden" variant="ghost">
           <Menu />
         </Button>
-      </SheetTrigger>
-      <SheetContent side="left" className="w-[350px] flex flex-col">
-        <SheetHeader>
-          <SheetTitle className="hidden">Menu</SheetTitle>
+      </DrawerTrigger>
+      <DrawerContent className="w-full max-w-[350px] flex flex-col">
+        <DrawerHeader>
+          <DrawerTitle className="hidden">Menu</DrawerTitle>
           <Image
             src="/img/png/umoja.png"
             alt="Umoja logo"
@@ -49,14 +49,14 @@ const MobileMenu = () => {
               {isDesigner ? "Share your work" : "Create project"}
             </span>
           </Button>
-        </SheetHeader>
+        </DrawerHeader>
         <div className="flex-1">
           <CustomSidebarMenu
             isMobile
             profileRole={session?.user?.profileRole}
           />
         </div>
-        <SheetFooter>
+        <DrawerFooter>
           <div className="flex gap-2 items-center">
             <DashbordSidebarFooterContent
               action={
@@ -69,11 +69,11 @@ const MobileMenu = () => {
               }
             />
           </div>
-        </SheetFooter>
+        </DrawerFooter>
         {/* <CustomSidebarMenu isMobile profileRole={token?.user?.profileRole} />
         <DashbordSidebarFooter isMobile /> */}
-      </SheetContent>
-    </Sheet>
+      </DrawerContent>
+    </Drawer>
   );
 };
 

@@ -28,6 +28,7 @@ import {
   UmojaLinnMilestone,
   UmojaLinnMilestoneSubmission,
   UmojaLinnProject,
+  UmojaLinnProjectReview,
   UmojalinnWallet,
   UmojaLinnWithdrawalMethod,
 } from "@/types/project";
@@ -54,6 +55,7 @@ import {
   CreateWithdrawalMethodPayload,
   RequestWithdrawalPayload,
 } from "@/section/form/withdraw/WithdrawalAmount";
+import { getUserReviews, UserReviewsApiProps } from "@/actions/user";
 
 export const useInviteBuyer = (
   options: GenericUseMutationProps<SingleApiResponse, { emails: string[] }>
@@ -423,5 +425,18 @@ export const useAddProjectReview = (
       handleError(error);
       options?.onError?.(error, variables, context);
     },
+  });
+};
+
+export const useGetUserReviews = (
+  apiParams: UserReviewsApiProps,
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnProjectReview>>
+) => {
+  const { data: me } = useSession();
+  return useQuery({
+    ...options,
+    enabled: me?.user && apiParams && options?.enabled !== false,
+    queryKey: [PROJECT, "REVIEWS", { apiParams }],
+    queryFn: () => getUserReviews(apiParams),
   });
 };
