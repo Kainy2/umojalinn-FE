@@ -53,7 +53,7 @@ const SettingsProfileWorkHistoryPage = () => {
               : "Clothing Quality"}{" "}
             feedback
           </h4>
-          <p className="mb-2">"{review?.message}"</p>
+          <p className="mb-2">&quot;{review?.message}&quot;</p>
 
           <p className="text-sm mb-4">
             {formatDate(review?.createdAt, "MMM d, yyyy")} - Present
