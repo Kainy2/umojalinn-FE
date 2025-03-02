@@ -309,6 +309,7 @@ export type UmojaLinnProjectReview = {
   message: string;
   images: string[];
   reviewType: "EXPERIENCE" | "CLOTHING_QUALITY";
-  buyer: Pick<UmojaLinnUserRoleProfile, "user"> | null;
-  designer: Pick<UmojaLinnUserRoleProfile, "user"> | null;
-};
+  buyer?: Pick<UmojaLinnUserRoleProfile, "user"> | null;
+  designer?: Pick<UmojaLinnUserRoleProfile, "user"> | null;
+  project?: UmojaLinnProject;
+} & UmojaLinnTimestamp;

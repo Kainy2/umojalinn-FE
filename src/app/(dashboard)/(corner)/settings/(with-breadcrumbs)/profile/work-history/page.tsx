@@ -1,6 +1,11 @@
 "use client";
+import { ReviewRatingStars } from "@/components/custom/dialog/Review";
+import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatCurrencyValue } from "@/lib/number";
+import { getCurrencySymbol } from "@/lib/string";
 import { useGetUserReviews } from "@/tanstack/hooks/useProject";
+import { formatDate } from "date-fns";
 import { useSession } from "next-auth/react";
 import React from "react";
 
@@ -34,7 +39,35 @@ const SettingsProfileWorkHistoryPage = () => {
   return (
     <div className="flex flex-col gap-8">
       {userReviews?.data?.data?.map((review) => (
-        <div key={review?.id}></div>
+        <div
+          key={review?.id}
+          className="border border-input p-4 text-foreground-body"
+        >
+          <h3 className="text-subtitle-2 text-foreground font-semibold mb-2.5">
+            {review?.project?.title}
+          </h3>
+
+          <h4 className="font-medium mb-1">
+            {review?.reviewType === "EXPERIENCE"
+              ? "Experience"
+              : "Clothing Quality"}{" "}
+            feedback
+          </h4>
+          <p className="mb-2">"{review?.message}"</p>
+
+          <p className="text-sm mb-4">
+            {formatDate(review?.createdAt, "MMM d, yyyy")} - Present
+          </p>
+          <ReviewRatingStars small rating={review?.rating} />
+          <Separator className="bg-border/50  my-2" />
+          <div className="flex  justify-between text-sm gap-8">
+            <p className="font-semibold">
+              {getCurrencySymbol(review?.project?.currency)}
+              {formatCurrencyValue(review?.project?.approvedBudget)}
+            </p>
+            <button className="font-bold text-primary">View details</button>
+          </div>
+        </div>
       ))}
     </div>
   );
