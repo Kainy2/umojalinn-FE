@@ -17,6 +17,7 @@ export type CustomReactSelectProps = Props &
     adornment?: boolean;
     fullWidth: boolean;
     startAdornment: React.ReactNode;
+    wrapperClassName: string;
   }>;
 
 export type CustomReactSelectFieldProps = CustomReactSelectProps & FieldProps;
@@ -106,10 +107,11 @@ const CustomReactSelect = (props: CustomReactSelectProps) => {
 export const CustomReactSelectField: React.FC<CustomReactSelectFieldProps> = ({
   label,
   hint,
+  wrapperClassName,
   ...selectProps
 }) => {
   return (
-    <div className={cn("grid w-full items-center gap-1.5")}>
+    <div className={cn("grid w-full items-center gap-1.5", wrapperClassName)}>
       {label &&
         (typeof label === "string" ? (
           <Label>{label}</Label>

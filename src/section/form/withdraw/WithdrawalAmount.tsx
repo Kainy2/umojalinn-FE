@@ -77,8 +77,11 @@ export type CreateWithdrawalMethodPayload = {
   currency: UmojaLinnCurrency;
 } & (PaypalPayload | DirectTransferPayload);
 
-const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
-  const { currency } = props;
+const WithdrawalAmountForm = (props: {
+  currency: UmojaLinnCurrency;
+  mode?: "WITHDRAWAL" | "PAYMENT";
+}) => {
+  const { currency, mode = "WITHDRAWAL" } = props;
   const [paymentMethod, setPaymentMethod] = useState<
     null | UmojaLinnWithdrawalMethod["channel"]
   >(null);
@@ -190,22 +193,23 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
     <div className="flex flex-col gap-6">
       {
         <>
-          {!!withdrawalMethodsData?.data?.data?.length && (
-            <TextField
-              type="number"
-              label="Withdraw Amount"
-              placeholder="Amount to withdraw"
-              value={amount || ""}
-              onChange={(e) => setAmount(e.target.value)}
-              startAdornment={
-                currency === "EURO" ? (
-                  <Euro className="size-4 text-foreground-body" />
-                ) : (
-                  <NairaSign className="size-4 text-foreground-body" />
-                )
-              }
-            />
-          )}
+          {mode === "WITHDRAWAL" &&
+            !!withdrawalMethodsData?.data?.data?.length && (
+              <TextField
+                type="number"
+                label="Withdraw Amount"
+                placeholder="Amount to withdraw"
+                value={amount || ""}
+                onChange={(e) => setAmount(e.target.value)}
+                startAdornment={
+                  currency === "EURO" ? (
+                    <Euro className="size-4 text-foreground-body" />
+                  ) : (
+                    <NairaSign className="size-4 text-foreground-body" />
+                  )
+                }
+              />
+            )}
           <FormItemWrapper
             title="Withdrawal details"
             description="Select withdrawal method"
@@ -219,8 +223,9 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
                       <Skeleton key={_ + i} className="h-28 rounded-md" />
                     ))}
                 {withdrawalMethodsData?.data?.data?.map?.((method) => (
-                  <button
+                  <div
                     onClick={() =>
+                      mode === "WITHDRAWAL" &&
                       setWithdrawalMethod((prev) =>
                         prev === method?.id ? null : method.id
                       )
@@ -228,7 +233,8 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
                     key={method.id}
                     className={cn(
                       "p-4 rounded-md border relative flex gap-4",
-                      withdrawalMethod === method?.id && "border-primary"
+                      withdrawalMethod === method?.id && "border-primary",
+                      mode === "WITHDRAWAL" && "cursor-pointer"
                     )}
                   >
                     {getIcon(method?.channel)}
@@ -242,12 +248,13 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
                         </button>
                       </div>
                     </div>
-                    {withdrawalMethod === method?.id ? (
-                      <CheckCircle className="size-5 text-primary shrink-0 absolute top-4 right-4" />
-                    ) : (
-                      <span className="border border-gray-400 rounded-full size-5 shrink-0 absolute top-4 right-4" />
-                    )}
-                  </button>
+                    {mode !== "PAYMENT" &&
+                      (withdrawalMethod === method?.id ? (
+                        <CheckCircle className="size-5 text-primary shrink-0 absolute top-4 right-4" />
+                      ) : (
+                        <span className="border border-gray-400 rounded-full size-5 shrink-0 absolute top-4 right-4" />
+                      ))}
+                  </div>
                 ))}
               </>
               <CustomSelect
@@ -372,7 +379,11 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
       }
       <ProjectEditFooter
         hideDraft
-        saveText={paymentMethod ? "Save details" : "Proceed to withdrawal"}
+        saveText={
+          mode === "PAYMENT" || !paymentMethod
+            ? "Save details"
+            : "Proceed to withdrawal"
+        }
         handleSave={handleContinue}
         loading={
           isCreatingWithdrawalMethod ||
