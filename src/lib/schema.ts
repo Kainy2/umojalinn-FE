@@ -154,7 +154,7 @@ export const passwordUpdateSchema = z
       message: "Password must be at least 8 characters.",
     }),
   })
-  .refine((data) => data.currentPassword === data.confirmPassword, {
+  .refine((data) => data.newPassword === data.confirmPassword, {
     message: "Passwords don't match.",
     path: ["confirmPassword"],
   });
