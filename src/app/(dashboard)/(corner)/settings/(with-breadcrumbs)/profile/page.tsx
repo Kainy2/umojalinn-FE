@@ -63,10 +63,11 @@ const SettingsProfilePage = () => {
       city: "",
       zipCode: "",
       address: "",
+      languages: [{ name: "" }],
     },
   });
 
-  useEffect(() => {
+  const reset = useCallback(() => {
     if (meData?.data?.data) {
       Object.entries(meData.data.data).forEach(([key, value]) => {
         if (
@@ -102,7 +103,20 @@ const SettingsProfilePage = () => {
         ),
       );
     }
-  }, [meData?.data?.data, form]);
+    if (meData?.data?.data?.designerProfile?.languages?.length) {
+      form.setValue(
+        "languages",
+        meData?.data?.data?.designerProfile?.languages?.map?.((lang) => ({
+          name: lang?.name,
+          languageProficiency: lang?.languageProficiency,
+        })),
+      );
+    }
+  }, [meData, form]);
+
+  useEffect(() => {
+    reset();
+  }, [meData?.data?.data, form, reset]);
 
   const disableForm = isUpdatingMe || !editMode;
 
@@ -450,22 +464,22 @@ const SettingsProfilePage = () => {
                                 );
                               }}
                             />
-                            <button
-                              disabled={disableForm}
-                              className="text-sm font-semibold text-primary disabled:opacity-50"
-                              onClick={() =>
-                                field.onChange([
-                                  ...field.value,
-                                  {
-                                    name: "",
-                                  },
-                                ])
-                              }
-                            >
-                              add another language
-                            </button>
                           </div>
                         ))}
+                        <button
+                          disabled={disableForm}
+                          className="text-sm font-semibold text-primary disabled:opacity-50"
+                          onClick={() =>
+                            field.onChange([
+                              ...field.value,
+                              {
+                                name: "",
+                              },
+                            ])
+                          }
+                        >
+                          add another language
+                        </button>
                       </>
                     );
                   }}
@@ -562,6 +576,7 @@ const SettingsProfilePage = () => {
                 onClick={() => {
                   setEditMode(false);
                   form?.clearErrors();
+                  reset();
                 }}
               >
                 Cancel

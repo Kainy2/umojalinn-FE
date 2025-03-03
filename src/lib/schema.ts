@@ -122,6 +122,14 @@ export const requirementsAndBugetSchema = z.object({
     .optional(),
   negotiable: z.boolean().optional(),
 });
+
+export const languageProficiency = [
+  "BEGINNER",
+  "INTERMEDIATE",
+  "FLUENT",
+  "NATIVE",
+] as const;
+
 export const updateProfileSchema = z.object({
   about: z.string().max(300, "Bio must be at most 300 characters").optional(),
   firstName: z.string().min(1, "First Name is required"),
@@ -144,12 +152,7 @@ export const updateProfileSchema = z.object({
   languages: z.array(
     z.object({
       name: z.string().min(1, "Language name is required"),
-      languageProficiency: z.enum([
-        "BEGINNER",
-        "INTERMEDIATE",
-        "FLUENT",
-        "NATIVE",
-      ]),
+      languageProficiency: z.enum(languageProficiency),
     }),
   ),
   phoneNumber: z.string().min(10, "Invalid phone number"),

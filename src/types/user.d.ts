@@ -1,3 +1,4 @@
+import { languageProficiency } from "@/lib/schema";
 import { UmojaLinnTimestamp } from "./util";
 
 export type UmojaLinnUserRole = "BUYER" | "DESIGNER";
@@ -33,7 +34,10 @@ export type UmojaLinnUserDesignerAddonProfile = {
   about: null | string;
   brandName: null | string;
   specialistTypeId: null | string;
-  languages: [];
+  languages: {
+    name: string;
+    languageProficiency: (typeof languageProficiency)[number];
+  }[];
   specialistType: null | string;
 };
 
