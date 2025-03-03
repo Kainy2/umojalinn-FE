@@ -211,19 +211,21 @@ const SettingsProfilePage = () => {
             />
           </div>
         </FormItemWrapper>
-        <FormItemWrapper title="Brand" description="(Optional)">
-          <FormField
-            control={form.control}
-            name="brandName"
-            render={({ field }) => (
-              <FormTextField
-                placeholder="Brand Name"
-                disabled={disableForm}
-                {...field}
-              />
-            )}
-          />
-        </FormItemWrapper>
+        {isDesigner && (
+          <FormItemWrapper title="Brand" description="(Optional)">
+            <FormField
+              control={form.control}
+              name="brandName"
+              render={({ field }) => (
+                <FormTextField
+                  placeholder="Brand Name"
+                  disabled={disableForm}
+                  {...field}
+                />
+              )}
+            />
+          </FormItemWrapper>
+        )}
         <FormItemWrapper title="Tag">
           <FormField
             control={form.control}
