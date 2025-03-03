@@ -112,7 +112,7 @@ const WithdrawalAmountForm = (props: {
 
   const handlePaypalPayloadChange = (
     prop: keyof PaypalPayload,
-    value: string
+    value: string,
   ) => {
     setPaypalPayload((prev) => ({
       ...prev,
@@ -122,7 +122,7 @@ const WithdrawalAmountForm = (props: {
 
   const handleDirectTransferChange = (
     prop: keyof DirectTransferPayload,
-    value: string
+    value: string,
   ) => {
     setDirectTransferPayload((prev) => ({
       ...prev,
@@ -174,6 +174,7 @@ const WithdrawalAmountForm = (props: {
 
   const handleContinue = () => {
     if (!withdrawalMethod) {
+      if (!paymentMethod) return;
       return createWithdrawalMethod({
         channel: paymentMethod!,
         currency,
@@ -227,14 +228,14 @@ const WithdrawalAmountForm = (props: {
                     onClick={() =>
                       mode === "WITHDRAWAL" &&
                       setWithdrawalMethod((prev) =>
-                        prev === method?.id ? null : method.id
+                        prev === method?.id ? null : method.id,
                       )
                     }
                     key={method.id}
                     className={cn(
                       "p-4 rounded-md border relative flex gap-4",
                       withdrawalMethod === method?.id && "border-primary",
-                      mode === "WITHDRAWAL" && "cursor-pointer"
+                      mode === "WITHDRAWAL" && "cursor-pointer",
                     )}
                   >
                     {getIcon(method?.channel)}
@@ -305,7 +306,7 @@ const WithdrawalAmountForm = (props: {
                     onChange={(e) =>
                       handleDirectTransferChange(
                         "accountNumber",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                   />
