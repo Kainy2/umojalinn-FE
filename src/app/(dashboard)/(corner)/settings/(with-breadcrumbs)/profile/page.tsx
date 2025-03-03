@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormField } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import { LANGUAGES } from "@/constant";
+import { useToast } from "@/hooks/use-toast";
 import useClipboard from "@/hooks/useClipboard";
 import { updateProfileKeys, updateProfileSchema } from "@/lib/schema";
 import { jsonToFormData } from "@/lib/utils";
@@ -38,12 +39,16 @@ const SettingsProfilePage = () => {
   const { data: clothingTypes } = useGetClothingTypes();
   const { data: specialistType } = useGetSpecialistTypes();
   const [editMode, setEditMode] = useState(false);
+  const { toast } = useToast();
 
   const { data: meData, isPending: isGettingMyData } = useGetMe();
 
   const { mutate: updateMe, isPending: isUpdatingMe } = useUpdateUserDetails({
     onSuccess() {
       setEditMode(false);
+      toast({
+        description: "Profile Updated!",
+      });
     },
   });
 
