@@ -42,10 +42,17 @@ const FormItemWrapper = (props: FormItemWrapperProps) => {
         )}
       </div>
       <div className="flex items-center col-span-12 lg:grid lg:grid-cols-subgrid lg:col-span-9 gap-4">
-        <div className="flex-1 lg:flex-grow-0 lg:col-span-6">
+        <div
+          className={cn(
+            "flex-1 lg:flex-grow-0 lg:col-span-6",
+            props.endAdornment && "lg:flex-grow-0 lg:col-span-6",
+          )}
+        >
           {props.children}
         </div>
-        <div className="lg:col-span-3">{props.endAdornment}</div>
+        {props.endAdornment && (
+          <div className="lg:col-span-3">{props.endAdornment}</div>
+        )}
       </div>
     </div>
   );

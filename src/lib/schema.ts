@@ -147,7 +147,8 @@ export const updateProfileSchema = z.object({
   specialistType: z.string().optional(),
   clothingTypes: z
     .array(z.string())
-    .max(8, "Select only up to 8 clothing types"),
+    .max(8, "Select only up to 8 clothing types")
+    .optional(),
   experienceLevel: z.enum([...EXPERIENCE_ENUMS_VALUES]).nullable(),
   languages: z.array(
     z.object({

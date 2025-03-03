@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import FormItemWrapper from "@/components/custom/FormItemWrapper";
 import { FormTextAreaField } from "@/components/custom/input/TextAreaField";
@@ -6,7 +7,7 @@ import { FormCustomDatePickerField } from "@/components/custom/picker/Date";
 import CustomPhonePicker from "@/components/custom/picker/Phone";
 import { FormCustomSelectField } from "@/components/custom/Select";
 import CustomSelectCountry from "@/components/custom/SelectCountry";
-import TabButtonSelect from "@/components/custom/tab/ButtonSelect";
+import { FormTabButtonSelect } from "@/components/custom/tab/ButtonSelect";
 import { FormCustomTagSelectField } from "@/components/custom/tag/Select";
 import { Button } from "@/components/ui/button";
 import { Form, FormField } from "@/components/ui/form";
@@ -40,7 +41,11 @@ const SettingsProfilePage = () => {
 
   const { data: meData, isPending: isGettingMyData } = useGetMe();
 
-  const { mutate: updateMe, isPending: isUpdatingMe } = useUpdateUserDetails();
+  const { mutate: updateMe, isPending: isUpdatingMe } = useUpdateUserDetails({
+    onSuccess() {
+      setEditMode(false);
+    },
+  });
 
   const { data: session } = useSession();
   const { handleCopy } = useClipboard();
@@ -132,6 +137,12 @@ const SettingsProfilePage = () => {
         brandName,
         languages,
         clothingTypes,
+        experienceLevel,
+        specialistType,
+        email,
+        tag,
+        firstName,
+        lastName,
         ...others
       } = values;
       updateMe(
@@ -142,6 +153,8 @@ const SettingsProfilePage = () => {
             brandName,
             languages,
             clothingTypes,
+            experienceLevel,
+            specialistType,
           },
           address: {
             address,
@@ -232,7 +245,7 @@ const SettingsProfilePage = () => {
                 }
                 placeholder="alex"
                 className="pl-40 "
-                disabled={disableForm}
+                disabled
                 endAdornment={
                   <button
                     type="button"
@@ -296,7 +309,7 @@ const SettingsProfilePage = () => {
               <FormTextField
                 {...field}
                 placeholder="you@example.com"
-                disabled={disableForm}
+                disabled
                 startAdornment={
                   <Mail className="size-5 text-foreground-body" />
                 }
@@ -374,7 +387,7 @@ const SettingsProfilePage = () => {
                 control={form.control}
                 name="experienceLevel"
                 render={({ field }) => (
-                  <TabButtonSelect
+                  <FormTabButtonSelect
                     active={field?.value || null}
                     className="truncate [&>*]:truncate"
                     disabled={disableForm}
@@ -391,100 +404,101 @@ const SettingsProfilePage = () => {
               title="Language"
               description="Select your preferred language and level of proficiency"
             >
-              <div className="flex gap-4 items-center">
-                <FormField
-                  control={form.control}
-                  name="languages"
-                  disabled={disableForm}
-                  render={({ field }) => {
-                    return (
-                      <>
-                        {field.value?.map((lang, i) => (
-                          <div key={i} className="flex flex-col gap-2">
-                            <div className="flex gap-2 items-center">
-                              <FormCustomSelectField
-                                disabled={disableForm}
-                                options={LANGUAGES?.map((lang) => ({
-                                  value: lang,
-                                  children: lang,
-                                }))}
-                                value={lang?.name || ""}
-                                name={`languages[${i}].name`}
-                                onValueChange={(value) => {
-                                  field?.onChange(
-                                    field?.value?.map((l, index) =>
-                                      i === index
-                                        ? {
-                                            ...l,
-                                            name: value,
-                                          }
-                                        : l,
-                                    ),
-                                  );
-                                }}
-                                placeholder="Select language"
-                              />
-                              <button
-                                disabled={disableForm}
-                                onClick={() =>
-                                  field.onChange(
-                                    field.value?.filter(
-                                      (_, index) => i !== index,
-                                    ),
-                                  )
-                                }
-                                className="text-sm font-semibold text-error disabalbed:opacity-50"
-                              >
-                                remove
-                              </button>
-                            </div>
-                            <TabButtonSelect
-                              active={lang?.languageProficiency || null}
-                              className="truncate [&>*]:truncate"
+              <FormField
+                control={form.control}
+                name="languages"
+                disabled={disableForm}
+                render={({ field }) => {
+                  return (
+                    <div className="flex flex-col gap-2">
+                      {field.value?.map((lang, i) => (
+                        <div key={i} className="flex flex-col gap-2">
+                          <div className="flex gap-2 items-center">
+                            <FormCustomSelectField
+                              containerClassName="w-full flex-1"
                               disabled={disableForm}
-                              tabs={[
-                                { value: "BEGINNER", title: "Beginner" },
-                                {
-                                  value: "INTERMEDIATE",
-                                  title: "Intermediate",
-                                },
-                                { value: "FLUENT", title: "Fluent" },
-                                { value: "NATIVE", title: "Native" },
-                              ]}
-                              onChange={(value) => {
-                                field.onChange(
+                              options={LANGUAGES?.map((lang) => ({
+                                value: lang,
+                                children: lang,
+                              }))}
+                              value={lang?.name || ""}
+                              name={`languages[${i}].name`}
+                              onValueChange={(value) => {
+                                field?.onChange(
                                   field?.value?.map((l, index) =>
                                     i === index
                                       ? {
                                           ...l,
-                                          languageProficiency: value,
+                                          name: value,
                                         }
                                       : l,
                                   ),
                                 );
                               }}
+                              placeholder="Select language"
                             />
+                            <button
+                              type="button"
+                              disabled={disableForm}
+                              onClick={() =>
+                                field.onChange(
+                                  field.value?.filter(
+                                    (_, index) => i !== index,
+                                  ),
+                                )
+                              }
+                              className="text-sm font-semibold text-error disabalbed:opacity-50"
+                            >
+                              remove
+                            </button>
                           </div>
-                        ))}
-                        <button
-                          disabled={disableForm}
-                          className="text-sm font-semibold text-primary disabled:opacity-50"
-                          onClick={() =>
-                            field.onChange([
-                              ...field.value,
+                          <FormTabButtonSelect
+                            active={lang?.languageProficiency || null}
+                            className="truncate [&>*]:truncate w-full"
+                            disabled={disableForm}
+                            tabs={[
+                              { value: "BEGINNER", title: "Beginner" },
                               {
-                                name: "",
+                                value: "INTERMEDIATE",
+                                title: "Intermediate",
                               },
-                            ])
-                          }
-                        >
-                          add another language
-                        </button>
-                      </>
-                    );
-                  }}
-                />
-              </div>
+                              { value: "FLUENT", title: "Fluent" },
+                              { value: "NATIVE", title: "Native" },
+                            ]}
+                            onChange={(value) => {
+                              field.onChange(
+                                field?.value?.map((l, index) =>
+                                  i === index
+                                    ? {
+                                        ...l,
+                                        languageProficiency: value,
+                                      }
+                                    : l,
+                                ),
+                              );
+                            }}
+                          />
+                        </div>
+                      ))}
+                      <button
+                        disabled={disableForm}
+                        type="button"
+                        className="text-sm font-semibold text-primary disabled:opacity-50  self-start"
+                        onClick={() =>
+                          field.onChange([
+                            ...field.value,
+                            {
+                              name: "",
+                            },
+                          ])
+                        }
+                      >
+                        add another language
+                      </button>
+                    </div>
+                  );
+                }}
+              />
             </FormItemWrapper>
             <FormItemWrapper title="Phone number">
               <FormField

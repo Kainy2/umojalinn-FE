@@ -2,6 +2,14 @@ import React from "react";
 import { CustomTabProps } from "@/components/custom/tab";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { FormFieldProps } from "../input/TextField";
+import {
+  FormControl,
+  FormDescription,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 export type CustomTabButtonSelectprops = Omit<
   CustomTabProps,
@@ -11,6 +19,10 @@ export type CustomTabButtonSelectprops = Omit<
   size?: "default" | "large";
 };
 
+// export type TabButtonSelectProps = CustomTabButtonSelectprops & FieldProps;
+export type FormTabButtonSelectProps = CustomTabButtonSelectprops &
+  FormFieldProps;
+
 const TabButtonSelect = (props: CustomTabButtonSelectprops) => {
   const { type = "DEFAULT", size = "default" } = props;
 
@@ -19,7 +31,7 @@ const TabButtonSelect = (props: CustomTabButtonSelectprops) => {
       className={cn(
         "p-1 bg-gray-100 flex gap-1",
         type === "DEFAULT" && "rounded",
-        props.className
+        props.className,
       )}
     >
       {props?.tabs?.map?.((tab, index) => {
@@ -31,6 +43,7 @@ const TabButtonSelect = (props: CustomTabButtonSelectprops) => {
 
         return (
           <Comp
+            type="button"
             href={tab?.href || "#"}
             disabled={props.disabled}
             key={index}
@@ -40,7 +53,7 @@ const TabButtonSelect = (props: CustomTabButtonSelectprops) => {
               active &&
                 (type === "DEFAULT"
                   ? "bg-background border border-primary text-primary"
-                  : "bg-background text-foreground shadow-sm shadow-gray-200/50 rounded-sm font-medium")
+                  : "bg-background text-foreground shadow-sm shadow-gray-200/50 rounded-sm font-medium"),
             )}
             onClick={(e) => {
               props.onChange?.(tab.value);
@@ -53,6 +66,20 @@ const TabButtonSelect = (props: CustomTabButtonSelectprops) => {
         );
       })}
     </div>
+  );
+};
+
+export const FormTabButtonSelect = (props: FormTabButtonSelectProps) => {
+  const { label, hint, containerClassName, ...inputProps } = props;
+  return (
+    <FormItem className={(containerClassName || "") + ""}>
+      {label && <FormLabel>{label}</FormLabel>}
+      <FormControl>
+        <TabButtonSelect {...inputProps} />
+      </FormControl>
+      {hint && <FormDescription>{hint}</FormDescription>}
+      <FormMessage className="pt-2" />
+    </FormItem>
   );
 };
 

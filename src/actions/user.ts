@@ -16,7 +16,7 @@ export const getMe = async (options?: ServerActionOption) => {
     axios = await getServerAxiosWithToken();
   }
   return axios.get<unknown, AxiosResponse<SingleApiResponse<UmojaLinnUser>>>(
-    "/user/details"
+    "/user/details",
   );
 };
 
@@ -27,27 +27,27 @@ export const onboard = async (body: FormData, options?: ServerActionOption) => {
   }
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
     "/user/onboard",
-    body
+    body,
   );
 };
 
 export const updateUserDetails = async (
   body: FormData,
-  options?: ServerActionOption
+  options?: ServerActionOption,
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
-  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+  return axios.put<unknown, AxiosResponse<SingleApiResponse>>(
     "/user/update-user-profile",
-    body
+    body,
   );
 };
 
 export const changePassword = async (
   body: PasswordUpdateProps,
-  options?: ServerActionOption
+  options?: ServerActionOption,
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -55,13 +55,13 @@ export const changePassword = async (
   }
   return axios.put<unknown, AxiosResponse<SingleApiResponse>>(
     "/user/change-password",
-    body
+    body,
   );
 };
 
 export const updateNotificationSettings = async (
   body: Partial<NotificationSettingsProps>,
-  options?: ServerActionOption
+  options?: ServerActionOption,
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -69,7 +69,7 @@ export const updateNotificationSettings = async (
   }
   return axios.put<unknown, AxiosResponse<SingleApiResponse>>(
     "/user/update-notification-setting",
-    body
+    body,
   );
 };
 
@@ -91,7 +91,7 @@ export type UserReviewsApiProps = { profileType: UmojaLinnUserRole } & Partial<{
 
 export const getUserReviews = async (
   apiParams: UserReviewsApiProps,
-  options?: ServerActionOption
+  options?: ServerActionOption,
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {

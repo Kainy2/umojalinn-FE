@@ -3,13 +3,13 @@ import { customAxios, handleAPIError, setBearerToken } from "@/lib/axios";
 import { AxiosResponse } from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
-export const POST = async (req: NextRequest) => {
+export const PUT = async (req: NextRequest) => {
   try {
     await setBearerToken(req);
 
     const body = await req.formData();
 
-    const response = await customAxios.post<
+    const response = await customAxios.put<
       unknown,
       AxiosResponse<SingleApiResponse, unknown>
     >(`/user/update-user-profile`, body);
