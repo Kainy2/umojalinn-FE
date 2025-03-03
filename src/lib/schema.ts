@@ -135,10 +135,10 @@ export const updateProfileSchema = z.object({
   firstName: z.string().min(1, "First Name is required"),
   lastName: z.string().min(1, "Last Name is required"),
   brandName: z.string().optional(),
-  tag: z.string().min(1, "Tag is required"),
+  tag: z.string().min(1, "Tag is required").optional(),
   gender: z.enum(["MALE", "FEMALE", "RATHER_NOT_SAY"]),
   dateOfBirth: z.union([z.date().nullable(), z.string()]).optional(),
-  email: z.string().email("Invalid email address"),
+  email: z.string().email("Invalid email address").optional(),
   alternativeEmail: z
     .string()
     .email("Invalid email address")
@@ -149,12 +149,17 @@ export const updateProfileSchema = z.object({
     .array(z.string())
     .max(8, "Select only up to 8 clothing types")
     .optional(),
-  experienceLevel: z.enum([...EXPERIENCE_ENUMS_VALUES]).nullable(),
+  experienceLevel: z
+    .enum([...EXPERIENCE_ENUMS_VALUES])
+    .nullable()
+    .optional(),
   languages: z.array(
-    z.object({
-      name: z.string().min(1, "Language name is required"),
-      languageProficiency: z.enum(languageProficiency),
-    }),
+    z
+      .object({
+        name: z.string().min(1, "Language name is required"),
+        languageProficiency: z.enum(languageProficiency),
+      })
+      .optional(),
   ),
   phoneNumber: z.string().min(10, "Invalid phone number"),
   country: z.string().min(1, "Country is required"),

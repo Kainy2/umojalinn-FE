@@ -55,19 +55,6 @@ const SettingsProfilePage = () => {
   const form = useForm<UpdateProfileProps>({
     resolver: zodResolver(updateProfileSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      brandName: "",
-      tag: "",
-      dateOfBirth: null,
-      email: "",
-      alternativeEmail: null,
-      phoneNumber: "",
-      country: "",
-      state: "",
-      city: "",
-      zipCode: "",
-      address: "",
       languages: [{ name: "" }],
     },
   });
