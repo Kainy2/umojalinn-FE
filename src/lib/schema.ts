@@ -128,7 +128,7 @@ export const updateProfileSchema = z.object({
   lastName: z.string().min(1, "Last Name is required"),
   brandName: z.string().optional(),
   tag: z.string().min(1, "Tag is required"),
-  gender: z.enum(["MALE", "FEMALE"]),
+  gender: z.enum(["MALE", "FEMALE", "RATHER_NOT_SAY"]),
   dateOfBirth: z.union([z.date().nullable(), z.string()]).optional(),
   email: z.string().email("Invalid email address"),
   alternativeEmail: z
@@ -136,15 +136,27 @@ export const updateProfileSchema = z.object({
     .email("Invalid email address")
     .nullable()
     .optional(),
-  specialistTypeId: z.string().optional(),
-  // clothingType: z.array(z.string()).max(8, "Select up to 8 clothing types"),
-  experience: z.enum([...EXPERIENCE_ENUMS_VALUES]),
-  language: z.string().optional(),
-  phone: z.string().min(10, "Invalid phone number"),
+  specialistType: z.string().optional(),
+  clothingTypes: z
+    .array(z.string())
+    .max(8, "Select only up to 8 clothing types"),
+  experienceLevel: z.enum([...EXPERIENCE_ENUMS_VALUES]).nullable(),
+  languages: z.array(
+    z.object({
+      name: z.string().min(1, "Language name is required"),
+      languageProficiency: z.enum([
+        "BEGINNER",
+        "INTERMEDIATE",
+        "FLUENT",
+        "NATIVE",
+      ]),
+    }),
+  ),
+  phoneNumber: z.string().min(10, "Invalid phone number"),
   country: z.string().min(1, "Country is required"),
   state: z.string().min(1, "State is required"),
   city: z.string().min(1, "City is required"),
-  zip: z.string().min(1, "Zip/Postal code is required"),
+  zipCode: z.string().min(1, "Zip/Postal code is required"),
   address: z.string().min(1, "Home address is required"),
 });
 

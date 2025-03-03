@@ -16,7 +16,7 @@ const SettingsProfilePortfolioPage = () => {
       { projectStatus: "COMPLETED" },
       {
         enabled: session?.user?.profileRole === "BUYER",
-      }
+      },
     );
   const { data: designerPorfolioData, isPending: isGettingDesignerPorfolio } =
     useGetAllDesignerProject(
@@ -25,7 +25,7 @@ const SettingsProfilePortfolioPage = () => {
       },
       {
         enabled: session?.user?.profileRole === "DESIGNER",
-      }
+      },
     );
 
   const loading =

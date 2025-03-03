@@ -65,6 +65,7 @@ export type UmojaLinnProject = {
     } & UmojaLinnTimestamp
   > | null;
   bids: UmojaLinnBid[] | null;
+  specialistType: UmojaLinnSpecialistType | null;
 } & UmojaLinnTimestamp;
 
 export type UmojaLinnDeliveryMethod =
@@ -312,4 +313,9 @@ export type UmojaLinnProjectReview = {
   buyer?: Pick<UmojaLinnUserRoleProfile, "user"> | null;
   designer?: Pick<UmojaLinnUserRoleProfile, "user"> | null;
   project?: UmojaLinnProject;
+} & UmojaLinnTimestamp;
+
+export type UmojaLinnSpecialistType = {
+  id: string;
+  name: string;
 } & UmojaLinnTimestamp;

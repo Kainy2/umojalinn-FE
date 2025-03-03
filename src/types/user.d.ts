@@ -22,6 +22,21 @@ export type UmojaLinnUserRoleProfile = {
   user: null | UmojaLinnUser;
 } & UmojaLinnTimestamp;
 
+export type UmojaLinnUserDesignerAddonProfile = {
+  clothingTypes: Array<
+    {
+      id: string;
+      name: string;
+    } & UmojaLinnTimestamp
+  > | null;
+  experienceLevel: null | string;
+  about: null | string;
+  brandName: null | string;
+  specialistTypeId: null | string;
+  languages: [];
+  specialistType: null | string;
+};
+
 export type UmojaLinnUser = {
   id: string;
   firstName: string;
@@ -43,7 +58,9 @@ export type UmojaLinnUser = {
   profilePhotoUri: null | string;
   authProvider: string;
   buyerProfile: null | UmojaLinnUserRoleProfile;
-  designerProfile: null | UmojaLinnUserRoleProfile;
+  designerProfile:
+    | null
+    | (UmojaLinnUserRoleProfile & UmojaLinnUserDesignerAddonProfile);
   verified: boolean;
 } & UmojaLinnTimestamp;
 

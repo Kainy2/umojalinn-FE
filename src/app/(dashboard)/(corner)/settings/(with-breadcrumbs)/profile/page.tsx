@@ -7,10 +7,11 @@ import CustomPhonePicker from "@/components/custom/picker/Phone";
 import { FormCustomSelectField } from "@/components/custom/Select";
 import CustomSelectCountry from "@/components/custom/SelectCountry";
 import TabButtonSelect from "@/components/custom/tab/ButtonSelect";
-// import { FormCustomTagSelectField } from "@/components/custom/tag/Select";
+import { FormCustomTagSelectField } from "@/components/custom/tag/Select";
 import { Button } from "@/components/ui/button";
 import { Form, FormField } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
+import { LANGUAGES } from "@/constant";
 import useClipboard from "@/hooks/useClipboard";
 import { updateProfileKeys, updateProfileSchema } from "@/lib/schema";
 import { jsonToFormData } from "@/lib/utils";
@@ -18,7 +19,10 @@ import {
   EXPERIENCE_ENUMS,
   EXPERIENCE_ENUMS_VALUES,
 } from "@/section/form/project/edit/RequirementAndBudget";
-// import { useGetClothingTypes } from "@/tanstack/hooks/useProject";
+import {
+  useGetClothingTypes,
+  useGetSpecialistTypes,
+} from "@/tanstack/hooks/useProject";
 import { useGetMe, useUpdateUserDetails } from "@/tanstack/hooks/useUser";
 import { UpdateProfileProps } from "@/types/form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,7 +34,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 const SettingsProfilePage = () => {
-  // const { data: clothingTypes } = useGetClothingTypes();
+  const { data: clothingTypes } = useGetClothingTypes();
+  const { data: specialistType } = useGetSpecialistTypes();
   const [editMode, setEditMode] = useState(false);
 
   const { data: meData, isPending: isGettingMyData } = useGetMe();
@@ -52,12 +57,11 @@ const SettingsProfilePage = () => {
       dateOfBirth: null,
       email: "",
       alternativeEmail: null,
-      // clothingType: [],
-      phone: "",
+      phoneNumber: "",
       country: "",
       state: "",
       city: "",
-      zip: "",
+      zipCode: "",
       address: "",
     },
   });
@@ -90,21 +94,52 @@ const SettingsProfilePage = () => {
       });
     }
 
-    // if (meData?.data?.data?.clothingTypes?.length) {
-    //   form.setValue(
-    //     "clothingType",
-    //     meData?.data?.data?.clothingTypes?.map?.((type) => type?.id)
-    //   );
-    // }
+    if (meData?.data?.data?.designerProfile?.clothingTypes?.length) {
+      form.setValue(
+        "clothingTypes",
+        meData?.data?.data?.designerProfile?.clothingTypes?.map?.(
+          (type) => type?.id,
+        ),
+      );
+    }
   }, [meData?.data?.data, form]);
 
   const disableForm = isUpdatingMe || !editMode;
 
   const onSubmit = useCallback(
     async (values: UpdateProfileProps) => {
-      updateMe(jsonToFormData(values));
+      const {
+        address,
+        state,
+        city,
+        zipCode,
+        country,
+        about,
+        brandName,
+        languages,
+        clothingTypes,
+        ...others
+      } = values;
+      updateMe(
+        jsonToFormData({
+          ...others,
+          designerProfile: {
+            about,
+            brandName,
+            languages,
+            clothingTypes,
+          },
+          address: {
+            address,
+            state,
+            city,
+            zipCode,
+            country,
+          },
+        }),
+      );
     },
-    [updateMe]
+    [updateMe],
   );
 
   return (
@@ -214,6 +249,7 @@ const SettingsProfilePage = () => {
                 options={[
                   { value: "MALE", children: "Male" },
                   { value: "FEMALE", children: "Female" },
+                  { value: "RATHER_NOT_SAY", children: "Rather not say" },
                 ]}
               />
             )}
@@ -277,50 +313,52 @@ const SettingsProfilePage = () => {
         {isDesigner && (
           <>
             <Separator className="bg-border/50" />
-            {/* <FormItemWrapper title="Specialist">
-          <FormField
-            control={form.control}
-            name="specialist"
-            render={({ field }) => (
-              <FormCustomSelectField
-                value={field?.value}
-                onValueChange={(value) => field?.onChange(value)}
-                disabled={disableForm}
-                options={[
-                  { value: "MALE", children: "Men's wear" },
-                  { value: "FEMALE", children: "Women's wear" },
-                ]}
+            <FormItemWrapper title="Specialist">
+              <FormField
+                control={form.control}
+                name="specialistType"
+                render={({ field }) => (
+                  <FormCustomSelectField
+                    value={field?.value}
+                    onValueChange={(value) => field?.onChange(value)}
+                    disabled={disableForm}
+                    options={
+                      specialistType?.data?.data?.map?.((type) => ({
+                        value: type?.id,
+                        children: type.name,
+                      })) || []
+                    }
+                  />
+                )}
               />
-            )}
-          />
-        </FormItemWrapper> */}
-            {/* <FormItemWrapper title="Clothing Type">
-          <FormField
-            control={form.control}
-            name="clothingType"
-            render={({ field }) => (
-              <FormCustomTagSelectField
-                hint={`${field.value?.length || 0}/8 tags`}
-                disabled={disableForm}
-                options={
-                  clothingTypes?.data?.data?.map?.((type) => ({
-                    value: type?.id,
-                    label: type.name,
-                  })) || []
-                }
-                value={field.value || []}
-                onChange={(val: string[]) => field.onChange(val)}
+            </FormItemWrapper>
+            <FormItemWrapper title="Clothing Type">
+              <FormField
+                control={form.control}
+                name="clothingTypes"
+                render={({ field }) => (
+                  <FormCustomTagSelectField
+                    hint={`${field.value?.length || 0}/8 tags`}
+                    disabled={disableForm}
+                    options={
+                      clothingTypes?.data?.data?.map?.((type) => ({
+                        value: type?.id,
+                        label: type.name,
+                      })) || []
+                    }
+                    value={field.value || []}
+                    onChange={(val: string[]) => field.onChange(val)}
+                  />
+                )}
               />
-            )}
-          />
-        </FormItemWrapper> */}
+            </FormItemWrapper>
             <FormItemWrapper
               title="Experience level"
               description="Select your level of experience"
             >
               <FormField
                 control={form.control}
-                name="experience"
+                name="experienceLevel"
                 render={({ field }) => (
                   <TabButtonSelect
                     active={field?.value || null}
@@ -339,17 +377,105 @@ const SettingsProfilePage = () => {
               title="Language"
               description="Select your preferred language and level of proficiency"
             >
-              <FormField
-                control={form.control}
-                name="language"
-                disabled={disableForm}
-                render={({ field }) => <FormTextField {...field} />}
-              />
+              <div className="flex gap-4 items-center">
+                <FormField
+                  control={form.control}
+                  name="languages"
+                  disabled={disableForm}
+                  render={({ field }) => {
+                    return (
+                      <>
+                        {field.value?.map((lang, i) => (
+                          <div key={i} className="flex flex-col gap-2">
+                            <div className="flex gap-2 items-center">
+                              <FormCustomSelectField
+                                disabled={disableForm}
+                                options={LANGUAGES?.map((lang) => ({
+                                  value: lang,
+                                  children: lang,
+                                }))}
+                                value={lang?.name || ""}
+                                name={`languages[${i}].name`}
+                                onValueChange={(value) => {
+                                  field?.onChange(
+                                    field?.value?.map((l, index) =>
+                                      i === index
+                                        ? {
+                                            ...l,
+                                            name: value,
+                                          }
+                                        : l,
+                                    ),
+                                  );
+                                }}
+                                placeholder="Select language"
+                              />
+                              <button
+                                disabled={disableForm}
+                                onClick={() =>
+                                  field.onChange(
+                                    field.value?.filter(
+                                      (_, index) => i !== index,
+                                    ),
+                                  )
+                                }
+                                className="text-sm font-semibold text-error disabalbed:opacity-50"
+                              >
+                                remove
+                              </button>
+                            </div>
+                            <TabButtonSelect
+                              active={lang?.languageProficiency || null}
+                              className="truncate [&>*]:truncate"
+                              disabled={disableForm}
+                              tabs={[
+                                { value: "BEGINNER", title: "Beginner" },
+                                {
+                                  value: "INTERMEDIATE",
+                                  title: "Intermediate",
+                                },
+                                { value: "FLUENT", title: "Fluent" },
+                                { value: "NATIVE", title: "Native" },
+                              ]}
+                              onChange={(value) => {
+                                field.onChange(
+                                  field?.value?.map((l, index) =>
+                                    i === index
+                                      ? {
+                                          ...l,
+                                          languageProficiency: value,
+                                        }
+                                      : l,
+                                  ),
+                                );
+                              }}
+                            />
+                            <button
+                              disabled={disableForm}
+                              className="text-sm font-semibold text-primary disabled:opacity-50"
+                              onClick={() =>
+                                field.onChange([
+                                  ...field.value,
+                                  {
+                                    name: "",
+                                  },
+                                ])
+                              }
+                            >
+                              add another language
+                            </button>
+                          </div>
+                        ))}
+                      </>
+                    );
+                  }}
+                />
+              </div>
             </FormItemWrapper>
             <FormItemWrapper title="Phone number">
               <FormField
                 control={form.control}
-                name="phone"
+                name="phoneNumber"
                 disabled={disableForm}
                 render={({ field }) => <CustomPhonePicker {...field} />}
               />
@@ -401,7 +527,7 @@ const SettingsProfilePage = () => {
         <FormItemWrapper title="Zip/Postal code">
           <FormField
             control={form.control}
-            name="zip"
+            name="zipCode"
             render={({ field }) => (
               <FormTextField {...field} disabled={disableForm} />
             )}

@@ -13,6 +13,7 @@ import {
   getProjectById,
   getProjectMediaAndLinks,
   getProjectMilestones,
+  getSpecialistTypes,
   getWallet,
   getWithdrawalMethods,
   inviteBuyer,
@@ -29,6 +30,7 @@ import {
   UmojaLinnMilestoneSubmission,
   UmojaLinnProject,
   UmojaLinnProjectReview,
+  UmojaLinnSpecialistType,
   UmojalinnWallet,
   UmojaLinnWithdrawalMethod,
 } from "@/types/project";
@@ -58,7 +60,7 @@ import {
 import { getUserReviews, UserReviewsApiProps } from "@/actions/user";
 
 export const useInviteBuyer = (
-  options: GenericUseMutationProps<SingleApiResponse, { emails: string[] }>
+  options: GenericUseMutationProps<SingleApiResponse, { emails: string[] }>,
 ) => {
   const { handleError } = useHandleError("Invitation");
   return useMutation({
@@ -77,7 +79,7 @@ export const useInviteBuyer = (
 
 export const useGetProjectById = (
   id?: string,
-  options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnProject>>
+  options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnProject>>,
 ) => {
   const { data: me } = useSession();
   return useQuery({
@@ -90,7 +92,7 @@ export const useGetProjectById = (
 
 export const useUpdateProjectById = (
   id?: string,
-  options?: GenericUseMutationProps<SingleApiResponse, FormData>
+  options?: GenericUseMutationProps<SingleApiResponse, FormData>,
 ) => {
   const { handleError } = useHandleError("Update Project");
   return useMutation({
@@ -108,7 +110,7 @@ export const useUpdateProjectById = (
 };
 
 export const usePostProjectLive = (
-  options?: GenericUseMutationProps<SingleApiResponse, string>
+  options?: GenericUseMutationProps<SingleApiResponse, string>,
 ) => {
   const { handleError } = useHandleError("Update Project");
   return useMutation({
@@ -128,7 +130,7 @@ export const usePostProjectLive = (
 export const useGetClothingTypes = (
   options?: GenericUseQueryProps<
     SingleApiResponse<UmojaLinnProject["clothingTypes"]>
-  >
+  >,
 ) => {
   const { data: me } = useSession();
   return useQuery({
@@ -150,7 +152,7 @@ export const useGetAllBuyerProject = (
       | UmojaLinnProject["projectType"]
       | Array<UmojaLinnProject["projectType"]>;
   }>,
-  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnProject>>
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnProject>>,
 ) => {
   const { data: me } = useSession();
   return useQuery({
@@ -174,7 +176,7 @@ export const useGetAllDesignerProject = (
       | Array<UmojaLinnProject["projectType"]>;
     hasBid?: boolean;
   }>,
-  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnProject>>
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnProject>>,
 ) => {
   const { data: me } = useSession();
   return useQuery({
@@ -188,7 +190,7 @@ export const useGetAllDesignerProject = (
 
 export const useGetProjectMilestones = (
   projectId: string,
-  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnMilestone>>
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnMilestone>>,
 ) => {
   const { data: me } = useSession();
   return useQuery({
@@ -202,7 +204,7 @@ export const useGetProjectMilestones = (
 export const useFundProject = (
   id: string,
   onUploadProgress?: (event: AxiosProgressEvent) => void,
-  options?: GenericUseMutationProps<SingleApiResponse, FormData>
+  options?: GenericUseMutationProps<SingleApiResponse, FormData>,
 ) => {
   const { handleError } = useHandleError("Fund Project");
   return useMutation({
@@ -222,7 +224,7 @@ export const useFundProject = (
 export const useFundMilestone = (
   id: string,
   onUploadProgress?: (event: AxiosProgressEvent) => void,
-  options?: GenericUseMutationProps<SingleApiResponse, FormData>
+  options?: GenericUseMutationProps<SingleApiResponse, FormData>,
 ) => {
   const { handleError } = useHandleError("Fund Milestone");
   return useMutation({
@@ -241,7 +243,7 @@ export const useFundMilestone = (
 
 export const useGetMilestoneById = (
   id?: string,
-  options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnMilestone>>
+  options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnMilestone>>,
 ) => {
   const { data: me } = useSession();
   return useQuery({
@@ -254,7 +256,9 @@ export const useGetMilestoneById = (
 
 export const useGetMilestoneSubmissions = (
   id?: string,
-  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnMilestoneSubmission>>
+  options?: GenericUseQueryProps<
+    ArrayApiResponse<UmojaLinnMilestoneSubmission>
+  >,
 ) => {
   const { data: me } = useSession();
   return useQuery({
@@ -267,7 +271,7 @@ export const useGetMilestoneSubmissions = (
 
 export const useGetProjectMediaAndlinks = (
   id?: string,
-  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnMediaLink>>
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnMediaLink>>,
 ) => {
   const { data: me } = useSession();
   return useQuery({
@@ -283,7 +287,7 @@ export const useApproveOrRejectMilestone = (
   options?: GenericUseMutationProps<
     SingleApiResponse,
     Pick<UmojaLinnMilestoneSubmission, "status" | "rejectionReason">
-  >
+  >,
 ) => {
   const { handleError } = useHandleError("Submit Milestone");
   return useMutation({
@@ -302,7 +306,7 @@ export const useApproveOrRejectMilestone = (
 
 export const useSubmitMilestone = (
   id: string,
-  options?: GenericUseMutationProps<SingleApiResponse, FormData>
+  options?: GenericUseMutationProps<SingleApiResponse, FormData>,
 ) => {
   const { handleError } = useHandleError("Submit Milestone");
   return useMutation({
@@ -320,7 +324,7 @@ export const useSubmitMilestone = (
 };
 
 export const useGetWallet = (
-  options?: GenericUseQueryProps<SingleApiResponse<UmojalinnWallet>>
+  options?: GenericUseQueryProps<SingleApiResponse<UmojalinnWallet>>,
 ) => {
   const { data: me } = useSession();
   return useQuery({
@@ -332,7 +336,7 @@ export const useGetWallet = (
 };
 
 export const useGetWithdrawalMethods = (
-  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnWithdrawalMethod>>
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnWithdrawalMethod>>,
 ) => {
   const { data: me } = useSession();
   return useQuery({
@@ -347,7 +351,7 @@ export const useCreateWithdrawalMethod = (
   options?: GenericUseMutationProps<
     SingleApiResponse<UmojaLinnWithdrawalMethod>,
     CreateWithdrawalMethodPayload
-  >
+  >,
 ) => {
   const { handleError } = useHandleError("Create Withdrawal Method");
   return useMutation({
@@ -367,7 +371,10 @@ export const useCreateWithdrawalMethod = (
 };
 
 export const useRequestWithdrawal = (
-  options?: GenericUseMutationProps<SingleApiResponse, RequestWithdrawalPayload>
+  options?: GenericUseMutationProps<
+    SingleApiResponse,
+    RequestWithdrawalPayload
+  >,
 ) => {
   const { handleError } = useHandleError("Request Withdrawal");
   return useMutation({
@@ -387,7 +394,7 @@ export const useRequestWithdrawal = (
 };
 
 export const useDeleteProject = (
-  options?: GenericUseMutationProps<SingleApiResponse, string>
+  options?: GenericUseMutationProps<SingleApiResponse, string>,
 ) => {
   const { handleError } = useHandleError("Delete Project");
   return useMutation({
@@ -409,7 +416,7 @@ export const useAddProjectReview = (
   options?: GenericUseMutationProps<
     SingleApiResponse<UmojaLinnProject>,
     FormData
-  >
+  >,
 ) => {
   const { handleError } = useHandleError("Add Review");
   return useMutation({
@@ -430,7 +437,7 @@ export const useAddProjectReview = (
 
 export const useGetUserReviews = (
   apiParams: UserReviewsApiProps,
-  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnProjectReview>>
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnProjectReview>>,
 ) => {
   const { data: me } = useSession();
   return useQuery({
@@ -438,5 +445,17 @@ export const useGetUserReviews = (
     enabled: me?.user && apiParams && options?.enabled !== false,
     queryKey: [PROJECT, "REVIEWS", { apiParams }],
     queryFn: () => getUserReviews(apiParams),
+  });
+};
+
+export const useGetSpecialistTypes = (
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnSpecialistType>>,
+) => {
+  const { data: me } = useSession();
+  return useQuery({
+    ...options,
+    enabled: !!me?.user && options?.enabled !== false,
+    queryKey: ["SPECIALIST_TYPES"],
+    queryFn: () => getSpecialistTypes(),
   });
 };
