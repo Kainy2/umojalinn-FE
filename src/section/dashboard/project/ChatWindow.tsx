@@ -2,7 +2,7 @@
 import { firebaseConfig } from "@/lib/firebase";
 import { cn, fileToPreviewUrl, jsonToFormData } from "@/lib/utils";
 import React, { useEffect, useRef, useState } from "react";
-import firebase from 'firebase/app';
+import { initializeApp, getApps } from 'firebase/app';
 import { base62ToUuidSafe } from "@/lib/uuid";
 import { getDatabase, ref, onValue } from "firebase/database";
 import { Button } from "@/components/ui/button";
@@ -55,8 +55,8 @@ const ChatWindow = (props: ChatWindowProps) => {
   const bottomDiv = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!firebase?.getApps?.()?.length) {
-      firebase?.initializeApp?.(firebaseConfig);
+    if (!getApps?.()?.length) {
+      initializeApp?.(firebaseConfig);
     }
 
     const database = getDatabase();
@@ -124,9 +124,9 @@ const ChatWindow = (props: ChatWindowProps) => {
             <React.Fragment key={i}>
               {(i === 0 ||
                 categorizeDate(data[i - 1]?.createdAt) !==
-                  categorizeDate(d?.createdAt)) && (
-                <ChatTimeDivider date={d?.createdAt} />
-              )}
+                categorizeDate(d?.createdAt)) && (
+                  <ChatTimeDivider date={d?.createdAt} />
+                )}
               <ChatBubble {...d} />
             </React.Fragment>
           );
@@ -134,8 +134,8 @@ const ChatWindow = (props: ChatWindowProps) => {
         {(!data?.length ||
           (!!data[data.length - 1]?.createdAt &&
             categorizeDate(data[data.length - 1]?.createdAt) !== "Today")) && (
-          <ChatTimeDivider date={new Date()} />
-        )}
+            <ChatTimeDivider date={new Date()} />
+          )}
         <div ref={bottomDiv} />
       </div>
       <div className="border border-border p-3 ring-transparent focus-within:ring-primary">
