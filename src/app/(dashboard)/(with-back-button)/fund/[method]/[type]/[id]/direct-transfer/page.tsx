@@ -130,7 +130,7 @@ const DirectTransferPage = () => {
         <strong className="text-foreground">30 mins</strong>
       </p>
       <div className="flex gap-6 flex-col text-foreground-label">
-        <CopyLabelValue label="Account Holder" value="Umoja Linn" />
+        <CopyLabelValue label="Account Holder" value="Umoja linn" />
         <CopyLabelValue
           label="Bank Transfer"
           value="9-16nJaimaca Ave, Woodhaven, NY 1142, USA"
