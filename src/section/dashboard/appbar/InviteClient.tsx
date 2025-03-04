@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import useClipboard from "@/hooks/useClipboard";
 import { cn } from "@/lib/utils";
 import { useInviteBuyer } from "@/tanstack/hooks/useProject";
+import { Info } from "lucide-react";
 
 // Define a Zod schema for an array of valid email strings
 const emailListSchema = z.array(z.string().email());
@@ -76,8 +77,7 @@ const InviteClient = () => {
           </DialogTitle>
           <DialogDescription className="text-left">
             Manage all your jobs in one place - invite client to create their
-            project with you here on Umoja linn. Click enter after typing each
-            valid email.
+            project with you here on Umoja linn.
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col">
@@ -90,8 +90,7 @@ const InviteClient = () => {
               >
                 <span>
                   {invite?.buyerEmail ||
-                    `${invite?.buyerProfile?.user?.firstName || ""} ${
-                      invite?.buyerProfile?.user?.lastName || ""
+                    `${invite?.buyerProfile?.user?.firstName || ""} ${invite?.buyerProfile?.user?.lastName || ""
                     }`}
                 </span>
                 {!!invite?.status && (
@@ -107,7 +106,13 @@ const InviteClient = () => {
         </div>
         <div className="flex flex-col gap-4">
           <Label>Email</Label>
-          <TagInput value={tags} onChange={handleTags} />
+          <div>
+            <TagInput value={tags} onChange={handleTags} />
+            <p className="text-sm text-foreground-body [&>svg]:size-4 [&>svg]:text-primary mt-1">
+              <Info />
+              Click enter after typing each valid email.
+            </p>
+          </div>
           {!!me?.data?.data?.tag &&
             (!!tags?.length ||
               !!me?.data?.data?.designerProfile?.projectInvitations
@@ -116,9 +121,8 @@ const InviteClient = () => {
                 className="text-primary text-sm flex items-center gap-1 "
                 onClick={() =>
                   handleCopy(
-                    `${
-                      process.env.NEXT_PUBLIC_WEB_URL ||
-                      "https://dev.d1451lqyj8o4u7.amplifyapp.com"
+                    `${process.env.NEXT_PUBLIC_WEB_URL ||
+                    "https://dev.d1451lqyj8o4u7.amplifyapp.com"
                     }/login?inviterTag=${me?.data?.data?.tag}`
                   )
                 }

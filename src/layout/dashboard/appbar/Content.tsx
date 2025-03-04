@@ -1,5 +1,5 @@
 "use client";
-import TextField from "@/components/custom/input/TextField";
+// import TextField from "@/components/custom/input/TextField";
 import NotificationPopover from "@/components/custom/popover/Notification";
 import PopoverMenu from "@/components/custom/PopoverMenu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -7,7 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import InviteClient from "@/section/dashboard/appbar/InviteClient";
 import { useGetMe } from "@/tanstack/hooks/useUser";
-import { ChevronDown, LogOut, Search } from "lucide-react";
+import {
+  ChevronDown, LogOut,
+  // Search 
+} from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import React from "react";
 import MobileMenu from "../sidebar/Mobile";
@@ -22,13 +25,13 @@ const DashboardAppbarContent = () => {
       <div className="flex-1 max-w-96">
         <MobileMenu />
         <div className="hidden lg:block">
-          <TextField
+          {/* <TextField
             className=" focus-visible:!ring-transparent !ring-transparent transition-none"
             placeholder="Search"
             startAdornment={
               <Search className="text-muted-foreground icon-base" />
             }
-          />
+          /> */}
         </div>
       </div>
       <div className="flex space-x-1 items-center ">
