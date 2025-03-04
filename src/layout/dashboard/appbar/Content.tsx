@@ -20,13 +20,13 @@ const DashboardAppbarContent = () => {
     <>
       <div className="flex-1 max-w-96">
         <div className="hidden lg:block">
-          <TextField
+          {/* <TextField
             className=" focus-visible:!ring-transparent !ring-transparent transition-none"
             placeholder="Search"
             startAdornment={
               <Search className="text-muted-foreground icon-base" />
             }
-          />
+          /> */}
         </div>
       </div>
       <div className="flex space-x-1 items-center ">

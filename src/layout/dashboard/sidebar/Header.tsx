@@ -12,22 +12,22 @@ const DashboardSidebarHeader = async () => {
   return (
     <SidebarHeader className="flex items-center justify-center flex-col p-3">
       <Image src="/img/png/umoja.png" alt="Umoja logo" height={80} width={80} />
-      <Button
+      {/* <Button
         // asChild
         fullWidth
         variant="outline"
         className="text-primary text-sm"
         disabled
       >
-        {/* <Link href="/project/create"> */}
+        <Link href="/project/create">
         <span className="flex">
           <Plus />
           {token?.user?.profileRole === "DESIGNER"
             ? "Share your work"
             : "Create project"}
         </span>
-        {/* </Link> */}
-      </Button>
+        </Link>
+      </Button> */}
     </SidebarHeader>
   );
 };
