@@ -11,7 +11,7 @@ const ActiveProjectMediaAndLinksPage = () => {
   const { id } = useParams<{ id: string }>();
   const { data, isPending } = useGetProjectMediaAndlinks(id);
 
-  const { projectData } = useGetProjectById(id);
+  const { data: projectData } = useGetProjectById(id);
 
   const mediaAndLinks = data?.data?.data;
 
