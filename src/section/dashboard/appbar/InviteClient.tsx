@@ -108,7 +108,7 @@ const InviteClient = () => {
           <Label>Email</Label>
           <div>
             <TagInput value={tags} onChange={handleTags} />
-            <p className="text-sm text-foreground-body [&>svg]:size-4 [&>svg]:text-primary mt-1">
+            <p className="text-xs text-foreground-body [&>svg]:size-4 [&>svg]:text-primary mt-2 flex gap-1">
               <Info />
               Click enter after typing each valid email.
             </p>
