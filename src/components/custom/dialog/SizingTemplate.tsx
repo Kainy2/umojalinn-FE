@@ -92,6 +92,21 @@ const SizingTemplateDialog = (
     >
   >({});
 
+  const handleChangeValuesByUnit = (prevUnit: UmojaLinnSizingTemplate["unit"], finalUnit: UmojaLinnSizingTemplate["unit"]) => {
+    if (prevUnit !== finalUnit) {
+      const conversionFactor = prevUnit === "CM" ? 0.393701 : 2.54;
+      setValue((prev) => Object.keys(prev).reduce((acc, key) => {
+        const currentValue = prev[key] || 0;
+        const convertedValue = currentValue * conversionFactor;
+        // Convert each value
+        acc[key as keyof Partial<UmojaLinnFemaleSizingTemplateProps & UmojaLinnMaleSizingTemplateProps>] = Number.isInteger(convertedValue) ? convertedValue : parseFloat(convertedValue.toFixed(2));
+        return acc;
+      }, {} as Partial<
+        UmojaLinnFemaleSizingTemplateProps & UmojaLinnMaleSizingTemplateProps
+      >))
+    }
+  }
+
   const handleReviewsEditChange = useCallback(
     (
       props:
@@ -304,9 +319,13 @@ const SizingTemplateDialog = (
               />
               <TabButtonSelect
                 active={unit}
-                onChange={(value) =>
-                  setUnit(value as UmojaLinnSizingTemplate["unit"])
-                }
+                onChange={(value) => {
+                  setUnit(prevUnit => {
+                    const finalUnit = value as UmojaLinnSizingTemplate["unit"]
+                    handleChangeValuesByUnit(prevUnit, finalUnit)
+                    return finalUnit
+                  })
+                }}
                 tabs={[
                   { title: "CM", value: "CM" },
                   { title: "INCH", value: "INCH" },
