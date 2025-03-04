@@ -96,10 +96,11 @@ const SizingTemplateDialog = (
     if (prevUnit !== finalUnit) {
       const conversionFactor = prevUnit === "CM" ? 0.393701 : 2.54;
       setValue((prev) => Object.keys(prev).reduce((acc, key) => {
-        const currentValue = prev[key] || 0;
+        const typedKey = key as keyof Partial<UmojaLinnFemaleSizingTemplateProps & UmojaLinnMaleSizingTemplateProps>
+        const currentValue = prev[typedKey] || 0;
         const convertedValue = currentValue * conversionFactor;
         // Convert each value
-        acc[key as keyof Partial<UmojaLinnFemaleSizingTemplateProps & UmojaLinnMaleSizingTemplateProps>] = Number.isInteger(convertedValue) ? convertedValue : parseFloat(convertedValue.toFixed(2));
+        acc[typedKey] = Number.isInteger(convertedValue) ? convertedValue : parseFloat(convertedValue.toFixed(2));
         return acc;
       }, {} as Partial<
         UmojaLinnFemaleSizingTemplateProps & UmojaLinnMaleSizingTemplateProps
