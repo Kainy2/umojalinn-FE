@@ -2,7 +2,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { categorizeDate } from "@/lib/date";
 import { cn } from "@/lib/utils";
-import { useGetProjectMediaAndlinks } from "@/tanstack/hooks/useProject";
+import { useGetProjectById, useGetProjectMediaAndlinks } from "@/tanstack/hooks/useProject";
 import { Image as ImageIcon, Link2 } from "lucide-react";
 import { useParams } from "next/navigation";
 import React from "react";
@@ -10,6 +10,8 @@ import React from "react";
 const ActiveProjectMediaAndLinksPage = () => {
   const { id } = useParams<{ id: string }>();
   const { data, isPending } = useGetProjectMediaAndlinks(id);
+
+  const { projectData } = useGetProjectById(id);
 
   const mediaAndLinks = data?.data?.data;
 
@@ -29,6 +31,8 @@ const ActiveProjectMediaAndLinksPage = () => {
       </div>
     );
 
+  if (projectData?.data?.data?.status && projectData?.data?.data?.status !== "LIVE") return null
+
   return (
     <div className="flex flex-col text-foreground-body gap-4">
       {mediaAndLinks?.map((value, index) => (
@@ -36,10 +40,10 @@ const ActiveProjectMediaAndLinksPage = () => {
           {index === 0 ||
             (categorizeDate(value?.createdAt) !==
               categorizeDate(mediaAndLinks?.[index - 1]?.createdAt) && (
-              <p className="font-semibold mb-2">
-                {categorizeDate(value?.createdAt)}
-              </p>
-            ))}
+                <p className="font-semibold mb-2">
+                  {categorizeDate(value?.createdAt)}
+                </p>
+              ))}
           <a
             href={value?.url}
             download={value?.type === "media"}

@@ -6,7 +6,7 @@ import {
   useGetProjectMilestones,
 } from "@/tanstack/hooks/useProject";
 import { useGetMe } from "@/tanstack/hooks/useUser";
-import { useParams } from "next/navigation";
+import { redirect, useParams } from "next/navigation";
 import React from "react";
 
 const ActiveProjectPage = () => {
@@ -25,6 +25,14 @@ const ActiveProjectPage = () => {
         <span>Loading...</span>
       </div>
     );
+
+  if (projectData?.data?.data?.status) {
+    if (projectData?.data?.data?.status === "COMPLETED") {
+      return redirect('/projects/completed')
+    }
+    if (projectData?.data?.data?.status !== "LIVE") return null
+  }
+
 
   return (
     <div className="flex flex-col md:flex-row gap-12">
