@@ -2,7 +2,7 @@
 import { firebaseConfig } from "@/lib/firebase";
 import { cn, fileToPreviewUrl, jsonToFormData } from "@/lib/utils";
 import React, { useEffect, useRef, useState } from "react";
-import firebase from 'firebase/compat/app';
+import firebase from 'firebase/app';
 import { base62ToUuidSafe } from "@/lib/uuid";
 import { getDatabase, ref, onValue } from "firebase/database";
 import { Button } from "@/components/ui/button";
