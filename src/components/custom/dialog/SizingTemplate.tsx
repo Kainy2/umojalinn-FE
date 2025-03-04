@@ -359,7 +359,7 @@ const SizingTemplateDialog = (
                     setHighlighted(template.prop);
                   }}
                   onKeyDown={(e) => handleKeyPress(index, e)}
-                  ref={(el) => (inputRefs.current[index] = el)}
+                  ref={(el) => { inputRefs.current[index] = el }}
                 />
               ))}
             </div>
