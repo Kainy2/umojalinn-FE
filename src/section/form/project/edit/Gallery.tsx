@@ -89,7 +89,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
           description: `Maximum file size is 50MB, this file is ${(
             fileObject.size /
             (1024 * 1024)
-          ).toFixed(2)}MB`,
+          ).toFixed(2)}MB. . You can compress the image using an image editor and try uploading again.`,
           variant: "destructive",
         });
       }
