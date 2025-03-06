@@ -89,7 +89,7 @@ const BidCard = (props: BidCardProps) => {
             typeof props.bid?.project?.budget !== "number"
               ? "No"
               : `${formatNumberTo2DecimalPlace(
-                  (props.bid?.project?.budget / props.bid?.amount) * 100
+                  (props.bid?.amount / props.bid?.project?.budget) * 100
                 )}%`
           }
           label="Budget"
