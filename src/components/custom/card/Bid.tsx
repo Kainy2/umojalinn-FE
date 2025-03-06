@@ -34,7 +34,7 @@ const BidCard = (props: BidCardProps) => {
       href={`/bids/${uuidToBase62Safe(props.bid?.id || "")}`}
       className={cn(
         "relative py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors",
-        props.disabled && "text-gray-400 pointer-events-none cursor-not-allowed"
+        props.disabled && "text-gray-400 pointer-events-none cursor-not-allowed", props?.bid?.project?.status !== "ADS" && "text-gray-400"
       )}
     >
       <EyeOff className="absolute size-5 top-6 right-0" />
