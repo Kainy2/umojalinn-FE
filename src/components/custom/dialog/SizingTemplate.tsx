@@ -412,7 +412,7 @@ const SizingTemplateDialog = (
               >
                 Save
               </Button>
-              {isDraft && (
+              {(isDraft || !props.id) && (
                 <Button onClick={() => handleSubmit(true)} disabled={loading}>
                   Submit
                 </Button>
