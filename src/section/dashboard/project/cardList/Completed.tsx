@@ -1,8 +1,10 @@
 "use client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { uuidToBase62Safe } from "@/lib/uuid";
 import { useGetAllBuyerProject } from "@/tanstack/hooks/useProject";
 
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 import * as timeago from "timeago.js";
 
@@ -36,7 +38,7 @@ const CompletedCardList = () => {
           (gallery) => gallery?.isCoverImage
         )?.imageUrl;
         return (
-          <div key={project?.id} className="relative card flex gap-4 ">
+          <Link href={`/completed-jobs/${uuidToBase62Safe(project?.id)}`} key={project?.id} className="relative text-left card flex gap-4 flex-col lg:flex-row hover:bg-gray-50 transition-colors">
             {" "}
             {imgSrc ? (
               <Image
@@ -57,7 +59,7 @@ const CompletedCardList = () => {
                 Created: {timeago?.format(project?.createdAt)}
               </p>
 
-              <p className="flex-1 truncate">{project?.about}</p>
+              <p className="flex-1 line-clamp-3">{project?.about}</p>
               <div className="flex flex-row items-center gap-4 w-full">
                 <Image
                   width={100}
