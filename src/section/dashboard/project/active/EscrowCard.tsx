@@ -125,7 +125,7 @@ const EscrowCard = (props: EscrowCardProps) => {
                 ((review?.buyerId && session?.user?.profileRole === "BUYER") ||
                 (review?.designerId &&
                   session?.user?.profileRole === "DESIGNER") ? (
-                  <p>Your review</p>
+                  <p>Your Experience Feedback</p>
                 ) : (
                   <div className="">
                     <div className="flex items-center gap-2 mb-4">
@@ -146,8 +146,8 @@ const EscrowCard = (props: EscrowCardProps) => {
                       </h4>
                     </div>
                     <p>
-                      {review?.buyerId && "Buyer's"}{" "}
-                      {review?.designerId && "Designer's"} feedback
+                      {review?.buyerId && "Client's"}{" "}
+                      {review?.designerId && "Designer's"} Experience feedback
                     </p>
                   </div>
                 ))}
@@ -184,7 +184,7 @@ const EscrowCard = (props: EscrowCardProps) => {
                 title="Please take note"
                 message={
                   isBuyer
-                    ? "We kindly request that you provide this review after confirming the product to assist us in enhancing our services to you."
+                    ? "We kindly request that you provide this review after receiving you order to assist us in enhancing our services to you."
                     : "We kindly request that you provide this review after completing your service to the client."
                 }
                 type="error"
