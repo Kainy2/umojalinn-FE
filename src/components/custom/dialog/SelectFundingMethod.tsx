@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import Paypal from "@/icons/Paypal";
 
-const PAYMENT_METHOD = ["PAYPAL", "OTHER"] as const;
+const PAYMENT_METHOD = ["PAYPAL", "DIRECT"] as const;
 
 type PaymentMethodType = (typeof PAYMENT_METHOD)[number];
 export type PaymentFundingType = "milestone" | "project";
@@ -29,7 +29,7 @@ const getPaymentMethodUrl = (
   id: string
 ) => {
   switch (paymentMethod) {
-    case "OTHER":
+    case "DIRECT":
     default:
       return `/fund/other/${type}/${id}`;
   }
@@ -56,12 +56,12 @@ const SelectFundingMethodDialog = (
           description: "Coming soon",
           disabled: true,
         };
-      case "OTHER":
+      case "DIRECT":
       default:
         return {
           icon: <Wallet />,
-          title: "Other Payment",
-          description: "Other payment options",
+          title: "Direct Payment",
+          description: "Direct payment option",
         };
     }
   };
