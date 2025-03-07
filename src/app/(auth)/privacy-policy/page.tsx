@@ -13,7 +13,7 @@ const PrivacyPolicyPage = () => {
             </div>
             <div className="flex flex-col lg:flex-row gap-3">
                 <div className="flex-1">
-                    <ol className="flex flex-col gap-1.5 underline decoration-current sticky top-4 text-sm">
+                    <ol className="flex flex-col gap-1.5 sticky top-4 text-sm">
                         <li><Link className="hover:text-primary" href="#welcome">Welcome!</Link></li>
                         <li><Link className="hover:text-primary" href="#information-we-collect">Information We Collect</Link></li>
                         <li><Link className="hover:text-primary" href="#our-legal-basis-for-using-your-personal-information">Our Legal Basis for Using Your Personal Information</Link></li>
@@ -139,7 +139,7 @@ const PrivacyPolicyPage = () => {
                     <h2 id="updates-to-this-privacy-policy">13. Updates to this Privacy Policy</h2>
                     <p>We may update this Privacy Policy from time to time. We will notify users of significant changes through our platform or email.</p>
 
-                    <h2 className="contact-us">14. Contact Us</h2>
+                    <h2 id="contact-us">14. Contact Us</h2>
                     <p>For any privacy-related inquiries, you can contact us at support@umojalinn.com</p>
                     <p>The Controller (within the meaning of the EU and UK General Data Protection Regulation (&quot;GDPR&quot;)) for the processing of personal data as described in this Privacy Policy is: Umoja linn, Tullamore, Ireland.</p>
 
