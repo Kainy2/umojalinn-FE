@@ -66,7 +66,7 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
           if (key === "sizingTemplateId" && !!value) setUseSizingTemplate(true);
           form.setValue(key as keyof ProjectFormDetailsProps, value.toString());
         }
-        if (key === "deliveryAddress" && !!value && typeof value !== "object") {
+        if (key === "deliveryAddress" && !!value && typeof value === "object") {
           Object.entries(value).forEach(([key, value]) => {
             if (value !== null && typeof value !== "object") {
               form.setValue(
