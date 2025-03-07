@@ -50,7 +50,7 @@ const MobileMenu = () => {
             </span>
           </Button>
         </DrawerHeader>
-        <div className="flex-1">
+        <div className="flex-1 overflow-scroll">
           <CustomSidebarMenu
             isMobile
             profileRole={session?.user?.profileRole}
