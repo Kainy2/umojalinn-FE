@@ -12,6 +12,7 @@ import { Trash2 } from "lucide-react";
 import { useAddProjectReview } from "@/tanstack/hooks/useProject";
 import { cn, jsonToFormData } from "@/lib/utils";
 import { useSession } from "next-auth/react";
+import { MAX_FILE_SIZE_FOR_FILE_UPLOAD } from "@/constant";
 
 type CustomReviewDialogProps = Partial<VerifyDialogProps> & {
   alert?: AlertProps;
@@ -78,7 +79,7 @@ const ReviewDialog = (props: CustomReviewDialogProps) => {
   const [images, setImages] = React.useState<File | FileList | null>(null);
 
   const hasFile = reviewType === "CLOTHING_QUALITY";
-  const { isFileSizeValid } = useFileSizeError(1 * 1024 * 1024);
+  const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD);
   const { previewUrls, getPreview } = useImagePreviewUrls();
   const { data: session } = useSession();
 

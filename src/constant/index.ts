@@ -32,3 +32,6 @@ export const LANGUAGES = [
   "Romanian",
   "Ukrainian",
 ];
+
+
+export const MAX_FILE_SIZE_FOR_FILE_UPLOAD = 10 * 1024 * 1024

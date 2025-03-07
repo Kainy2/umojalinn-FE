@@ -15,6 +15,7 @@ import { ImageIcon, X } from "lucide-react";
 import useFilePicker, { useFileSizeError } from "@/hooks/useFilePicker";
 import Image from "next/image";
 import useHandleError from "@/hooks/useHandleError";
+import { MAX_FILE_SIZE_FOR_FILE_UPLOAD } from "@/constant";
 
 type ChatWindowProps = {
   projectId: string;
@@ -29,7 +30,7 @@ const ChatWindow = (props: ChatWindowProps) => {
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [images, setImages] = useState<File[]>([]);
   const { handleError } = useHandleError("Send Chat");
-  const { isFileSizeValid } = useFileSizeError(1 * 1024 * 1024);
+  const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD);
   const { Input, onClick: handleFilePick } = useFilePicker({
     onSelect: (file: File | FileList | null) => {
       let files = images;
