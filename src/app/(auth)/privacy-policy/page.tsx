@@ -6,31 +6,31 @@ const PrivacyPolicyPage = () => {
         <div className="container max-w-screen-xl py-20 text-foreground-body">
             <div className="text-center mb-3 container max-w-screen-md">
                 <p className="text-primary mb-2 text-sm">Current as of January 2025</p>
-                <h1 className="text-lg font-bold text-foreground mb-1">Privacy Policy</h1>
+                <h1 className="text-2xl font-bold text-foreground mb-1">Privacy Policy</h1>
                 <p>
                     Your privacy is important to us at Umojalin. We respect your privacy regarding any information we may collect from you across our website.
                 </p>
             </div>
             <div className="flex flex-col lg:flex-row gap-3">
                 <div className="flex-1">
-                    <ol className="flex flex-col gap-1 [&>li>a]:hover:text-primary underline">
-                        <li><Link href="#welcome">Welcome!</Link></li>
-                        <li><Link href="#information-we-collect">Information We Collect</Link></li>
-                        <li><Link href="#our-legal-basis-for-using-your-personal-information">Our Legal Basis for Using Your Personal Information</Link></li>
-                        <li><Link href="#how-we-use-your-information">How We Use Your Information</Link></li>
-                        <li><Link href="#data-retention">Data Retention</Link></li>
-                        <li><Link href="#sharing-personal-information">Sharing Personal Information</Link></li>
-                        <li><Link href="#cookies">Cookies</Link></li>
-                        <li><Link href="#external-links">External Links</Link></li>
-                        <li><Link href="#children">Children</Link></li>
-                        <li><Link href="#security">Security</Link></li>
-                        <li><Link href="#deleting-or-updating-personal-information">Deleting or Updating Personal Information</Link></li>
-                        <li><Link href="#eu-eea-and-uk-users">EU, EEA and UK users</Link></li>
-                        <li><Link href="#updates-to-this-privacy-policy">Updates to this Privacy Policy</Link></li>
-                        <li><Link href="#contact-us">Contact Us</Link></li>
+                    <ol className="flex flex-col gap-1 underline decoration-current sticky top-0">
+                        <li><Link className="hover:text-primary" href="#welcome">Welcome!</Link></li>
+                        <li><Link className="hover:text-primary" href="#information-we-collect">Information We Collect</Link></li>
+                        <li><Link className="hover:text-primary" href="#our-legal-basis-for-using-your-personal-information">Our Legal Basis for Using Your Personal Information</Link></li>
+                        <li><Link className="hover:text-primary" href="#how-we-use-your-information">How We Use Your Information</Link></li>
+                        <li><Link className="hover:text-primary" href="#data-retention">Data Retention</Link></li>
+                        <li><Link className="hover:text-primary" href="#sharing-personal-information">Sharing Personal Information</Link></li>
+                        <li><Link className="hover:text-primary" href="#cookies">Cookies</Link></li>
+                        <li><Link className="hover:text-primary" href="#external-links">External Links</Link></li>
+                        <li><Link className="hover:text-primary" href="#children">Children</Link></li>
+                        <li><Link className="hover:text-primary" href="#security">Security</Link></li>
+                        <li><Link className="hover:text-primary" href="#deleting-or-updating-personal-information">Deleting or Updating Personal Information</Link></li>
+                        <li><Link className="hover:text-primary" href="#eu-eea-and-uk-users">EU, EEA and UK users</Link></li>
+                        <li><Link className="hover:text-primary" href="#updates-to-this-privacy-policy">Updates to this Privacy Policy</Link></li>
+                        <li><Link className="hover:text-primary" href="#contact-us">Contact Us</Link></li>
                     </ol>
                 </div>
-                <div className="flex-[3] text-foreground-body [&>h2]:text-foreground [&>h3]:text-foreground [&>h2]:font-medium [&>h3]:font-medium">
+                <div className="flex-[3] text-foreground-body [&>h2]:text-foreground [&>h2]:mt-3 [&>h2]:mb-1 [&>h2]:text-subtitle-2  [&>h2]:font-medium [&>h3]:text-foreground [&>h3]:mt-1 [&>h3]:mb-1 [&>h3]:font-medium">
                     <h2 id="welcome">1. Welcome!</h2>
                     <p>Welcome to Umoja linn. At www.umojalinn.com accessible from (https://umojalinn.com/) we are committed to protecting your privacy and ensuring that your personal data is handled securely and responsibly. This Privacy Policy explains how we collect, use, share, and protect your personal information when you access and use our platform.</p>
                     <p>If you have additional questions or require more information about our Privacy Policy, do not hesitate to contact us through email at support@umojalinn.com.</p>
