@@ -33,7 +33,7 @@ const onboardButtonsProps: OnboardButtonProps[] = [
     href: "/onboard/designer",
     title: "Onboard as a Designer",
     description:
-      "Ready to join our elite crew of over 16,000 verified designers? Click on the screen to continue.",
+      "Join our family of verified designers who are increasing their Profitability by Optimising their Productivity. Click on the screen to continue.",
     alt: "I am a Designer",
     icon: <Verified className="text-primary" />,
   },
