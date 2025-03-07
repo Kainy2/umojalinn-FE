@@ -14,6 +14,7 @@ import {
 import { signOut, useSession } from "next-auth/react";
 import React from "react";
 import MobileMenu from "../sidebar/Mobile";
+import Image from "next/image";
 
 const DashboardAppbarContent = () => {
   const { data: meData } = useGetMe();
@@ -22,7 +23,14 @@ const DashboardAppbarContent = () => {
 
   return (
     <>
-      <div className="flex-1 max-w-96">
+      <div className="flex space-x-1 items-center flex-1 max-w-96">
+        <Image
+          className="inline object-contain md:hidden"
+          alt="Umojalinn Logo"
+          src="/img/png/umoja.png"
+          width={20}
+          height={20}
+        />
         <MobileMenu />
         <div className="hidden lg:block">
           {/* <TextField

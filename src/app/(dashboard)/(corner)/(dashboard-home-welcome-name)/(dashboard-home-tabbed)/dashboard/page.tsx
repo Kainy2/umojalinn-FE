@@ -118,7 +118,7 @@ const DashboardPage = () => {
       <CustomCardHolder
         colour="success"
         count={completedProjectsData?.data?.data?.length}
-        title="My Past Jobs"
+        title="My Completed Jobs"
         loading={isLoadingCompletedProjectsData}
         empty={!completedProjectsData?.data?.data?.length}
       >
@@ -127,7 +127,7 @@ const DashboardPage = () => {
             key={job?.id}
             isPrivate={job.projectType === "PRIVATE"}
             name={job?.title || "No title"}
-            href={`/jobs/${uuidToBase62Safe(job?.id)}`}
+            href={`/completed-jobs/${uuidToBase62Safe(job?.id)}`}
             progress={{
               value: 0,
               total: 1,
@@ -140,7 +140,7 @@ const DashboardPage = () => {
       <CustomCardHolder
         colour="info"
         count={closedBids?.data?.data?.length}
-        title="My Closed Bids"
+        title="Closed Bids"
         loading={isLoadingClosedBidsData}
         empty={!closedBids?.data?.data?.length}
       >

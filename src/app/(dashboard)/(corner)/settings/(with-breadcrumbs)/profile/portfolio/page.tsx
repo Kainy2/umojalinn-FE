@@ -50,7 +50,7 @@ const SettingsProfilePortfolioPage = () => {
   if (!portfolioData?.data?.data?.length)
     return (
       <div className="flex items-center justify-center h-72 text-muted-foreground">
-        <p>No portfio projects</p>
+        <p>No portfolio projects</p>
       </div>
     );
 

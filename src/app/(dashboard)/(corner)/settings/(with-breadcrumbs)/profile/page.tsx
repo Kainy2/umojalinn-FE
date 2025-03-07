@@ -334,7 +334,7 @@ const SettingsProfilePage = () => {
         {isDesigner && (
           <>
             <Separator className="bg-border/50" />
-            <FormItemWrapper title="Specialist">
+            <FormItemWrapper title="Specialty">
               <FormField
                 control={form.control}
                 name="specialistType"

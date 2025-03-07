@@ -34,7 +34,7 @@ const SizingTemplatesPage = () => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      {session?.user?.profileRole === "BUYER" && (
+      {session?.user?.profileRole === "BUYER" && (data?.data?.data?.length || 0) < 3 && (
         <SizingTemplateDialog>
           <button className="relative h-52">
             <Image

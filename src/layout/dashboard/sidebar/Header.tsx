@@ -11,7 +11,7 @@ const DashboardSidebarHeader = async () => {
 
   return (
     <SidebarHeader className="flex items-center justify-center flex-col p-3">
-      <Image src="/img/png/umoja.png" alt="Umoja logo" height={80} width={80} />
+      <Image src="/img/png/umoja.png" className="h-[20px] w-[20px] md:h-auto md:w-auto self-start md:self-center" alt="Umoja logo" height={80} width={80} />
       {/* <Button
         // asChild
         fullWidth

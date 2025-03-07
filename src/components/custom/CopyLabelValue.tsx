@@ -6,12 +6,13 @@ import React from "react";
 type CopyLabelValueProps = {
   label: string;
   value: string;
+  className?: string;
 };
 
 const CopyLabelValue = (props: CopyLabelValueProps) => {
   const { handleCopy } = useClipboard();
   return (
-    <div>
+    <div className={props.className}>
       <p className="font-semibold mb-1">{props.label}</p>
       <button
         className="flex w-full text-left text-subtitle-2 justify-between items-center relative [&>svg]:text-primary [&>svg]:opacity-0 [&:hover>svg]:opacity-100 cursor-pointer [&>svg]:transition-opacity"

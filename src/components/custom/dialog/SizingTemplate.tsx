@@ -543,7 +543,7 @@ const SizingTemplateDialog = (
                 disabled={loading}
                 onClick={() => setRecommendationMode(true)}
               >
-                Recommendation mode
+                Submit request
               </Button>
             </div>
           )}

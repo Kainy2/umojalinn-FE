@@ -74,7 +74,7 @@ const DirectTransferPage = () => {
         router.push(
           `/projects/${uuidToBase62Safe(
             (isProject ? params?.id : milestoneData?.data?.data?.projectId) ||
-              ""
+            ""
           )}`
         );
       },
@@ -130,20 +130,21 @@ const DirectTransferPage = () => {
         <strong className="text-foreground">30 mins</strong>
       </p>
       <div className="flex gap-6 flex-col text-foreground-label">
-        <CopyLabelValue label="Account Holder" value="Umoja linn" />
-        <CopyLabelValue
-          label="Bank Transfer"
-          value="9-16nJaimaca Ave, Woodhaven, NY 1142, USA"
-        />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {currency === "EURO" ? (
             <>
               {/* <CopyLabelValue label="Account Number" value="8067373838" /> */}
               {/* <CopyLabelValue label="ACH Routing" value="8067373838" /> */}
+              <CopyLabelValue className="lg:col-span-2" label="Account Holder" value="Umoja linn" />
+              <CopyLabelValue
+                className="lg:col-span-2"
+                label="Bank Transfer"
+                value="Bank of Ireland, Castlebar, Co.Mayo, Republic of Ireland"
+              />
               <CopyLabelValue label="Account Type" value="Checking" />
               <CopyLabelValue label="Bank Name" value="Umoja Linn" />
               <CopyLabelValue label="BIC" value="BOFIIE2DXXX" />
-              <CopyLabelValue label="IBAN" value="IE80BOFI90374483139373 " />
+              <CopyLabelValue label="IBAN" value="IE80BOFI90374483139373" />
               {/* <CopyLabelValue label="Bank Swift Code" value="8067373838" /> */}
             </>
           ) : (
