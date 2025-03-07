@@ -433,8 +433,8 @@ const SizingTemplateDialog = (
       <DialogContent className="flex [&>div]:flex-1 [&>div]:shrink-0 [&>div]:p-3 min-w-[70vw]">
         <div className="">
           {
-            recommendationMode && <div className="text-sm text-foreground-body bg-primary-50 border-b-1 border-gray-200 nb-4">
-              <p className="font-semibold">Recommendation mode</p>
+            recommendationMode && <div className="text-sm text-foreground-body bg-primary-50 border-b-1 border-gray-200 mb-4 p-2 md:p-4">
+              <p className="font-bold">Recommendation mode</p>
               <p>Please choose the measurement point for which you would like to make recommended changes</p>
             </div>
           }
