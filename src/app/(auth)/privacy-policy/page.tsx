@@ -4,16 +4,16 @@ import React from "react";
 const PrivacyPolicyPage = () => {
     return (
         <div className="container max-w-screen-xl py-20 text-foreground-body">
-            <div className="text-center mb-3 container max-w-screen-md">
-                <p className="text-primary mb-2 text-sm">Current as of January 2025</p>
-                <h1 className="text-2xl font-bold text-foreground mb-1">Privacy Policy</h1>
+            <div className="text-center mb-8 container max-w-screen-md">
+                <p className="text-primary mb-2 text-sm font-semiboldå">Current as of January 2025</p>
+                <h1 className="text-xl font-bold text-foreground mb-1">Privacy Policy</h1>
                 <p>
                     Your privacy is important to us at Umojalin. We respect your privacy regarding any information we may collect from you across our website.
                 </p>
             </div>
             <div className="flex flex-col lg:flex-row gap-3">
                 <div className="flex-1">
-                    <ol className="flex flex-col gap-1 underline decoration-current sticky top-0">
+                    <ol className="flex flex-col gap-1.5 underline decoration-current sticky top-4 text-sm">
                         <li><Link className="hover:text-primary" href="#welcome">Welcome!</Link></li>
                         <li><Link className="hover:text-primary" href="#information-we-collect">Information We Collect</Link></li>
                         <li><Link className="hover:text-primary" href="#our-legal-basis-for-using-your-personal-information">Our Legal Basis for Using Your Personal Information</Link></li>
