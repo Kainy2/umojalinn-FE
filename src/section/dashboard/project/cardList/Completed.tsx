@@ -77,7 +77,7 @@ const CompletedCardList = () => {
                 </p>
               </div>
             </div>
-          </div>
+          </Link>
         );
       })}
     </div>
