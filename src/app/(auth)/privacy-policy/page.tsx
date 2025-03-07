@@ -3,17 +3,17 @@ import React from "react";
 
 const PrivacyPolicyPage = () => {
     return (
-        <div className="container max-w-screen-lg py-20 text-foreground-body">
+        <div className="container max-w-screen-xl py-20 text-foreground-body">
             <div className="text-center mb-3 container max-w-screen-md">
                 <p className="text-primary mb-2 text-sm">Current as of January 2025</p>
-                <h1 className="text-subtitle-1 font-semibold text-foreground mb-1=">Umoja linn Privacy Policy</h1>
+                <h1 className="text-lg font-bold text-foreground mb-1">Privacy Policy</h1>
                 <p>
                     Your privacy is important to us at Umojalin. We respect your privacy regarding any information we may collect from you across our website.
                 </p>
             </div>
             <div className="flex flex-col lg:flex-row gap-3">
                 <div className="flex-1">
-                    <ol>
+                    <ol className="flex flex-col gap-1 [&>li>a]:hover:text-primary underline">
                         <li><Link href="#welcome">Welcome!</Link></li>
                         <li><Link href="#information-we-collect">Information We Collect</Link></li>
                         <li><Link href="#our-legal-basis-for-using-your-personal-information">Our Legal Basis for Using Your Personal Information</Link></li>
@@ -30,7 +30,7 @@ const PrivacyPolicyPage = () => {
                         <li><Link href="#contact-us">Contact Us</Link></li>
                     </ol>
                 </div>
-                <div className="flex-[3] text-foreground-body [&>h1,&>h2,&>h3]:text-foreground [&>h1]:font-semibold [&>h2,&>h3]:font-medium">
+                <div className="flex-[3] text-foreground-body [&>h2]:text-foreground [&>h3]:text-foreground [&>h2]:font-medium [&>h3]:font-medium">
                     <h2 id="welcome">1. Welcome!</h2>
                     <p>Welcome to Umoja linn. At www.umojalinn.com accessible from (https://umojalinn.com/) we are committed to protecting your privacy and ensuring that your personal data is handled securely and responsibly. This Privacy Policy explains how we collect, use, share, and protect your personal information when you access and use our platform.</p>
                     <p>If you have additional questions or require more information about our Privacy Policy, do not hesitate to contact us through email at support@umojalinn.com.</p>
