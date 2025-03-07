@@ -3,7 +3,7 @@ import React from "react";
 import { DashbordSidebarFooterContent } from "./Footer";
 import CustomSidebarMenu from "@/components/custom/sidebar/Menu";
 import { Button } from "@/components/ui/button";
-import { LogOut, Menu, Plus } from "lucide-react";
+import { AlignLeft, LogOut, Plus } from "lucide-react";
 import {
   Drawer,
   DrawerContent,
@@ -24,7 +24,7 @@ const MobileMenu = () => {
     <Drawer direction="left">
       <DrawerTrigger asChild>
         <Button className="md:hidden" variant="ghost">
-          <Menu />
+          <AlignLeft />
         </Button>
       </DrawerTrigger>
       <DrawerContent className="w-full max-w-[350px] flex flex-col">
