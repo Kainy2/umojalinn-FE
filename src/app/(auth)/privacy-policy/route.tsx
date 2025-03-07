@@ -1,7 +1,7 @@
 import Link from "next/link";
 import React from "react";
 
-const PrivacyPolicyPage = () => {
+const PrivacyPolicyPage = async () => {
     return (
         <div className="container max-w-screen-lg py-20 text-foreground-body">
             <div className="text-center mb-3 container max-w-screen-md">
