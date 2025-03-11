@@ -79,6 +79,11 @@ const RegistrationForm = (props: { inviterTag?: string }) => {
             />
           );
         })}
+        <div className="text-xs">
+          <span className="text-orange-500">Password Creation Hint:</span> A
+          strong password should contain at least one uppercase letter, a
+          number, one symbol and password length greater or equal to 8{" "}
+        </div>
         <div className="my-4">
           <CustomCheckbox
             checked={agree}
