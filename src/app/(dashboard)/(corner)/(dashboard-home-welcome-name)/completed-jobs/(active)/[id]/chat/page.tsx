@@ -25,6 +25,7 @@ const ActiveProjectChatPage = () => {
           currency={projectData?.data?.data?.currency}
           escrowBalance={projectData?.data?.data?.escrowBalance || 0}
           projectPrice={projectData?.data?.data?.approvedBudget || 0}
+          reviews={projectData?.data?.data?.reviews || []}
         />
       </aside>
     </div>

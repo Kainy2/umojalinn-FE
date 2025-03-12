@@ -55,7 +55,7 @@ const GalleryImages = (props: GalleryImagesProps) => {
           </p>
         </button>
       </DialogTrigger>
-      <DialogContent className="h-full w-full max-w-[80vw] max-h-[80vh] p-0 border-0 bg-black/50 [&>button>svg]:text-white">
+      <DialogContent className="h-full w-full max-w-[80vw] max-h-[80vh] p-0 border-0 bg-black/50 [&>button>svg]:text-white overflow-hidden">
         <div className="relative">
           <DialogTitle className="hidden">{title || "Image"}</DialogTitle>
           <Image

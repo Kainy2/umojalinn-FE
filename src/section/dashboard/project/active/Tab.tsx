@@ -47,7 +47,16 @@ const ActiveProjectTab = (props: ActiveProjectTabProps) => {
     return null;
   }
 
-  return <CustomTab replace type="NAVIGATOR" active={active} tabs={tabs} />;
+  return (
+    <CustomTab
+      replace
+      type="NAVIGATOR"
+      active={active}
+      tabs={tabs}
+      mobileSelector
+      className="mb-8"
+    />
+  );
 };
 
 export default ActiveProjectTab;
