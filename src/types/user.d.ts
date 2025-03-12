@@ -1,5 +1,6 @@
 import { languageProficiency } from "@/lib/schema";
 import { UmojaLinnTimestamp } from "./util";
+import { UmojaLinnProject } from "./project";
 
 export type UmojaLinnUserRole = "BUYER" | "DESIGNER";
 
@@ -81,6 +82,8 @@ export type UmojaLinnNotification = {
   metadata?: {
     projectId?: string;
     projectName?: string;
+    bidId?: string;
+    projectStatus?: UmojaLinnProject["status"];
   };
   senderName: string;
   senderProfileUrl: null | string;

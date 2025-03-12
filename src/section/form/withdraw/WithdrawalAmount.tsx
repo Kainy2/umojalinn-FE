@@ -21,7 +21,6 @@ import Paypal from "@/icons/Paypal";
 import CheckCircle from "@/icons/CheckCircle";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 
 const noPaypalOption = [
   {
@@ -249,19 +248,21 @@ const WithdrawalAmountForm = (props: {
                       <p>{method?.paypalEmail || method?.bankName}</p>
                       <p className="text-sm mb-2">{method?.accountNumber}</p>
                       <div className="flex items-center gap-2">
-                        {withdrawalMethod !== method?.id && (
-                          <span className="font-bold">Set as default</span>
-                        )}
-                        <button className="text-primary font-semibold">
+                        {withdrawalMethod !== method?.id &&
+                          mode === "WITHDRAWAL" && (
+                            <span className="font-bold">Set as default</span>
+                          )}
+                        {/* <button className="text-primary font-semibold">
                           Edit
-                        </button>
+                        </button> */}
                       </div>
                     </div>
-                    {withdrawalMethod === method?.id ? (
-                      <CheckCircle className="size-5 text-primary shrink-0 absolute top-4 right-4" />
-                    ) : (
-                      <span className="border border-gray-400 rounded-full size-5 shrink-0 absolute top-4 right-4" />
-                    )}
+                    {mode === "WITHDRAWAL" &&
+                      (withdrawalMethod !== method?.id ? (
+                        <CheckCircle className="size-5 text-primary shrink-0 absolute top-4 right-4" />
+                      ) : (
+                        <span className="border border-gray-400 rounded-full size-5 shrink-0 absolute top-4 right-4" />
+                      ))}
                   </div>
                 ))}
               </>
@@ -384,9 +385,13 @@ const WithdrawalAmountForm = (props: {
               {paymentMethod && (
                 <p className="text-foreground-body text-sm -mt-4">
                   Got any other payment suggestions{" "}
-                  <Link href="#" className="font-semibold text-foreground">
+                  <a
+                    href="https://tally.so/r/mZDGMo"
+                    className="font-semibold text-foreground"
+                    target="_blank"
+                  >
                     Submit feedback
-                  </Link>
+                  </a>
                 </p>
               )}
             </div>
