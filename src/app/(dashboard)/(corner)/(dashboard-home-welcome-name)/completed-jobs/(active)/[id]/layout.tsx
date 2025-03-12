@@ -6,7 +6,7 @@ const Layout = ({ children }: LayoutProps) => {
   return (
     <>
       <ActiveProjectSummary isDesigner />
-      <ActiveProjectTab baseUrlSlug="active-jobs" />
+      <ActiveProjectTab baseUrlSlug="completed-jobs" />
       {children}
     </>
   );
