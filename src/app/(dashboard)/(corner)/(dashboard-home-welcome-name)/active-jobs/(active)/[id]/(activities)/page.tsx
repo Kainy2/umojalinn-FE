@@ -47,6 +47,7 @@ const ActiveJobsPage = () => {
           escrowBalance={projectData?.data?.data?.escrowBalance || 0}
           projectPrice={projectData?.data?.data?.approvedBudget || 0}
           reviews={projectData?.data?.data?.reviews || []}
+          project={projectData?.data?.data}
         />
       </aside>
     </div>

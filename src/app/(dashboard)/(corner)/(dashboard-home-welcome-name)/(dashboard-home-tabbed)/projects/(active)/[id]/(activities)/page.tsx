@@ -1,4 +1,5 @@
 "use client";
+import Invoice from "@/components/custom/Invoice";
 import MilestoneTimeline from "@/components/custom/milestone/Timeline";
 import EscrowCard from "@/section/dashboard/project/active/EscrowCard";
 import {
@@ -8,6 +9,8 @@ import {
 import { useGetMe } from "@/tanstack/hooks/useUser";
 import { redirect, useParams } from "next/navigation";
 import React from "react";
+
+import { PDFViewer } from "@react-pdf/renderer";
 
 const ActiveProjectPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -28,11 +31,10 @@ const ActiveProjectPage = () => {
 
   if (projectData?.data?.data?.status) {
     if (projectData?.data?.data?.status === "COMPLETED") {
-      return redirect('/projects/completed')
+      return redirect("/projects/completed");
     }
-    if (projectData?.data?.data?.status !== "LIVE") return null
+    if (projectData?.data?.data?.status !== "LIVE") return null;
   }
-
 
   return (
     <div className="flex flex-col md:flex-row gap-12">
@@ -55,6 +57,7 @@ const ActiveProjectPage = () => {
           escrowBalance={projectData?.data?.data?.escrowBalance || 0}
           projectPrice={projectData?.data?.data?.approvedBudget || 0}
           reviews={projectData?.data?.data?.reviews || []}
+          project={projectData?.data?.data}
         />
       </aside>
     </div>

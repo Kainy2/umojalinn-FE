@@ -10,6 +10,7 @@ export type UmojaLinnProject = {
   gender: null | "MALE" | "FEMALE";
   additionalNotes: null | string;
   dueDate: null | string;
+  bidAcceptedDate: null | string;
   projectType: "PRIVATE" | "PUBLIC";
   status: "DRAFT" | "ADS" | "LIVE" | "COMPLETED";
   fundStatus: "AWAITING_FUND" | "PROCESSING" | "FUNDED";

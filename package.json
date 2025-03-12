@@ -25,6 +25,7 @@
     "@radix-ui/react-toast": "^1.2.2",
     "@radix-ui/react-tooltip": "^1.1.4",
     "@react-firebase/database": "^0.3.11",
+    "@react-pdf/renderer": "^4.3.0",
     "@rollbar/react": "^0.12.0-beta",
     "@tanstack/react-query": "^5.62.7",
     "@tanstack/react-query-devtools": "^5.62.7",

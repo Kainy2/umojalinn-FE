@@ -1,4 +1,5 @@
 "use client";
+import { InvoiceButton } from "@/components/custom/Invoice";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { formatCurrencyValue } from "@/lib/number";
@@ -71,7 +72,7 @@ const EscrowPage = () => {
                 <p
                   className={cn(
                     ["FUNDED", "PAID"].includes(milestone?.transactionStatus) &&
-                      "line-through"
+                      "line-through",
                   )}
                 >
                   {getCurrencySymbol(projectData?.data?.data?.currency)}
@@ -90,7 +91,7 @@ const EscrowPage = () => {
             <p className="text-md font-semibold">
               {getCurrencySymbol(projectData?.data?.data?.currency)}
               {formatCurrencyValue(
-                projectData?.data?.data?.approvedBudget || 0
+                projectData?.data?.data?.approvedBudget || 0,
               )}
             </p>
           </div>
@@ -103,12 +104,13 @@ const EscrowPage = () => {
               fill
               className="object-contain object-center object-no-repeat absolute "
             />
-            <Button
-              variant="outline"
+
+            <InvoiceButton
+              milestones={projectMilestonesData?.data?.data}
+              project={projectData?.data?.data}
+              noFullWidth
               className="absolute bottom-4 left-1/2 -translate-x-1/2"
-            >
-              Invoice
-            </Button>
+            />
           </div>
         </div>
       </div>
