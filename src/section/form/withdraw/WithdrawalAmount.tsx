@@ -21,6 +21,7 @@ import Paypal from "@/icons/Paypal";
 import CheckCircle from "@/icons/CheckCircle";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const noPaypalOption = [
   {
@@ -379,6 +380,14 @@ const WithdrawalAmountForm = (props: {
                     </div>
                   </div>
                 </div>
+              )}
+              {paymentMethod && (
+                <p className="text-foreground-body text-sm -mt-4">
+                  Got any other payment suggestions{" "}
+                  <Link href="#" className="font-semibold text-foreground">
+                    Submit feedback
+                  </Link>
+                </p>
               )}
             </div>
           </FormItemWrapper>
