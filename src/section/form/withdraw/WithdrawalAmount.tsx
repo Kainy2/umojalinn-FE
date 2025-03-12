@@ -190,12 +190,17 @@ const WithdrawalAmountForm = (props: {
     });
   };
 
+  const withdrawalMethodsForThisCurrency =
+    withdrawalMethodsData?.data?.data?.filter(
+      (method) => method?.currency === currency,
+    );
+
   return (
     <div className="flex flex-col gap-6">
       {
         <>
           {mode === "WITHDRAWAL" &&
-            !!withdrawalMethodsData?.data?.data?.length && (
+            !!withdrawalMethodsForThisCurrency?.length && (
               <TextField
                 type="number"
                 label="Withdraw Amount"
@@ -223,7 +228,7 @@ const WithdrawalAmountForm = (props: {
                     .map((_, i) => (
                       <Skeleton key={_ + i} className="h-28 rounded-md" />
                     ))}
-                {withdrawalMethodsData?.data?.data?.map?.((method) => (
+                {withdrawalMethodsForThisCurrency?.map?.((method) => (
                   <div
                     onClick={() =>
                       mode === "WITHDRAWAL" &&
@@ -243,18 +248,19 @@ const WithdrawalAmountForm = (props: {
                       <p>{method?.paypalEmail || method?.bankName}</p>
                       <p className="text-sm mb-2">{method?.accountNumber}</p>
                       <div className="flex items-center gap-2">
-                        <button className="font-bold">Set as default</button>
+                        {withdrawalMethod !== method?.id && (
+                          <span className="font-bold">Set as default</span>
+                        )}
                         <button className="text-primary font-semibold">
                           Edit
                         </button>
                       </div>
                     </div>
-                    {mode !== "PAYMENT" &&
-                      (withdrawalMethod === method?.id ? (
-                        <CheckCircle className="size-5 text-primary shrink-0 absolute top-4 right-4" />
-                      ) : (
-                        <span className="border border-gray-400 rounded-full size-5 shrink-0 absolute top-4 right-4" />
-                      ))}
+                    {withdrawalMethod === method?.id ? (
+                      <CheckCircle className="size-5 text-primary shrink-0 absolute top-4 right-4" />
+                    ) : (
+                      <span className="border border-gray-400 rounded-full size-5 shrink-0 absolute top-4 right-4" />
+                    )}
                   </div>
                 ))}
               </>

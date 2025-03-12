@@ -80,15 +80,25 @@ const SettingsProfileWorkHistoryPage = () => {
                 {getCurrencySymbol(review?.project?.currency)}
                 {formatCurrencyValue(review?.project?.approvedBudget)}
               </p>
-              <Link
-                href={href || "#"}
-                className={cn(
-                  "font-bold text-primary",
-                  !href && "text-muted cursor-not-allowed",
-                )}
-              >
-                View details
-              </Link>
+              {session?.user?.profileRole === "DESIGNER" ? (
+                <p className="text-foreground-body">
+                  Designer{" "}
+                  <span className="font-semibold text-foreground">
+                    {review?.project?.designer?.user?.firstName}{" "}
+                    {review?.project?.designer?.user?.lastName}
+                  </span>
+                </p>
+              ) : (
+                <Link
+                  href={href || "#"}
+                  className={cn(
+                    "font-bold text-primary",
+                    !href && "text-muted cursor-not-allowed",
+                  )}
+                >
+                  View details
+                </Link>
+              )}
             </div>
           </div>
         );
