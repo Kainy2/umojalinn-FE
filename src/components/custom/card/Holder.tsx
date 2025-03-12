@@ -56,7 +56,7 @@ const CustomCardHolder = (props: CustomCardHolderProps) => {
         className={cn(
           "font-semibold text-sm truncate flex gap-2 items-center justify-center mb-8 text-teal-500 uppercase",
           colour === "success" && "text-success",
-          colour === "info" && "text-blue-500",
+          colour === "info" && "text-gray-500",
           colour === "primary" && "text-primary"
         )}
       >
@@ -65,7 +65,7 @@ const CustomCardHolder = (props: CustomCardHolderProps) => {
             className={cn(
               "h-5 w-5 flex items-center justify-center text-white bg-teal-500 text-sm",
               colour === "success" && "bg-success",
-              colour === "info" && "bg-blue-500",
+              colour === "info" && "bg-gray-500",
               colour === "primary" && "bg-primary"
             )}
           >

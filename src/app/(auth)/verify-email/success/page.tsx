@@ -18,7 +18,7 @@ const ConfirmEmailSuccessPage = async (
       <h1 className="text-lg font-bold text-foreground mb-2">Email Verified</h1>
       <p className="mb-6">
         Your account has been created, click continue to login. Welcome to{" "}
-        <span className="font-semibold">Umoja Linn</span>
+        <span className="font-semibold">Umoja linn</span>
       </p>
       <Button fullWidth asChild>
         <Link

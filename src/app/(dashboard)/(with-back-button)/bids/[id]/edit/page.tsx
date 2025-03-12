@@ -35,7 +35,7 @@ const MILESTONE_TEMPLATE = {
   price: 0,
 };
 
-const COMMISSION_FEE = 0;
+const SERVICE_FEE = 0;
 
 const BidPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -308,10 +308,10 @@ const BidPage = () => {
             </span>
           </p>
           <p className="flex justify-between">
-            <span className="text-foreground-body">Commission fee</span>
+            <span className="text-foreground-body">Service fee</span>
             <span>
               -{getCurrencySymbol(project?.currency)}
-              {formatCurrencyValue(totalPrice * COMMISSION_FEE)}
+              {formatCurrencyValue(totalPrice * SERVICE_FEE)}
             </span>
           </p>
         </div>
@@ -320,7 +320,7 @@ const BidPage = () => {
           <span className="text-foreground-body">You recieve</span>
           <span>
             {getCurrencySymbol(project?.currency)}
-            {formatCurrencyValue(totalPrice * (1 - COMMISSION_FEE))}
+            {formatCurrencyValue(totalPrice * (1 - SERVICE_FEE))}
           </span>
         </p>
       </div>

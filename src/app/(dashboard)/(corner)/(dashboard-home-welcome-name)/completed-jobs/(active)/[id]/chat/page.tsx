@@ -14,8 +14,6 @@ const ActiveProjectChatPage = () => {
 
   const { data: projectData } = useGetProjectById(id);
 
-  if (projectData?.data?.data?.status && projectData?.data?.data?.status !==  "LIVE") return null
-
   return (
     <div className="flex flex-col md:flex-row gap-12">
       <ChatWindow projectId={id} />
@@ -27,7 +25,6 @@ const ActiveProjectChatPage = () => {
           currency={projectData?.data?.data?.currency}
           escrowBalance={projectData?.data?.data?.escrowBalance || 0}
           projectPrice={projectData?.data?.data?.approvedBudget || 0}
-          reviews={projectData?.data?.data?.reviews || []}
         />
       </aside>
     </div>

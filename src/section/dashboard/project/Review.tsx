@@ -60,7 +60,7 @@ const ProjectReviewView = (props: {
         <p className="text-muted-foreground text-sm mb-8">
           {props?.project?.about || "No description"}
         </p>
-        <div className="flex justify-between">
+        <div className="flex gap-4 flex-col lg:flex-row justify-between">
           <p className="text-sm text-muted-foreground">
             Project due:{" "}
             <span className="font-semibold">

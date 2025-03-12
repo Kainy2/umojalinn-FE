@@ -109,8 +109,8 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
         {data?.data?.data?.projectType === "PUBLIC" && (
           <>
             <FormItemWrapper
-              title="Specialist"
-              description="Add specialist tag to help with your search for a designer"
+              title="Specialty"
+              description="Add specialty tag to help with your search for a designer"
             >
               <FormField
                 control={form.control}

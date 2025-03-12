@@ -59,7 +59,7 @@ export const useFileSizeError = (
         title: `${title} error`,
         description: `The file size limit is ${formatSize(
           limit
-        )} and your file upload size is ${formatSize(size)}`,
+        )} and your file upload size is ${formatSize(size)}. You can compress the image using an image editor and try uploading again.`,
         variant: "destructive",
       });
     }

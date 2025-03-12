@@ -94,7 +94,7 @@ export const FEMALE_SIZING_TEMPLATE: FemaleSizingTemplateProp[] = [
   },
   {
     name: "Outseam",
-    prop: "outseam",
+    prop: "outSeam",
     img: "/img/png/sizing-template/female/female_14.png",
   },
   {

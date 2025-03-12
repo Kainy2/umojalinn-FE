@@ -34,7 +34,15 @@ const DashboardPage = () => {
     data: completedProjectsData,
     isPending: isLoadingCompletedProjectsData,
   } = useGetAllDesignerProject({
-    projectStatus: "COMPLETED",
+    projectStatus: ["COMPLETED"]
+  });
+
+  const {
+    data: closedBids,
+    isPending: isLoadingClosedBidsData,
+  } = useGetDesigerBids({
+    projectStatus: ["LIVE", "COMPLETED"],
+    bidStatus: ["REJECTED", "PENDING"]
   });
 
   return (
@@ -110,7 +118,7 @@ const DashboardPage = () => {
       <CustomCardHolder
         colour="success"
         count={completedProjectsData?.data?.data?.length}
-        title="My Past Jobs"
+        title="My Completed Jobs"
         loading={isLoadingCompletedProjectsData}
         empty={!completedProjectsData?.data?.data?.length}
       >
@@ -119,7 +127,7 @@ const DashboardPage = () => {
             key={job?.id}
             isPrivate={job.projectType === "PRIVATE"}
             name={job?.title || "No title"}
-            href={`/jobs/${uuidToBase62Safe(job?.id)}`}
+            href={`/completed-jobs/${uuidToBase62Safe(job?.id)}`}
             progress={{
               value: 0,
               total: 1,
@@ -131,23 +139,23 @@ const DashboardPage = () => {
       </CustomCardHolder>
       <CustomCardHolder
         colour="info"
-        count={completedProjectsData?.data?.data?.length}
-        title="Completed Jobs"
-        loading={isLoadingCompletedProjectsData}
-        empty={!completedProjectsData?.data?.data?.length}
+        count={closedBids?.data?.data?.length}
+        title="Closed Bids"
+        loading={isLoadingClosedBidsData}
+        empty={!closedBids?.data?.data?.length}
       >
-        {completedProjectsData?.data?.data?.map((job) => (
+        {closedBids?.data?.data?.map((bid) => (
           <JobCard
-            key={job?.id}
-            isPrivate={job.projectType === "PRIVATE"}
-            name={job?.title || "No title"}
-            href={`/jobs/${uuidToBase62Safe(job?.id)}`}
+            key={bid?.id}
+            isPrivate={bid?.project?.projectType === "PRIVATE"}
+            name={bid?.project?.title || "No title"}
+            href={`/bids/${uuidToBase62Safe(bid?.id)}`}
             progress={{
               value: 0,
               total: 1,
             }}
-            img={getCoverImage(job)}
-            dueDate={job.dueDate}
+            img={getCoverImage(bid.project)}
+            dueDate={bid.project?.dueDate}
           />
         ))}
       </CustomCardHolder>

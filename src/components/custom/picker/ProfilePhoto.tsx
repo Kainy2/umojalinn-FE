@@ -1,4 +1,5 @@
 "use client";
+import { MAX_FILE_SIZE_FOR_FILE_UPLOAD } from "@/constant";
 import useFilePicker, { useFileSizeError } from "@/hooks/useFilePicker";
 import { cn, jsonToFormData } from "@/lib/utils";
 import { useGetMe, useUpdateUserDetails } from "@/tanstack/hooks/useUser";
@@ -72,7 +73,7 @@ export const ProfilePhotoEdit = () => {
   const { data: dataMe, isFetching } = useGetMe();
   const { mutate: updateProfile, isPending: isUpdating } =
     useUpdateUserDetails();
-  const { isFileSizeValid } = useFileSizeError(1 * 1024 * 1024);
+  const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD);
 
   return (
     <ProfilePhotoPicker

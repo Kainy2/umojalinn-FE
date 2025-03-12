@@ -42,9 +42,11 @@ const EscrowCard = (props: EscrowCardProps) => {
     (review) => review?.reviewType === "CLOTHING_QUALITY"
   );
 
-  const hasMilestoneCompleted = !props?.milestones?.find?.(
+  const isIncompleteMilestone = props?.milestones?.find?.(
     (milestone) => milestone?.status !== "APPROVED"
   );
+
+  const hasAllMilestoneCompleted = !isIncompleteMilestone
 
   return (
     <div className="flex flex-col gap-4 bg-gray-50 rounded-md p-4 py-8">
@@ -123,7 +125,7 @@ const EscrowCard = (props: EscrowCardProps) => {
                 ((review?.buyerId && session?.user?.profileRole === "BUYER") ||
                 (review?.designerId &&
                   session?.user?.profileRole === "DESIGNER") ? (
-                  <p>Your review</p>
+                  <p>Your Experience Feedback</p>
                 ) : (
                   <div className="">
                     <div className="flex items-center gap-2 mb-4">
@@ -144,18 +146,18 @@ const EscrowCard = (props: EscrowCardProps) => {
                       </h4>
                     </div>
                     <p>
-                      {review?.buyerId && "Buyer's"}{" "}
-                      {review?.designerId && "Designer's"} feedback
+                      {review?.buyerId && "Client's"}{" "}
+                      {review?.designerId && "Designer's"} Experience feedback
                     </p>
                   </div>
                 ))}
               {review?.reviewType === "CLOTHING_QUALITY" && (
                 <p>Clothing Quality feedback</p>
               )}
-              <p className="p-4 bg-white border border-input rounded-sm text-foreground-body">
+              <p className="p-2 bg-white border border-input rounded-sm text-foreground-body">
                 {review.message}
               </p>
-              <ReviewRatingStars rating={review.rating || 0} disabled />
+              <ReviewRatingStars small rating={review.rating || 0} disabled />
               <div className="flex gap-4 overflow-scroll">
                 {review.images?.map?.((image) => (
                   <Image
@@ -174,7 +176,7 @@ const EscrowCard = (props: EscrowCardProps) => {
 
         {((isBuyer && !hasBuyerDoneExperience) ||
           (isDesigner && !hasDesignerDoneExperience)) &&
-          hasMilestoneCompleted && (
+          hasAllMilestoneCompleted && (
             <div className="flex flex-col gap-2  text-foreground-body">
               <p>Your Quality Experience Feedback</p>
               <Alert
@@ -182,7 +184,7 @@ const EscrowCard = (props: EscrowCardProps) => {
                 title="Please take note"
                 message={
                   isBuyer
-                    ? "We kindly request that you provide this review after confirming the product to assist us in enhancing our services to you."
+                    ? "We kindly request that you provide this review after receiving you order to assist us in enhancing our services to you."
                     : "We kindly request that you provide this review after completing your service to the client."
                 }
                 type="error"
@@ -202,7 +204,7 @@ const EscrowCard = (props: EscrowCardProps) => {
             </div>
           )}
 
-        {isBuyer && !hasBuyerDoneClothingQuality && hasMilestoneCompleted && (
+        {isBuyer && !hasBuyerDoneClothingQuality && hasAllMilestoneCompleted && (
           <div className="flex flex-col gap-2 text-foreground-body">
             <p>Your Clothing Quality Feedback</p>
             <Alert
