@@ -36,7 +36,7 @@ const JobPage = () => {
       <div className="flex flex-col gap-8">
         <div>
           <Skeleton className="h-52" />
-          <div className="flex px-12">
+          <div className="flex px-2 md:px-12">
             <div className="relative w-40">
               <Skeleton className="size-40 absolute bottom-0" />
             </div>
@@ -67,7 +67,7 @@ const JobPage = () => {
           alt=""
           className="h-52 object-cover w-full"
         />
-        <div className="flex px-12">
+        <div className="flex px-2 md:px-12 flex-col md:flex-row relative top-12 md:top-0">
           <div className="relative w-40">
             <Image
               className="object-cover size-40 absolute bottom-0 bg-background"
@@ -94,7 +94,7 @@ const JobPage = () => {
               )}
             </div>
           </div>
-          <div className="pt-6 flex flex-row items-center gap-2">
+          <div className="pt-6 flex flex-row items-center gap-2 mb-12 md:mb-0">
             <Button variant="outline">
               <MoreVertical />
             </Button>
@@ -112,7 +112,7 @@ const JobPage = () => {
         </div>
       </div>
 
-      <div className="bg-gray-50 p-3 flex items-center gap-2">
+      <div className="bg-gray-50 p-3 flex flex-col md:flex-row items-center gap-2">
         <Image
           src={
             project?.designer?.user?.profilePhotoUri || "/img/webp/user.webp"
@@ -135,7 +135,7 @@ const JobPage = () => {
         <h3>About Job</h3>
         <p>{project?.about || "None"}</p>
       </div>
-      <div className="bg-gray-50 p-8 gap-8 gap-y-12 grid grid-cols-3">
+      <div className="bg-gray-50 p-8 gap-8 gap-y-12 grid grid-cols-1 md:grid-cols-3">
         <LabelValue
           label="Delivery Location"
           value={project?.deliveryAddress?.country || ""}
