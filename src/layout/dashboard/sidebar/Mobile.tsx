@@ -39,9 +39,9 @@ const MobileMenu = () => {
             <Image
               src="/img/png/umoja.png"
               alt="Umoja logo"
-              height={80}
-              width={80}
-              className="block mx-auto"
+              height={50}
+              width={50}
+              className="block mx-0 md:mx-auto"
             />
             {/* <Button
               // asChild
