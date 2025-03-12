@@ -6,7 +6,7 @@ import React from "react";
 
 const DESIGNER_HOME_TAB_NAV: CustomTabItemProps[] = [
   { title: "Dashboard", href: "/dashboard" },
-  { title: "Private jobs", href: "/dashboard/private-jobs" },
+  // { title: "Private jobs", href: "/dashboard/private-jobs" },
 ];
 
 const BUYER_HOME_TAB_NAV: CustomTabItemProps[] = [

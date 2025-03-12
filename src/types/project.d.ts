@@ -181,7 +181,7 @@ export type UmojaLinnFemaleSizingTemplateProps = {
   waist: number | null;
   inseam: number | null;
   backLength: number | null;
-  outseam: number | null;
+  outSeam: number | null;
   ankleCircumference: number | null;
   calfCircumference: number | null;
   wristCircumference: number | null;

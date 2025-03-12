@@ -34,7 +34,7 @@ const WithdrawalPage = () => {
   return (
     <>
       <h1 className="text-subtitle-1 font-bold mb-8">Wallet</h1>
-      <div className="flex h-full">
+      <div className="flex h-full flex-col lg:flex-row">
         <div className="flex-1 shrink-0">
           <div className="flex flex-col gap-4">
             <WalletCard

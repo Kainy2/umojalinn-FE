@@ -58,7 +58,7 @@ const SettingsProfileWorkHistoryPage = () => {
           <p className="text-sm mb-4">
             {formatDate(review?.createdAt, "MMM d, yyyy")} - Present
           </p>
-          <ReviewRatingStars small rating={review?.rating} />
+          <ReviewRatingStars small rating={review?.rating} disabled/>
           <Separator className="bg-border/50  my-2" />
           <div className="flex  justify-between text-sm gap-8">
             <p className="font-semibold">

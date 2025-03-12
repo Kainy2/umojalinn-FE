@@ -53,7 +53,7 @@ export const BUYERS_SIDEBAR_CONTENT: CustomSidebarMenuItemProps[] = [
     img: "/img/webp/customer-care.webp",
     action: {
       title: "Submit feedback",
-      href: "/",
+      href: "https://tally.so/r/w2Dz2g",
     },
   },
   {
@@ -109,7 +109,7 @@ export const DESIGNERS_SIDEBAR_CONTENT: CustomSidebarMenuItemProps[] = [
     img: "/img/webp/customer-care.webp",
     action: {
       title: "Submit feedback",
-      href: "/",
+      href: "https://tally.so/r/w2Dz2g",
     },
   },
   {

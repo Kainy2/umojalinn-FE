@@ -77,16 +77,22 @@ const ActiveProjectCardList = (props: ActiveProjectCardListProps) => {
     baseUrlSlug === "projects"
       ? buyerProjects
       : baseUrlSlug === "escrow"
-      ? escrowProjects
-      : designerProjects
+        ? escrowProjects
+        : designerProjects
   )?.data?.data;
 
   const isPending =
     baseUrlSlug === "projects"
       ? loadingBuyerProjects
       : baseUrlSlug === "escrow"
-      ? loadingEscrowProjects
-      : loadingDesignerProjects;
+        ? loadingEscrowProjects
+        : loadingDesignerProjects;
+
+  if (!projectsData?.length) {
+    return <p className="h-[40vh] flex items-center justify-center text-gray-400">
+      No active projects at the moment
+    </p>
+  }
 
   return (
     <CustomCardHolder type="PROJECT" loading={isPending}>

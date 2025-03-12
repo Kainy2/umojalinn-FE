@@ -66,7 +66,7 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
           if (key === "sizingTemplateId" && !!value) setUseSizingTemplate(true);
           form.setValue(key as keyof ProjectFormDetailsProps, value.toString());
         }
-        if (key === "deliveryAddress" && !!value && typeof value !== "object") {
+        if (key === "deliveryAddress" && !!value && typeof value === "object") {
           Object.entries(value).forEach(([key, value]) => {
             if (value !== null && typeof value !== "object") {
               form.setValue(
@@ -104,9 +104,8 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
           router.push(
             mode === "DRAFT"
               ? "/projects"
-              : `${
-                  !!props.isOnboarding ? "/onboard" : ""
-                }/project/${uuidToBase62Safe(props?.id)}/gallery`
+              : `${!!props.isOnboarding ? "/onboard" : ""
+              }/project/${uuidToBase62Safe(props?.id)}/gallery`
           );
         },
       });
@@ -196,9 +195,8 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
         >
           <FormTextField
             disabled
-            value={`${data?.data?.data?.designer?.user?.firstName || ""} ${
-              data?.data?.data?.designer?.user?.lastName || ""
-            }`}
+            value={`${data?.data?.data?.designer?.user?.firstName || ""} ${data?.data?.data?.designer?.user?.lastName || ""
+              }`}
             startAdornment={<UserPlus className="text-gray-400 h-5 w-5" />}
           />
         </FormItemWrapper>
@@ -386,8 +384,11 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
                       <div className="flex gap-2 items-center bg-gray-200 p-2">
                         <Info className="text-primary h-6 w-6" />
                         <span className="text-sm">
-                          Include Sizing template in your Project description or
-                          at project start
+                          {
+                            !sizingTemplateData?.data?.data?.length ?
+                              "You have no sizing templates created yet, you can add sizing template later from the Sizing templates tab" :
+                              "Include Sizing template in your Project description or at project start"
+                          }
                         </span>
                       </div>
                       <CustomSelect

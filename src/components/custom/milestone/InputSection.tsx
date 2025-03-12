@@ -13,6 +13,7 @@ import {
 import TextAreaField from "../input/TextAreaField";
 import CustomSelectCountry from "../SelectCountry";
 import { useGetMilestoneSubmissions } from "@/tanstack/hooks/useProject";
+import { Textarea } from "@/components/ui/textarea";
 
 type MilestoneInputSectionProps = {
   id?: string;
@@ -236,7 +237,8 @@ const MilestoneInputSection = (props: MilestoneInputSectionProps) => {
   if (props?.status === MilestoneStatus.ACTIVE && props?.isDesigner) {
     return (
       <div className="flex flex-col gap-4">
-        <TextField
+        <Textarea
+          className="min-h-[48px]"
           value={props?.message}
           onChange={(e) => props?.onMessageChange?.(e.target.value)}
         />

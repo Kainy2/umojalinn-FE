@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { UmojaLinnSizingTemplate } from "@/types/project";
 import { Info } from "lucide-react";
 import Image from "next/image";
-import React, { useId } from "react";
+import React, { useId, forwardRef } from "react";
 import RequestSizingTemplateViewCard from "../card/RequestSIzingTemplateView";
 
 type SizingTemplateInputFieldProps = {
@@ -21,14 +21,16 @@ type SizingTemplateInputFieldProps = {
   highlighted?: boolean;
   onClick?: () => void;
   hasLiveProject?: boolean;
+  onKeyDown?: React.ComponentProps<"input">["onKeyDown"]
   metadata?: {
     review?: string;
     img?: string;
   };
 };
 
-const SizingTemplateInputField = (props: SizingTemplateInputFieldProps) => {
+const SizingTemplateInputField = forwardRef<HTMLInputElement, SizingTemplateInputFieldProps>((props, ref) => {
   const id = useId();
+
   return (
     <div
       onClick={props.onClick}
@@ -41,8 +43,8 @@ const SizingTemplateInputField = (props: SizingTemplateInputFieldProps) => {
         className={cn(
           "[&+*>input]:focus:bg-gray-100 bg-background",
           props.metadata?.review &&
-            !props.hasLiveProject &&
-            "text-error-700 font-semibold"
+          !props.hasLiveProject &&
+          "text-error-700 font-semibold"
         )}
         htmlFor={id}
       >
@@ -51,6 +53,7 @@ const SizingTemplateInputField = (props: SizingTemplateInputFieldProps) => {
       <div className="flex items-center gap-2">
         <div className="text-sm rounded-full relative">
           <input
+            ref={ref}
             className={cn(
               "text-primary text-right placeholder:text-primary focus-visible:outline-none focus-visible:bg-gray-100 rounded-full p-1 pr-10",
               props.unit === "INCH" && "pr-14"
@@ -66,6 +69,8 @@ const SizingTemplateInputField = (props: SizingTemplateInputFieldProps) => {
             onFocus={props.onFocus}
             autoComplete="off"
             disabled={props.disabled}
+            onClick={props.onClick}
+            onKeyDown={props.onKeyDown}
           />
           <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
             {props.unit}
@@ -106,6 +111,8 @@ const SizingTemplateInputField = (props: SizingTemplateInputFieldProps) => {
       </div>
     </div>
   );
-};
+});
+
+SizingTemplateInputField.displayName = "SizingTemplateInputField";
 
 export default SizingTemplateInputField;

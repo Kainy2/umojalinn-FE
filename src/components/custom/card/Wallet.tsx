@@ -69,7 +69,7 @@ const WalletCard = (props: WalletCardProps) => {
     <div className="p-8 border border-input">
       {!!title && <h2 className="font-semibold mb-7">{title}</h2>}
       <h3 className="mb-4">{subtitle}</h3>
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-start md:items-center flex-col md:flex-row gap-4">
         <h4 className="font-semibold text-subtitle-1 ">
           {obfuscate
             ? "***************"

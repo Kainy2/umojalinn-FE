@@ -67,11 +67,11 @@ const CustomSidebarMenuItem = (props: CustomSidebarMenuItemProps) => {
           src={props.img}
           height={172.72}
           width={216}
-          className="h-32 w-full object-cover rounded-md mb-6"
+          className="h-32 w-full object-cover rounded-md mb-6 hidden md:block"
         />
-        <Link className="font-semibold text-primary" href={props.action?.href}>
+        <a className="font-semibold text-primary" href={props.action?.href} target='_blank'>
           {props.action?.title}
-        </Link>
+        </a>
       </div>
     );
   }

@@ -23,6 +23,8 @@ const AdsProjectPage = () => {
 
   const [verifyDelete, setVerifyDelete] = React.useState(false);
 
+  if (data?.data?.data?.status !==  "ADS" && !isPending) return null
+
   return (
     <div className="flex flex-col gap-6">
       <SectionTitle

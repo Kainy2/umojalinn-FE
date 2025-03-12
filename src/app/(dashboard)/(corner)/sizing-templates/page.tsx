@@ -28,9 +28,13 @@ const SizingTemplatesPage = () => {
     );
   }
 
+  if (session?.user?.profileRole === "DESIGNER" && !data?.data?.data?.length) return <p className="h-[40vh] flex items-center justify-center text-gray-400">
+    No active sizing templates at the moment
+  </p>
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      {session?.user?.profileRole === "BUYER" && (
+      {session?.user?.profileRole === "BUYER" && (data?.data?.data?.length || 0) < 3 && (
         <SizingTemplateDialog>
           <button className="relative h-52">
             <Image

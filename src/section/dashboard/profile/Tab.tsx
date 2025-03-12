@@ -24,11 +24,11 @@ const DESIGNER_PROFILE_NAV: CustomTabItemProps[] = [
     href: "/settings/profile",
     value: "/settings/profile",
   },
-  {
-    title: "Portfolio",
-    href: "/settings/profile/portfolio",
-    value: "/settings/profile/portfolio",
-  },
+  // {
+  //   title: "Portfolio",
+  //   href: "/settings/profile/portfolio",
+  //   value: "/settings/profile/portfolio",
+  // },
   {
     title: "Work History",
     href: "/settings/profile/work-history",
