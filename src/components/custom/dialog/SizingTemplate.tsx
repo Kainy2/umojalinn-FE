@@ -275,7 +275,7 @@ const SizingTemplateDialog = (
         <DialogTrigger asChild onClick={() => setOpen(true)}>
           {props.children}
         </DialogTrigger>
-        <DialogContent className="flex [&>div]:flex-1 [&>div]:shrink-0 [&>div]:p-3 min-w-[70vw]">
+        <DialogContent className="flex p-2 md:p-6 [&>div]:flex-1 [&>div]:shrink-0 [&>div]:p-3 min-w-[70vw]">
           <DialogTitle className="text-lg font-semibold mb-4 hidden">
             Measurement
           </DialogTitle>
@@ -299,7 +299,7 @@ const SizingTemplateDialog = (
         <DialogTrigger asChild onClick={() => setOpen(true)}>
           {props.children}
         </DialogTrigger>
-        <DialogContent className="flex [&>div]:flex-1 [&>div]:shrink-0 [&>div]:p-3 min-w-[70vw]">
+        <DialogContent className="flex p-2 md:p-6 [&>div]:flex-1 [&>div]:shrink-0 [&>div]:p-3 min-w-[70vw]">
           <div className="">
             <DialogTitle className="text-lg font-semibold mb-4">
               Measurement
@@ -454,7 +454,7 @@ const SizingTemplateDialog = (
       <DialogTrigger asChild onClick={() => setOpen(true)}>
         {props.children}
       </DialogTrigger>
-      <DialogContent className="flex [&>div]:flex-1 [&>div]:shrink-0 [&>div]:p-3 min-w-[70vw]">
+      <DialogContent className="flex p-2 md:p-6 [&>div]:flex-1 [&>div]:shrink-0 [&>div]:p-3 min-w-[70vw]">
         <div className="">
           {recommendationMode && (
             <div className="text-sm text-foreground-body bg-primary-50 border-b-1 border-gray-200 mb-4 p-2 md:p-4">
