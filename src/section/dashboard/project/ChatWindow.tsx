@@ -2,7 +2,7 @@
 import { firebaseConfig } from "@/lib/firebase";
 import { cn, fileToPreviewUrl, jsonToFormData } from "@/lib/utils";
 import React, { useEffect, useRef, useState } from "react";
-import { initializeApp, getApps } from 'firebase/app';
+import { initializeApp, getApps } from "firebase/app";
 import { base62ToUuidSafe } from "@/lib/uuid";
 import { getDatabase, ref, onValue } from "firebase/database";
 import { Button } from "@/components/ui/button";
@@ -45,7 +45,7 @@ const ChatWindow = (props: ChatWindowProps) => {
       setPreviewUrls(
         files
           .map((file) => fileToPreviewUrl(file))
-          .filter((url): url is string => url !== null)
+          .filter((url): url is string => url !== null),
       );
       setImages(files);
     },
@@ -65,7 +65,7 @@ const ChatWindow = (props: ChatWindowProps) => {
     // Reference to the specific collection in the database
     const collectionRef = ref(
       database,
-      `chats/${base62ToUuidSafe(projectId)}/messages`
+      `chats/${base62ToUuidSafe(projectId)}/messages`,
     );
 
     // Function to fetch data from the database
@@ -80,7 +80,7 @@ const ChatWindow = (props: ChatWindowProps) => {
         if (dataItem) {
           // Convert the object values into an array
           const displayItem = Object.values(
-            dataItem
+            dataItem,
           ) as unknown as UmojaLinnChat[];
           console.log("HISTORY >>>", displayItem);
           setData(displayItem);
@@ -115,8 +115,8 @@ const ChatWindow = (props: ChatWindowProps) => {
   return (
     <div
       className={cn(
-        "min-h-[70vh] max-h-[100vh] overflow-scroll flex-1 flex flex-col",
-        props.className
+        "min-h-[50vh] max-h-[80vh] overflow-scroll flex-1 flex flex-col",
+        props.className,
       )}
     >
       <div className="flex flex-1 flex-col gap-4">
@@ -125,9 +125,9 @@ const ChatWindow = (props: ChatWindowProps) => {
             <React.Fragment key={i}>
               {(i === 0 ||
                 categorizeDate(data[i - 1]?.createdAt) !==
-                categorizeDate(d?.createdAt)) && (
-                  <ChatTimeDivider date={d?.createdAt} />
-                )}
+                  categorizeDate(d?.createdAt)) && (
+                <ChatTimeDivider date={d?.createdAt} />
+              )}
               <ChatBubble {...d} />
             </React.Fragment>
           );
@@ -135,8 +135,8 @@ const ChatWindow = (props: ChatWindowProps) => {
         {(!data?.length ||
           (!!data[data.length - 1]?.createdAt &&
             categorizeDate(data[data.length - 1]?.createdAt) !== "Today")) && (
-            <ChatTimeDivider date={new Date()} />
-          )}
+          <ChatTimeDivider date={new Date()} />
+        )}
         <div ref={bottomDiv} />
       </div>
       <div className="border border-border p-3 ring-transparent focus-within:ring-primary">
@@ -167,7 +167,7 @@ const ChatWindow = (props: ChatWindowProps) => {
               <button
                 onClick={() => {
                   setPreviewUrls((prev) =>
-                    prev.filter((_, index) => index !== i)
+                    prev.filter((_, index) => index !== i),
                   );
                   setImages((prev) => prev.filter((_, index) => index !== i));
                 }}

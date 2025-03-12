@@ -51,10 +51,12 @@ const SizigTemplateTab = () => {
       active={
         tabs?.find(
           (tab) =>
-            tab?.href?.toLocaleLowerCase?.() === pathname?.toLocaleLowerCase?.()
+            tab?.href?.toLocaleLowerCase?.() ===
+            pathname?.toLocaleLowerCase?.(),
         )?.title || ""
       }
       tabs={tabs}
+      mobileSelector
     />
   );
 };

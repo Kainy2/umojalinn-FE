@@ -2,6 +2,7 @@ import Alert from "@/components/custom/Alert";
 import ReviewDialog, {
   ReviewRatingStars,
 } from "@/components/custom/dialog/Review";
+import { InvoiceButton } from "@/components/custom/Invoice";
 import MilestoneProgress from "@/components/custom/milestone/Progress";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -22,6 +23,7 @@ type EscrowCardProps = {
   projectPrice: number;
   reviews?: UmojaLinnProject["reviews"];
   projectId?: string;
+  project?: UmojaLinnProject;
 };
 
 const EscrowCard = (props: EscrowCardProps) => {
@@ -32,21 +34,21 @@ const EscrowCard = (props: EscrowCardProps) => {
   const isBuyer = session?.user?.profileRole === "BUYER";
   const isDesigner = session?.user?.profileRole === "DESIGNER";
   const hasDesignerDoneExperience = !!props?.reviews?.find?.(
-    (review) => review?.reviewType === "EXPERIENCE" && review?.designerId
+    (review) => review?.reviewType === "EXPERIENCE" && review?.designerId,
   );
   const hasBuyerDoneExperience = !!props?.reviews?.find?.(
-    (review) => review?.reviewType === "EXPERIENCE" && review?.buyerId
+    (review) => review?.reviewType === "EXPERIENCE" && review?.buyerId,
   );
 
   const hasBuyerDoneClothingQuality = !!props?.reviews?.find?.(
-    (review) => review?.reviewType === "CLOTHING_QUALITY"
+    (review) => review?.reviewType === "CLOTHING_QUALITY",
   );
 
   const isIncompleteMilestone = props?.milestones?.find?.(
-    (milestone) => milestone?.status !== "APPROVED"
+    (milestone) => milestone?.status !== "APPROVED",
   );
 
-  const hasAllMilestoneCompleted = !isIncompleteMilestone
+  const hasAllMilestoneCompleted = !isIncompleteMilestone;
 
   return (
     <div className="flex flex-col gap-4 bg-gray-50 rounded-md p-4 py-8">
@@ -61,8 +63,8 @@ const EscrowCard = (props: EscrowCardProps) => {
         value={
           props?.milestones?.filter?.((milestone) =>
             ["PENDING", "ACTIVE", "IN_REVIEW", "APPROVED"].includes(
-              milestone?.status
-            )
+              milestone?.status,
+            ),
           )?.length
         }
       />
@@ -80,7 +82,7 @@ const EscrowCard = (props: EscrowCardProps) => {
             <p
               className={cn(
                 ["FUNDED", "PAID"].includes(milestone?.transactionStatus) &&
-                  "line-through"
+                  "line-through",
               )}
             >
               {getCurrencySymbol(props?.currency)}
@@ -101,9 +103,7 @@ const EscrowCard = (props: EscrowCardProps) => {
           {formatCurrencyValue(props.projectPrice)}
         </p>
       </div>
-      <Button variant="outline" fullWidth>
-        Invoice
-      </Button>
+      <InvoiceButton project={props.project} milestones={props.milestones} />
       <div className="flex gap-2 items-center">
         <span className="h-6 w-6 shrink-0 bg-error-100 rounded-full flex items-center justify-center text-error">
           <CircleAlert className="h-4 w-4" />
@@ -204,37 +204,39 @@ const EscrowCard = (props: EscrowCardProps) => {
             </div>
           )}
 
-        {isBuyer && !hasBuyerDoneClothingQuality && hasAllMilestoneCompleted && (
-          <div className="flex flex-col gap-2 text-foreground-body">
-            <p>Your Clothing Quality Feedback</p>
-            <Alert
-              title="Please take note"
-              message="We kindly request that you provide this review after confirming the product to assist us in enhancing our services to you."
-              type="error"
-              icon={<CircleAlert />}
-              small
-            />
-            <ReviewDialog
-              reviewType="CLOTHING_QUALITY"
-              projectId={props.projectId || ""}
-              fullWidthActions
-              hideCancel
-              confirmText="Submit"
-              open={openClothingQuality}
-              onOpenChange={setOpenClothingQuality}
-              alert={{
-                title: "Please take note",
-                message:
-                  "We kindly request that you provide this review after confirming the product to assist us in enhancing our services to you.",
-                type: "error",
-                icon: <CircleAlert />,
-                small: true,
-              }}
-            >
-              <Button fullWidth>Submit Feedback</Button>
-            </ReviewDialog>
-          </div>
-        )}
+        {isBuyer &&
+          !hasBuyerDoneClothingQuality &&
+          hasAllMilestoneCompleted && (
+            <div className="flex flex-col gap-2 text-foreground-body">
+              <p>Your Clothing Quality Feedback</p>
+              <Alert
+                title="Please take note"
+                message="We kindly request that you provide this review after confirming the product to assist us in enhancing our services to you."
+                type="error"
+                icon={<CircleAlert />}
+                small
+              />
+              <ReviewDialog
+                reviewType="CLOTHING_QUALITY"
+                projectId={props.projectId || ""}
+                fullWidthActions
+                hideCancel
+                confirmText="Submit"
+                open={openClothingQuality}
+                onOpenChange={setOpenClothingQuality}
+                alert={{
+                  title: "Please take note",
+                  message:
+                    "We kindly request that you provide this review after confirming the product to assist us in enhancing our services to you.",
+                  type: "error",
+                  icon: <CircleAlert />,
+                  small: true,
+                }}
+              >
+                <Button fullWidth>Submit Feedback</Button>
+              </ReviewDialog>
+            </div>
+          )}
       </div>
     </div>
   );

@@ -28,11 +28,10 @@ const ActiveProjectPage = () => {
 
   if (projectData?.data?.data?.status) {
     if (projectData?.data?.data?.status === "COMPLETED") {
-      return redirect('/projects/completed')
+      return redirect("/projects/completed");
     }
-    if (projectData?.data?.data?.status !== "LIVE") return null
+    if (projectData?.data?.data?.status !== "LIVE") return null;
   }
-
 
   return (
     <div className="flex flex-col md:flex-row gap-12">
@@ -55,6 +54,7 @@ const ActiveProjectPage = () => {
           escrowBalance={projectData?.data?.data?.escrowBalance || 0}
           projectPrice={projectData?.data?.data?.approvedBudget || 0}
           reviews={projectData?.data?.data?.reviews || []}
+          project={projectData?.data?.data}
         />
       </aside>
     </div>

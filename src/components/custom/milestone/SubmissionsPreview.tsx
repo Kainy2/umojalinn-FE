@@ -6,6 +6,12 @@ import React from "react";
 import { MilestoneStatus, MilestoneTimelineItem } from "./Timeline";
 import { cn } from "@/lib/utils";
 import { Link2, Locate, MapPin, Truck } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 type MilestoneSubmissionsPreviewProps = {
   milestoneId: string;
@@ -20,7 +26,7 @@ type MilestoneSubmissionsPreviewUserProps = {
 };
 
 const MilestoneSubmissionsPreviewUser = (
-  props: MilestoneSubmissionsPreviewUserProps
+  props: MilestoneSubmissionsPreviewUserProps,
 ) => {
   return (
     <div className="flex items-center gap-2">
@@ -41,7 +47,7 @@ const MilestoneSubmissionsPreviewUser = (
 };
 
 const MilestoneSubmissionsPreview = (
-  props: MilestoneSubmissionsPreviewProps
+  props: MilestoneSubmissionsPreviewProps,
 ) => {
   const { milestoneId } = props;
   const { data: milestoneSubmissionsData } =
@@ -54,7 +60,7 @@ const MilestoneSubmissionsPreview = (
         "flex flex-col-reverse gap-4",
         props?.status === MilestoneStatus.INACTIVE
           ? "text-muted-foreground"
-          : "text-foreground-body"
+          : "text-foreground-body",
       )}
     >
       {milestoneSubmissions?.map((submission) => {
@@ -114,14 +120,33 @@ const MilestoneSubmissionsPreview = (
             </div>
             <div className="flex gap-2">
               {submission.images?.map((file, index) => (
-                <Image
-                  key={file + index}
-                  alt=""
-                  src={file}
-                  height={100}
-                  width={100}
-                  className="rounded-md object-cover"
-                />
+                <Dialog key={index}>
+                  <DialogTrigger asChild>
+                    <button
+                      className={cn(
+                        "relative w-28 h-28 rounded-md overflow-hidden",
+                      )}
+                    >
+                      <Image
+                        alt=""
+                        src={file}
+                        className="shrink-0 object-cover absolute"
+                        fill
+                      />
+                    </button>
+                  </DialogTrigger>
+                  <DialogContent className="h-full w-full max-w-[80vw] max-h-[80vh] p-0 border-0 bg-black/50 [&>button>svg]:text-white overflow-hidden">
+                    <div className="relative">
+                      <DialogTitle className="hidden">Image</DialogTitle>
+                      <Image
+                        src={file}
+                        className="shrink-0 object-contain absolute"
+                        fill
+                        alt=""
+                      />
+                    </div>
+                  </DialogContent>
+                </Dialog>
               ))}
             </div>
             {!!submission.rejectionReason && (
