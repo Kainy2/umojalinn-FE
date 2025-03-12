@@ -12,7 +12,7 @@ import { FormCustomTagSelectField } from "@/components/custom/tag/Select";
 import { Button } from "@/components/ui/button";
 import { Form, FormField } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
-import { LANGUAGES } from "@/constant";
+// import { LANGUAGES } from "@/constant";
 import { useToast } from "@/hooks/use-toast";
 import useClipboard from "@/hooks/useClipboard";
 import { updateProfileKeys, updateProfileSchema } from "@/lib/schema";
@@ -59,9 +59,6 @@ const SettingsProfilePage = () => {
 
   const form = useForm<UpdateProfileProps>({
     resolver: zodResolver(updateProfileSchema),
-    defaultValues: {
-      languages: [{ name: "" }],
-    },
   });
 
   const reset = useCallback(() => {
@@ -100,15 +97,15 @@ const SettingsProfilePage = () => {
         ),
       );
     }
-    if (meData?.data?.data?.designerProfile?.languages?.length) {
-      form.setValue(
-        "languages",
-        meData?.data?.data?.designerProfile?.languages?.map?.((lang) => ({
-          name: lang?.name,
-          languageProficiency: lang?.languageProficiency,
-        })),
-      );
-    }
+    // if (meData?.data?.data?.designerProfile?.languages?.length) {
+    //   form.setValue(
+    //     "languages",
+    //     meData?.data?.data?.designerProfile?.languages?.map?.((lang) => ({
+    //       name: lang?.name,
+    //       languageProficiency: lang?.languageProficiency,
+    //     })),
+    //   );
+    // }
   }, [meData, form]);
 
   useEffect(() => {
@@ -127,7 +124,7 @@ const SettingsProfilePage = () => {
         country,
         about,
         brandName,
-        languages,
+        // languages,
         clothingTypes,
         experienceLevel,
         specialistType,
@@ -143,7 +140,7 @@ const SettingsProfilePage = () => {
           designerProfile: {
             about,
             brandName,
-            languages,
+            // languages,
             clothingTypes,
             experienceLevel,
             specialistType,
@@ -394,7 +391,7 @@ const SettingsProfilePage = () => {
                 )}
               />
             </FormItemWrapper>
-            <FormItemWrapper
+            {/* <FormItemWrapper
               title="Language"
               description="Select your preferred language and level of proficiency"
             >
@@ -493,7 +490,7 @@ const SettingsProfilePage = () => {
                   );
                 }}
               />
-            </FormItemWrapper>
+            </FormItemWrapper> */}
             <FormItemWrapper title="Phone number">
               <FormField
                 control={form.control}

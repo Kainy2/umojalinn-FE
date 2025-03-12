@@ -153,14 +153,14 @@ export const updateProfileSchema = z.object({
     .enum([...EXPERIENCE_ENUMS_VALUES])
     .nullable()
     .optional(),
-  languages: z.array(
-    z
-      .object({
-        name: z.string().min(1, "Language name is required"),
-        languageProficiency: z.enum(languageProficiency),
-      })
-      .optional(),
-  ),
+  // languages: z.array(
+  //   z
+  //     .object({
+  //       name: z.string().min(1, "Language name is required"),
+  //       languageProficiency: z.enum(languageProficiency),
+  //     })
+  //     .optional(),
+  // ),
   phoneNumber: z.string().min(10, "Invalid phone number"),
   country: z.string().min(1, "Country is required"),
   state: z.string().min(1, "State is required"),
