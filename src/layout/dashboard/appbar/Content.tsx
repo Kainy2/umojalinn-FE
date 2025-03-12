@@ -8,8 +8,9 @@ import { Separator } from "@/components/ui/separator";
 import InviteClient from "@/section/dashboard/appbar/InviteClient";
 import { useGetMe } from "@/tanstack/hooks/useUser";
 import {
-  ChevronDown, LogOut,
-  // Search 
+  ChevronDown,
+  LogOut,
+  // Search
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import React from "react";
@@ -28,8 +29,8 @@ const DashboardAppbarContent = () => {
           className="inline object-contain md:hidden"
           alt="Umojalinn Logo"
           src="/img/png/umoja.png"
-          width={20}
-          height={20}
+          width={26}
+          height={26}
         />
         <MobileMenu />
         <div className="hidden lg:block">
@@ -42,11 +43,14 @@ const DashboardAppbarContent = () => {
           /> */}
         </div>
       </div>
-      <div className="flex space-x-1 items-center ">
+      <div className="flex space-x-0 md:space-x-1 items-center ">
         {session?.user?.profileRole === "DESIGNER" && (
           <>
             <InviteClient />
-            <Separator orientation="vertical" className="h-8" />
+            <Separator
+              orientation="vertical"
+              className="h-8 hidden md:inline"
+            />
           </>
         )}
         <NotificationPopover />
@@ -71,7 +75,7 @@ const DashboardAppbarContent = () => {
                 {me?.lastName?.[0]?.toLocaleUpperCase?.()}
               </AvatarFallback>
             </Avatar>
-            <ChevronDown className="icon-base" />
+            <ChevronDown className="icon-base hidden md:inline" />
           </Button>
         </PopoverMenu>
       </div>
