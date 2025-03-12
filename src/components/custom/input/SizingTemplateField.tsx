@@ -21,14 +21,17 @@ type SizingTemplateInputFieldProps = {
   highlighted?: boolean;
   onClick?: () => void;
   hasLiveProject?: boolean;
-  onKeyDown?: React.ComponentProps<"input">["onKeyDown"]
+  onKeyDown?: React.ComponentProps<"input">["onKeyDown"];
   metadata?: {
     review?: string;
     img?: string;
   };
 };
 
-const SizingTemplateInputField = forwardRef<HTMLInputElement, SizingTemplateInputFieldProps>((props, ref) => {
+const SizingTemplateInputField = forwardRef<
+  HTMLInputElement,
+  SizingTemplateInputFieldProps
+>((props, ref) => {
   const id = useId();
 
   return (
@@ -36,15 +39,15 @@ const SizingTemplateInputField = forwardRef<HTMLInputElement, SizingTemplateInpu
       onClick={props.onClick}
       className={cn(
         "flex justify-between items-center p-2 text-foreground-body focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 m-1 transition-all",
-        props.highlighted && "ring-2 ring-offset-2 ring-ring"
+        props.highlighted && "ring-2 ring-offset-2 ring-ring",
       )}
     >
       <label
         className={cn(
           "[&+*>input]:focus:bg-gray-100 bg-background",
           props.metadata?.review &&
-          !props.hasLiveProject &&
-          "text-error-700 font-semibold"
+            !props.hasLiveProject &&
+            "text-error-700 font-semibold",
         )}
         htmlFor={id}
       >
@@ -52,26 +55,37 @@ const SizingTemplateInputField = forwardRef<HTMLInputElement, SizingTemplateInpu
       </label>
       <div className="flex items-center gap-2">
         <div className="text-sm rounded-full relative">
-          <input
-            ref={ref}
-            className={cn(
-              "text-primary text-right placeholder:text-primary focus-visible:outline-none focus-visible:bg-gray-100 rounded-full p-1 pr-10",
-              props.unit === "INCH" && "pr-14"
-            )}
-            id={id}
-            type="number"
-            min={0}
-            max={100}
-            maxLength={2}
-            onChange={props.onValueChange}
-            value={props.value || ""}
-            placeholder="0"
-            onFocus={props.onFocus}
-            autoComplete="off"
-            disabled={props.disabled}
-            onClick={props.onClick}
-            onKeyDown={props.onKeyDown}
-          />
+          {props.disabled ? (
+            <span
+              className={cn(
+                "text-primary text-right pr-10",
+                props.unit === "INCH" && "pr-14",
+              )}
+            >
+              {props.value || 0}
+            </span>
+          ) : (
+            <input
+              ref={ref}
+              className={cn(
+                "text-primary text-right placeholder:text-primary focus-visible:outline-none focus-visible:bg-gray-100 rounded-full p-1 pr-10",
+                props.unit === "INCH" && "pr-14",
+              )}
+              id={id}
+              type="number"
+              min={0}
+              max={100}
+              maxLength={2}
+              onChange={props.onValueChange}
+              value={props.value || ""}
+              placeholder="0"
+              onFocus={props.onFocus}
+              autoComplete="off"
+              disabled={props.disabled}
+              onClick={props.onClick}
+              onKeyDown={props.onKeyDown}
+            />
+          )}
           <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
             {props.unit}
           </div>
