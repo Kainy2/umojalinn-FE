@@ -6,7 +6,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { DialogProps } from "@radix-ui/react-dialog";
-import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+} from "react";
 import TextField from "../input/TextField";
 import TabButtonSelect from "../tab/ButtonSelect";
 import CustomTab from "../tab";
@@ -42,13 +48,13 @@ const SizingTemplateDialog = (
   props: DialogProps & {
     id?: string;
     handleSuccess?: (template?: UmojaLinnSizingTemplate) => void;
-  }
+  },
 ) => {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [highlighted, setHighlighted] = useState<
     | keyof (UmojaLinnFemaleSizingTemplateProps &
-      UmojaLinnMaleSizingTemplateProps)
+        UmojaLinnMaleSizingTemplateProps)
     | null
   >(null);
   const [value, setValue] = useState<
@@ -65,14 +71,18 @@ const SizingTemplateDialog = (
   const [openRequestChangesDialog, setOpenRequestChangesDialog] =
     useState(false);
 
-  const TEMPLATE = gender === "FEMALE" ? FEMALE_SIZING_TEMPLATE : MALE_SIZING_TEMPLATE;
+  const TEMPLATE =
+    gender === "FEMALE" ? FEMALE_SIZING_TEMPLATE : MALE_SIZING_TEMPLATE;
 
   const noOfInputs = TEMPLATE?.length;
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Function to handle the Enter key press
-  const handleKeyPress = (index: number, event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyPress = (
+    index: number,
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
     if (event.key === "Enter") {
       // Move focus to the next input, if any
       const nextIndex = index + 1;
@@ -92,34 +102,42 @@ const SizingTemplateDialog = (
     >
   >({});
 
-  const handleChangeValuesByUnit = (prevUnit: UmojaLinnSizingTemplate["unit"], finalUnit: UmojaLinnSizingTemplate["unit"]) => {
+  const handleChangeValuesByUnit = (
+    prevUnit: UmojaLinnSizingTemplate["unit"],
+    finalUnit: UmojaLinnSizingTemplate["unit"],
+  ) => {
     if (prevUnit !== finalUnit) {
       const conversionFactor = prevUnit === "CM" ? 0.393701 : 2.54;
-      setValue((prev) => Object.keys(prev).reduce((acc, key) => {
-        const typedKey = key as keyof Partial<UmojaLinnFemaleSizingTemplateProps & UmojaLinnMaleSizingTemplateProps>
-        const currentValue = prev[typedKey] || 0;
-        const convertedValue = currentValue * conversionFactor;
-        // Convert each value
-        acc[typedKey] = Number.isInteger(convertedValue) ? convertedValue : parseFloat(convertedValue.toFixed(2));
-        return acc;
-      }, {} as Partial<
-        UmojaLinnFemaleSizingTemplateProps & UmojaLinnMaleSizingTemplateProps
-      >))
+      setValue((prev) =>
+        Object.keys(prev).reduce((acc, key) => {
+          const typedKey = key as keyof Partial<
+            UmojaLinnFemaleSizingTemplateProps &
+              UmojaLinnMaleSizingTemplateProps
+          >;
+          const currentValue = prev[typedKey] || 0;
+          const convertedValue = currentValue * conversionFactor;
+          // Convert each value
+          acc[typedKey] = Number.isInteger(convertedValue)
+            ? convertedValue
+            : parseFloat(convertedValue.toFixed(2));
+          return acc;
+        }, {} as Partial<UmojaLinnFemaleSizingTemplateProps & UmojaLinnMaleSizingTemplateProps>),
+      );
     }
-  }
+  };
 
   const handleReviewsEditChange = useCallback(
     (
-      props:
-        | keyof (UmojaLinnFemaleSizingTemplateProps &
-          UmojaLinnMaleSizingTemplateProps)
-        | null
-    ) =>
+        props:
+          | keyof (UmojaLinnFemaleSizingTemplateProps &
+              UmojaLinnMaleSizingTemplateProps)
+          | null,
+      ) =>
       (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         if (props)
           setReviewsEdit((prev) => ({ ...prev, [props]: e?.target?.value }));
       },
-    []
+    [],
   );
 
   const { data: sizingTemplateData, isPending: isLoadingSizingTemplate } =
@@ -132,7 +150,7 @@ const SizingTemplateDialog = (
   const [hasLiveProject, isDraft] = useMemo(() => {
     return [
       !!sizingTemplateData?.data?.data?.projects?.find(
-        (project) => project?.status === "LIVE"
+        (project) => project?.status === "LIVE",
       ),
       sizingTemplateData?.data?.data?.status === "DRAFT",
     ];
@@ -144,7 +162,7 @@ const SizingTemplateDialog = (
         ALL_SIZING_TEMPLATES?.find?.((value) => highlighted === value?.prop)
           ?.name) ||
       "",
-    [highlighted]
+    [highlighted],
   );
 
   useEffect(() => {
@@ -213,15 +231,15 @@ const SizingTemplateDialog = (
     (
       prop: keyof Partial<
         UmojaLinnFemaleSizingTemplateProps & UmojaLinnMaleSizingTemplateProps
-      >
+      >,
     ) =>
-      (e: React.ChangeEvent<HTMLInputElement>) => {
-        e.preventDefault();
-        setValue((prev) => ({
-          ...prev,
-          [prop]: parseStringToNumber(e.target.value)?.value || 0,
-        }));
-      };
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      e.preventDefault();
+      setValue((prev) => ({
+        ...prev,
+        [prop]: parseStringToNumber(e.target.value)?.value || 0,
+      }));
+    };
 
   const handleSubmit = (shouldGoLive?: true) => {
     const sizingTemplateProps: Partial<
@@ -237,7 +255,7 @@ const SizingTemplateDialog = (
     };
 
     (props?.id ? updateSizingTemplate : createSizingTemplate)(
-      sizingTemplateProps
+      sizingTemplateProps,
     );
   };
 
@@ -274,7 +292,7 @@ const SizingTemplateDialog = (
     !props?.id ||
     (!hasLiveProject &&
       sizingTemplateData?.data?.data?.buyerId ===
-      meData?.data?.data?.buyerProfile?.id)
+        meData?.data?.data?.buyerProfile?.id)
   ) {
     return (
       <Dialog open={open} onOpenChange={setOpen} {...props}>
@@ -321,11 +339,11 @@ const SizingTemplateDialog = (
               <TabButtonSelect
                 active={unit}
                 onChange={(value) => {
-                  setUnit(prevUnit => {
-                    const finalUnit = value as UmojaLinnSizingTemplate["unit"]
-                    handleChangeValuesByUnit(prevUnit, finalUnit)
-                    return finalUnit
-                  })
+                  setUnit((prevUnit) => {
+                    const finalUnit = value as UmojaLinnSizingTemplate["unit"];
+                    handleChangeValuesByUnit(prevUnit, finalUnit);
+                    return finalUnit;
+                  });
                 }}
                 tabs={[
                   { title: "CM", value: "CM" },
@@ -349,9 +367,13 @@ const SizingTemplateDialog = (
                   highlighted={highlighted === template.prop}
                   hasLiveProject={hasLiveProject}
                   metadata={{
-                    review: (recommendationMode ? reviewsEdit?.[template.prop] : undefined) || sizingTemplateData?.data?.data?.metadata?.reviews?.[
-                      template.prop
-                    ],
+                    review:
+                      (recommendationMode
+                        ? reviewsEdit?.[template.prop]
+                        : undefined) ||
+                      sizingTemplateData?.data?.data?.metadata?.reviews?.[
+                        template.prop
+                      ],
                     img: template?.img,
                   }}
                   onClick={() => {
@@ -359,7 +381,9 @@ const SizingTemplateDialog = (
                     setHighlighted(template.prop);
                   }}
                   onKeyDown={(e) => handleKeyPress(index, e)}
-                  ref={(el) => { inputRefs.current[index] = el }}
+                  ref={(el) => {
+                    inputRefs.current[index] = el;
+                  }}
                 />
               ))}
             </div>
@@ -371,7 +395,7 @@ const SizingTemplateDialog = (
               >
                 Save
               </Button>
-              {isDraft && (
+              {(isDraft || !props.id) && (
                 <Button onClick={() => handleSubmit(true)} disabled={loading}>
                   Submit
                 </Button>
@@ -391,13 +415,13 @@ const SizingTemplateDialog = (
               )}
               {highlighted &&
                 sizingTemplateData?.data?.data?.metadata?.reviews?.[
-                highlighted
+                  highlighted
                 ] && (
                   <RequestSizingTemplateViewCard
                     title={highlightedSizingName}
                     review={
                       sizingTemplateData?.data?.data?.metadata?.reviews?.[
-                      highlighted
+                        highlighted
                       ]
                     }
                     className="absolute top-16 w-full"
@@ -432,12 +456,15 @@ const SizingTemplateDialog = (
       </DialogTrigger>
       <DialogContent className="flex [&>div]:flex-1 [&>div]:shrink-0 [&>div]:p-3 min-w-[70vw]">
         <div className="">
-          {
-            recommendationMode && <div className="text-sm text-foreground-body bg-primary-50 border-b-1 border-gray-200 mb-4 p-2 md:p-4">
+          {recommendationMode && (
+            <div className="text-sm text-foreground-body bg-primary-50 border-b-1 border-gray-200 mb-4 p-2 md:p-4">
               <p className="font-bold">Recommendation mode</p>
-              <p>Please choose the measurement point for which you would like to make recommended changes</p>
+              <p>
+                Please choose the measurement point for which you would like to
+                make recommended changes
+              </p>
             </div>
-          }
+          )}
           <div className="flex gap-4 items-center mb-4 justify-between">
             <DialogTitle className="text-lg font-semibold mb-4">
               {name}
@@ -489,9 +516,13 @@ const SizingTemplateDialog = (
                 highlighted={highlighted === template.prop}
                 hasLiveProject={hasLiveProject}
                 metadata={{
-                  review: (recommendationMode ? reviewsEdit?.[template.prop] : undefined) || sizingTemplateData?.data?.data?.metadata?.reviews?.[
-                    template.prop
-                  ],
+                  review:
+                    (recommendationMode
+                      ? reviewsEdit?.[template.prop]
+                      : undefined) ||
+                    sizingTemplateData?.data?.data?.metadata?.reviews?.[
+                      template.prop
+                    ],
                   img: template?.img,
                 }}
                 onClick={() => {
@@ -518,25 +549,23 @@ const SizingTemplateDialog = (
               confirmText="Submit changes"
             />
           </div>
-          {isDesigner &&
-            recommendationMode &&
-            !hasLiveProject && (
-              <div className="flex justify-center gap-2 lg:hidden">
-                <Button
-                  variant="outline"
-                  onClick={() => setOpenRequestChangesDialog(true)}
-                  disabled={loading || !highlighted}
-                >
-                  Recommend Changes
-                </Button>
-                <Button
-                  onClick={() => requestChangeOnSizingTemplate(reviewsEdit)}
-                  disabled={loading}
-                >
-                  Submit
-                </Button>
-              </div>
-            )}
+          {isDesigner && recommendationMode && !hasLiveProject && (
+            <div className="flex justify-center gap-2 lg:hidden">
+              <Button
+                variant="outline"
+                onClick={() => setOpenRequestChangesDialog(true)}
+                disabled={loading || !highlighted}
+              >
+                Recommend Changes
+              </Button>
+              <Button
+                onClick={() => requestChangeOnSizingTemplate(reviewsEdit)}
+                disabled={loading}
+              >
+                Submit
+              </Button>
+            </div>
+          )}
           {isDesigner && !recommendationMode && !hasLiveProject && (
             <div className="flex justify-center gap-2 lg:hidden">
               <Button
@@ -564,14 +593,14 @@ const SizingTemplateDialog = (
             highlighted &&
             (reviewsEdit?.[highlighted] ||
               sizingTemplateData?.data?.data?.metadata?.reviews?.[
-              highlighted
+                highlighted
               ]) && (
               <RequestSizingTemplateViewCard
                 title={highlightedSizingName}
                 review={
                   reviewsEdit?.[highlighted] ||
                   sizingTemplateData?.data?.data?.metadata?.reviews?.[
-                  highlighted
+                    highlighted
                   ] ||
                   ""
                 }
