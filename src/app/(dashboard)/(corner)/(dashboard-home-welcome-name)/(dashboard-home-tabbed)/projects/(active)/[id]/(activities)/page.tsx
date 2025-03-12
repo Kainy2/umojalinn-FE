@@ -1,5 +1,4 @@
 "use client";
-import Invoice from "@/components/custom/Invoice";
 import MilestoneTimeline from "@/components/custom/milestone/Timeline";
 import EscrowCard from "@/section/dashboard/project/active/EscrowCard";
 import {
@@ -9,8 +8,6 @@ import {
 import { useGetMe } from "@/tanstack/hooks/useUser";
 import { redirect, useParams } from "next/navigation";
 import React from "react";
-
-import { PDFViewer } from "@react-pdf/renderer";
 
 const ActiveProjectPage = () => {
   const { id } = useParams<{ id: string }>();

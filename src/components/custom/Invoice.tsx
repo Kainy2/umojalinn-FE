@@ -5,7 +5,7 @@ import {
   View,
   Document,
   StyleSheet,
-  Image,
+  Image as PDFImage,
   PDFDownloadLink,
 } from "@react-pdf/renderer";
 import { UmojaLinnMilestone, UmojaLinnProject } from "@/types/project";
@@ -137,7 +137,7 @@ const Invoice = (props: InvoiceProps) => (
     <Page size="A4" style={styles.page}>
       <View style={styles.header}>
         <View style={styles.imageTitleWrapper}>
-          <Image src="/img/png/umoja.png" style={styles.logo} />
+          <PDFImage src="/img/png/umoja.png" style={styles.logo} />
           <View style={styles.headerTitleWrapper}>
             <Text style={[styles.preHeaderTitle]}>Invoice for</Text>
             <Text style={[styles.headerTitle, styles.fontBold]}>
