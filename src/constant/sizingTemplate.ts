@@ -23,212 +23,280 @@ type AllSizingTemplateProp = {
 
 export const FEMALE_SIZING_TEMPLATE: FemaleSizingTemplateProp[] = [
   {
-    name: "Height",
-    prop: "height",
-    img: "/img/png/sizing-template/female/female_1.png",
+    name: "Neck",
+    prop: "neck",
+    img: "/img/png/sizing-template/female/neck.png",
   },
   {
-    name: "Neck Circumference",
-    prop: "neckCircumference",
-    img: "/img/png/sizing-template/female/female_2.png",
+    name: "Bust",
+    prop: "bust",
+    img: "/img/png/sizing-template/female/bust.png",
   },
   {
-    name: "Total bust",
-    prop: "totalBust",
-    img: "/img/png/sizing-template/female/female_3.png",
-  },
-  {
-    name: "Highest point of hips",
-    prop: "highestPointOfHips",
-    img: "/img/png/sizing-template/female/female_4.png", // Incorrect
-  },
-  {
-    name: "Widest point of hips",
-    prop: "widestPointOfHips",
-    img: "/img/png/sizing-template/female/female_11.png",
-  },
-  {
-    name: "Thigh",
-    prop: "thigh",
-    img: "/img/png/sizing-template/female/female_4.png",
-  },
-  {
-    name: "Upper arm Circumference",
-    prop: "upperArmCircumference",
-    img: "/img/png/sizing-template/female/female_5.png",
-  },
-  {
-    name: "Arm Length",
-    prop: "armLength",
-    img: "/img/png/sizing-template/female/female_6.png",
-  },
-  {
-    name: "Shoulder width",
-    prop: "shoulderWidth",
-    img: "/img/png/sizing-template/female/female_7.png",
-  },
-  {
-    name: "Body rise",
-    prop: "bodyRise",
-    img: "/img/png/sizing-template/female/female_8.png",
-  },
-  {
-    name: "Neck to ankle",
-    prop: "neckToAnkle",
-    img: "/img/png/sizing-template/female/female_9.png",
+    name: "Under Bust",
+    prop: "underBust",
+    img: "/img/png/sizing-template/female/underBust.png",
   },
   {
     name: "Waist",
     prop: "waist",
-    img: "/img/png/sizing-template/female/female_10.png",
+    img: "/img/png/sizing-template/female/waist.png",
   },
   {
-    name: "Inseam",
-    prop: "inseam",
-    img: "/img/png/sizing-template/female/female_12.png",
+    name: "Shoulder Width",
+    prop: "shoulderWidth",
+    img: "/img/png/sizing-template/female/shoulderWidth.png",
+  },
+  {
+    name: "Shoulder to Nipple",
+    prop: "shoulderToNipple",
+    img: "/img/png/sizing-template/female/shoulderToNipple.png",
+  },
+  {
+    name: "Shoulder to Underbust",
+    prop: "shoulderToUnderBurt",
+    img: "/img/png/sizing-template/female/shoulderToUnderbust.png",
+  },
+  {
+    name: "Shoulder to Waist",
+    prop: "shoulderToWaist",
+    img: "/img/png/sizing-template/female/shoulderToWaist.png",
+  },
+  {
+    name: "Nipple to Nipple",
+    prop: "nippleToNipple",
+    img: "/img/png/sizing-template/female/nippleToNipple.png",
   },
   {
     name: "Back length",
     prop: "backLength",
-    img: "/img/png/sizing-template/female/female_13.png",
+    img: "/img/png/sizing-template/female/backLength.png",
   },
   {
-    name: "Outseam",
-    prop: "outSeam",
-    img: "/img/png/sizing-template/female/female_14.png",
+    name: "Body rise",
+    prop: "bodyRise",
+    img: "/img/png/sizing-template/female/bodyRise.png",
   },
   {
-    name: "Ankle circumference",
-    prop: "ankleCircumference",
-    img: "/img/png/sizing-template/female/female_15.png",
+    name: "Hips",
+    prop: "hips",
+    img: "/img/png/sizing-template/female/hips.png",
   },
   {
-    name: "Calf circumference",
-    prop: "calfCircumference",
-    img: "/img/png/sizing-template/female/female_16.png",
+    name: "Armhole circumference",
+    prop: "armHoleCircumference",
+    img: "/img/png/sizing-template/female/armhole.png",
   },
   {
-    name: "Wrist circumference",
-    prop: "wristCircumference",
-    img: "/img/png/sizing-template/female/female_17.png",
+    name: "Biceps",
+    prop: "bicep",
+    img: "/img/png/sizing-template/female/bicep.png",
   },
   {
-    name: "Waist to floor",
-    prop: "waistToFloor",
-    img: "/img/png/sizing-template/female/female_18.png",
+    name: "Wrist",
+    prop: "wrist",
+    img: "/img/png/sizing-template/female/wrist.png",
+  },
+  {
+    name: "Desired Sleeve length",
+    prop: "desiredSleeveLength",
+    img: "/img/png/sizing-template/female/sleeveLength.png",
+  },
+
+  {
+    name: "Desired Blouse / Top length",
+    prop: "desiredBlouseOrTopLength",
+    img: "/img/png/sizing-template/female/topLength.png",
+  },
+  {
+    name: "Desired Dress length",
+    prop: "desiredDressLength",
+    img: "/img/png/sizing-template/female/dressLength.png",
+  },
+
+  {
+    name: "Thigh",
+    prop: "thigh",
+    img: "/img/png/sizing-template/female/thigh.png",
+  },
+
+  {
+    name: "Knee",
+    prop: "knee",
+    img: "/img/png/sizing-template/female/knee.png",
+  },
+
+  {
+    name: "Calf",
+    prop: "calf",
+    img: "/img/png/sizing-template/female/calf.png",
+  },
+
+  {
+    name: "Ankle",
+    prop: "ankle",
+    img: "/img/png/sizing-template/female/ankle.png",
+  },
+
+  {
+    name: "Inseam",
+    prop: "inseam",
+    img: "/img/png/sizing-template/female/inseam.png",
+  },
+
+  {
+    name: "Waist to Knee Point",
+    prop: "waistToKneePoint",
+    img: "/img/png/sizing-template/female/waistToKnee.png",
+  },
+
+  {
+    name: "Desired Trouser / Skirt length",
+    prop: "desiredTrouserOrSkirtLength",
+    img: "/img/png/sizing-template/female/skirtLength.png",
+  },
+  {
+    name: "Shoulder to Floor",
+    prop: "shoulderToFloor",
+    img: "/img/png/sizing-template/female/shoulderToFloor.png",
+  },
+  {
+    name: "Height",
+    prop: "height",
+    img: "/img/png/sizing-template/female/height.png",
+  },
+  {
+    name: "Head circumference",
+    prop: "headCircumference",
+    img: "/img/png/sizing-template/female/headCircumference.png",
   },
 ];
 
 export const MALE_SIZING_TEMPLATE: MaleSizingTemplateProp[] = [
   {
-    name: "Height",
-    prop: "height",
-    img: "/img/png/sizing-template/male/male_1.png",
+    name: "Neck",
+    prop: "neck",
+    img: "/img/png/sizing-template/male/neck.png",
   },
   {
-    name: "Neck Circumference",
-    prop: "neckCircumference",
-    img: "/img/png/sizing-template/male/male_2.png",
-  },
-  {
-    name: "Shoulder width",
-    prop: "shoulderWidth",
-    img: "/img/png/sizing-template/male/male_3.png",
-  },
-  {
-    name: "Upper Chest Circumference",
-    prop: "upperChestCircumference",
-    img: "/img/png/sizing-template/male/male_4.png",
-  },
-  {
-    name: "Chest Circumference",
-    prop: "chestCircumference",
-    img: "/img/png/sizing-template/male/male_5.png",
-  },
-  {
-    name: "Upper arm Circumference",
-    prop: "upperArmCircumference",
-    img: "/img/png/sizing-template/male/male_6.png",
-  },
-  {
-    name: "Arm length",
-    prop: "armLength",
-    img: "/img/png/sizing-template/male/male_7.png",
-  },
-  {
-    name: "Wrist Circumference",
-    prop: "wristCircumference",
-    img: "/img/png/sizing-template/male/male_8.png",
-  },
-  {
-    name: "Back width",
-    prop: "backWidth",
-    img: "/img/png/sizing-template/male/male_9.png",
-  },
-  {
-    name: "Hips Circumference",
-    prop: "hipsCircumference",
-    img: "/img/png/sizing-template/male/male_10.png",
-  },
-  {
-    name: "Body rise/ crotch depth",
-    prop: "crotchDepth",
-    img: "/img/png/sizing-template/male/male_11.png",
-  },
-  {
-    name: "Neck to waistline",
-    prop: "neckToWaistline",
-    img: "/img/png/sizing-template/male/male_12.png",
+    name: "Chest",
+    prop: "bust",
+    img: "/img/png/sizing-template/male/chest.png",
   },
   {
     name: "Waist",
     prop: "waist",
-    img: "/img/png/sizing-template/male/male_13.png",
+    img: "/img/png/sizing-template/male/waist.png",
   },
+  {
+    name: "Shoulder Width",
+    prop: "shoulderWidth",
+    img: "/img/png/sizing-template/male/shoulderWidth.png",
+  },
+  {
+    name: "Back length",
+    prop: "backLength",
+    img: "/img/png/sizing-template/male/backLength.png",
+  },
+  {
+    name: "Body rise",
+    prop: "bodyRise",
+    img: "/img/png/sizing-template/male/bodyRise.png",
+  },
+  {
+    name: "Hips",
+    prop: "hips",
+    img: "/img/png/sizing-template/male/hips.png",
+  },
+  {
+    name: "Armhole circumference",
+    prop: "armHoleCircumference",
+    img: "/img/png/sizing-template/male/armHole.png",
+  },
+  {
+    name: "Bicep",
+    prop: "bicep",
+    img: "/img/png/sizing-template/male/bicep.png",
+  },
+  {
+    name: "Wrist",
+    prop: "wrist",
+    img: "/img/png/sizing-template/male/wrist.png",
+  },
+  {
+    name: "Desired Sleeve length",
+    prop: "desiredSleeveLength",
+    img: "/img/png/sizing-template/male/desiredsleevelength.png",
+  },
+
+  {
+    name: "Desired Shirt",
+    prop: "desiredShirtLength",
+    img: "/img/png/sizing-template/male/desiredShirtLength.png",
+  },
+  {
+    name: "Desired Agbada Length",
+    prop: "desiredAgbadaLength",
+    img: "/img/png/sizing-template/male/desiredAgbadalength.png",
+  },
+
+  {
+    name: "Thigh",
+    prop: "thigh",
+    img: "/img/png/sizing-template/male/thigh.png",
+  },
+
+  {
+    name: "Knee",
+    prop: "knee",
+    img: "/img/png/sizing-template/male/knee.png",
+  },
+
+  {
+    name: "Calf",
+    prop: "calf",
+    img: "/img/png/sizing-template/male/calf.png",
+  },
+
+  {
+    name: "Ankle",
+    prop: "ankle",
+    img: "/img/png/sizing-template/male/ankle.png",
+  },
+
   {
     name: "Inseam",
     prop: "inseam",
-    img: "/img/png/sizing-template/male/male_14.png",
+    img: "/img/png/sizing-template/male/inseam.png",
+  },
+
+  {
+    name: "Waist to Knee Point",
+    prop: "waistToKneePoint",
+    img: "/img/png/sizing-template/male/waistToKneePoint.png",
+  },
+
+  {
+    name: "Desired Trouser",
+    prop: "desiredTrouserOrSkirtLength",
+    img: "/img/png/sizing-template/male/trouserLength.png",
+  },
+
+  {
+    name: "Shoulder to Floor",
+    prop: "shoulderToFloor",
+    img: "/img/png/sizing-template/male/shoulderToFloor.png",
+  },
+
+  {
+    name: "Height",
+    prop: "height",
+    img: "/img/png/sizing-template/male/Height.png",
   },
   {
-    name: "Waist to Knee",
-    prop: "waistToKnee",
-    img: "/img/png/sizing-template/male/male_15.png",
-  },
-  {
-    name: "Knee circumference",
-    prop: "kneeCircumference",
-    img: "/img/png/sizing-template/male/male_16.png",
-  },
-  {
-    name: "Ankle circumference",
-    prop: "ankleCircumference",
-    img: "/img/png/sizing-template/male/male_17.png",
-  },
-  {
-    name: "Nape to waist",
-    prop: "napeToWaist",
-    img: "/img/png/sizing-template/male/male_18.png",
-  },
-  {
-    name: "Waist to floor",
-    prop: "waistToFloor",
-    img: "/img/png/sizing-template/male/male_19.png",
-  },
-  {
-    name: "Thigh Circumference",
-    prop: "thighCircumference",
-    img: "/img/png/sizing-template/male/male_20.png",
-  },
-  {
-    name: "Neck to ankle",
-    prop: "neckToAnkle",
-    img: "/img/png/sizing-template/male/male_21.png",
-  },
-  {
-    name: "Calf Circumference",
-    prop: "calfCircumference",
-    img: "/img/png/sizing-template/male/male_22.png",
+    name: "Head circumference",
+    prop: "headCircumference",
+    img: "/img/png/sizing-template/male/HeadCircumference.png",
   },
 ];
 
@@ -240,5 +308,5 @@ export const ALL_SIZING_TEMPLATES: AllSizingTemplateProp[] =
       prev?.find((template) => template?.prop === curr?.prop)
         ? prev
         : [...prev, curr],
-    FEMALE_SIZING_TEMPLATE
+    FEMALE_SIZING_TEMPLATE,
   );
