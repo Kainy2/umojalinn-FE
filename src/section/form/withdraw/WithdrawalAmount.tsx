@@ -258,7 +258,7 @@ const WithdrawalAmountForm = (props: {
                       </div>
                     </div>
                     {mode === "WITHDRAWAL" &&
-                      (withdrawalMethod !== method?.id ? (
+                      (withdrawalMethod === method?.id ? (
                         <CheckCircle className="size-5 text-primary shrink-0 absolute top-4 right-4" />
                       ) : (
                         <span className="border border-gray-400 rounded-full size-5 shrink-0 absolute top-4 right-4" />
