@@ -11,10 +11,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Copy, UserRoundPlus } from "lucide-react";
+import { Copy, UserRoundPlus, X } from "lucide-react";
 import { TagInput } from "@/components/custom/tag/Input";
 import { z } from "zod";
-import { useGetMe } from "@/tanstack/hooks/useUser";
+import { useDeleteProjectInvitation, useGetMe } from "@/tanstack/hooks/useUser";
 import { Badge } from "@/components/ui/badge";
 import useClipboard from "@/hooks/useClipboard";
 import { cn } from "@/lib/utils";
@@ -38,6 +38,7 @@ const InviteClient = () => {
   const { mutate: inviteBuyer, isPending: loading } = useInviteBuyer({
     onSuccess() {
       setOpen(false);
+      setTags([]);
     },
   });
 
@@ -54,6 +55,8 @@ const InviteClient = () => {
   const handleSubmit = () => {
     inviteBuyer({ emails: tags });
   };
+
+  const { mutate: deleteInvitation, isPending } = useDeleteProjectInvitation();
 
   return (
     <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
@@ -90,15 +93,23 @@ const InviteClient = () => {
               >
                 <span>
                   {invite?.buyerEmail ||
-                    `${invite?.buyerProfile?.user?.firstName || ""} ${invite?.buyerProfile?.user?.lastName || ""
+                    `${invite?.buyerProfile?.user?.firstName || ""} ${
+                      invite?.buyerProfile?.user?.lastName || ""
                     }`}
                 </span>
                 {!!invite?.status && (
                   <Badge
                     variant="outline"
-                    className="text-foreground-body font-normal"
+                    className="text-foreground-body font-normal inline-flex gap-2"
                   >
-                    {invite?.status?.toLocaleLowerCase?.()}
+                    <span>{invite?.status?.toLocaleLowerCase?.()}</span>
+                    <button
+                      className="[&>svg]:size-3"
+                      onClick={() => deleteInvitation(invite?.id)}
+                      disabled={isPending}
+                    >
+                      <X />
+                    </button>
                   </Badge>
                 )}
               </div>
@@ -121,9 +132,10 @@ const InviteClient = () => {
                 className="text-primary text-sm flex items-center gap-1 "
                 onClick={() =>
                   handleCopy(
-                    `${process.env.NEXT_PUBLIC_WEB_URL ||
-                    "https://dev.d1451lqyj8o4u7.amplifyapp.com"
-                    }/login?inviterTag=${me?.data?.data?.tag}`
+                    `${
+                      process.env.NEXT_PUBLIC_WEB_URL ||
+                      "https://dev.d1451lqyj8o4u7.amplifyapp.com"
+                    }/login?inviterTag=${me?.data?.data?.tag}`,
                   )
                 }
               >

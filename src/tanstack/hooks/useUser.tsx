@@ -1,5 +1,6 @@
 import {
   changePassword,
+  deleteProjectInvitationById,
   getMe,
   getNotificationSettings,
   onboard,
@@ -23,7 +24,7 @@ import useHandleError from "@/hooks/useHandleError";
 import { NotificationSettingsProps, PasswordUpdateProps } from "@/types/form";
 
 export const useGetMe = (
-  options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnUser>>
+  options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnUser>>,
 ) => {
   const { data: me } = useSession();
   const path = usePathname();
@@ -49,7 +50,7 @@ export const useGetMe = (
 };
 
 export const useOnboard = (
-  options?: GenericUseMutationProps<SingleApiResponse, FormData>
+  options?: GenericUseMutationProps<SingleApiResponse, FormData>,
 ) => {
   return useMutation({
     ...options,
@@ -62,7 +63,7 @@ export const useOnboard = (
 };
 
 export const useMarkNotificationAsRead = (
-  options?: GenericUseMutationProps<SingleApiResponse, string>
+  options?: GenericUseMutationProps<SingleApiResponse, string>,
 ) => {
   return useMutation({
     ...options,
@@ -75,7 +76,7 @@ export const useMarkNotificationAsRead = (
 };
 
 export const useGetNotifications = (
-  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnNotification>>
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnNotification>>,
 ) => {
   const { data: me } = useSession();
   return useQuery({
@@ -87,7 +88,7 @@ export const useGetNotifications = (
 };
 
 export const useUpdateUserDetails = (
-  options?: GenericUseMutationProps<SingleApiResponse, FormData>
+  options?: GenericUseMutationProps<SingleApiResponse, FormData>,
 ) => {
   const { handleError } = useHandleError("Update User");
   return useMutation({
@@ -105,7 +106,7 @@ export const useUpdateUserDetails = (
 };
 
 export const useUpdatePassword = (
-  options?: GenericUseMutationProps<SingleApiResponse, PasswordUpdateProps>
+  options?: GenericUseMutationProps<SingleApiResponse, PasswordUpdateProps>,
 ) => {
   const { handleError } = useHandleError("Update Password");
   return useMutation({
@@ -122,7 +123,7 @@ export const useUpdateNotificationSettings = (
   options?: GenericUseMutationProps<
     SingleApiResponse,
     Partial<NotificationSettingsProps>
-  >
+  >,
 ) => {
   const { handleError } = useHandleError("Notification Settings");
   return useMutation({
@@ -140,7 +141,7 @@ export const useUpdateNotificationSettings = (
 };
 
 export const useGetNotificationSettings = (
-  options?: GenericUseQueryProps<SingleApiResponse<NotificationSettingsProps>>
+  options?: GenericUseQueryProps<SingleApiResponse<NotificationSettingsProps>>,
 ) => {
   const { data: me } = useSession();
 
@@ -149,5 +150,23 @@ export const useGetNotificationSettings = (
     enabled: !!me?.user && options?.enabled !== false,
     queryKey: [USER, NOTIFICATION],
     queryFn: () => getNotificationSettings(),
+  });
+};
+
+export const useDeleteProjectInvitation = (
+  options?: GenericUseMutationProps<SingleApiResponse, string>,
+) => {
+  const { handleError } = useHandleError("Delete Project Invite");
+  return useMutation({
+    ...options,
+    mutationFn: (id) => deleteProjectInvitationById(id),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [USER, ME] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
   });
 };

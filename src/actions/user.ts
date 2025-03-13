@@ -1,5 +1,6 @@
 import { clientAxios, getServerAxiosWithToken } from "@/lib/axios";
 import { convertApiParams } from "@/lib/request";
+import { base62ToUuidSafe } from "@/lib/uuid";
 import { NotificationSettingsProps, PasswordUpdateProps } from "@/types/form";
 import { UmojaLinnProjectReview } from "@/types/project";
 import { UmojaLinnUser, UmojaLinnUserRole } from "@/types/user";
@@ -101,4 +102,17 @@ export const getUserReviews = async (
     unknown,
     AxiosResponse<ArrayApiResponse<UmojaLinnProjectReview>>
   >(`/user/reviews${convertApiParams(apiParams)}`);
+};
+
+export const deleteProjectInvitationById = async (
+  id: string,
+  options?: ServerActionOption,
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.delete<unknown, AxiosResponse<SingleApiResponse>>(
+    `/user/remove-project-invitation/${base62ToUuidSafe(id)}`,
+  );
 };
