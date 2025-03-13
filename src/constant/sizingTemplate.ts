@@ -277,7 +277,7 @@ export const MALE_SIZING_TEMPLATE: MaleSizingTemplateProp[] = [
   },
 
   {
-    name: "Desired Trouser",
+    name: "Desired Trouser Length",
     prop: "desiredTrouserOrSkirtLength",
     img: "/img/png/sizing-template/male/trouserLength.png",
   },
@@ -285,7 +285,7 @@ export const MALE_SIZING_TEMPLATE: MaleSizingTemplateProp[] = [
   {
     name: "Shoulder to Floor",
     prop: "shoulderToFloor",
-    img: "/img/png/sizing-template/male/shoulderToFloor.png",
+    img: "/img/png/sizing-template/male/shouldertoFloor.png",
   },
 
   {
