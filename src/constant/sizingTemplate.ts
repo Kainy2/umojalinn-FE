@@ -230,7 +230,7 @@ export const MALE_SIZING_TEMPLATE: MaleSizingTemplateProp[] = [
   },
 
   {
-    name: "Desired Shirt",
+    name: "Desired Shirt Length",
     prop: "desiredShirtLength",
     img: "/img/png/sizing-template/male/desiredShirtLength.png",
   },
