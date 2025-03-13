@@ -27,7 +27,7 @@ const ActiveJobsPage = () => {
     );
 
   return (
-    <div className="flex flex-col md:flex-row gap-12">
+    <div className="flex flex-col-reverse md:flex-row gap-12">
       <MilestoneTimeline
         projectId={projectData?.data?.data?.id}
         currency={projectData?.data?.data?.currency || null}
