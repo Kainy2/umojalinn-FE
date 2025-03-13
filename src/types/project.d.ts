@@ -278,11 +278,16 @@ export type UmojalinnWalletTransaction = {
   currency: UmojaLinnCurrency;
   amount: number;
   transactionId: string;
-  status: "PENDING";
-  transactionType: "FUND_ESCROW";
+  status: "PENDING" | "FAILED" | "SUCCESS";
+  transactionType:
+    | "FUND_ESCROW"
+    | "WITHDRAWAL_REQUEST"
+    | "WALLET_TO_UP"
+    | "MILESTONE_COMPLETED";
   receiptUrl: string;
   projectId: string;
   walletId: null | string;
+  project?: UmojaLinnProject;
 } & UmojaLinnTimestamp;
 
 export type UmojalinnWallet = {

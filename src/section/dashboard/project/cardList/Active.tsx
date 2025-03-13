@@ -7,7 +7,7 @@ import {
   useGetAllDesignerProject,
 } from "@/tanstack/hooks/useProject";
 import { useSession } from "next-auth/react";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import React from "react";
 
 type ActiveProjectCardListProps = {
@@ -18,6 +18,8 @@ const ActiveProjectCardList = (props: ActiveProjectCardListProps) => {
   const { baseUrlSlug = "projects" } = props;
   const params = useParams<{ id: string }>();
 
+  const pathName = usePathname();
+
   const { data: session } = useSession();
 
   const { data: buyerProjects, isPending: loadingBuyerProjects } =
@@ -27,7 +29,7 @@ const ActiveProjectCardList = (props: ActiveProjectCardListProps) => {
       },
       {
         enabled: baseUrlSlug === "projects",
-      }
+      },
     );
   const { data: escrowBuyerProjects, isPending: loadingEscrowBuyerProjects } =
     useGetAllBuyerProject(
@@ -37,7 +39,7 @@ const ActiveProjectCardList = (props: ActiveProjectCardListProps) => {
       {
         enabled:
           baseUrlSlug === "escrow" && session?.user?.profileRole === "BUYER",
-      }
+      },
     );
 
   const {
@@ -50,7 +52,7 @@ const ActiveProjectCardList = (props: ActiveProjectCardListProps) => {
     {
       enabled:
         baseUrlSlug === "escrow" && session?.user?.profileRole === "DESIGNER",
-    }
+    },
   );
 
   const { data: designerProjects, isPending: loadingDesignerProjects } =
@@ -60,7 +62,7 @@ const ActiveProjectCardList = (props: ActiveProjectCardListProps) => {
       },
       {
         enabled: baseUrlSlug === "active-jobs",
-      }
+      },
     );
 
   const escrowProjects =
@@ -77,21 +79,26 @@ const ActiveProjectCardList = (props: ActiveProjectCardListProps) => {
     baseUrlSlug === "projects"
       ? buyerProjects
       : baseUrlSlug === "escrow"
-        ? escrowProjects
-        : designerProjects
+      ? escrowProjects
+      : designerProjects
   )?.data?.data;
 
   const isPending =
     baseUrlSlug === "projects"
       ? loadingBuyerProjects
       : baseUrlSlug === "escrow"
-        ? loadingEscrowProjects
-        : loadingDesignerProjects;
+      ? loadingEscrowProjects
+      : loadingDesignerProjects;
+
+  if (baseUrlSlug === "escrow" && pathName?.match(/^\/escrow\/paid-out$/))
+    return null;
 
   if (!projectsData?.length) {
-    return <p className="h-[40vh] flex items-center justify-center text-gray-400">
-      No active projects at the moment
-    </p>
+    return (
+      <p className="h-[40vh] flex items-center justify-center text-gray-400">
+        No active projects at the moment
+      </p>
+    );
   }
 
   return (

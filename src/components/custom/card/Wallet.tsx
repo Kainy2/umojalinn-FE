@@ -21,7 +21,7 @@ type EscrowCardProps = Pick<WalletCardProps, "title" | "subtitle"> & {
   value?: Record<UmojaLinnCurrency, number>;
 };
 
-const currencyOptions = [
+export const currencyOptions = [
   {
     value: "EURO",
     label: "EUR",

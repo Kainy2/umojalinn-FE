@@ -24,6 +24,7 @@ const styles = StyleSheet.create({
     color: "#000",
     fontSize: 11,
     padding: 24,
+    position: "relative",
   },
   logo: {
     height: 70,
@@ -123,6 +124,15 @@ const styles = StyleSheet.create({
     gap: 8,
     flexDirection: "column",
     marginBottom: 40,
+  },
+  watermark: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)  rotate(45deg)",
+    fontSize: 50,
+    textTransform: "uppercase",
+    opacity: 0.2,
   },
 });
 

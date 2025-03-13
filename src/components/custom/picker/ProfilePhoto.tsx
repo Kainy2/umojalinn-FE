@@ -37,20 +37,21 @@ const ProfilePhotoPicker = (props: {
           className={cn(
             "size-56 rounded-full object-cover object-center",
             props.small && "size-36",
-            props.border && "border-4 border-white shadow-md shadow-gray-200/90"
+            props.border &&
+              "border-4 border-white shadow-md shadow-gray-200/90",
           )}
         />
       ) : (
         <span
           className={cn(
-            "flex items-center justify-center bg-gray-100 text-secondary-foreground size-56 rounded-full [&>svg]:size-30",
-            props.small && "size-36 [&>svg]:size-16",
+            "flex items-center justify-center bg-gray-100 text-secondary-foreground size-56 rounded-full",
+            props.small && "size-36",
             props.border &&
               "border-4 border-white shadow-md shadow-gray-200/90",
-            props.loading && "opacity-70"
+            props.loading && "opacity-70",
           )}
         >
-          <User />
+          <User className={cn(props.small ? "size-16" : "size-36")} />
         </span>
       )}
       {!props.loading && (
@@ -58,7 +59,7 @@ const ProfilePhotoPicker = (props: {
           className={cn(
             "absolute bottom-4 right-4 bg-white border border-dashed border-gray-300 p-2 rounded-xl shadow-lg shadow-gray-200/90 text-gray-400",
             props.edit && "text-primary",
-            props.small && "bottom-0 right-0"
+            props.small && "bottom-0 right-0",
           )}
         >
           {props.edit ? <Edit /> : <Plus />}
@@ -88,7 +89,7 @@ export const ProfilePhotoEdit = () => {
           updateProfile(
             jsonToFormData({
               profileImage: file,
-            })
+            }),
           );
       }}
     />
