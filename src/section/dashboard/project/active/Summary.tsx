@@ -57,11 +57,11 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
           <AvatarIconTag
             disabled
             label={`${format(
-              new Date(data?.data.data?.createdAt || 0),
-              "MMM dd, yyy"
+              new Date(data?.data.data?.bidAcceptedDate || 0),
+              "MMM dd, yyy",
             )} to ${format(
               new Date(data?.data.data?.dueDate || 0),
-              "MMM dd, yyy"
+              "MMM dd, yyy",
             )}`}
             icon={<CalendarPlus className="text-primary h-5 w-5" />}
           />
