@@ -54,7 +54,7 @@ export const FEMALE_SIZING_TEMPLATE: FemaleSizingTemplateProp[] = [
   },
   {
     name: "Shoulder to Underbust",
-    prop: "shoulderToUnderBurt",
+    prop: "shoulderToUnderBust",
     img: "/img/png/sizing-template/female/shoulderToUnderbust.png",
   },
   {
@@ -180,7 +180,7 @@ export const MALE_SIZING_TEMPLATE: MaleSizingTemplateProp[] = [
   },
   {
     name: "Chest",
-    prop: "bust",
+    prop: "chest",
     img: "/img/png/sizing-template/male/chest.png",
   },
   {

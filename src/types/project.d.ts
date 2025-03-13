@@ -143,7 +143,7 @@ export type UmojaLinnBid = {
 
 export type UmojaLinnMaleSizingTemplateProps = {
   neck: number | null;
-  bust: number | null;
+  chest: number | null;
   waist: number | null;
   shoulderWidth: number | null;
   backLength: number | null;
@@ -174,7 +174,7 @@ export type UmojaLinnFemaleSizingTemplateProps = {
   waist: number | null;
   shoulderWidth: number | null;
   shoulderToNipple: number | null;
-  shoulderToUnderBurt: number | null;
+  shoulderToUnderBust: number | null;
   shoulderToWaist: number | null;
   nippleToNipple: number | null;
   backLength: number | null;
