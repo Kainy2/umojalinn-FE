@@ -41,7 +41,7 @@ const DashboardPage = () => {
     data: closedBids,
     isPending: isLoadingClosedBidsData,
   } = useGetDesigerBids({
-    projectStatus: ["LIVE", "COMPLETED"],
+    projectStatus: ["COMPLETED"],
     bidStatus: ["REJECTED", "PENDING"]
   });
 
