@@ -7,9 +7,9 @@ import { useGetDesigerBids } from "@/tanstack/hooks/useBid";
 import { useGetAllDesignerProject } from "@/tanstack/hooks/useProject";
 
 const DashboardPage = () => {
-  const { data: myBidsWithDraft, isPending: isLoadingMyBidsWithDraft } =
+  const { data: myBidsWithoutDraft, isPending: isLoadingMyBidsWithoutDraft } =
     useGetDesigerBids({
-      bidStatus: ["PENDING", "REJECTED", "DRAFT"],
+      bidStatus: ["PENDING", "REJECTED"],
       projectStatus: "ADS",
     });
 
@@ -48,14 +48,14 @@ const DashboardPage = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 justify-stretch mt-4">
       <CustomCardHolder
-        count={myBidsWithDraft?.data?.data?.length || 0}
+        count={(myBidsWithoutDraft?.data?.data?.length || 0) + (draftBidData?.data?.data?.length || 0)}
         title="My Bids"
         loading={
-          isLoadingMyBidsWithDraft ||
+          isLoadingMyBidsWithoutDraft ||
           isLoadingDraftBidData ||
           isLoadingMyBidsData
         }
-        empty={!myBidsWithDraft?.data?.data?.length}
+        empty={!((myBidsWithoutDraft?.data?.data?.length || 0) + (draftBidData?.data?.data?.length || 0))}
       >
         {myBidsData?.data?.data?.map((bid) => (
           <JobCard
