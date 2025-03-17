@@ -66,7 +66,7 @@ const CustomCardHolder = (props: CustomCardHolderProps) => {
           <button
             disabled={!props.options?.length}
             className={cn(
-              "font-semibold text-sm truncate flex gap-2 items-center justify-center mb-6 p-2 text-teal-500 uppercase",
+              "font-semibold text-sm truncate flex gap-2 mx-auto mb-6 p-2 text-teal-500 uppercase w-fit",
               colour === "success" && "text-success",
               colour === "info" && "text-gray-500",
               colour === "primary" && "text-primary"
@@ -93,7 +93,7 @@ const CustomCardHolder = (props: CustomCardHolderProps) => {
             {props?.options?.map((option, i) => (
               <PopoverClose key={i}>
                 <button
-                  className="relative flex w-full cursor-default select-none items-center rounded-sm py-1 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+                  className="relative flex w-full cursor-default select-none items-center rounded-sm py-1 pl-8 pr-2 text-sm text-left outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
                   onClick={() => props?.onSelect?.(option)}
                 >
                   {capitalizeFirstLetter(option)?.replaceAll("_", " ")}
