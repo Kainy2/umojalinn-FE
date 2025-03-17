@@ -290,7 +290,7 @@ const Invoice = (props: InvoiceProps) => (
               {getCurrencySymbol(props.project?.currency)}
               {props?.milestones?.reduce(
                 (amount, milestone) => amount + (milestone?.amount || 0),
-                0,
+                0
               )}
             </Text>
           </View>
@@ -323,7 +323,7 @@ const Invoice = (props: InvoiceProps) => (
 );
 
 export const InvoiceButton = (
-  props: { className?: string; noFullWidth?: boolean } & InvoiceProps,
+  props: { className?: string; noFullWidth?: boolean } & InvoiceProps
 ) => {
   if (!props.project || !props.milestones)
     return <Skeleton className="h-12 w-full rounded-sm" />;
@@ -338,7 +338,7 @@ export const InvoiceButton = (
             className={cn(
               "h-12 rounded-sm",
               !props.noFullWidth && " w-full",
-              props.className,
+              props.className
             )}
           />
         ) : (
