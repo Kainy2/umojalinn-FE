@@ -34,18 +34,18 @@ const EscrowCard = (props: EscrowCardProps) => {
   const isBuyer = session?.user?.profileRole === "BUYER";
   const isDesigner = session?.user?.profileRole === "DESIGNER";
   const hasDesignerDoneExperience = !!props?.reviews?.find?.(
-    (review) => review?.reviewType === "EXPERIENCE" && review?.designerId,
+    (review) => review?.reviewType === "EXPERIENCE" && review?.designerId
   );
   const hasBuyerDoneExperience = !!props?.reviews?.find?.(
-    (review) => review?.reviewType === "EXPERIENCE" && review?.buyerId,
+    (review) => review?.reviewType === "EXPERIENCE" && review?.buyerId
   );
 
   const hasBuyerDoneClothingQuality = !!props?.reviews?.find?.(
-    (review) => review?.reviewType === "CLOTHING_QUALITY",
+    (review) => review?.reviewType === "CLOTHING_QUALITY"
   );
 
   const isIncompleteMilestone = props?.milestones?.find?.(
-    (milestone) => milestone?.status !== "APPROVED",
+    (milestone) => milestone?.status !== "APPROVED"
   );
 
   const hasAllMilestoneCompleted = !isIncompleteMilestone;
@@ -54,7 +54,7 @@ const EscrowCard = (props: EscrowCardProps) => {
     <div
       className={cn(
         "flex flex-col gap-4 bg-gray-50 rounded-md p-4 py-8",
-        !hasAllMilestoneCompleted && "hidden lg:flex",
+        !hasAllMilestoneCompleted && "hidden lg:flex"
       )}
     >
       <div className="hidden lg:block">
@@ -69,8 +69,8 @@ const EscrowCard = (props: EscrowCardProps) => {
           value={
             props?.milestones?.filter?.((milestone) =>
               ["PENDING", "ACTIVE", "IN_REVIEW", "APPROVED"].includes(
-                milestone?.status,
-              ),
+                milestone?.status
+              )
             )?.length
           }
         />
@@ -88,7 +88,7 @@ const EscrowCard = (props: EscrowCardProps) => {
               <p
                 className={cn(
                   ["FUNDED", "PAID"].includes(milestone?.transactionStatus) &&
-                    "line-through",
+                    "line-through"
                 )}
               >
                 {getCurrencySymbol(props?.currency)}
@@ -185,7 +185,7 @@ const EscrowCard = (props: EscrowCardProps) => {
           (isDesigner && !hasDesignerDoneExperience)) &&
           hasAllMilestoneCompleted && (
             <div className="flex flex-col gap-2  text-foreground-body">
-              <p>Your Quality Experience Feedback</p>
+              <p>Your Experience Feedback</p>
               <Alert
                 small
                 title="Please take note"
@@ -218,7 +218,7 @@ const EscrowCard = (props: EscrowCardProps) => {
               <p>Your Clothing Quality Feedback</p>
               <Alert
                 title="Please take note"
-                message="We kindly request that you provide this review after confirming the product to assist us in enhancing our services to you."
+                message="We kindly request that you provide this review after receiving your order to assist us in enhancing our services to you."
                 type="error"
                 icon={<CircleAlert />}
                 small
@@ -234,7 +234,7 @@ const EscrowCard = (props: EscrowCardProps) => {
                 alert={{
                   title: "Please take note",
                   message:
-                    "We kindly request that you provide this review after confirming the product to assist us in enhancing our services to you.",
+                    "We kindly request that you provide this review after receiving your order to assist us in enhancing our services to you.",
                   type: "error",
                   icon: <CircleAlert />,
                   small: true,
