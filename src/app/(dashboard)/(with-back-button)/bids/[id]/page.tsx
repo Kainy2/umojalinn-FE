@@ -65,7 +65,7 @@ const IndividualBidPage = () => {
       {/* budget Alert here */}
       {bid?.additionalNotesToClient && (
         <Alert
-          title="Designer's note"
+          title="Rejection Rationale"
           message={bid?.additionalNotesToClient}
           type="error"
         />
