@@ -51,7 +51,7 @@ const DraftCardList = () => {
             onClick={() =>
               router.push(`/project/${uuidToBase62Safe(project?.id)}`)
             }
-            className="relative text-left card flex gap-4 hover:bg-gray-50 transition-colors"
+            className="relative text-left card flex flex-col lg:flex-row gap-4 hover:bg-gray-50 transition-colors"
           >
             <VerifyDialog
               onOpenChange={setVerifyDelete}
