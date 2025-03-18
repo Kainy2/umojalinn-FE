@@ -35,12 +35,12 @@ const ActiveProjectTab = (props: ActiveProjectTabProps) => {
         href: `/${baseUrlSlug}/${uuidToBase62Safe(params?.id)}/details`,
       },
     ],
-    [baseUrlSlug, params?.id],
+    [baseUrlSlug, params?.id]
   );
 
   const active = useMemo(
     () => tabs.find((tab) => tab.href === path)?.title || "",
-    [path, tabs],
+    [path, tabs]
   );
 
   if (!data?.data?.data) {
@@ -54,7 +54,7 @@ const ActiveProjectTab = (props: ActiveProjectTabProps) => {
       active={active}
       tabs={tabs}
       mobileSelector
-      className="mb-8"
+      className="mb-2 lg:mb-8"
     />
   );
 };
