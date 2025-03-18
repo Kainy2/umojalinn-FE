@@ -21,6 +21,7 @@ import Paypal from "@/icons/Paypal";
 import CheckCircle from "@/icons/CheckCircle";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import EditWithdrawalMethod from "@/components/custom/dialog/EditWithdrawalMethod";
 
 const noPaypalOption = [
   {
@@ -112,7 +113,7 @@ const WithdrawalAmountForm = (props: {
 
   const handlePaypalPayloadChange = (
     prop: keyof PaypalPayload,
-    value: string,
+    value: string
   ) => {
     setPaypalPayload((prev) => ({
       ...prev,
@@ -122,7 +123,7 @@ const WithdrawalAmountForm = (props: {
 
   const handleDirectTransferChange = (
     prop: keyof DirectTransferPayload,
-    value: string,
+    value: string
   ) => {
     setDirectTransferPayload((prev) => ({
       ...prev,
@@ -192,7 +193,7 @@ const WithdrawalAmountForm = (props: {
 
   const withdrawalMethodsForThisCurrency =
     withdrawalMethodsData?.data?.data?.filter(
-      (method) => method?.currency === currency,
+      (method) => method?.currency === currency
     );
 
   return (
@@ -233,14 +234,14 @@ const WithdrawalAmountForm = (props: {
                     onClick={() =>
                       mode === "WITHDRAWAL" &&
                       setWithdrawalMethod((prev) =>
-                        prev === method?.id ? null : method.id,
+                        prev === method?.id ? null : method.id
                       )
                     }
                     key={method.id}
                     className={cn(
                       "p-4 rounded-md border relative flex gap-4",
                       withdrawalMethod === method?.id && "border-primary",
-                      mode === "WITHDRAWAL" && "cursor-pointer",
+                      mode === "WITHDRAWAL" && "cursor-pointer"
                     )}
                   >
                     {getIcon(method?.channel)}
@@ -252,9 +253,7 @@ const WithdrawalAmountForm = (props: {
                           mode === "WITHDRAWAL" && (
                             <span className="font-bold">Set as default</span>
                           )}
-                        {/* <button className="text-primary font-semibold">
-                          Edit
-                        </button> */}
+                        <EditWithdrawalMethod id={method?.id} />
                       </div>
                     </div>
                     {mode === "WITHDRAWAL" &&
@@ -314,7 +313,7 @@ const WithdrawalAmountForm = (props: {
                     onChange={(e) =>
                       handleDirectTransferChange(
                         "accountNumber",
-                        e.target.value,
+                        e.target.value
                       )
                     }
                   />

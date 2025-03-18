@@ -13,8 +13,8 @@ import { formatDate } from "date-fns";
 import { useSession } from "next-auth/react";
 import { UmojaLinnUserRole } from "@/types/user";
 
-const getTransactionIcon = (
-  channel: UmojalinnWalletTransaction["paymentChannel"],
+export const getTransactionIcon = (
+  channel: UmojalinnWalletTransaction["paymentChannel"]
 ) => {
   switch (channel) {
     case "PAYPAL":
@@ -27,7 +27,7 @@ const getTransactionIcon = (
 
 const getTransactionStatus = (
   type: UmojalinnWalletTransaction["transactionType"],
-  profileRole: UmojaLinnUserRole,
+  profileRole: UmojaLinnUserRole
 ) => {
   let creditList: UmojalinnWalletTransaction["transactionType"][] = [
     "FUND_ESCROW",
@@ -87,7 +87,7 @@ const WithdrawalPage = () => {
               !!session?.user?.profileRole &&
               getTransactionStatus(
                 trans?.transactionType,
-                session?.user?.profileRole,
+                session?.user?.profileRole
               );
             return (
               <div
@@ -101,7 +101,7 @@ const WithdrawalPage = () => {
                   <div className="flex justify-between">
                     <p className="font-semibold">
                       {capitalizeFirstLetter(
-                        trans?.transactionType?.replaceAll("_", " "),
+                        trans?.transactionType?.replaceAll("_", " ")
                       )}
                     </p>
                     <p

@@ -25,7 +25,7 @@ import { AxiosProgressEvent, AxiosResponse } from "axios";
 
 export const inviteBuyer = async (
   body: { emails: string[] },
-  options?: ServerActionOption,
+  options?: ServerActionOption
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -33,7 +33,7 @@ export const inviteBuyer = async (
   }
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
     "/project/invite-buyer",
-    body,
+    body
   );
 };
 
@@ -42,7 +42,7 @@ export const createProject = async (
     tag?: string;
     projectType: UmojaLinnProject["projectType"];
   },
-  options?: ServerActionOption,
+  options?: ServerActionOption
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -56,20 +56,20 @@ export const createProject = async (
 
 export const getProjectById = async (
   id: string,
-  options?: ServerActionOption,
+  options?: ServerActionOption
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
   return axios.get<unknown, AxiosResponse<SingleApiResponse<UmojaLinnProject>>>(
-    `/project/${base62ToUuidSafe(id)}`,
+    `/project/${base62ToUuidSafe(id)}`
   );
 };
 
 export const deleteProjectById = async (
   id: string,
-  options?: ServerActionOption,
+  options?: ServerActionOption
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -84,7 +84,7 @@ export const deleteProjectById = async (
 export const addProjectReview = async (
   id: string,
   review: FormData,
-  options?: ServerActionOption,
+  options?: ServerActionOption
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -110,7 +110,7 @@ export const getClothingTypes = async (options?: ServerActionOption) => {
 export const updateProjectById = async (
   id: string,
   body: FormData,
-  options?: ServerActionOption,
+  options?: ServerActionOption
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -118,20 +118,20 @@ export const updateProjectById = async (
   }
   return axios.put<unknown, AxiosResponse<SingleApiResponse>>(
     `/project/update-project/${base62ToUuidSafe(id)}`,
-    body,
+    body
   );
 };
 
 export const postProjectLive = async (
   id: string,
-  options?: ServerActionOption,
+  options?: ServerActionOption
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
-    `/project/post-live/${base62ToUuidSafe(id)}`,
+    `/project/post-live/${base62ToUuidSafe(id)}`
   );
 };
 
@@ -141,14 +141,14 @@ export const getAllBuyerProjects = async (
     limit: number;
     bidStatus: UmojaLinnProject["status"] | Array<UmojaLinnProject["status"]>;
   }>,
-  options?: ServerActionOption,
+  options?: ServerActionOption
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
   return axios.get<unknown, AxiosResponse<ArrayApiResponse<UmojaLinnProject>>>(
-    `/project/all/buyer${apiParams ? convertApiParams(apiParams) : ""}`,
+    `/project/all/buyer${apiParams ? convertApiParams(apiParams) : ""}`
   );
 };
 
@@ -159,34 +159,34 @@ export const getAllDesignerProjects = async (
     bidStatus: UmojaLinnProject["status"] | Array<UmojaLinnProject["status"]>;
     hasBid?: boolean;
   }>,
-  options?: ServerActionOption,
+  options?: ServerActionOption
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
   return axios.get<unknown, AxiosResponse<ArrayApiResponse<UmojaLinnProject>>>(
-    `/project/all/designer${apiParams ? convertApiParams(apiParams) : ""}`,
+    `/project/all/designer${apiParams ? convertApiParams(apiParams) : ""}`
   );
 };
 
 export const requestSizingTemplateInProject = async (
   id: string,
-  options?: ServerActionOption,
+  options?: ServerActionOption
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
-    `/project/request-sizing-template/${base62ToUuidSafe(id)}`,
+    `/project/request-sizing-template/${base62ToUuidSafe(id)}`
   );
 };
 
 export const getProjectMilestones = async (
   projectId: string,
   apiParams?: Record<string, unknown>,
-  options?: ServerActionOption,
+  options?: ServerActionOption
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -198,7 +198,7 @@ export const getProjectMilestones = async (
   >(
     `/project/${base62ToUuidSafe(projectId)}/milestones${
       apiParams ? convertApiParams(apiParams) : ""
-    }`,
+    }`
   );
 };
 
@@ -207,7 +207,7 @@ export const fundProject = async (
   body: FormData,
   onUploadProgress?: (event: AxiosProgressEvent) => void,
   apiParams?: Record<string, unknown>,
-  options?: ServerActionOption,
+  options?: ServerActionOption
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -220,7 +220,7 @@ export const fundProject = async (
     body,
     {
       onUploadProgress,
-    },
+    }
   );
 };
 
@@ -229,7 +229,7 @@ export const fundMilestone = async (
   body: FormData,
   onUploadProgress?: (event: AxiosProgressEvent) => void,
   apiParams?: Record<string, unknown>,
-  options?: ServerActionOption,
+  options?: ServerActionOption
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -242,13 +242,13 @@ export const fundMilestone = async (
     body,
     {
       onUploadProgress,
-    },
+    }
   );
 };
 
 export const getMilestoneById = async (
   id: string,
-  options?: ServerActionOption,
+  options?: ServerActionOption
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -262,7 +262,7 @@ export const getMilestoneById = async (
 
 export const getMilestoneSubmissions = async (
   id: string,
-  options?: ServerActionOption,
+  options?: ServerActionOption
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -276,7 +276,7 @@ export const getMilestoneSubmissions = async (
 
 export const getProjectMediaAndLinks = async (
   id: string,
-  options?: ServerActionOption,
+  options?: ServerActionOption
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -291,7 +291,7 @@ export const getProjectMediaAndLinks = async (
 export const approveOrRejectMilestone = async (
   id: string,
   body: Pick<UmojaLinnMilestoneSubmission, "status" | "rejectionReason">,
-  options?: ServerActionOption,
+  options?: ServerActionOption
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -299,14 +299,14 @@ export const approveOrRejectMilestone = async (
   }
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
     `/project/milestone/approve-or-reject/${base62ToUuidSafe(id)}`,
-    body,
+    body
   );
 };
 
 export const submitMilestone = async (
   id: string,
   body: FormData,
-  options?: ServerActionOption,
+  options?: ServerActionOption
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -314,7 +314,7 @@ export const submitMilestone = async (
   }
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
     `/project/milestone/submit/${base62ToUuidSafe(id)}`,
-    body,
+    body
   );
 };
 
@@ -324,7 +324,7 @@ export const getWallet = async (options?: ServerActionOption) => {
     axios = await getServerAxiosWithToken();
   }
   return axios.get<unknown, AxiosResponse<SingleApiResponse<UmojalinnWallet>>>(
-    `/wallet`,
+    `/wallet`
   );
 };
 
@@ -341,7 +341,7 @@ export const getWithdrawalMethods = async (options?: ServerActionOption) => {
 
 export const createWithdrawalMethod = async (
   body: CreateWithdrawalMethodPayload,
-  options?: ServerActionOption,
+  options?: ServerActionOption
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -353,9 +353,38 @@ export const createWithdrawalMethod = async (
   >(`/wallet/add-withdrawal-method`, body);
 };
 
+export const editWithdrawalMethod = async (
+  id: string,
+  body: CreateWithdrawalMethodPayload,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.put<
+    unknown,
+    AxiosResponse<SingleApiResponse<UmojaLinnWithdrawalMethod>>
+  >(`/wallet/add-withdrawal-method/${id}`, body);
+};
+
+export const deleteWithdrawalMethod = async (
+  id: string,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.delete<
+    unknown,
+    AxiosResponse<SingleApiResponse<UmojaLinnWithdrawalMethod>>
+  >(`/wallet/add-withdrawal-method/${id}`);
+};
+
 export const requestWithdrawal = async (
   body: RequestWithdrawalPayload,
-  options?: ServerActionOption,
+  options?: ServerActionOption
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -363,19 +392,19 @@ export const requestWithdrawal = async (
   }
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
     `/wallet/withdraw`,
-    body,
+    body
   );
 };
 export const markNotificationAsRead = async (
   id: string,
-  options?: ServerActionOption,
+  options?: ServerActionOption
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
   return axios.put<unknown, AxiosResponse<SingleApiResponse>>(
-    `/notification/${id}/mark-as-read`,
+    `/notification/${id}/mark-as-read`
   );
 };
 
@@ -394,7 +423,7 @@ export const sendChatInProject = async (
   id: string,
   body: FormData,
   apiParams?: Record<string, unknown>,
-  options?: ServerActionOption,
+  options?: ServerActionOption
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -404,7 +433,7 @@ export const sendChatInProject = async (
     `/project/chat/${base62ToUuidSafe(id)}${
       apiParams ? convertApiParams(apiParams) : ""
     }`,
-    body,
+    body
   );
 };
 

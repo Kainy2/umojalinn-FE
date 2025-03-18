@@ -25,6 +25,7 @@ export type VerifyDialogProps = {
   hideCancel?: boolean;
   fullWidthActions?: boolean;
   disableActions?: boolean;
+  icon?: React.ReactNode;
 };
 
 const VerifyDialog = (props: VerifyDialogProps) => {
@@ -37,6 +38,11 @@ const VerifyDialog = (props: VerifyDialogProps) => {
       )}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
+          {props.icon && (
+            <span className="size-7 border border-border/20 rounded-md flex items-center justify-center [&>*]:size-5 mb-2">
+              {props.icon}
+            </span>
+          )}
           <DialogTitle className="font-semibold">{props.title}</DialogTitle>
           <DialogDescription>{props.description}</DialogDescription>
         </DialogHeader>
