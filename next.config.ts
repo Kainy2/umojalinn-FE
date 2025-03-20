@@ -10,6 +10,10 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "umoja-prod-bucket.s3.eu-west-1.amazonaws.com",
+      },
+      {
+        protocol: "https",
         hostname: "picsum.photos",
       },
     ],
