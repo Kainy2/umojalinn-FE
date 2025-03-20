@@ -17,7 +17,6 @@ import { createAccount } from "@/actions/auth";
 import { useToast } from "@/hooks/use-toast";
 import useStorage from "@/hooks/useStorage";
 import CustomCheckbox from "@/components/custom/Checkbox";
-import Link from "next/link";
 import useHandleError from "@/hooks/useHandleError";
 
 const RegistrationForm = (props: { inviterTag?: string }) => {
@@ -79,6 +78,11 @@ const RegistrationForm = (props: { inviterTag?: string }) => {
             />
           );
         })}
+        <div className="text-xs">
+          <span className="text-orange-500">Password Creation Hint:</span> A
+          strong password should contain at least one uppercase letter, a
+          number, one symbol and password length greater or equal to 8{" "}
+        </div>
         <div className="my-4">
           <CustomCheckbox
             checked={agree}
@@ -87,9 +91,9 @@ const RegistrationForm = (props: { inviterTag?: string }) => {
               children: (
                 <>
                   You agree to our{" "}
-                  <Link href="/privacy-policy" className="underline">
+                  <a href="/privacy-policy" target="_blank"  className="underline">
                     privacy policy
-                  </Link>
+                  </a>
                 </>
               ),
             }}

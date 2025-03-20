@@ -10,18 +10,20 @@ export type UmojaLinnProject = {
   gender: null | "MALE" | "FEMALE";
   additionalNotes: null | string;
   dueDate: null | string;
+  bidAcceptedDate: null | string;
   projectType: "PRIVATE" | "PUBLIC";
   status: "DRAFT" | "ADS" | "LIVE" | "COMPLETED";
   fundStatus: "AWAITING_FUND" | "PROCESSING" | "FUNDED";
   buyerId: string;
   designerId: string;
-  budget: number | null | string;
+  budget: number | null;
   escrowBalance: number | null;
   amountFunded: number | null;
   approvedBudget: number | null;
   currency: null | UmojaLinnCurrency;
   sizingTemplateId: string | null;
   percentageCompleted: number;
+  reviews: Array<UmojaLinnProjectReview> | null;
   deliveryAddress: {
     id: string;
     country: null | string;
@@ -64,6 +66,7 @@ export type UmojaLinnProject = {
     } & UmojaLinnTimestamp
   > | null;
   bids: UmojaLinnBid[] | null;
+  specialistType: UmojaLinnSpecialistType | null;
 } & UmojaLinnTimestamp;
 
 export type UmojaLinnDeliveryMethod =
@@ -139,50 +142,60 @@ export type UmojaLinnBid = {
 };
 
 export type UmojaLinnMaleSizingTemplateProps = {
-  height: number | null;
-  neckCircumference: number | null;
-  shoulderWidth: number | null;
-  upperChestCircumference: number | null;
-  chestCircumference: number | null;
-  upperArmCircumference: number | null;
-  armLength: number | null;
-  wristCircumference: number | null;
-  backWidth: number | null;
-  hipsCircumference: number | null;
-  crotchDepth: number | null;
-  neckToWaistline: number | null;
+  neck: number | null;
+  chest: number | null;
   waist: number | null;
+  shoulderWidth: number | null;
+  backLength: number | null;
+  bodyRise: number | null;
+  hips: number | null;
+  armHoleCircumference: number | null;
+  bicep: number | null;
+  wrist: number | null;
+  desiredSleeveLength: number | null;
+  desiredShirtLength: number | null;
+  desiredAgbadaLength: number | null;
+  thigh: number | null;
+  knee: number | null;
+  calf: number | null;
+  ankle: number | null;
   inseam: number | null;
-  waistToKnee: number | null;
-  kneeCircumference: number | null;
-  ankleCircumference: number | null;
-  napeToWaist: number | null;
-  waistToFloor: number | null;
-  thighCircumference: number | null;
-  neckToAnkle: number | null;
-  calfCircumference: number | null;
+  waistToKneePoint: number | null;
+  desiredTrouserOrSkirtLength: number | null;
+  shoulderToFloor: number | null;
+  height: number | null;
+  headCircumference: number | null;
 };
 
 export type UmojaLinnFemaleSizingTemplateProps = {
-  height: number | null;
-  neckSize: number | null;
-  totalBust: number | null;
-  highestPointOfHips: number | null;
-  widestPointOfHips: number | null;
-  thigh: number | null;
-  upperArmCircumference: number | null;
-  armLength: number | null;
-  shoulderWidth: number | null;
-  bodyRise: number | null;
-  neckToAnkle: number | null;
+  neck: number | null;
+  bust: number | null;
+  underBust: number | null;
   waist: number | null;
-  inseam: number | null;
+  shoulderWidth: number | null;
+  shoulderToNipple: number | null;
+  shoulderToUnderBust: number | null;
+  shoulderToWaist: number | null;
+  nippleToNipple: number | null;
   backLength: number | null;
-  outseam: number | null;
-  ankleCircumference: number | null;
-  calfCircumference: number | null;
-  wristCircumference: number | null;
-  waistToFloor: number | null;
+  bodyRise: number | null;
+  hips: number | null;
+  armHoleCircumference: number | null;
+  bicep: number | null;
+  wrist: number | null;
+  desiredSleeveLength: number | null;
+  desiredBlouseOrTopLength: number | null;
+  desiredDressLength: number | null;
+  thigh: number | null;
+  knee: number | null;
+  calf: number | null;
+  ankle: number | null;
+  inseam: number | null;
+  waistToKneePoint: number | null;
+  desiredTrouserOrSkirtLength: number | null;
+  shoulderToFloor: number | null;
+  height: number | null;
+  headCircumference: number | null;
 };
 
 export type UmojaLinnSizingTemplate = {
@@ -194,6 +207,13 @@ export type UmojaLinnSizingTemplate = {
   status: "DRAFT" | "LIVE" | "IN_USE";
   buyer?: UmojaLinnUserRoleProfile;
   projects: UmojaLinnProject[];
+  metadata?: {
+    reviews?: Record<
+      keyof (UmojaLinnMaleSizingTemplateProps &
+        UmojaLinnFemaleSizingTemplateProps),
+      string
+    > | null;
+  };
 } & Partial<
   UmojaLinnMaleSizingTemplateProps & UmojaLinnMaleSizingTemplateProps
 > &
@@ -258,11 +278,16 @@ export type UmojalinnWalletTransaction = {
   currency: UmojaLinnCurrency;
   amount: number;
   transactionId: string;
-  status: "PENDING";
-  transactionType: "FUND_ESCROW";
+  status: "PENDING" | "FAILED" | "SUCCESS";
+  transactionType:
+    | "FUND_ESCROW"
+    | "WITHDRAWAL_REQUEST"
+    | "WALLET_TO_UP"
+    | "MILESTONE_COMPLETED";
   receiptUrl: string;
   projectId: string;
   walletId: null | string;
+  project?: UmojaLinnProject;
 } & UmojaLinnTimestamp;
 
 export type UmojalinnWallet = {
@@ -290,3 +315,22 @@ export type UmojaLinnChat = {
   severity?: "ERROR" | "SUCCESS";
   createdAt: string | Date;
 };
+
+export type UmojaLinnProjectReview = {
+  id: string;
+  designerId: null | string;
+  buyerId: null | string;
+  projectId: string;
+  rating: number;
+  message: string;
+  images: string[];
+  reviewType: "EXPERIENCE" | "CLOTHING_QUALITY";
+  buyer?: Pick<UmojaLinnUserRoleProfile, "user"> | null;
+  designer?: Pick<UmojaLinnUserRoleProfile, "user"> | null;
+  project?: UmojaLinnProject;
+} & UmojaLinnTimestamp;
+
+export type UmojaLinnSpecialistType = {
+  id: string;
+  name: string;
+} & UmojaLinnTimestamp;

@@ -1,5 +1,6 @@
 "use client";
 import ProfilePhotoPicker from "@/components/custom/picker/ProfilePhoto";
+import { MAX_FILE_SIZE_FOR_FILE_UPLOAD } from "@/constant";
 import { useFileSizeError } from "@/hooks/useFilePicker";
 import useHandleError from "@/hooks/useHandleError";
 import useStorage from "@/hooks/useStorage";
@@ -16,7 +17,7 @@ const OnboardProfilePhotoForm = (props: { role: UmojaLinnUserRole }) => {
 
   const { update } = useSession();
 
-  const { isFileSizeValid } = useFileSizeError(1 * 1024 * 1024);
+  const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD);
 
   const { mutateAsync: onboard, isPending: loading } = useOnboard({
     onSuccess: async () => {

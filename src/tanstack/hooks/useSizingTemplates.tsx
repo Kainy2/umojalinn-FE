@@ -2,14 +2,21 @@ import {
   addSizingTemplateToProject,
   createSizingTemplate,
   deleteSizingTemplate,
-  getSizingTemplateById,
+  getBuyerSizingTemplateById,
+  getDesignerSizingTemplateById,
+  getDesignerSizingTemplates,
   getSizingTemplates,
   postSizingTemplateLive,
+  requestChangeOnSizingTemplate,
   updateSizingTemplate,
 } from "@/actions/sizing-templates";
 import { queryClient } from "@/components/provider/TanstackQueryClient";
 import useHandleError from "@/hooks/useHandleError";
-import { UmojaLinnSizingTemplate } from "@/types/project";
+import {
+  UmojaLinnFemaleSizingTemplateProps,
+  UmojaLinnMaleSizingTemplateProps,
+  UmojaLinnSizingTemplate,
+} from "@/types/project";
 import {
   GenericUseMutationProps,
   GenericUseQueryProps,
@@ -30,6 +37,35 @@ export const useCreateSizingTemplate = (
   return useMutation({
     ...options,
     mutationFn: createSizingTemplate,
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [SIZING_TEMPLATE] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useRequestChangeSizingTemplate = (
+  id?: string,
+  options?: GenericUseMutationProps<
+    SingleApiResponse<UmojaLinnSizingTemplate>,
+    Partial<
+      Record<
+        keyof (UmojaLinnMaleSizingTemplateProps &
+          UmojaLinnFemaleSizingTemplateProps),
+        string
+      >
+    >
+  >
+) => {
+  const { handleError } = useHandleError("Request Change in Sizing Template");
+  return useMutation({
+    ...options,
+    mutationFn: (variables) =>
+      requestChangeOnSizingTemplate(id || "", variables),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: [SIZING_TEMPLATE] });
       options?.onSuccess?.(data, variables, context);
@@ -82,6 +118,18 @@ export const useGetAllSizingTemplates = (
   });
 };
 
+export const useGetAllDesignerSizingTemplates = (
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnSizingTemplate>>
+) => {
+  const { data: me } = useSession();
+  return useQuery({
+    ...options,
+    enabled: !!me?.user && options?.enabled !== false,
+    queryKey: [SIZING_TEMPLATE, "DESIGNER"],
+    queryFn: () => getDesignerSizingTemplates(),
+  });
+};
+
 export const useGetSizingTemplateById = (
   id?: string,
   options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnSizingTemplate>>
@@ -91,7 +139,10 @@ export const useGetSizingTemplateById = (
     ...options,
     enabled: !!me?.user && !!id && options?.enabled !== false,
     queryKey: [SIZING_TEMPLATE, id],
-    queryFn: () => getSizingTemplateById(id || ""),
+    queryFn: () =>
+      (me?.user?.profileRole === "BUYER"
+        ? getBuyerSizingTemplateById
+        : getDesignerSizingTemplateById)(id || ""),
   });
 };
 

@@ -1,4 +1,6 @@
+import { languageProficiency } from "@/lib/schema";
 import { UmojaLinnTimestamp } from "./util";
+import { UmojaLinnProject } from "./project";
 
 export type UmojaLinnUserRole = "BUYER" | "DESIGNER";
 
@@ -22,6 +24,24 @@ export type UmojaLinnUserRoleProfile = {
   user: null | UmojaLinnUser;
 } & UmojaLinnTimestamp;
 
+export type UmojaLinnUserDesignerAddonProfile = {
+  clothingTypes: Array<
+    {
+      id: string;
+      name: string;
+    } & UmojaLinnTimestamp
+  > | null;
+  experienceLevel: null | string;
+  about: null | string;
+  brandName: null | string;
+  specialistTypeId: null | string;
+  languages: {
+    name: string;
+    languageProficiency: (typeof languageProficiency)[number];
+  }[];
+  specialistType: null | string;
+};
+
 export type UmojaLinnUser = {
   id: string;
   firstName: string;
@@ -43,7 +63,9 @@ export type UmojaLinnUser = {
   profilePhotoUri: null | string;
   authProvider: string;
   buyerProfile: null | UmojaLinnUserRoleProfile;
-  designerProfile: null | UmojaLinnUserRoleProfile;
+  designerProfile:
+    | null
+    | (UmojaLinnUserRoleProfile & UmojaLinnUserDesignerAddonProfile);
   verified: boolean;
 } & UmojaLinnTimestamp;
 
@@ -60,6 +82,8 @@ export type UmojaLinnNotification = {
   metadata?: {
     projectId?: string;
     projectName?: string;
+    bidId?: string;
+    projectStatus?: UmojaLinnProject["status"];
   };
   senderName: string;
   senderProfileUrl: null | string;

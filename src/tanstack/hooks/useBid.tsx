@@ -46,7 +46,7 @@ export const useCreateBid = (
   });
 };
 
-export const useGetDesigerBids = (
+export const useGetDesignerBids = (
   apiParams?: Partial<{
     lastId: string;
     limit: number;

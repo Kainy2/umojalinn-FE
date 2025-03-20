@@ -23,12 +23,18 @@ import { ProjectFormProps } from "./Description";
 import TabButtonSelect from "@/components/custom/tab/ButtonSelect";
 import CustomReactSelect from "@/components/custom/ReactSelect";
 
-const EXPERIENCE_ENUMS = [
+export const EXPERIENCE_ENUMS = [
   "1 - 2 years",
   "3 - 5 years",
   "6 - 8 years",
   "9+ years",
-  "All",
+] as const;
+
+export const EXPERIENCE_ENUMS_VALUES = [
+  "ONE_TO_TWO_YEARS",
+  "THREE_TO_FIVE_YEARS",
+  "SIX_TO_EIGHT_YEARS",
+  "NINE_PLUS_YEARS",
 ] as const;
 
 const RequirementsBudgetForm = (props: ProjectFormProps) => {
@@ -103,8 +109,8 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
         {data?.data?.data?.projectType === "PUBLIC" && (
           <>
             <FormItemWrapper
-              title="Specialist"
-              description="Add specialist tag to help with your search for a designer"
+              title="Specialty"
+              description="Add specialty tag to help with your search for a designer"
             >
               <FormField
                 control={form.control}
@@ -129,7 +135,7 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
                   <TabButtonSelect
                     active={field.value || null}
                     onChange={field.onChange}
-                    tabs={EXPERIENCE_ENUMS.map((exp) => ({
+                    tabs={[...EXPERIENCE_ENUMS, "All"].map((exp) => ({
                       value: exp,
                       title: exp,
                     }))}

@@ -11,10 +11,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Copy, UserRoundPlus } from "lucide-react";
+import { Copy, UserRoundPlus, X } from "lucide-react";
 import { TagInput } from "@/components/custom/tag/Input";
 import { z } from "zod";
-import { useGetMe } from "@/tanstack/hooks/useUser";
+import { useDeleteProjectInvitation, useGetMe } from "@/tanstack/hooks/useUser";
 import { Badge } from "@/components/ui/badge";
 import useClipboard from "@/hooks/useClipboard";
 import { cn } from "@/lib/utils";
@@ -38,6 +38,7 @@ const InviteClient = () => {
   const { mutate: inviteBuyer, isPending: loading } = useInviteBuyer({
     onSuccess() {
       setOpen(false);
+      setTags([]);
     },
   });
 
@@ -55,6 +56,8 @@ const InviteClient = () => {
     inviteBuyer({ emails: tags });
   };
 
+  const { mutate: deleteInvitation, isPending } = useDeleteProjectInvitation();
+
   return (
     <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
       <DialogTrigger asChild>
@@ -63,7 +66,8 @@ const InviteClient = () => {
           variant="ghost"
           className={cn("font-normal", !me?.data?.data && "hidden")}
         >
-          <UserRoundPlus className="icon-base" /> Invite Client
+          <UserRoundPlus className="icon-base" />{" "}
+          <span className="hidden md:inline">Invite Client</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
@@ -71,8 +75,10 @@ const InviteClient = () => {
           <span className="mb-2 border border-border/50 rounded-md h-12 w-12 flex items-center justify-center">
             <UserRoundPlus className="icon-base" />
           </span>
-          <DialogTitle className="text-[18px]">Invite Client</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-[18px] text-left">
+            Invite Client
+          </DialogTitle>
+          <DialogDescription className="text-left">
             Manage all your jobs in one place - invite client to create their
             project with you here on Umoja linn.
           </DialogDescription>
@@ -93,9 +99,16 @@ const InviteClient = () => {
                 {!!invite?.status && (
                   <Badge
                     variant="outline"
-                    className="text-foreground-body font-normal"
+                    className="text-foreground-body font-normal inline-flex gap-2"
                   >
-                    {invite?.status?.toLocaleLowerCase?.()}
+                    <span>{invite?.status?.toLocaleLowerCase?.()}</span>
+                    <button
+                      className="[&>svg]:size-3"
+                      onClick={() => deleteInvitation(invite?.id)}
+                      disabled={isPending}
+                    >
+                      <X />
+                    </button>
                   </Badge>
                 )}
               </div>
@@ -105,7 +118,10 @@ const InviteClient = () => {
           <Label>Email</Label>
           <div>
             <TagInput value={tags} onChange={handleTags} />
-            <p className="mt-1 text-foreground-body text-sm"><Info className="text-primary size-4" /> Click enter after typing each valid email.</p>
+            <p className="text-xs text-foreground-body [&>svg]:size-4 [&>svg]:text-gray-400 mt-2 flex gap-1 items-center">
+              <Info />
+              Click enter after typing each valid email.
+            </p>
           </div>
           {!!me?.data?.data?.tag &&
             (!!tags?.length ||
@@ -115,9 +131,10 @@ const InviteClient = () => {
                 className="text-primary text-sm flex items-center gap-1 "
                 onClick={() =>
                   handleCopy(
-                    `${process.env.NEXT_PUBLIC_WEB_URL ||
-                    "https://dev.d1451lqyj8o4u7.amplifyapp.com"
-                    }/login?inviterTag=${me?.data?.data?.tag}`
+                    `${
+                      process.env.NEXT_PUBLIC_WEB_URL ||
+                      "https://dev.d1451lqyj8o4u7.amplifyapp.com"
+                    }/login?inviterTag=${me?.data?.data?.tag}`,
                   )
                 }
               >

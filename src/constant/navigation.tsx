@@ -1,10 +1,10 @@
 import { CustomSidebarMenuItemProps } from "@/components/custom/sidebar/MenuItem";
 import Activity from "@/icons/Activity";
-// import Bank from "@/icons/Bank";
+import Bank from "@/icons/Bank";
 import Grid01 from "@/icons/Grid01";
 // import MessageSquare02 from "@/icons/MessageSquare02";
 import SearchRefracted from "@/icons/SearchRefracted";
-// import Settings01 from "@/icons/Settings01";
+import Settings01 from "@/icons/Settings01";
 import Tag03 from "@/icons/Tag03";
 import Wallet02 from "@/icons/Wallet02";
 
@@ -39,11 +39,12 @@ export const BUYERS_SIDEBAR_CONTENT: CustomSidebarMenuItemProps[] = [
   //   url: "#",
   //   icon: <Wallet02 />,
   // },
-  // {
-  //   title: "Escrow",
-  //   url: "#",
-  //   icon: <Bank />,
-  // },
+  {
+    title: "Escrow",
+    url: "/escrow",
+    icon: <Bank />,
+    regex: /^\/(escrow$|escrow\/.*)/,
+  },
   {
     isAd: true,
     title: "Got any feedback in mind?",
@@ -55,17 +56,18 @@ export const BUYERS_SIDEBAR_CONTENT: CustomSidebarMenuItemProps[] = [
       href: "https://tally.so/r/w2Dz2g",
     },
   },
-  // {
-  //   title: "Settings",
-  //   url: "#",
-  //   icon: <Settings01 />,
-  // },
+  {
+    title: "Settings",
+    url: "/settings",
+    icon: <Settings01 />,
+    regex: /^\/(settings$|settings\/.*)/,
+  },
 ];
 
 export const DESIGNERS_SIDEBAR_CONTENT: CustomSidebarMenuItemProps[] = [
   {
     title: "Dashboard",
-    url: "/",
+    url: "/dashboard",
     icon: <Grid01 />,
     regex:
       /(^\/$|^\/dashboard|^\/dashboard\/.*|^\/bids$|^\/bids\/.*|^\/active-jobs$|^\/active-jobs\/.*)/,
@@ -76,11 +78,12 @@ export const DESIGNERS_SIDEBAR_CONTENT: CustomSidebarMenuItemProps[] = [
     icon: <SearchRefracted />,
     regex: /(^\/jobs$|^\/jobs\/.*)/,
   },
-  // {
-  //   title: "Sizing Templates",
-  //   url: "#",
-  //   icon: <Tag03 />,
-  // },
+  {
+    title: "Sizing Templates",
+    url: "/sizing-templates",
+    icon: <Tag03 />,
+    regex: /^\/(sizing-templates$)/,
+  },
   // {
   //   title: "Messages",
   //   url: "#",
@@ -92,11 +95,12 @@ export const DESIGNERS_SIDEBAR_CONTENT: CustomSidebarMenuItemProps[] = [
     icon: <Wallet02 />,
     regex: /(^\/wallet$|^\/wallet\/.*)/,
   },
-  // {
-  //   title: "Escrow",
-  //   url: "#",
-  //   icon: <Bank />,
-  // },
+  {
+    title: "Escrow",
+    url: "/escrow",
+    icon: <Bank />,
+    regex: /^\/(escrow$|escrow\/.*)/,
+  },
   {
     isAd: true,
     title: "Got any feedback in mind?",
@@ -108,9 +112,10 @@ export const DESIGNERS_SIDEBAR_CONTENT: CustomSidebarMenuItemProps[] = [
       href: "https://tally.so/r/w2Dz2g",
     },
   },
-  // {
-  //   title: "Settings",
-  //   url: "#",
-  //   icon: <Settings01 />,
-  // },
+  {
+    title: "Settings",
+    url: "/settings",
+    icon: <Settings01 />,
+    regex: /^\/(settings$|settings\/.*)/,
+  },
 ];

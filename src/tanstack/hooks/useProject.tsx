@@ -1,6 +1,10 @@
 import {
+  addProjectReview,
   approveOrRejectMilestone,
   createWithdrawalMethod,
+  deleteProjectById,
+  deleteWithdrawalMethod,
+  editWithdrawalMethod,
   fundMilestone,
   fundProject,
   getAllBuyerProjects,
@@ -11,6 +15,7 @@ import {
   getProjectById,
   getProjectMediaAndLinks,
   getProjectMilestones,
+  getSpecialistTypes,
   getWallet,
   getWithdrawalMethods,
   inviteBuyer,
@@ -26,6 +31,8 @@ import {
   UmojaLinnMilestone,
   UmojaLinnMilestoneSubmission,
   UmojaLinnProject,
+  UmojaLinnProjectReview,
+  UmojaLinnSpecialistType,
   UmojalinnWallet,
   UmojaLinnWithdrawalMethod,
 } from "@/types/project";
@@ -52,6 +59,7 @@ import {
   CreateWithdrawalMethodPayload,
   RequestWithdrawalPayload,
 } from "@/section/form/withdraw/WithdrawalAmount";
+import { getUserReviews, UserReviewsApiProps } from "@/actions/user";
 
 export const useInviteBuyer = (
   options: GenericUseMutationProps<SingleApiResponse, { emails: string[] }>
@@ -362,6 +370,51 @@ export const useCreateWithdrawalMethod = (
   });
 };
 
+export const useEditWithdrawalMethod = (
+  id: string,
+  options?: GenericUseMutationProps<
+    SingleApiResponse<UmojaLinnWithdrawalMethod>,
+    CreateWithdrawalMethodPayload
+  >
+) => {
+  const { handleError } = useHandleError("Edit Withdrawal Method");
+  return useMutation({
+    ...options,
+    mutationFn: (variables) => editWithdrawalMethod(id, variables),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: [PROJECT, WALLET, WITHDRAWAL_METHODS],
+      });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useDeleteWithdrawalMethod = (
+  id: string,
+  options?: GenericUseMutationProps<SingleApiResponse>
+) => {
+  const { handleError } = useHandleError("Delete Withdrawal Method");
+  return useMutation({
+    ...options,
+    mutationFn: () => deleteWithdrawalMethod(id),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: [PROJECT, WALLET, WITHDRAWAL_METHODS],
+      });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
 export const useRequestWithdrawal = (
   options?: GenericUseMutationProps<SingleApiResponse, RequestWithdrawalPayload>
 ) => {
@@ -379,5 +432,72 @@ export const useRequestWithdrawal = (
       handleError(error);
       options?.onError?.(error, variables, context);
     },
+  });
+};
+
+export const useDeleteProject = (
+  options?: GenericUseMutationProps<SingleApiResponse, string>
+) => {
+  const { handleError } = useHandleError("Delete Project");
+  return useMutation({
+    ...options,
+    mutationFn: (id) => deleteProjectById(id),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [PROJECT] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useAddProjectReview = (
+  id: string = "",
+  options?: GenericUseMutationProps<
+    SingleApiResponse<UmojaLinnProject>,
+    FormData
+  >
+) => {
+  const { handleError } = useHandleError("Add Review");
+  return useMutation({
+    ...options,
+    mutationFn: (variables) => addProjectReview(id, variables),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: [PROJECT],
+      });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useGetUserReviews = (
+  apiParams: UserReviewsApiProps,
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnProjectReview>>
+) => {
+  const { data: me } = useSession();
+  return useQuery({
+    ...options,
+    enabled: me?.user && apiParams && options?.enabled !== false,
+    queryKey: [PROJECT, "REVIEWS", { apiParams }],
+    queryFn: () => getUserReviews(apiParams),
+  });
+};
+
+export const useGetSpecialistTypes = (
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnSpecialistType>>
+) => {
+  const { data: me } = useSession();
+  return useQuery({
+    ...options,
+    enabled: !!me?.user && options?.enabled !== false,
+    queryKey: ["SPECIALIST_TYPES"],
+    queryFn: () => getSpecialistTypes(),
   });
 };

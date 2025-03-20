@@ -10,6 +10,7 @@ import {
   UmojaLinnMilestone,
   UmojaLinnMilestoneSubmission,
   UmojaLinnProject,
+  UmojaLinnSpecialistType,
   UmojalinnWallet,
   UmojaLinnWithdrawalMethod,
 } from "@/types/project";
@@ -64,6 +65,35 @@ export const getProjectById = async (
   return axios.get<unknown, AxiosResponse<SingleApiResponse<UmojaLinnProject>>>(
     `/project/${base62ToUuidSafe(id)}`
   );
+};
+
+export const deleteProjectById = async (
+  id: string,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.delete<
+    unknown,
+    AxiosResponse<SingleApiResponse<UmojaLinnProject>>
+  >(`/project/${base62ToUuidSafe(id)}`);
+};
+
+export const addProjectReview = async (
+  id: string,
+  review: FormData,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<
+    unknown,
+    AxiosResponse<SingleApiResponse<UmojaLinnProject>>
+  >(`/project/add-review/${base62ToUuidSafe(id)}`, review);
 };
 
 export const getClothingTypes = async (options?: ServerActionOption) => {
@@ -323,6 +353,35 @@ export const createWithdrawalMethod = async (
   >(`/wallet/add-withdrawal-method`, body);
 };
 
+export const editWithdrawalMethod = async (
+  id: string,
+  body: CreateWithdrawalMethodPayload,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.put<
+    unknown,
+    AxiosResponse<SingleApiResponse<UmojaLinnWithdrawalMethod>>
+  >(`/wallet/add-withdrawal-method/${id}`, body);
+};
+
+export const deleteWithdrawalMethod = async (
+  id: string,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.delete<
+    unknown,
+    AxiosResponse<SingleApiResponse<UmojaLinnWithdrawalMethod>>
+  >(`/wallet/add-withdrawal-method/${id}`);
+};
+
 export const requestWithdrawal = async (
   body: RequestWithdrawalPayload,
   options?: ServerActionOption
@@ -376,4 +435,15 @@ export const sendChatInProject = async (
     }`,
     body
   );
+};
+
+export const getSpecialistTypes = async (options?: ServerActionOption) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.get<
+    unknown,
+    AxiosResponse<ArrayApiResponse<UmojaLinnSpecialistType>>
+  >(`/project/specialist-types`);
 };

@@ -1,7 +1,11 @@
 import { clientAxios, getServerAxiosWithToken } from "@/lib/axios";
 import { convertApiParams } from "@/lib/request";
 import { base62ToUuidSafe } from "@/lib/uuid";
-import { UmojaLinnSizingTemplate } from "@/types/project";
+import {
+  UmojaLinnFemaleSizingTemplateProps,
+  UmojaLinnMaleSizingTemplateProps,
+  UmojaLinnSizingTemplate,
+} from "@/types/project";
 import {
   ArrayApiResponse,
   ServerActionOption,
@@ -58,7 +62,20 @@ export const getSizingTemplates = async (
   >(`/sizing-template/all${apiParams ? convertApiParams(apiParams) : ""}`);
 };
 
-export const getSizingTemplateById = async (
+export const getDesignerSizingTemplates = async (
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.get<
+    unknown,
+    AxiosResponse<ArrayApiResponse<UmojaLinnSizingTemplate>>
+  >(`/sizing-template/designer/all`);
+};
+
+export const getBuyerSizingTemplateById = async (
   id: string,
   options?: ServerActionOption
 ) => {
@@ -70,6 +87,44 @@ export const getSizingTemplateById = async (
     unknown,
     AxiosResponse<SingleApiResponse<UmojaLinnSizingTemplate>>
   >(`/sizing-template/${base62ToUuidSafe(id)}`);
+};
+
+export const getDesignerSizingTemplateById = async (
+  id: string,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.get<
+    unknown,
+    AxiosResponse<SingleApiResponse<UmojaLinnSizingTemplate>>
+  >(`/sizing-template/designer/${base62ToUuidSafe(id)}`);
+};
+
+export const requestChangeOnSizingTemplate = async (
+  id: string,
+  requestedChanges: Partial<
+    Record<
+      keyof (UmojaLinnMaleSizingTemplateProps &
+        UmojaLinnFemaleSizingTemplateProps),
+      string
+    >
+  >,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<
+    unknown,
+    AxiosResponse<SingleApiResponse<UmojaLinnSizingTemplate>>
+  >(
+    `/sizing-template/designer/${base62ToUuidSafe(id)}/request-change`,
+    requestedChanges
+  );
 };
 
 export const deleteSizingTemplate = async (

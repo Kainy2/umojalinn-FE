@@ -23,7 +23,7 @@ type MileStoneCardProps = {
   }) => void;
   onEdit: React.ComponentProps<"button">["onClick"];
   onCancel: React.ComponentProps<"button">["onClick"];
-  onDelete: React.ComponentProps<"button">["onClick"];
+  onDelete?: () => void;
   currency: UmojaLinnCurrency | null;
   price: number;
   hideActions: boolean;

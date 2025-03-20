@@ -48,7 +48,7 @@ const ReviewPage = () => {
         </h3>
         <p className="text-foreground-body text-sm">
           Please check and confirm that the information you added about this
-          project are correct
+          project is correct
         </p>
       </div>
       <Separator className="bg-gray-200" />

@@ -6,7 +6,7 @@ import { useParams, usePathname } from "next/navigation";
 import React, { useMemo } from "react";
 
 type ActiveProjectTabProps = {
-  baseUrlSlug?: "projects" | "active-jobs";
+  baseUrlSlug?: "projects" | "active-jobs" | "completed-jobs";
 };
 
 const ActiveProjectTab = (props: ActiveProjectTabProps) => {
@@ -47,7 +47,16 @@ const ActiveProjectTab = (props: ActiveProjectTabProps) => {
     return null;
   }
 
-  return <CustomTab replace type="NAVIGATOR" active={active} tabs={tabs} />;
+  return (
+    <CustomTab
+      replace
+      type="NAVIGATOR"
+      active={active}
+      tabs={tabs}
+      mobileSelector
+      className="mb-2 lg:mb-8"
+    />
+  );
 };
 
 export default ActiveProjectTab;

@@ -34,7 +34,7 @@ const BidCard = (props: BidCardProps) => {
       href={`/bids/${uuidToBase62Safe(props.bid?.id || "")}`}
       className={cn(
         "relative py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors",
-        props.disabled && "text-gray-400 pointer-events-none cursor-not-allowed"
+        props.disabled && "text-gray-400 pointer-events-none cursor-not-allowed", props?.bid?.project?.status !== "ADS" && "text-gray-400"
       )}
     >
       <EyeOff className="absolute size-5 top-6 right-0" />
@@ -43,7 +43,7 @@ const BidCard = (props: BidCardProps) => {
           className={cn(
             "relative w-14 h-14 border-2 border-white shadow-md shadow-gray-950/15 rounded-full overflow-hidden [&>svg]:size-6",
             !props.bid?.designer?.user?.profilePhotoUri &&
-              "flex items-center justify-center"
+            "flex items-center justify-center"
           )}
         >
           {props.bid?.designer?.user?.profilePhotoUri ? (
@@ -79,18 +79,18 @@ const BidCard = (props: BidCardProps) => {
           label="Project"
         />
         <BidCardFooterValues
-          value={props.bid?.milestones?.length || 0}
-          label="Milestones"
+          value={(props.bid?.milestones?.length || 0) + 1}
+          label={!(props.bid?.milestones?.length || 0) ? "Milestone" : "Milestones"}
         />
         <BidCardFooterValues
           value={
             !props.bid?.project?.budget ||
-            !props.bid?.amount ||
-            typeof props.bid?.project?.budget !== "number"
+              !props.bid?.amount ||
+              typeof props.bid?.project?.budget !== "number"
               ? "No"
               : `${formatNumberTo2DecimalPlace(
-                  (props.bid?.project?.budget / props.bid?.amount) * 100
-                )}%`
+                (props.bid?.amount / props.bid?.project?.budget) * 100
+              )}%`
           }
           label="Budget"
         />

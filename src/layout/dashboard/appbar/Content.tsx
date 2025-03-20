@@ -1,5 +1,5 @@
 "use client";
-import TextField from "@/components/custom/input/TextField";
+// import TextField from "@/components/custom/input/TextField";
 import NotificationPopover from "@/components/custom/popover/Notification";
 import PopoverMenu from "@/components/custom/PopoverMenu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -7,9 +7,15 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import InviteClient from "@/section/dashboard/appbar/InviteClient";
 import { useGetMe } from "@/tanstack/hooks/useUser";
-import { ChevronDown, LogOut, Search } from "lucide-react";
+import {
+  ChevronDown,
+  LogOut,
+  // Search
+} from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import React from "react";
+import MobileMenu from "../sidebar/Mobile";
+import Image from "next/image";
 
 const DashboardAppbarContent = () => {
   const { data: meData } = useGetMe();
@@ -18,7 +24,15 @@ const DashboardAppbarContent = () => {
 
   return (
     <>
-      <div className="flex-1 max-w-96">
+      <div className="flex space-x-1 items-center flex-1 max-w-96">
+        <Image
+          className="inline object-contain md:hidden"
+          alt="Umojalinn Logo"
+          src="/img/png/umoja.png"
+          width={26}
+          height={26}
+        />
+        <MobileMenu />
         <div className="hidden lg:block">
           {/* <TextField
             className=" focus-visible:!ring-transparent !ring-transparent transition-none"
@@ -29,11 +43,14 @@ const DashboardAppbarContent = () => {
           /> */}
         </div>
       </div>
-      <div className="flex space-x-1 items-center ">
+      <div className="flex space-x-0 md:space-x-1 items-center ">
         {session?.user?.profileRole === "DESIGNER" && (
           <>
             <InviteClient />
-            <Separator orientation="vertical" className="h-8" />
+            <Separator
+              orientation="vertical"
+              className="h-8 hidden md:inline"
+            />
           </>
         )}
         <NotificationPopover />
@@ -58,7 +75,7 @@ const DashboardAppbarContent = () => {
                 {me?.lastName?.[0]?.toLocaleUpperCase?.()}
               </AvatarFallback>
             </Avatar>
-            <ChevronDown className="icon-base" />
+            <ChevronDown className="icon-base hidden md:inline" />
           </Button>
         </PopoverMenu>
       </div>

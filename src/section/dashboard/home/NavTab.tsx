@@ -50,9 +50,10 @@ const NavTab = (props: {
             (tab) =>
               tab?.href?.toLocaleLowerCase() ===
                 pathName?.toLocaleLowerCase() ||
-              tab?.match?.test(pathName?.toLocaleLowerCase())
+              tab?.match?.test(pathName?.toLocaleLowerCase()),
           )?.title || ""
         }
+        mobileSelector
       />
     </>
   );

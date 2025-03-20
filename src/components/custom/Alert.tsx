@@ -3,7 +3,7 @@ import { ClassValue } from "clsx";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import React from "react";
 
-type AlertProps = {
+export type AlertProps = {
   title: string;
   message: string;
   type?: "success" | "error" | "warning" | "info";
@@ -11,6 +11,7 @@ type AlertProps = {
   action?: React.ReactNode;
   className?: ClassValue;
   messagesClassName?: ClassValue;
+  small?: boolean;
 };
 
 const Alert = (props: AlertProps) => {
@@ -39,7 +40,8 @@ const Alert = (props: AlertProps) => {
   return (
     <div
       className={cn(
-        "flex flex-col md:flex-row gap-2 p-4 border",
+        "flex flex-col md:flex-row gap-2 p-4 border [&>svg]:size-5",
+        props.small && "text-sm [&>svg]:size-4",
         colorStyle,
         props.className
       )}

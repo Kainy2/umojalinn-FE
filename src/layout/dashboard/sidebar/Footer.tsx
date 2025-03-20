@@ -7,7 +7,7 @@ import { signOut } from "next-auth/react";
 import Image from "next/image";
 import React from "react";
 
-const DashbordSidebarFooterContent = (props: {
+export const DashbordSidebarFooterContent = (props: {
   action?: React.ReactElement;
 }) => {
   const { data, isPending } = useGetMe();

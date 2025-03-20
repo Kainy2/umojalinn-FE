@@ -48,6 +48,7 @@ type CustomDatePickerProps =
   | (CustomDatePickerDefaultProp | CustomDatePickerRangeProp) & {
       calendar?: CalendarProps;
       placeholder?: string;
+      disabled?: boolean;
     };
 
 type CustomDatePickerFieldProps = CustomDatePickerProps & FieldProps;
@@ -124,9 +125,10 @@ export const CustomDatePicker = React.forwardRef<
           ref={ref as React.Ref<HTMLButtonElement & HTMLAnchorElement>}
           variant={"outline"}
           className={cn(
-            "w-full justify-between text-left font-normal",
+            "w-full justify-between text-left font-normal disabled:bg-gray-100 disabled:cursor-not-allowed",
             !date && "text-muted-foreground"
           )}
+          disabled={props.disabled}
         >
           {display}
           <CalendarIcon className="mr-2 h-4 w-4" />

@@ -13,7 +13,7 @@ type ActiveProjectSummaryProps = {
 };
 
 const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
-  const { isDesigner = true } = props;
+  const { isDesigner = false } = props;
   const params = useParams<{ id: string }>();
   const { data, isPending } = useGetProjectById(params?.id);
   if (isPending) {
@@ -31,6 +31,7 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
         </span>
         <span>
           <AvatarIconTag
+            disabled
             label={
               !isDesigner
                 ? `${data?.data?.data?.designer?.user?.firstName || ""} ${
@@ -54,12 +55,13 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
         <span className="text-sm text-foreground-body">Timeline</span>
         <span>
           <AvatarIconTag
+            disabled
             label={`${format(
-              new Date(data?.data.data?.createdAt || 0),
-              "MMM dd, yyy"
+              new Date(data?.data.data?.bidAcceptedDate || 0),
+              "MMM dd, yyy",
             )} to ${format(
               new Date(data?.data.data?.dueDate || 0),
-              "MMM dd, yyy"
+              "MMM dd, yyy",
             )}`}
             icon={<CalendarPlus className="text-primary h-5 w-5" />}
           />

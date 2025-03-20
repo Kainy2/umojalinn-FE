@@ -21,17 +21,44 @@ type NotificationCardProps = {
 
 const getActions = (
   metadata: UmojaLinnNotification["metadata"],
-  role: UmojaLinnUserRole
+  role: UmojaLinnUserRole,
 ): ButtonProps[] | undefined => {
   const keys = Object.keys(metadata || {});
   if (keys.includes("projectId")) {
+    let projectHref: string;
+    if (metadata?.bidId) {
+      projectHref = `/bids/${uuidToBase62Safe(metadata?.bidId)}${
+        role === "BUYER" ? "/edit" : ""
+      }`;
+    } else {
+      switch (metadata?.projectStatus) {
+        case "ADS":
+          projectHref = `/ads/${uuidToBase62Safe(metadata?.projectId || "")}`;
+          break;
+        case "COMPLETED":
+          projectHref = `/completed-jobs/${uuidToBase62Safe(
+            metadata?.projectId || "",
+          )}`;
+        case "DRAFT":
+          projectHref = `/drafts/${uuidToBase62Safe(
+            metadata?.projectId || "",
+          )}`;
+        case "LIVE":
+        default:
+          projectHref = `/active-jobs/${uuidToBase62Safe(
+            metadata?.projectId || "",
+          )}`;
+          break;
+      }
+    }
     return [
       {
-        children: role === "BUYER" ? "View Project" : "View Job",
-        href:
-          role === "BUYER"
-            ? `/projects/${uuidToBase62Safe(metadata?.projectId || "")}`
-            : `/jobs/${uuidToBase62Safe(metadata?.projectId || "")}`,
+        children: metadata?.bidId
+          ? "View Bid"
+          : role === "BUYER"
+          ? "View Project"
+          : "View Job",
+        href: projectHref,
         variant: "outline",
       },
     ];
@@ -93,7 +120,7 @@ const NotificationCard = (props: NotificationCardProps) => {
         {!!session?.user?.profileRole &&
           !!metadata &&
           getActions(metadata, session?.user?.profileRole)?.map?.(
-            (button, index) => <Button key={index} {...button} size="sm" />
+            (button, index) => <Button key={index} {...button} size="sm" />,
           )}
       </div>
       {!isRead && (

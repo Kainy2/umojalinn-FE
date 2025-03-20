@@ -8,7 +8,7 @@ import Bank from "@/icons/Bank";
 import NairaSign from "@/icons/NairaSign";
 import { UmojaLinnCurrency, UmojaLinnWithdrawalMethod } from "@/types/project";
 import { Euro, Mail, MessageSquareWarning } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import ProjectEditFooter from "../project/edit/Footer";
 import {
   useCreateWithdrawalMethod,
@@ -19,12 +19,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import Paypal from "@/icons/Paypal";
 import CheckCircle from "@/icons/CheckCircle";
-import { useGetMe } from "@/tanstack/hooks/useUser";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-// import CustomSelectCountry from "@/components/custom/SelectCountry";
+import EditWithdrawalMethod from "@/components/custom/dialog/EditWithdrawalMethod";
 
-const noPaypal = ["Nigeria"];
 const noPaypalOption = [
   {
     children: <span>Direct transfer </span>,
@@ -42,15 +40,11 @@ const paypalOption = [
   },
 ];
 
-const getOptions = (country: string | null) => {
-  console.log(country, noPaypal, noPaypal.includes(country || ""));
-  if (country) {
-    if (noPaypal.includes(country)) {
-      return noPaypalOption;
-    }
-    return paypalOption;
+const getOptions = (currency: UmojaLinnCurrency) => {
+  if (currency === "NAIRA") {
+    return noPaypalOption;
   }
-  return [];
+  return paypalOption;
 };
 
 const getIcon = (channel: UmojaLinnWithdrawalMethod["channel"]) => {
@@ -73,7 +67,6 @@ export type PaypalPayload = {
 export type DirectTransferPayload = {
   accountName: string;
   bankName: string;
-  routingNumber: string;
   accountNumber: string;
   bankAddress: string;
   iban: string;
@@ -85,18 +78,15 @@ export type CreateWithdrawalMethodPayload = {
   currency: UmojaLinnCurrency;
 } & (PaypalPayload | DirectTransferPayload);
 
-const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
-  const { currency } = props;
+const WithdrawalAmountForm = (props: {
+  currency: UmojaLinnCurrency;
+  mode?: "WITHDRAWAL" | "PAYMENT";
+}) => {
+  const { currency, mode = "WITHDRAWAL" } = props;
   const [paymentMethod, setPaymentMethod] = useState<
     null | UmojaLinnWithdrawalMethod["channel"]
   >(null);
   const [agree, setAgree] = useState(false);
-  const { data } = useGetMe();
-  const country = useMemo(
-    () =>
-      data?.data?.data?.designerProfile?.user?.address?.country || "Nigeria",
-    [data?.data?.data?.designerProfile?.user?.address?.country]
-  );
 
   const router = useRouter();
   const { toast } = useToast();
@@ -115,7 +105,6 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
     useState<DirectTransferPayload>({
       accountName: "",
       bankName: "",
-      routingNumber: "",
       accountNumber: "",
       bankAddress: "",
       iban: "",
@@ -153,7 +142,6 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
       setDirectTransferPayload({
         accountName: "",
         bankName: "",
-        routingNumber: "",
         accountNumber: "",
         bankAddress: "",
         iban: "",
@@ -174,7 +162,6 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
         setDirectTransferPayload({
           accountName: "",
           bankName: "",
-          routingNumber: "",
           accountNumber: "",
           bankAddress: "",
           iban: "",
@@ -188,6 +175,7 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
 
   const handleContinue = () => {
     if (!withdrawalMethod) {
+      if (!paymentMethod) return;
       return createWithdrawalMethod({
         channel: paymentMethod!,
         currency,
@@ -203,26 +191,32 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
     });
   };
 
+  const withdrawalMethodsForThisCurrency =
+    withdrawalMethodsData?.data?.data?.filter(
+      (method) => method?.currency === currency
+    );
+
   return (
     <div className="flex flex-col gap-6">
-      {!!country && (
+      {
         <>
-          {!!withdrawalMethodsData?.data?.data?.length && (
-            <TextField
-              type="number"
-              label="Withdraw Amount"
-              placeholder="Amount to withdraw"
-              value={amount || ""}
-              onChange={(e) => setAmount(e.target.value)}
-              startAdornment={
-                currency === "EURO" ? (
-                  <Euro className="size-4 text-foreground-body" />
-                ) : (
-                  <NairaSign className="size-4 text-foreground-body" />
-                )
-              }
-            />
-          )}
+          {mode === "WITHDRAWAL" &&
+            !!withdrawalMethodsForThisCurrency?.length && (
+              <TextField
+                type="number"
+                label="Withdraw Amount"
+                placeholder="Amount to withdraw"
+                value={amount || ""}
+                onChange={(e) => setAmount(e.target.value)}
+                startAdornment={
+                  currency === "EURO" ? (
+                    <Euro className="size-4 text-foreground-body" />
+                  ) : (
+                    <NairaSign className="size-4 text-foreground-body" />
+                  )
+                }
+              />
+            )}
           <FormItemWrapper
             title="Withdrawal details"
             description="Select withdrawal method"
@@ -235,9 +229,10 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
                     .map((_, i) => (
                       <Skeleton key={_ + i} className="h-28 rounded-md" />
                     ))}
-                {withdrawalMethodsData?.data?.data?.map?.((method) => (
-                  <button
+                {withdrawalMethodsForThisCurrency?.map?.((method) => (
+                  <div
                     onClick={() =>
+                      mode === "WITHDRAWAL" &&
                       setWithdrawalMethod((prev) =>
                         prev === method?.id ? null : method.id
                       )
@@ -245,7 +240,8 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
                     key={method.id}
                     className={cn(
                       "p-4 rounded-md border relative flex gap-4",
-                      withdrawalMethod === method?.id && "border-primary"
+                      withdrawalMethod === method?.id && "border-primary",
+                      mode === "WITHDRAWAL" && "cursor-pointer"
                     )}
                   >
                     {getIcon(method?.channel)}
@@ -253,18 +249,20 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
                       <p>{method?.paypalEmail || method?.bankName}</p>
                       <p className="text-sm mb-2">{method?.accountNumber}</p>
                       <div className="flex items-center gap-2">
-                        <button className="font-bold">Set as default</button>
-                        <button className="text-primary font-semibold">
-                          Edit
-                        </button>
+                        {withdrawalMethod !== method?.id &&
+                          mode === "WITHDRAWAL" && (
+                            <span className="font-bold">Set as default</span>
+                          )}
+                        <EditWithdrawalMethod id={method?.id} />
                       </div>
                     </div>
-                    {withdrawalMethod === method?.id ? (
-                      <CheckCircle className="size-5 text-primary shrink-0 absolute top-4 right-4" />
-                    ) : (
-                      <span className="border border-gray-400 rounded-full size-5 shrink-0 absolute top-4 right-4" />
-                    )}
-                  </button>
+                    {mode === "WITHDRAWAL" &&
+                      (withdrawalMethod === method?.id ? (
+                        <CheckCircle className="size-5 text-primary shrink-0 absolute top-4 right-4" />
+                      ) : (
+                        <span className="border border-gray-400 rounded-full size-5 shrink-0 absolute top-4 right-4" />
+                      ))}
+                  </div>
                 ))}
               </>
               <CustomSelect
@@ -273,7 +271,7 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
                 onValueChange={(value: UmojaLinnWithdrawalMethod["channel"]) =>
                   setPaymentMethod(value)
                 }
-                options={getOptions(country)}
+                options={getOptions(currency)}
               />
               {paymentMethod === "PAYPAL" && (
                 <TextField
@@ -308,30 +306,17 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
                       }
                     />
                   </div>
-                  <div className="flex flex-col lg:flex-row gap-6">
-                    <TextField
-                      placeholder="Routing number"
-                      label="Routing number"
-                      value={directTransferPayload.routingNumber}
-                      onChange={(e) =>
-                        handleDirectTransferChange(
-                          "routingNumber",
-                          e.target.value
-                        )
-                      }
-                    />
-                    <TextField
-                      placeholder="Account number"
-                      label="Account number"
-                      value={directTransferPayload.accountNumber}
-                      onChange={(e) =>
-                        handleDirectTransferChange(
-                          "accountNumber",
-                          e.target.value
-                        )
-                      }
-                    />
-                  </div>
+                  <TextField
+                    placeholder="Account number"
+                    label="Account number"
+                    value={directTransferPayload.accountNumber}
+                    onChange={(e) =>
+                      handleDirectTransferChange(
+                        "accountNumber",
+                        e.target.value
+                      )
+                    }
+                  />
                   <TextAreaField
                     label="Bank Address"
                     placeholder="Address of Bank"
@@ -396,25 +381,36 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
                   </div>
                 </div>
               )}
+              {paymentMethod && (
+                <p className="text-foreground-body text-sm -mt-4">
+                  Got any other payment suggestions{" "}
+                  <a
+                    href="https://tally.so/r/mZDGMo"
+                    className="font-semibold text-foreground"
+                    target="_blank"
+                  >
+                    Submit feedback
+                  </a>
+                </p>
+              )}
             </div>
           </FormItemWrapper>
         </>
-      )}
+      }
       <ProjectEditFooter
         hideDraft
-        saveText={paymentMethod ? "Save details" : "Proceed to withdrawal"}
+        saveText={
+          mode === "PAYMENT" || !paymentMethod
+            ? "Save details"
+            : "Proceed to withdrawal"
+        }
         handleSave={handleContinue}
         loading={
-          (paymentMethod &&
-            paymentMethod === "DIRECT_TRANSFER" &&
-            (!agree ||
-              Object.values(directTransferPayload).some((value) => !value))) ||
-          (paymentMethod === "PAYPAL" &&
-            Object.values(paypalPayload).some((value) => !value)) ||
-          !country ||
-          !(withdrawalMethod && amount) ||
           isCreatingWithdrawalMethod ||
-          isRequestingWithdrawal
+          isRequestingWithdrawal ||
+          loadingWithdrawalMethods ||
+          (withdrawalMethod && !amount) ||
+          (paymentMethod === "DIRECT_TRANSFER" && !agree)
         }
       />
     </div>

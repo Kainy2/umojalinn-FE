@@ -17,6 +17,7 @@ export type CustomReactSelectProps = Props &
     adornment?: boolean;
     fullWidth: boolean;
     startAdornment: React.ReactNode;
+    wrapperClassName: string;
   }>;
 
 export type CustomReactSelectFieldProps = CustomReactSelectProps & FieldProps;
@@ -26,7 +27,17 @@ export type FormCustomReactSelectFieldProps = CustomReactSelectProps &
 const CustomControl: React.FC<
   ControlProps & Pick<CustomReactSelectFieldProps, "startAdornment">
 > = ({ children, startAdornment, ...props }) => (
-  <components.Control {...props}>
+  <components.Control
+    {...props}
+    getStyles={(prop, opt) => ({
+      ...props?.getStyles?.(prop, opt),
+      ...(props.isDisabled && {
+        backgroundColor: "#f3f4f6",
+        opacity: "50%",
+        cursor: "not-allowed",
+      }),
+    })}
+  >
     {startAdornment && (
       <span className="relative left-3">{startAdornment}</span>
     )}
@@ -96,10 +107,11 @@ const CustomReactSelect = (props: CustomReactSelectProps) => {
 export const CustomReactSelectField: React.FC<CustomReactSelectFieldProps> = ({
   label,
   hint,
+  wrapperClassName,
   ...selectProps
 }) => {
   return (
-    <div className={cn("grid w-full items-center gap-1.5")}>
+    <div className={cn("grid w-full items-center gap-1.5", wrapperClassName)}>
       {label &&
         (typeof label === "string" ? (
           <Label>{label}</Label>

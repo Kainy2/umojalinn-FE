@@ -13,6 +13,7 @@ import {
 import TextAreaField from "../input/TextAreaField";
 import CustomSelectCountry from "../SelectCountry";
 import { useGetMilestoneSubmissions } from "@/tanstack/hooks/useProject";
+import { Textarea } from "@/components/ui/textarea";
 
 type MilestoneInputSectionProps = {
   id?: string;
@@ -39,29 +40,34 @@ const MilestoneInputSectionImageUpload = (
 ) => {
   const { previewUrls, getPreview } = useImagePreviewUrls();
 
-  return props?.files && previewUrls?.length ? (
-    <div className="flex gap-4 relative">
-      {previewUrls.map((url) => (
-        <Image
-          alt=""
-          key={url}
-          src={url}
-          height={150}
-          width={150}
-          className="object-cover rounded-md"
-        />
-      ))}
-      <button
-        onClick={() => props?.onFilesChange?.(null)}
-        className="bg-error text-white [&>svg]:size-4 p-1.5 rounded-full absolute -left-2 -top-2"
-      >
-        <Trash2 />
-      </button>
-    </div>
-  ) : (
+  if (props?.files) {
+    return (
+      <div className="flex gap-4 relative">
+        {previewUrls?.map((url) => (
+          <Image
+            alt=""
+            key={url}
+            src={url}
+            height={150}
+            width={150}
+            className="object-cover rounded-md"
+          />
+        ))}
+        <button
+          onClick={() => props?.onFilesChange?.(null)}
+          className="bg-error text-white [&>svg]:size-4 p-1.5 rounded-full absolute -left-2 -top-2"
+        >
+          <Trash2 />
+        </button>
+      </div>
+    );
+  }
+
+  return (
     <FileUploadPicker
       cta="Click to Upload"
       details="or drag and drop"
+      accept="image/*"
       multiple
       onSelect={(files) => {
         console.log(files);
@@ -87,9 +93,7 @@ const MilestoneInputSection = (props: MilestoneInputSectionProps) => {
 
   if (props.isDeliveryMilestone && props?.status === MilestoneStatus.ACTIVE) {
     const isDeliveryMilestoneEditable =
-      props.status &&
-      props.status === MilestoneStatus.ACTIVE &&
-      props.isDesigner;
+      props.status === MilestoneStatus.ACTIVE && props.isDesigner;
 
     const {
       description,
@@ -118,7 +122,7 @@ const MilestoneInputSection = (props: MilestoneInputSectionProps) => {
         });
       };
 
-    const imagePicker = (
+    const imagePicker = isDeliveryMilestoneEditable && (
       <MilestoneInputSectionImageUpload
         disabled={!isDeliveryMilestoneEditable}
         files={media as FileList | undefined}
@@ -233,7 +237,8 @@ const MilestoneInputSection = (props: MilestoneInputSectionProps) => {
   if (props?.status === MilestoneStatus.ACTIVE && props?.isDesigner) {
     return (
       <div className="flex flex-col gap-4">
-        <TextField
+        <Textarea
+          className="min-h-[48px]"
           value={props?.message}
           onChange={(e) => props?.onMessageChange?.(e.target.value)}
         />

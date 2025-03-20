@@ -3,22 +3,22 @@ import CustomCardHolder from "@/components/custom/card/Holder";
 import JobCard from "@/components/custom/card/Job";
 import { getCoverImage } from "@/lib/project";
 import { uuidToBase62Safe } from "@/lib/uuid";
-import { useGetDesigerBids } from "@/tanstack/hooks/useBid";
+import { useGetDesignerBids } from "@/tanstack/hooks/useBid";
 import { useGetAllDesignerProject } from "@/tanstack/hooks/useProject";
 
 const PrivateJobPage = () => {
   const { data: myBidsWithDraft, isPending: isLoadingMyBidsWithDraft } =
-    useGetDesigerBids({
+    useGetDesignerBids({
       bidStatus: ["PENDING", "REJECTED", "DRAFT"],
     });
 
   const { data: draftBidData, isPending: isLoadingDraftBidData } =
-    useGetDesigerBids({
+    useGetDesignerBids({
       bidStatus: "DRAFT",
     });
 
   const { data: myBidsData, isPending: isLoadingMyBidsData } =
-    useGetDesigerBids({
+    useGetDesignerBids({
       bidStatus: ["PENDING", "REJECTED"],
     });
 

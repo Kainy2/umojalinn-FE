@@ -10,6 +10,7 @@ type AvatarIconTagProps = {
   icon?: "CHECK" | React.ReactNode;
   className?: string;
   onClick?: React.ComponentProps<"button">["onClick"];
+  disabled?: boolean;
 };
 
 const AvatarIconTag = (props: AvatarIconTagProps) => {
@@ -23,6 +24,7 @@ const AvatarIconTag = (props: AvatarIconTagProps) => {
         !!props.avatar && "font-semibold",
         props.className
       )}
+      disabled={props.disabled}
     >
       {props.avatar && (
         <span className="shrink-0 relative">

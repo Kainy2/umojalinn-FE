@@ -6,7 +6,7 @@ import {
   useGetProjectMilestones,
 } from "@/tanstack/hooks/useProject";
 import { useGetMe } from "@/tanstack/hooks/useUser";
-import { useParams } from "next/navigation";
+import { redirect, useParams } from "next/navigation";
 import React from "react";
 
 const ActiveProjectPage = () => {
@@ -26,9 +26,17 @@ const ActiveProjectPage = () => {
       </div>
     );
 
+  if (projectData?.data?.data?.status) {
+    if (projectData?.data?.data?.status === "COMPLETED") {
+      return redirect("/projects/completed");
+    }
+    if (projectData?.data?.data?.status !== "LIVE") return null;
+  }
+
   return (
-    <div className="flex flex-col md:flex-row gap-12">
+    <div className="flex flex-col-reverse md:flex-row gap-12">
       <MilestoneTimeline
+        projectId={projectData?.data?.data?.id}
         currency={projectData?.data?.data?.currency || null}
         isBuyer={
           projectData?.data?.data?.buyerId ===
@@ -39,11 +47,14 @@ const ActiveProjectPage = () => {
       />
       <aside className="md:max-w-80 flex-1 w-full shrink-0">
         <EscrowCard
+          projectId={projectData?.data?.data?.id}
           milestones={projectMilestonesData?.data?.data || []}
           paidOut={projectData?.data?.data?.amountFunded || 0}
           currency={projectData?.data?.data?.currency}
           escrowBalance={projectData?.data?.data?.escrowBalance || 0}
           projectPrice={projectData?.data?.data?.approvedBudget || 0}
+          reviews={projectData?.data?.data?.reviews || []}
+          project={projectData?.data?.data}
         />
       </aside>
     </div>

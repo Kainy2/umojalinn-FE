@@ -7,13 +7,17 @@ import {
   BUYERS_SIDEBAR_CONTENT,
   DESIGNERS_SIDEBAR_CONTENT,
 } from "@/constant/navigation";
+import { cn } from "@/lib/utils";
 
 const CustomSidebarMenu = (props: {
   profileRole?: UmojaLinnUserRole | null;
+  isMobile?: boolean;
 }) => {
   if (!props.profileRole) {
     return null;
   }
+
+  const Menu = props.isMobile ? "div" : SidebarMenu;
 
   const items =
     props.profileRole === "DESIGNER"
@@ -21,11 +25,15 @@ const CustomSidebarMenu = (props: {
       : BUYERS_SIDEBAR_CONTENT;
 
   return (
-    <SidebarMenu>
+    <Menu className={cn(props.isMobile && "flex flex-col gap-1 pb-8")}>
       {items.map((item) => (
-        <CustomSidebarMenuItem {...item} key={item.title} />
+        <CustomSidebarMenuItem
+          {...item}
+          key={item.title}
+          isMobile={props.isMobile}
+        />
       ))}
-    </SidebarMenu>
+    </Menu>
   );
 };
 

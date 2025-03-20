@@ -5,8 +5,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getCurrencySymbol } from "@/lib/string";
 import { UmojaLinnProject } from "@/types/project";
 import { formatDate } from "date-fns";
-import Image from "next/image";
 import React from "react";
+import GalleryImages from "@/components/custom/GalleryImages";
 
 const ProjectReviewView = (props: {
   project?: UmojaLinnProject;
@@ -60,7 +60,7 @@ const ProjectReviewView = (props: {
         <p className="text-muted-foreground text-sm mb-8">
           {props?.project?.about || "No description"}
         </p>
-        <div className="flex justify-between">
+        <div className="flex gap-4 flex-col lg:flex-row justify-between">
           <p className="text-sm text-muted-foreground">
             Project due:{" "}
             <span className="font-semibold">
@@ -78,23 +78,25 @@ const ProjectReviewView = (props: {
           </p>
         </div>
       </div>
-      <div>
-        <h3 className="text-md font-semibold text-foreground mb-2">
-          Project Gallery
-        </h3>
-        <div className="flex flex-row gap-4">
-          {props?.project?.Gallery?.map?.((gallery) => (
-            <Image
-              key={gallery?.id}
-              alt=""
-              src={gallery.imageUrl || "/img/svg/null.svg"}
-              className="shrink-0 aspect-video object-cover"
-              width={310}
-              height={170}
-            />
-          ))}
+      {props?.project?.Gallery?.length && (
+        <div>
+          <h3 className="text-md font-semibold text-foreground mb-2">
+            Project Gallery
+          </h3>
+          <div className="flex flex-row gap-4 overflow-scroll">
+            {props?.project?.Gallery?.map?.((gallery) => (
+              <GalleryImages
+                key={gallery?.id}
+                width={310}
+                height={170}
+                src={gallery.imageUrl}
+                title={gallery?.title}
+                wrapperClassName="aspect-video "
+              />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
       <Collapsible title="Delivery Details">
         <LabelBadge
           title="Country"
@@ -135,6 +137,7 @@ const ProjectReviewView = (props: {
           Designer
         </h3>
         <AvatarIconTag
+          disabled
           avatar={{
             src: props?.project?.designer?.user?.profilePhotoUri,
           }}

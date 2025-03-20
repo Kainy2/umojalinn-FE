@@ -20,6 +20,7 @@ import { uuidToBase62Safe } from "@/lib/uuid";
 import { ProjectFormProps } from "./Description";
 import FileUploadPicker from "@/components/custom/picker/FileUpload";
 import { useFileSizeError } from "@/hooks/useFilePicker";
+import { MAX_FILE_SIZE_FOR_FILE_UPLOAD } from "@/constant";
 
 const ProjectGalleryForm = (props: ProjectFormProps) => {
   const id = useId();
@@ -30,7 +31,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
   const { toast } = useToast();
   const router = useRouter();
 
-  const { isFileSizeValid } = useFileSizeError(1 * 1024 * 1024);
+  const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD);
 
   const [values, setValues] = useState<
     {
@@ -89,7 +90,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
           description: `Maximum file size is 50MB, this file is ${(
             fileObject.size /
             (1024 * 1024)
-          ).toFixed(2)}MB`,
+          ).toFixed(2)}MB. . You can compress the image using an image editor and try uploading again.`,
           variant: "destructive",
         });
       }
@@ -193,8 +194,8 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
               <TextField
                 value={value.title}
                 onChange={handleTitleChange(index)}
-                maxLength={15}
-                hint={`${value?.title?.length || 0}/15 characters`}
+                maxLength={100}
+                hint={`${value?.title?.length || 0}/100 characters`}
               />
               <div>
                 <div className="relative h-52 mb-4">
@@ -237,10 +238,10 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
             )}
           >
             <TextField
-              maxLength={15}
+              maxLength={100}
               value={entryTitle}
               onChange={(e) => setEntryTitle(e.currentTarget.value)}
-              hint={`${entryTitle?.length || 0} / 15 characters`}
+              hint={`${entryTitle?.length || 0} / 100 characters`}
             />
             <FileUploadPicker
               accept="image/*"
