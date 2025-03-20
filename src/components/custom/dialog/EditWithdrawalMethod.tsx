@@ -1,4 +1,3 @@
-import { getTransactionIcon } from "@/app/(dashboard)/(corner)/wallet/page";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -24,6 +23,7 @@ import React, { useState } from "react";
 import TextField from "../input/TextField";
 import TextAreaField from "../input/TextAreaField";
 import { Mail } from "lucide-react";
+import { getTransactionIcon } from "@/components/util/wallet";
 
 const EditWithdrawalMethod = (props: { id: string }) => {
   const [open, setOpen] = useState(false);
