@@ -93,8 +93,7 @@ const InviteClient = () => {
               >
                 <span>
                   {invite?.buyerEmail ||
-                    `${invite?.buyerProfile?.user?.firstName || ""} ${
-                      invite?.buyerProfile?.user?.lastName || ""
+                    `${invite?.buyerProfile?.user?.firstName || ""} ${invite?.buyerProfile?.user?.lastName || ""
                     }`}
                 </span>
                 {!!invite?.status && (
