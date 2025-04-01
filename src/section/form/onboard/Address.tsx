@@ -64,6 +64,7 @@ const OnboardAddressForm = (props: { role: UmojaLinnUserRole }) => {
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-8"
+        autoComplete="off"
       >
         <FormField
           control={form.control}

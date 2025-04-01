@@ -56,6 +56,7 @@ const OnboardDetailsForm = (props: { role: UmojaLinnUserRole }) => {
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-8"
+        autoComplete="off"
       >
         <div className="flex flex-col lg:flex-row gap-x-4 gap-y-8">
           <FormField
