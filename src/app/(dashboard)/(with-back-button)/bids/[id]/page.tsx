@@ -16,6 +16,7 @@ import RejectButton from "@/section/dashboard/project/bid/button/Reject";
 import { useAcceptOrRejectBid, useGetBidById } from "@/tanstack/hooks/useBid";
 import { useAddSizingTemplateToProject } from "@/tanstack/hooks/useSizingTemplates";
 import { useGetMe } from "@/tanstack/hooks/useUser";
+import { useSession } from "next-auth/react";
 
 import { useParams, useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -26,6 +27,8 @@ const IndividualBidPage = () => {
   const bid = bidData?.data?.data;
   const { data: meData } = useGetMe();
   const router = useRouter();
+  const { data: session } = useSession();
+  
   const { mutate: acceptOrReject } = useAcceptOrRejectBid(id, {
     onSuccess() {
       router.push(`/projects/${uuidToBase62Safe(bid?.projectId || "")}`);
@@ -65,7 +68,7 @@ const IndividualBidPage = () => {
       {/* budget Alert here */}
       {bid?.additionalNotesToClient && (
         <Alert
-          title="Rejection Rationale"
+          title={session?.user?.profileRole === "BUYER" ? "Designer’s Note" : "Buyer’s  Note"}
           message={bid?.additionalNotesToClient}
           type="error"
         />
