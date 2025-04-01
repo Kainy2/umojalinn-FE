@@ -115,7 +115,7 @@ const JobPage = () => {
       <div className="bg-gray-50 p-3 flex flex-col md:flex-row items-center gap-2">
         <Image
           src={
-            project?.designer?.user?.profilePhotoUri || "/img/webp/user.webp"
+            project?.buyer?.user?.profilePhotoUri || "/img/webp/user.webp"
           }
           alt=""
           height={200}
