@@ -202,21 +202,21 @@ const Invoice = (props: InvoiceProps) => (
             <Text style={styles.fontBold}>Completion date:</Text>
             <Text style={styles.bodyText}>
               {props.project?.dueDate &&
-                formatDate(props.project?.dueDate, "dd.MM.YYY")}
+                formatDate(props.project?.dueDate, "dd.MM.yyy")}
             </Text>
           </View>
           <View style={styles.dateWrapper}>
             <Text style={styles.fontBold}>Start date:</Text>
             <Text style={styles.bodyText}>
               {props.project?.bidAcceptedDate &&
-                formatDate(props.project?.bidAcceptedDate, "dd.MM.YYY")}
+                formatDate(props.project?.bidAcceptedDate, "dd.MM.yyy")}
             </Text>
           </View>
           <View style={styles.dateWrapper}>
             <Text style={styles.fontBold}>Due date:</Text>
             <Text style={styles.bodyText}>
               {props.project?.dueDate &&
-                formatDate(props.project?.dueDate, "dd.MM.YYY")}
+                formatDate(props.project?.dueDate, "dd.MM.yyy")}
             </Text>
           </View>
         </View>

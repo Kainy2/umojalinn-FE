@@ -22,6 +22,7 @@ export type UmojaLinnProject = {
   approvedBudget: number | null;
   currency: null | UmojaLinnCurrency;
   sizingTemplateId: string | null;
+  sizingTemplate: UmojaLinnSizingTemplate | null;
   percentageCompleted: number;
   reviews: Array<UmojaLinnProjectReview> | null;
   deliveryAddress: {

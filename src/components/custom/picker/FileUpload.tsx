@@ -35,7 +35,7 @@ const FileUploadPicker = (props: FileUploadPickerProps) => {
         </span>{" "}
         {props.details || (
           <>
-            or drag and drop <br /> Pictures (max. 10mb)
+            or drag and drop <br /> Pictures (max. 100mb)
           </>
         )}
       </p>

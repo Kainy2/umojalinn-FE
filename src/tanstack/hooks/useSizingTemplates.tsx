@@ -111,10 +111,13 @@ export const useGetAllSizingTemplates = (
 ) => {
   const { data: me } = useSession();
   return useQuery({
-    ...options,
-    enabled: !!me?.user && options?.enabled !== false,
-    queryKey: [SIZING_TEMPLATE, apiParams],
-    queryFn: () => getSizingTemplates(apiParams),
+		...options,
+		enabled:
+			!!me?.user &&
+			me?.user?.profileRole === 'BUYER' &&
+			options?.enabled !== false,
+		queryKey: [SIZING_TEMPLATE, apiParams],
+		queryFn: () => getSizingTemplates(apiParams),
   });
 };
 

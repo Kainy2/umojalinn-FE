@@ -190,7 +190,7 @@ const SettingsProfilePage = () => {
               render={({ field }) => (
                 <FormTextField
                   placeholder="First Name"
-                  disabled={disableForm}
+                  disabled
                   {...field}
                 />
               )}
@@ -201,7 +201,7 @@ const SettingsProfilePage = () => {
               render={({ field }) => (
                 <FormTextField
                   placeholder="Last Name"
-                  disabled={disableForm}
+                  disabled
                   {...field}
                 />
               )}
@@ -261,7 +261,7 @@ const SettingsProfilePage = () => {
             name="gender"
             render={({ field }) => (
               <FormCustomSelectField
-                value={field?.value || null}
+                value={field?.value }
                 onValueChange={(value) => field?.onChange(value)}
                 disabled={disableForm}
                 options={[

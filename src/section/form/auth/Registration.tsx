@@ -72,6 +72,7 @@ const RegistrationForm = (props: { inviterTag?: string }) => {
         {registrationFormTemplate.map((formItem, index) => {
           const typedFormItem = formItem as RegistrationFormItemProps;
           return (
+            // @ts-expect-error The types returned by watch() are incompatible between these types.
             <NestedFormItem
               key={index}
               {...{ formItem: typedFormItem, form, handleToggle, visible }}

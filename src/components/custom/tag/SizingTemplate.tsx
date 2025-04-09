@@ -86,6 +86,20 @@ const SizingTemplateTag = (props: SizingTemplateTagProps) => {
     );
   }
 
+  if (!!projectData?.data?.data?.sizingTemplate?.metadata?.reviews) {
+    return (
+      <div>
+        <SizingTemplateDialog id={projectData?.data?.data?.sizingTemplateId}>
+          <AvatarIconTag
+            label="View sizing recommendation"
+            icon={<CheckCircle className="text-warning" />}
+          />
+        </SizingTemplateDialog>
+      </div>
+    );
+  }
+
+  console.log(projectData?.data?.data?.sizingTemplate?.metadata?.reviews);
   return (
     <div>
       <SizingTemplateDialog id={projectData?.data?.data?.sizingTemplateId}>
