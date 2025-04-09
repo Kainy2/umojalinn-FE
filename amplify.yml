@@ -3,11 +3,12 @@ frontend:
   phases:
     preBuild:
       commands:
-        - npm pkg set scripts.prepare="echo *" && npm install --force
+        - node -e 'const fs=require("fs"); const pkg=require("./package.json"); pkg.scripts={...pkg.scripts,prepare:"echo *"}; fs.writeFileSync("package.json", JSON.stringify(pkg,null,2));' && yarn install --force
+
     build:
       commands:
         - env | grep -e GOOGLE_CLIENT_ID -e GOOGLE_CLIENT_SECRET -e NEXTAUTH_SECRET -e BACKEND_URL -e NEXT_PUBLIC_API_URL -e NEXT_PUBLIC_BACKEND_URL -e SERVER_SECRET -e NEXTAUTH_URL >> .env
-        - npm run build
+        - yarn build
   artifacts:
     baseDirectory: .next
     files:
