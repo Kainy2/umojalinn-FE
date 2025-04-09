@@ -17,6 +17,7 @@ const SizingTemplatesPage = () => {
       ? useGetAllSizingTemplates
       : useGetAllDesignerSizingTemplates
   )();
+  
 
   if (isPending) {
     return (

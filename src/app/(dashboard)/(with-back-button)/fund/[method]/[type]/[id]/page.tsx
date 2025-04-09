@@ -39,7 +39,7 @@ const FundPage = () => {
       <h1 className="text-subtitle-1 font-semibold mb-1">
         Other funding Method
       </h1>
-      <p className="mb-6 text-foreground-body">Avalable funding methods</p>
+      <p className="mb-6 text-foreground-body">Available funding methods</p>
       <Separator className="my-3 border-t-1 border-gray-100" />
       <div>
         <FormItemWrapper

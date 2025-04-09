@@ -24,7 +24,7 @@ const DashboardPage = () => {
 
   const { data: myBids, isPending: isLoadingMyBids } = useGetDesignerBids({
     bidStatus: ["PENDING", "REJECTED", "DRAFT"],
-    projectStatus: "ADS",
+    projectStatus: ["ADS","LIVE"],
   });
 
   const { data: draftBidData, isPending: isLoadingDraftBidData } =
@@ -210,10 +210,12 @@ const DashboardPage = () => {
         case "CLOSED_BIDS":
           return {
             colour: "info",
-            count: closedBids?.data?.data?.length,
             title: "Closed Bids",
             loading: isLoadingClosedBidsData,
-            empty: !closedBids?.data?.data?.length,
+            count: 0,
+            empty: true,
+            // count: closedBids?.data?.data?.length,
+            // empty: !closedBids?.data?.data?.length,
           };
         case "MY_BIDS":
         default:
@@ -229,7 +231,6 @@ const DashboardPage = () => {
       }
     },
     [
-      closedBids?.data?.data?.length,
       completedProjectsData?.data?.data?.length,
       isLoadingClosedBidsData,
       isLoadingCompletedProjectsData,

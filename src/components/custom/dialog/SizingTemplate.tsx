@@ -289,8 +289,7 @@ const SizingTemplateDialog = (
   // TO EITHER CREATE A NEW TEMPLATE OR
   // EDIT AN OLD ONE WHEN A LIVE PROJECT IS NOT ATTACHED
   if (
-    !props?.id ||
-    (!hasLiveProject &&
+    (
       sizingTemplateData?.data?.data?.buyerId ===
         meData?.data?.data?.buyerProfile?.id)
   ) {
@@ -358,6 +357,12 @@ const SizingTemplateDialog = (
             <div className="max-h-[50vh] overflow-scroll">
               {TEMPLATE.map((template, index) => (
                 <SizingTemplateInputField
+                disabled={!((recommendationMode
+                  ? reviewsEdit?.[template.prop]
+                  : undefined) ||
+                sizingTemplateData?.data?.data?.metadata?.reviews?.[
+                  template.prop
+                ])}
                   onValueChange={handleChange(template.prop)}
                   value={value?.[template.prop] || 0}
                   unit={unit}
@@ -365,7 +370,8 @@ const SizingTemplateDialog = (
                   label={template.name}
                   onFocus={() => setPreviewImage(template.img)}
                   highlighted={highlighted === template.prop}
-                  hasLiveProject={hasLiveProject}
+                  // hasLiveProject={hasLiveProject}
+                  hasLiveProject={false}
                   metadata={{
                     review:
                       (recommendationMode
@@ -403,7 +409,7 @@ const SizingTemplateDialog = (
             </div>
           </div>
           <div className="hidden lg:flex flex-col gap-2 relative">
-            <h3 className="text-lg font-semibold mb-4">Preview</h3>
+            <h3 className="text-lg font-semibold mb-4" title="Client Preview">Preview</h3>
             <div className="h-full flex-1 relative ">
               {previewImage && (
                 <Image
@@ -578,7 +584,7 @@ const SizingTemplateDialog = (
           )}
         </div>
         <div className="hidden lg:flex flex-col gap-2 relative">
-          <h3 className="text-lg font-semibold mb-4">Preview</h3>
+          <h3 className="text-lg font-semibold mb-4" title="Designer Preview">Preview</h3>
           <div className="h-full flex-1 relative ">
             {previewImage && (
               <Image

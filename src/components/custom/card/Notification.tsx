@@ -22,46 +22,58 @@ type NotificationCardProps = {
 const getActions = (
   metadata: UmojaLinnNotification["metadata"],
   role: UmojaLinnUserRole,
+  message: UmojaLinnNotification["message"],
 ): ButtonProps[] | undefined => {
+  const isMessage = message.includes("message");
   const keys = Object.keys(metadata || {});
   if (keys.includes("projectId")) {
     let projectHref: string;
     if (metadata?.bidId) {
       projectHref = `/bids/${uuidToBase62Safe(metadata?.bidId)}${
-        role === "BUYER" ? "/edit" : ""
+        role === "BUYER" ? "" : "/edit"
       }`;
     } else {
       switch (metadata?.projectStatus) {
         case "ADS":
-          projectHref = `/ads/${uuidToBase62Safe(metadata?.projectId || "")}`;
+          projectHref =
+				role === 'BUYER'
+					? `/ads/${uuidToBase62Safe(metadata?.projectId || '')}`
+					: `/jobs/${uuidToBase62Safe(metadata?.projectId || '')}`;
           break;
         case "COMPLETED":
           projectHref = `/completed-jobs/${uuidToBase62Safe(
             metadata?.projectId || "",
           )}`;
+          break;
         case "DRAFT":
           projectHref = `/drafts/${uuidToBase62Safe(
             metadata?.projectId || "",
           )}`;
-        case "LIVE":
-        default:
-          projectHref = `/active-jobs/${uuidToBase62Safe(
-            metadata?.projectId || "",
-          )}`;
           break;
+        case "LIVE":
+        default: {
+          const projectPath = role === 'BUYER' ? 'projects' : 'active-jobs';
+          const projectId = uuidToBase62Safe(metadata?.projectId || '');
+          const chatSuffix = isMessage ? '/chat' : '';
+        
+          projectHref = `/${projectPath}/${projectId}${chatSuffix}`;
+          break;
+        }
       }
     }
     return [
-      {
-        children: metadata?.bidId
-          ? "View Bid"
-          : role === "BUYER"
-          ? "View Project"
-          : "View Job",
-        href: projectHref,
-        variant: "outline",
-      },
-    ];
+		{
+			children: metadata?.bidId
+				? 'View Bid'
+				: isMessage
+          ? 'View Chat'
+          : role !== 'BUYER'
+            ? 'View Job'
+            : 'View Project',
+			href: projectHref,
+			variant: 'outline',
+		},
+	];
   }
 };
 
@@ -119,7 +131,7 @@ const NotificationCard = (props: NotificationCardProps) => {
       <div className="flex gap-2 justify-end w-full">
         {!!session?.user?.profileRole &&
           !!metadata &&
-          getActions(metadata, session?.user?.profileRole)?.map?.(
+          getActions(metadata, session.user.profileRole, message)?.map?.(
             (button, index) => <Button key={index} {...button} size="sm" />,
           )}
       </div>

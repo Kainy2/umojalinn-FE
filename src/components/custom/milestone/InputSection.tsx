@@ -140,7 +140,7 @@ const MilestoneInputSection = (props: MilestoneInputSectionProps) => {
               onChange={handleChange("courierService")}
               value={courierService || ""}
               disabled={!isDeliveryMilestoneEditable}
-              placeholder="Select courier service"
+              placeholder="Enter courier service"
             />
             <TextAreaField
               onChange={handleChange("description")}
@@ -158,7 +158,7 @@ const MilestoneInputSection = (props: MilestoneInputSectionProps) => {
               onChange={handleChange("courierService")}
               value={courierService || ""}
               disabled={!isDeliveryMilestoneEditable}
-              placeholder="Select courier service"
+              placeholder="Enter courier service"
             />
             <TextField
               onChange={handleChange("courierServiceLink")}

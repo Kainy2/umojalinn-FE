@@ -356,7 +356,7 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
           </div>
         </FormItemWrapper>
         <FormItemWrapper
-          title="Aditional note"
+          title="Aditional notes"
           description="Include confidential notes intended for designers only."
         >
           <FormField

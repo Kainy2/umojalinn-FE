@@ -62,7 +62,6 @@ const NestedFormItem = (props: NestedFormItemProps) => {
     <FormField
       // @ts-expect-error Control type should be generic
       control={form.control}
-      // @ts-expect-error Name type should be generic
       name={formItem.name}
       key={formItem.name}
       render={({ field }) => (
