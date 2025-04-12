@@ -289,7 +289,9 @@ const SizingTemplateDialog = (
   // TO EITHER CREATE A NEW TEMPLATE OR
   // EDIT AN OLD ONE WHEN A LIVE PROJECT IS NOT ATTACHED
   if (
+    !props?.id ||
     (
+      !hasLiveProject &&
       sizingTemplateData?.data?.data?.buyerId ===
         meData?.data?.data?.buyerProfile?.id)
   ) {
@@ -357,12 +359,12 @@ const SizingTemplateDialog = (
             <div className="max-h-[50vh] overflow-scroll">
               {TEMPLATE.map((template, index) => (
                 <SizingTemplateInputField
-                disabled={!((recommendationMode
-                  ? reviewsEdit?.[template.prop]
-                  : undefined) ||
-                sizingTemplateData?.data?.data?.metadata?.reviews?.[
-                  template.prop
-                ])}
+                // disabled={!((recommendationMode
+                //   ? reviewsEdit?.[template.prop]
+                //   : undefined) ||
+                // sizingTemplateData?.data?.data?.metadata?.reviews?.[
+                //   template.prop
+                // ])}
                   onValueChange={handleChange(template.prop)}
                   value={value?.[template.prop] || 0}
                   unit={unit}

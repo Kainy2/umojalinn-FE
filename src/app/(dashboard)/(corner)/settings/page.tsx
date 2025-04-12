@@ -64,7 +64,6 @@ const SettingPage = () => {
             <SettingsCard {...setting} key={setting.title} />
           ))}
       </div>
-      ssssssssss
     </>
   );
 };
