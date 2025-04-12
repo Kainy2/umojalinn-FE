@@ -99,7 +99,6 @@ const SizingTemplateTag = (props: SizingTemplateTagProps) => {
     );
   }
 
-  console.log(projectData?.data?.data?.sizingTemplate?.metadata?.reviews);
   return (
     <div>
       <SizingTemplateDialog id={projectData?.data?.data?.sizingTemplateId}>
