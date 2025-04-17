@@ -20,15 +20,14 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
-        run: npm install
+        run: yarn install
 
       - name: Build Next.js app
-        run: npm run build
+        run: yarn build
 
       - name: Deploy to Vercel
         run: |
-          npm install -g vercel
-          vercel deploy --prod \
+          npx vercel deploy --prod \
             --token=${{ secrets.VERCEL_TOKEN }} \
             --org-id=${{ secrets.VERCEL_ORG_ID }} \
             --project-id=${{ secrets.VERCEL_PROJECT_ID }}
