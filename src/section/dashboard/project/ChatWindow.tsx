@@ -1,21 +1,17 @@
 "use client";
-import { firebaseConfig } from "@/lib/firebase";
-import { cn, fileToPreviewUrl, jsonToFormData } from "@/lib/utils";
-import React, { useEffect, useRef, useState } from "react";
-import { initializeApp, getApps } from "firebase/app";
-import { base62ToUuidSafe } from "@/lib/uuid";
-import { getDatabase, ref, onValue } from "firebase/database";
+import { cn, fileToPreviewUrl } from "@/lib/utils";
+import React, { useEffect, useRef } from "react";
+
 import { Button } from "@/components/ui/button";
 import ChatTimeDivider from "@/components/custom/chat/TimeDivider";
 import { categorizeDate } from "@/lib/date";
 import { UmojaLinnChat } from "@/types/project";
-import { sendChatInProject } from "@/actions/project";
 import ChatBubble from "@/components/custom/chat/Bubble";
 import { ImageIcon, X } from "lucide-react";
 import useFilePicker, { useFileSizeError } from "@/hooks/useFilePicker";
 import Image from "next/image";
-import useHandleError from "@/hooks/useHandleError";
 import { MAX_FILE_SIZE_FOR_FILE_UPLOAD } from "@/constant";
+import useChat from "@/hooks/use-chat";
 
 type ChatWindowProps = {
   projectId: string;
@@ -23,13 +19,6 @@ type ChatWindowProps = {
 };
 
 const ChatWindow = (props: ChatWindowProps) => {
-  const { projectId } = props;
-  const [data, setData] = useState<UmojaLinnChat[]>([]);
-  const [message, setMessage] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
-  const [images, setImages] = useState<File[]>([]);
-  const { handleError } = useHandleError("Send Chat");
   const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD);
   const { Input, onClick: handleFilePick } = useFilePicker({
     onSelect: (file: File | FileList | null) => {
@@ -54,43 +43,17 @@ const ChatWindow = (props: ChatWindowProps) => {
   });
 
   const bottomDiv = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (!getApps?.()?.length) {
-      initializeApp?.(firebaseConfig);
-    }
-
-    const database = getDatabase();
-
-    // Reference to the specific collection in the database
-    const collectionRef = ref(
-      database,
-      `chats/${base62ToUuidSafe(projectId)}/messages`,
-    );
-
-    // Function to fetch data from the database
-    const fetchData = () => {
-      // Listen for changes in the collection
-      onValue(collectionRef, (snapshot) => {
-        const dataItem = snapshot.val();
-
-        console.log(dataItem, "<<< DATA FROM CHAT");
-
-        // Check if dataItem exists
-        if (dataItem) {
-          // Convert the object values into an array
-          const displayItem = Object.values(
-            dataItem,
-          ) as unknown as UmojaLinnChat[];
-          console.log("HISTORY >>>", displayItem);
-          setData(displayItem);
-        }
-      });
-    };
-
-    // Fetch data when the component mounts
-    fetchData();
-  }, [projectId]);
+  const {
+		data,
+		handleSend,
+		loading,
+		message,
+		setMessage,
+		previewUrls,
+		setPreviewUrls,
+		images,
+		setImages,
+  } = useChat(props.projectId);
 
   useEffect(() => {
     if (data?.length && bottomDiv?.current) {
@@ -98,19 +61,6 @@ const ChatWindow = (props: ChatWindowProps) => {
     }
   }, [data]);
 
-  const handleSend = async () => {
-    try {
-      setLoading(true);
-      await sendChatInProject(projectId, jsonToFormData({ message, images }));
-      setMessage("");
-      setImages([]);
-      setPreviewUrls([]);
-    } catch (error) {
-      handleError(error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div

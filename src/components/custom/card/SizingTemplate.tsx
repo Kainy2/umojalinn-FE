@@ -24,7 +24,7 @@ const SizingTemplateCard = (props: { template: UmojaLinnSizingTemplate }) => {
       <button className="relative h-52">
         <Image
           src={
-            session?.user?.profileRole === "BUYER"
+            isBuyer
               ? "/img/webp/sizing-template-card.webp"
               : "/img/webp/sizing-template-designer-card.webp"
           }

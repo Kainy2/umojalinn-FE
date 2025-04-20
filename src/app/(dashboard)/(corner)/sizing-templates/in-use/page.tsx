@@ -22,7 +22,7 @@ const SizingTemplatesPage = () => {
   if (!data?.data?.data?.length) {
     return (
       <div className="flex items-center justify-center w-full h-[50vh] text-muted-foreground">
-        <span>No data</span>
+        <span>No sizing templates</span>
       </div>
     );
   }
