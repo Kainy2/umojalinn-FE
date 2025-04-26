@@ -120,7 +120,7 @@ const IndividualBidPage = () => {
         </div>
       </div>
       <p className="text-subtitle-2 font-semibold text-foreground text-right mt-8">
-        <span className="text-foreground-body">Buget</span>{" "}
+        <span className="text-foreground-body">Budget</span>{" "}
         {getCurrencySymbol(bid?.project?.currency)}
         {bid?.amount}
       </p>

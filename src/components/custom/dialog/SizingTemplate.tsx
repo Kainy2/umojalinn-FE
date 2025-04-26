@@ -48,6 +48,7 @@ const SizingTemplateDialog = (
   props: DialogProps & {
     id?: string;
     handleSuccess?: (template?: UmojaLinnSizingTemplate) => void;
+    type?: "CREATE" | "DESIGNER-VIEW" | "BUYER-VIEW";
   },
 ) => {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -66,17 +67,32 @@ const SizingTemplateDialog = (
     useState<UmojaLinnSizingTemplate["gender"]>("MALE");
   const [unit, setUnit] = useState<UmojaLinnSizingTemplate["unit"]>("CM");
   const [name, setName] = useState<string>("");
-
   const [recommendationMode, setRecommendationMode] = useState(false);
   const [openRequestChangesDialog, setOpenRequestChangesDialog] =
     useState(false);
 
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const { isPending: loadingMe } = useGetMe();
+  const { data: session } = useSession();
+  const { data: sizingTemplateData, isPending: isLoadingSizingTemplate } =
+    useGetSizingTemplateById(props?.id);
+    const {
+      mutate: requestChangeOnSizingTemplate,
+      isPending: isRequestingChangeOnSizingTemplate,
+    } = useRequestChangeSizingTemplate(props?.id, {
+      onSuccess() {
+        setReviewsEdit({});
+        setRecommendationMode(false);
+      },
+    });
+    
   const TEMPLATE =
     gender === "FEMALE" ? FEMALE_SIZING_TEMPLATE : MALE_SIZING_TEMPLATE;
-
+  const type = props.type ||
+    session?.user.profileRole === "BUYER" ? "BUYER-VIEW" : "DESIGNER-VIEW";
   const noOfInputs = TEMPLATE?.length;
 
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Function to handle the Enter key press
   const handleKeyPress = (
@@ -140,16 +156,9 @@ const SizingTemplateDialog = (
     [],
   );
 
-  const { data: sizingTemplateData, isPending: isLoadingSizingTemplate } =
-    useGetSizingTemplateById(props?.id);
-
-  const { data: meData, isPending: loadingMe } = useGetMe();
-
-  const { data: session } = useSession();
-
   const [hasLiveProject, isDraft] = useMemo(() => {
     return [
-      !!sizingTemplateData?.data?.data?.projects?.find(
+      !!sizingTemplateData?.data?.data?.projects?.some(
         (project) => project?.status === "LIVE",
       ),
       sizingTemplateData?.data?.data?.status === "DRAFT",
@@ -217,15 +226,7 @@ const SizingTemplateDialog = (
       },
     });
 
-  const {
-    mutate: requestChangeOnSizingTemplate,
-    isPending: isRequestingChangeOnSizingTemplate,
-  } = useRequestChangeSizingTemplate(props?.id, {
-    onSuccess() {
-      setReviewsEdit({});
-      setRecommendationMode(false);
-    },
-  });
+
 
   const handleChange =
     (
@@ -289,11 +290,13 @@ const SizingTemplateDialog = (
   // TO EITHER CREATE A NEW TEMPLATE OR
   // EDIT AN OLD ONE WHEN A LIVE PROJECT IS NOT ATTACHED
   if (
-    !props?.id ||
-    (
-      !hasLiveProject &&
-      sizingTemplateData?.data?.data?.buyerId ===
-        meData?.data?.data?.buyerProfile?.id)
+    // !props?.id ||
+    // (
+    //   !hasLiveProject &&
+    //   sizingTemplateData?.data?.data?.buyerId ===
+    //     meData?.data?.data?.buyerProfile?.id)
+
+    ["CREATE", "BUYER-VIEW"].includes(type)
   ) {
     return (
       <Dialog open={open} onOpenChange={setOpen} {...props}>
@@ -357,43 +360,40 @@ const SizingTemplateDialog = (
               <p>Measurement</p>
             </div>
             <div className="max-h-[50vh] overflow-scroll">
-              {TEMPLATE.map((template, index) => (
-                <SizingTemplateInputField
-                // disabled={!((recommendationMode
-                //   ? reviewsEdit?.[template.prop]
-                //   : undefined) ||
-                // sizingTemplateData?.data?.data?.metadata?.reviews?.[
-                //   template.prop
-                // ])}
-                  onValueChange={handleChange(template.prop)}
-                  value={value?.[template.prop] || 0}
-                  unit={unit}
-                  key={template.prop}
-                  label={template.name}
-                  onFocus={() => setPreviewImage(template.img)}
-                  highlighted={highlighted === template.prop}
-                  // hasLiveProject={hasLiveProject}
-                  hasLiveProject={false}
-                  metadata={{
-                    review:
-                      (recommendationMode
-                        ? reviewsEdit?.[template.prop]
-                        : undefined) ||
-                      sizingTemplateData?.data?.data?.metadata?.reviews?.[
-                        template.prop
-                      ],
-                    img: template?.img,
-                  }}
-                  onClick={() => {
-                    setPreviewImage(template.img);
-                    setHighlighted(template.prop);
-                  }}
-                  onKeyDown={(e) => handleKeyPress(index, e)}
-                  ref={(el) => {
-                    inputRefs.current[index] = el;
-                  }}
-                />
-              ))}
+              {TEMPLATE.map((template, index) => {
+                const isNotCreate = props.type !== "CREATE";
+                const reviewValue =(recommendationMode
+                  ? reviewsEdit?.[template.prop]
+                  : undefined) ||
+                  sizingTemplateData?.data?.data?.metadata?.reviews?.[template.prop];
+              
+                return (
+                  <SizingTemplateInputField
+                    disabled={isNotCreate && !reviewValue}
+                    onValueChange={handleChange(template.prop)}
+                    value={value?.[template.prop] || 0}
+                    unit={unit}
+                    key={template.prop}
+                    label={template.name}
+                    onFocus={() => setPreviewImage(template.img)}
+                    highlighted={highlighted === template.prop}
+                    // hasLiveProject={hasLiveProject}
+                    hasLiveProject={false}
+                    metadata={{
+                      review: reviewValue,
+                      img: template?.img,
+                    }}
+                    onClick={() => {
+                      setPreviewImage(template.img);
+                      setHighlighted(template.prop);
+                    } }
+                    onKeyDown={(e) => handleKeyPress(index, e)}
+                    ref={(el) => {
+                      inputRefs.current[index] = el;
+                    } }
+                     />
+                );
+              })}
             </div>
             <div className="flex justify-center gap-2 lg:hidden">
               <Button
