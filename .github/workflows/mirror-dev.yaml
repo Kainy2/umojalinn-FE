@@ -39,4 +39,4 @@ jobs:
         env:
           GH_PAT: ${{ secrets.KAINY_PAT }}
         run: |
-          git push mirror HEAD:dev --force
+          git push origin HEAD:dev --force
