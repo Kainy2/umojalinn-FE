@@ -22,7 +22,7 @@ jobs:
 
       - name: Push to mirror remote
         env:
-          MIRROR_URL: ${{ secrets.MIRROR_REMOTE_URL }}
+          PAT: ${{ secrets.KAINY_PAT }}
         run: |
-          git remote add mirror "$MIRROR_URL"
+          git remote add mirror https://Kainy2:$PAT@github.com/Kainy2/umojalinn-FE.git/                                            
           git push mirror dev
