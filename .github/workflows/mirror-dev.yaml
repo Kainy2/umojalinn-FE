@@ -24,7 +24,7 @@ jobs:
         env:
           GH_PAT: ${{ secrets.KAINY_PAT }}
         run: |
-          git remote add mirror "https://Kainy2:$GH_PAT@github.com/Kainy2/umojalinn-FE.git"
+          git remote set-url origin "https://Kainy2:$GH_PAT@github.com/Kainy2/umojalinn-FE.git"
 
       - name: Debug environment and remote
         env:
