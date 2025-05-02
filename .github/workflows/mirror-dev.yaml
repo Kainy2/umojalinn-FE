@@ -20,9 +20,12 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
 
+      - name: Debug PAT length
+        run: echo "${{ secrets.KAINY_PAT }}" | wc -c
+
       - name: Push to mirror remote
         env:
           PAT: ${{ secrets.KAINY_PAT }}
         run: |
-          git remote add mirror "https://Kainy2:$PAT@github.com/Kainy2/umojalinn-FE.git"                                            
+          git remote add mirror https://Kainy2:${{ secrets.KAINY_PAT }}@github.com/Kainy2/umojalinn-FE.git                                            
           git push mirror dev
