@@ -64,6 +64,7 @@ const SettingsProfilePage = () => {
   const reset = useCallback(() => {
     if (meData?.data?.data) {
       Object.entries(meData.data.data).forEach(([key, value]) => {
+
         if (
           value !== null &&
           typeof value !== "object" &&
@@ -71,17 +72,22 @@ const SettingsProfilePage = () => {
         ) {
           form.setValue(key as keyof UpdateProfileProps, value.toString());
         }
+        
         if (
           ["designerProfile", "address"].includes(key) &&
           !!value &&
-          typeof value !== "object"
+          typeof value === "object"
         ) {
+          console.log('Entered the address section', key, value);
+
           Object.entries(value).forEach(([key, value]) => {
             if (
               value !== null &&
               typeof value !== "object" &&
               updateProfileKeys?.includes(key as keyof UpdateProfileProps)
             ) {
+              console.log('Entered the address section', key, value);
+              
               form.setValue(key as keyof UpdateProfileProps, value.toString());
             }
           });
