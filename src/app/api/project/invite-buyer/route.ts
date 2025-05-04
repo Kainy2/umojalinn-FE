@@ -9,8 +9,6 @@ export const POST = async (req: NextRequest) => {
 
     const body = await req.json();
 
-    console.log(body);
-
     const response = await customAxios.post<
       unknown,
       AxiosResponse<SingleApiResponse, unknown>
