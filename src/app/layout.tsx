@@ -20,9 +20,7 @@ export const metadata: Metadata = {
   description: "Join our family of verified designers who are increasing their Profitability by Optimising their Productivity",
 };
 
-export default function RootLayout({ children }: LayoutProps) {
-  console.log(process.env);
-  
+export default function RootLayout({ children }: LayoutProps) {  
   return (
     <RollbarProvider config={clientConfig}>
       <html lang="en">
