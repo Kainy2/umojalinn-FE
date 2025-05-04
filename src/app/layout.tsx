@@ -21,6 +21,8 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: LayoutProps) {
+  console.log(process.env);
+  
   return (
     <RollbarProvider config={clientConfig}>
       <html lang="en">
