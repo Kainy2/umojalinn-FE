@@ -258,7 +258,7 @@ const Invoice = (props: InvoiceProps) => (
               </Text>
               <Text style={[styles.column, styles.column3]}>
                 {getCurrencySymbol(props?.project?.currency)}
-                {milestone?.amount}
+                {milestone?.amount?.toLocaleString()}
               </Text>
               <Text style={[styles.column, styles.column4, styles.successText]}>
                 {getCurrencySymbol(props?.project?.currency)}
@@ -266,7 +266,7 @@ const Invoice = (props: InvoiceProps) => (
               </Text>
               <Text style={[styles.column, styles.column5]}>
                 {getCurrencySymbol(props?.project?.currency)}
-                {(milestone?.amount || 0) + 0}
+                {((milestone?.amount ?? 0) + 0).toLocaleString()}
               </Text>
             </View>
           ))}
@@ -291,7 +291,7 @@ const Invoice = (props: InvoiceProps) => (
               {props?.milestones?.reduce(
                 (amount, milestone) => amount + (milestone?.amount || 0),
                 0
-              )}
+              )?.toLocaleString()}
             </Text>
           </View>
           <View
@@ -307,7 +307,7 @@ const Invoice = (props: InvoiceProps) => (
             </Text>
             <Text style={[styles.headerTitle, styles.primaryText]}>
               {getCurrencySymbol(props.project?.currency)}
-              {props?.project?.approvedBudget}
+              {props?.project?.approvedBudget?.toLocaleString()}
             </Text>
           </View>
         </View>

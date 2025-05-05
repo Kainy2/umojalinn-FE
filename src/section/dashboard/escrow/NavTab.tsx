@@ -10,7 +10,7 @@ const ESCROW_TAB_NAV: CustomTabItemProps[] = [
     match: /^\/escrow\/(?!paid-out$).*/,
   },
   {
-    title: "Paid Out",
+    title: "Released",
     href: "/escrow/paid-out",
     match: /^\/escrow\/paid-out$/,
   },
@@ -19,7 +19,6 @@ const ESCROW_TAB_NAV: CustomTabItemProps[] = [
 const EscrowNavTab = () => {
   const pathName = usePathname();
   return (
-    <>
       <CustomTab
         type="NAVIGATOR"
         tabs={ESCROW_TAB_NAV}
@@ -34,7 +33,6 @@ const EscrowNavTab = () => {
         }
         mobileSelector
       />
-    </>
   );
 };
 

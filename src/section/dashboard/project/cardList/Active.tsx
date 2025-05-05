@@ -28,13 +28,14 @@ const ActiveProjectCardList = (props: ActiveProjectCardListProps) => {
         projectStatus: "LIVE",
       },
       {
-        enabled: baseUrlSlug === "projects",
+        enabled: baseUrlSlug === "projects" ||
+        baseUrlSlug === "escrow" && session?.user?.profileRole === "BUYER",
       },
     );
   const { data: escrowBuyerProjects, isPending: loadingEscrowBuyerProjects } =
     useGetAllBuyerProject(
       {
-        projectStatus: ["LIVE", "COMPLETED"],
+        projectStatus: "LIVE",
       },
       {
         enabled:
@@ -47,7 +48,7 @@ const ActiveProjectCardList = (props: ActiveProjectCardListProps) => {
     isPending: loadingEscrowDesignerProjects,
   } = useGetAllDesignerProject(
     {
-      projectStatus: ["LIVE", "COMPLETED"],
+      projectStatus: "LIVE",
     },
     {
       enabled:

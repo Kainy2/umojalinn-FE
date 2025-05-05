@@ -30,8 +30,11 @@ const columns: ColumnDef<UmojalinnWalletTransaction>[] = [
   {
     accessorKey: "projectName",
     header: "Project Name",
-    accessorFn: (row) => {
+
+    cell: (cell) => {
+      const row = cell?.row?.original;
       const user = row?.project?.buyer?.user;
+      
       return (
         <div className="flex items-center gap-4">
           <Avatar>
@@ -67,19 +70,24 @@ const columns: ColumnDef<UmojalinnWalletTransaction>[] = [
   {
     accessorKey: "status",
     header: "Status",
-    accessorFn: (row) => (
-      <p
-        className={cn(
-          "p-2 text-sm [&>svg]:size-4",
-          row?.status === "PENDING" && "text-warning bg-warning-25",
-          row?.status === "SUCCESS" && "text-success bg-success-25",
-          row?.status === "FAILED" && "text-error bg-error-25",
-        )}
-      >
-        {{ PENDING: <></>, SUCCESS: <Check />, FAILED: <X /> }[row?.status]}{" "}
-        {capitalizeFirstLetter(row?.status)?.replaceAll("-", " ")}
-      </p>
-    ),
+    cell: (cell) => {
+      const row = cell?.row?.original;
+      
+      return (
+        <p
+          className={cn(
+            "p-2 text-sm flex items-center gap-2 w-fit [&>svg]:size-4 ",
+            row?.status === "PENDING" && "text-warning bg-warning-25",
+            row?.status === "SUCCESS" && "text-success bg-success-25",
+            row?.status === "FAILED" && "text-error bg-error-25"
+          )}
+        >
+          {{ PENDING: <></>, SUCCESS: <Check />, FAILED: <X /> }[row?.status]}{" "}
+          {capitalizeFirstLetter(row?.status)}
+        </p>
+      );
+    },
+
   },
 ];
 
