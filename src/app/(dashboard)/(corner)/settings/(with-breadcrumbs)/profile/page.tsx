@@ -74,7 +74,7 @@ const SettingsProfilePage = () => {
         if (
           ["designerProfile", "address"].includes(key) &&
           !!value &&
-          typeof value !== "object"
+          typeof value === "object"
         ) {
           Object.entries(value).forEach(([key, value]) => {
             if (

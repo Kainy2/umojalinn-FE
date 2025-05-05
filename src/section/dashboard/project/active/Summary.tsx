@@ -49,7 +49,7 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
           />
         </span>
         <span className="text-sm text-foreground-body">Sizing Template</span>
-        <span>
+        <span className="relative">
           <SizingTemplateTag projectId={params?.id} />
         </span>
         <span className="text-sm text-foreground-body">Timeline</span>

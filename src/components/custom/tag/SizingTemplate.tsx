@@ -82,11 +82,13 @@ const SizingTemplateTag = (props: SizingTemplateTagProps) => {
           open={openSizingTemplate}
           onOpenChange={setOpenSizingTemplate}
         />
+        { projectData?.data?.data?.status === "COMPLETED" && <div className="w-full h-full absolute top-0 left-0 cursor-not-allowed bg-gray-200 opacity-10" /> }
+
       </>
     );
   }
 
-  if (!!projectData?.data?.data?.sizingTemplate?.metadata?.reviews) {
+  if (projectData?.data?.data?.sizingTemplate?.metadata?.reviews) {
     return (
       <div>
         <SizingTemplateDialog id={projectData?.data?.data?.sizingTemplateId}>

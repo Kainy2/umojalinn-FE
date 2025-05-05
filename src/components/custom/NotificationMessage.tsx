@@ -14,7 +14,7 @@ const NotificationMessage = (props: NotificationMessageProps) => {
   const { content, message, options = {} } = props;
   const parts = message.split(/({{\s*\w+\s*}})/g);
 
-  console.log(options, "<<< OPTIONS");
+  // console.log(options, "<<< OPTIONS");
 
   return (
     <span>
@@ -23,7 +23,7 @@ const NotificationMessage = (props: NotificationMessageProps) => {
         if (match) {
           const key = match[1];
           if (key in content) {
-            console.log(options[key], key, "<<< OPTION");
+            // console.log(options[key], key, "<<< OPTION");
             return (
               <span key={index} {...(options[key] || {})}>
                 {content[key]}

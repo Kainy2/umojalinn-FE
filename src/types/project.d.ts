@@ -107,6 +107,7 @@ export type UmojaLinnMilestone = {
     | "APPROVED";
   transactionStatus: "AWAITING_FUND" | "PROCESSING" | "FUNDED" | "PAID";
   projectId: string | null;
+  paidOutDate: string | null;
 } & UmojaLinnTimestamp;
 
 export type UmojaLinnBid = {
