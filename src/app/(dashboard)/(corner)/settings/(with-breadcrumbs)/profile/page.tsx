@@ -130,8 +130,6 @@ const SettingsProfilePage = () => {
         specialistType,
         email,
         tag,
-        firstName,
-        lastName,
         ...others
       } = values;
       updateMe(
@@ -190,7 +188,6 @@ const SettingsProfilePage = () => {
               render={({ field }) => (
                 <FormTextField
                   placeholder="First Name"
-                  disabled
                   {...field}
                 />
               )}
@@ -201,7 +198,6 @@ const SettingsProfilePage = () => {
               render={({ field }) => (
                 <FormTextField
                   placeholder="Last Name"
-                  disabled
                   {...field}
                 />
               )}
@@ -391,6 +387,7 @@ const SettingsProfilePage = () => {
                 )}
               />
             </FormItemWrapper>
+            <>
             {/* <FormItemWrapper
               title="Language"
               description="Select your preferred language and level of proficiency"
@@ -491,6 +488,7 @@ const SettingsProfilePage = () => {
                 }}
               />
             </FormItemWrapper> */}
+            </>
             <FormItemWrapper title="Phone number">
               <FormField
                 control={form.control}
