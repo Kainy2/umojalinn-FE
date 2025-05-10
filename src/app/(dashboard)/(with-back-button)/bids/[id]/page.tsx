@@ -63,13 +63,17 @@ const IndividualBidPage = () => {
     );
   }
 
+  const note = session?.user?.profileRole === "BUYER" 
+  ? bid?.rejectionReason
+  : bid?.additionalNotesToClient
+
   return (
     <div className="flex flex-col gap-4">
       {/* budget Alert here */}
-      {bid?.additionalNotesToClient && (
+      {note && (
         <Alert
           title={session?.user?.profileRole === "BUYER" ? "Designer's Note" : "Buyer's  Note"}
-          message={bid?.additionalNotesToClient}
+          message={ note || ""          }
           type="error"
         />
       )}
