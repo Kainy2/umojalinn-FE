@@ -26,7 +26,7 @@ const CompletedCardList = () => {
   if (!data?.data?.data?.length) {
     return (
       <div className="h-[50vh] flex items-center justify-center text-muted-foreground">
-        <span>No Projects conpleted</span>
+        <span>No Projects completed</span>
       </div>
     );
   }

@@ -14,7 +14,6 @@ const NotificationMessage = (props: NotificationMessageProps) => {
   const { content, message, options = {} } = props;
   const parts = message.split(/({{\s*\w+\s*}})/g);
 
-  // console.log(options, "<<< OPTIONS");
 
   return (
     <span>
@@ -25,7 +24,7 @@ const NotificationMessage = (props: NotificationMessageProps) => {
           if (key in content) {
             // console.log(options[key], key, "<<< OPTION");
             return (
-              <span key={index} {...(options[key] || {})}>
+              <span key={index}  className="text-primary font-semibold" {...(options[key] || {})}>
                 {content[key]}
               </span>
             );

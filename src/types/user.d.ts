@@ -84,6 +84,8 @@ export type UmojaLinnNotification = {
     projectName?: string;
     bidId?: string;
     projectStatus?: UmojaLinnProject["status"];
+    buttonText?: string;
+    buttonUrl?: string;
   };
   senderName: string;
   senderProfileUrl: null | string;

@@ -93,52 +93,66 @@ const NotificationCard = (props: NotificationCardProps) => {
   const { data: session } = useSession();
 
   return (
-    <button
-      className="flex flex-col gap-2 relative text-foreground-body p-2 py-3 hover:bg-gray-100"
-      onClick={(e) => {
-        onClick?.(e);
-        markNotificationRead(id);
-      }}
-    >
-      <div className="flex flex-col md:flex-row gap-2">
-        {senderProfileUrl && (
-          <Image
-            alt=""
-            className="size-12 rounded-full object-cover shrink-0"
-            src={senderProfileUrl}
-            height={48}
-            width={48}
-          />
-        )}
-        <div className="text-left text-sm">
-          <div className="flex gap-1 mb-1">
-            <p className="font-semibold">{senderName}</p>
-            <p>{timeAgo.format(new Date(createdAt))}</p>
-          </div>
-          <p>
-            <NotificationMessage
+		<button
+			className="flex flex-col gap-2 relative text-foreground-body p-2 py-3 hover:bg-gray-100"
+			onClick={(e) => {
+				onClick?.(e);
+				markNotificationRead(id);
+			}}
+		>
+			<div className="flex flex-col md:flex-row gap-2">
+				{senderProfileUrl && (
+					<Image
+						alt=""
+						className="size-12 rounded-full object-cover shrink-0"
+						src={senderProfileUrl}
+						height={48}
+						width={48}
+					/>
+				)}
+				<div className="text-left text-sm">
+					<div className="flex gap-1 mb-1">
+						<p className="font-semibold">{senderName}</p>
+						<p>{timeAgo.format(new Date(createdAt))}</p>
+					</div>
+					<p>
+						<NotificationMessage
               message={message || ""}
-              content={metadata || {}}
-              options={{
-                projectName: {
-                  className: "text-primary font-semibold",
-                },
-              }}
-            />
-          </p>
-        </div>
-      </div>
-      <div className="flex gap-2 justify-end w-full">
-        {!!session?.user?.profileRole &&
-          !!metadata &&
-          getActions(metadata, session.user.profileRole, message)?.map?.(
-            (button, index) => <Button key={index} {...button} size="sm" />,
-          )}
-      </div>
-      {!isRead && (
-        <span className="size-2 bg-success absolute top-2 right-2 rounded-full" />
-      )}
-    </button>
+							content={metadata || {}}
+							// options={{
+							//   projectName: {
+							//     className: "text-primary font-semibold",
+							//   },
+							// }}
+						/>
+					</p>
+				</div>
+			</div>
+			<div className="flex gap-2 justify-end w-full">
+				{!!session?.user?.profileRole &&
+					!!metadata &&
+					(metadata.buttonText || metadata.buttonUrl ? (
+						<Button
+							href={metadata.buttonUrl}
+							variant="outline"
+							size="sm"
+						>
+							{metadata.buttonText}
+						</Button>
+					) : (
+						getActions(
+							metadata,
+							session.user.profileRole,
+							message
+						)?.map?.((button, index) => (
+							<Button key={index} {...button} size="sm" />
+						))
+					))}
+			</div>
+			{!isRead && (
+				<span className="size-2 bg-success absolute top-2 right-2 rounded-full" />
+			)}
+		</button>
   );
 };
 
