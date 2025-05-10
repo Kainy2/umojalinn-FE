@@ -68,7 +68,7 @@ const IndividualBidPage = () => {
       {/* budget Alert here */}
       {bid?.additionalNotesToClient && (
         <Alert
-          title={session?.user?.profileRole === "BUYER" ? "Designer’s Note" : "Buyer’s  Note"}
+          title={session?.user?.profileRole === "BUYER" ? "Designer's Note" : "Buyer's  Note"}
           message={bid?.additionalNotesToClient}
           type="error"
         />

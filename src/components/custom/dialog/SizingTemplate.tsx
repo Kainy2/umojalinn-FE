@@ -48,7 +48,7 @@ const SizingTemplateDialog = (
   props: DialogProps & {
     id?: string;
     handleSuccess?: (template?: UmojaLinnSizingTemplate) => void;
-    type?: "CREATE" | "DESIGNER-VIEW" | "BUYER-VIEW";
+    type?: "CREATE" | "DRAFT-EDIT" | "DESIGNER-VIEW" | "BUYER-VIEW";
   },
 ) => {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -296,7 +296,7 @@ const SizingTemplateDialog = (
     //   sizingTemplateData?.data?.data?.buyerId ===
     //     meData?.data?.data?.buyerProfile?.id)
 
-    ["CREATE", "BUYER-VIEW"].includes(type)
+    ["CREATE", "DRAFT-EDIT", "BUYER-VIEW"].includes(type)
   ) {
     return (
       <Dialog open={open} onOpenChange={setOpen} {...props}>
@@ -361,7 +361,7 @@ const SizingTemplateDialog = (
             </div>
             <div className="max-h-[50vh] overflow-scroll">
               {TEMPLATE.map((template, index) => {
-                const isNotCreate = props.type !== "CREATE";
+                const isNotCreateOrDraft = !(props.type === "CREATE" || props.type === "DRAFT-EDIT");
                 const reviewValue =(recommendationMode
                   ? reviewsEdit?.[template.prop]
                   : undefined) ||
@@ -369,9 +369,9 @@ const SizingTemplateDialog = (
               
                 return (
                   <SizingTemplateInputField
-                    disabled={isNotCreate && !reviewValue}
+                    disabled={isNotCreateOrDraft && !reviewValue}
                     onValueChange={handleChange(template.prop)}
-                    value={value?.[template.prop] || 0}
+                    value={value?.[template.prop] ?? 0}
                     unit={unit}
                     key={template.prop}
                     label={template.name}

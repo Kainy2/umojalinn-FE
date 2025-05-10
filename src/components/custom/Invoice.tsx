@@ -253,8 +253,10 @@ const Invoice = (props: InvoiceProps) => (
                 <Text style={styles.bodyText}>{milestone?.title}</Text>
               </View>
               <Text style={[styles.column, styles.column2]}>
-                {milestone?.updatedAt &&
-                  formatDate(milestone?.updatedAt, "dd/MM/YYY")}
+                {milestone?.paidOutDate 
+                  ? formatDate(milestone?.paidOutDate, "dd/MM/YYY")
+                : "-"
+                }
               </Text>
               <Text style={[styles.column, styles.column3]}>
                 {getCurrencySymbol(props?.project?.currency)}

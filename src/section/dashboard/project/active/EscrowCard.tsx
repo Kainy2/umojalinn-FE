@@ -191,8 +191,8 @@ const EscrowCard = (props: EscrowCardProps) => {
                 title="Please take note"
                 message={
                   isBuyer
-                    ? "We kindly request that you provide this review after receiving you order to assist us in enhancing our services to you."
-                    : "We kindly request that you provide this review after completing your service to the client."
+                    ? "We kindly request that you share how your experience was working with this designer."
+                    : "We kindly request that you share how your experience was working with this client."
                 }
                 type="error"
                 icon={<CircleAlert />}
