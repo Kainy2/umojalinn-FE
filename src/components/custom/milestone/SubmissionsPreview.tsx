@@ -119,31 +119,31 @@ const MilestoneSubmissionsPreview = (
                 })}
             </div>
             <div className="flex gap-2">
-              {submission.images?.map((file, index) => (
-                <Dialog key={index}>
+              {submission.images?.map(({url, meta}) => (
+                <Dialog key={url}>
                   <DialogTrigger asChild>
                     <button
                       className={cn(
-                        "relative w-28 h-28 rounded-md overflow-hidden",
+                        "relative w-28 h-28 rounded-md overflow-hidden"
                       )}
                     >
                       <Image
-                        alt=""
-                        src={file}
+                        alt={meta.fileName}
+                        src={url}
                         className="shrink-0 object-cover absolute"
                         fill
-                      />
+                        />
                     </button>
                   </DialogTrigger>
                   <DialogContent className="h-full w-full max-w-[80vw] max-h-[80vh] p-0 border-0 bg-black/50 [&>button>svg]:text-white overflow-hidden">
                     <div className="relative">
                       <DialogTitle className="hidden">Image</DialogTitle>
                       <Image
-                        src={file}
+                        src={url}
                         className="shrink-0 object-contain absolute"
                         fill
-                        alt=""
-                      />
+                        alt={meta.fileName}
+                         />
                     </div>
                   </DialogContent>
                 </Dialog>

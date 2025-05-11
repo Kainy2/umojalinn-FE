@@ -94,7 +94,7 @@ const ActiveProjectCardList = (props: ActiveProjectCardListProps) => {
   if (baseUrlSlug === "escrow" && pathName?.match(/^\/escrow\/paid-out$/))
     return null;
 
-  if (!projectsData?.length) {
+  if (!isPending && !projectsData?.length) {
     return (
       <p className="h-[40vh] flex items-center justify-center text-gray-400">
         No active projects at the moment

@@ -94,7 +94,7 @@ const NotificationCard = (props: NotificationCardProps) => {
 
   return (
 		<button
-			className="flex flex-col gap-2 relative text-foreground-body p-2 py-3 hover:bg-gray-100"
+			className="flex flex-col gap-2 relative text-foreground-body p-2 py-3 transition hover:bg-gray-100"
 			onClick={(e) => {
 				onClick?.(e);
 				markNotificationRead(id);

@@ -408,7 +408,7 @@ export const markNotificationAsRead = async (
   );
 };
 
-export const getNotifications = async (options?: ServerActionOption) => {
+export const getNotifications = async (lastId?: string, options?: ServerActionOption) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
@@ -416,7 +416,11 @@ export const getNotifications = async (options?: ServerActionOption) => {
   return axios.get<
     unknown,
     AxiosResponse<ArrayApiResponse<UmojaLinnNotification>>
-  >(`/notification/all`);
+  >(`/notification/all`,{
+    params: {
+      lastId
+    }
+  });
 };
 
 export const sendChatInProject = async (

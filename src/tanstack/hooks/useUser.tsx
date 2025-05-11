@@ -76,14 +76,15 @@ export const useMarkNotificationAsRead = (
 };
 
 export const useGetNotifications = (
+  lastId?: string,
   options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnNotification>>,
 ) => {
   const { data: me } = useSession();
   return useQuery({
     ...options,
     enabled: !!me?.user && options?.enabled !== false,
-    queryKey: [NOTIFICATION],
-    queryFn: () => getNotifications(),
+    queryKey: [NOTIFICATION, lastId],
+    queryFn: () => getNotifications(lastId),
   });
 };
 

@@ -8,6 +8,7 @@ export type ArrayApiResponse<T = unknown> = SingleApiResponse<T[]> &
   Partial<{
     lastId: string;
     total: number;
+    limit: number;
   }>;
 
 export type ServerActionOption = {

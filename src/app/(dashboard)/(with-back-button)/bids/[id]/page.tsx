@@ -28,7 +28,15 @@ const IndividualBidPage = () => {
   const { data: meData } = useGetMe();
   const router = useRouter();
   const { data: session } = useSession();
-  
+
+  const note = session?.user?.profileRole === "BUYER" 
+  ? bid?.additionalNotesToClient
+  : bid?.rejectionReason
+
+  const myNote = session?.user?.profileRole === "BUYER" 
+  ? bid?.rejectionReason
+  : bid?.additionalNotesToClient
+
   const { mutate: acceptOrReject } = useAcceptOrRejectBid(id, {
     onSuccess() {
       router.push(`/projects/${uuidToBase62Safe(bid?.projectId || "")}`);
@@ -63,13 +71,14 @@ const IndividualBidPage = () => {
     );
   }
 
+
   return (
     <div className="flex flex-col gap-4">
       {/* budget Alert here */}
-      {bid?.additionalNotesToClient && (
+      {note && (
         <Alert
           title={session?.user?.profileRole === "BUYER" ? "Designer's Note" : "Buyer's  Note"}
-          message={bid?.additionalNotesToClient}
+          message={ note || ""}
           type="error"
         />
       )}
@@ -115,14 +124,14 @@ const IndividualBidPage = () => {
           <p>Milestone payment</p>
           <p>
             {getCurrencySymbol(bid?.project?.currency)}{" "}
-            {bid?.deliveryMilestone?.amount}
+            {formatCurrencyValue(bid?.deliveryMilestone?.amount)}
           </p>
         </div>
       </div>
       <p className="text-subtitle-2 font-semibold text-foreground text-right mt-8">
         <span className="text-foreground-body">Budget</span>{" "}
         {getCurrencySymbol(bid?.project?.currency)}
-        {bid?.amount}
+        {formatCurrencyValue(bid?.amount)}
       </p>
       {meData?.data?.data?.buyerProfile?.id === bid?.project?.buyerId &&
         bid?.status === "PENDING" && (
@@ -147,6 +156,15 @@ const IndividualBidPage = () => {
             </div>
           </>
         )}
+
+      {myNote && (
+        <Alert
+          title={"Your rationale"}
+          message={ myNote || ""}
+          type="error"
+        />
+      )}
+
       <AcceptBidSizingTemplateInterrupt
         open={interruptOpen === "INTERRUPT"}
         onConfirm={() => setInterruptOpen("SELECT")}
