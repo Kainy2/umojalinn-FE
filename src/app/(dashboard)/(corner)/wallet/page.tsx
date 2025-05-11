@@ -61,50 +61,61 @@ const WithdrawalPage = () => {
               getTransactionStatus(
                 trans?.transactionType,
                 session?.user?.profileRole
-              );              
+              );    
+            const transactionSign= isCredit? "+": "-"
+            const getColorClass = () => { 
+              if (trans?.transactionType === "MILESTONE_COMPLETED") {
+                return "text-success";
+              } else if (trans?.transactionType === "WITHDRAWAL_REQUEST") {
+                if (trans?.status === "PENDING") {
+                  return "text-warning";
+                } else if (trans?.status === "SUCCESS") {
+                  return "text-error";
+                } 
+              } else {
+                return "text-warning";
+              }
+            }
+
             return (
-              <div
-                className="flex items-center text-foreground-body gap-1 border-b border-border/50 py-2"
-                key={trans?.id}
-              >
-                {trans?.paymentChannel && (
-                  <div className="pr-3">{getTransactionIcon(trans?.paymentChannel)}</div>
-                )}
-                <div className="flex-1">
-                  <div className="flex justify-between items-center">
-                    <p className="font-semibold">
-                      {capitalizeFirstLetter(
-                        trans?.transactionType?.replaceAll("_", " ")
-                      )}
-                    </p>
-                    <p
-                      className={
-                        trans?.transactionType === "MILESTONE_COMPLETED"|| trans?.transactionType?.includes("Deposit")
-                        ? "text-success"
-                        : trans?.transactionType === "WITHDRAWAL_REQUEST"
-                        ? "text-warning"
-                          : "text-error"
-                        // trans?.status === "PENDING"
-                        //   ? "text-warning"
-                        //   : isCredit
-                        //   ? "text-success"
-                        //   : "text-error"
-                      }
-                    >
-                      {`${trans?.transactionType !== "WITHDRAWAL_REQUEST" ? (isCredit ? "+" : "-") : ""} ${getCurrencySymbol(trans?.currency)}${formatCurrencyValue(trans?.amount)}`}
-                    </p>
-                  </div>
-                  <div className="flex justify-between">
-                    <p className="text-sm text-foreground-body">
-                      {trans?.project?.title || ''}
-                    </p>
-                    <p className="text-sm">
-                      {formatDate(trans?.createdAt, "dd/MM/yy")}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            );
+				<div
+					className="flex items-center text-foreground-body gap-1 border-b border-border/50 py-2"
+					key={trans?.id}
+				>
+					{trans?.paymentChannel && (
+						<div className="pr-3">
+							{getTransactionIcon(trans?.paymentChannel)}
+						</div>
+					)}
+					<div className="flex-1">
+						<div className="flex justify-between items-center">
+							<p className="font-semibold">
+								{capitalizeFirstLetter(
+									trans?.transactionType?.replaceAll("_", " ")
+								)}
+							</p>
+							<p className={getColorClass()}>
+								{`${
+									trans?.transactionType !==
+									"WITHDRAWAL_REQUEST"
+										? transactionSign
+										: ""
+								} ${getCurrencySymbol(
+									trans?.currency
+								)}${formatCurrencyValue(trans?.amount)}`}
+							</p>
+						</div>
+						<div className="flex justify-between">
+							<p className="text-sm text-foreground-body">
+								{trans?.project?.title || ""}
+							</p>
+							<p className="text-sm">
+								{formatDate(trans?.createdAt, "dd/MM/yy")}
+							</p>
+						</div>
+					</div>
+				</div>
+			);
           })}
           {!transactions?.length && (
             <div className="flex items-center justify-center h-[30vh] text-gray-500 text-sm">

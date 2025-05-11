@@ -12,6 +12,14 @@ const AdsProjectCardList = () => {
     projectStatus: "ADS",
   });
 
+  if (!isPending && !data?.data.data?.length) {
+    return (
+      <p className="h-[40vh] flex items-center justify-center text-gray-400">
+        No ads at the moment
+      </p>
+    );
+  }
+
   return (
     <CustomCardHolder type="PROJECT" loading={isPending}>
       {data?.data?.data?.map((project) => (

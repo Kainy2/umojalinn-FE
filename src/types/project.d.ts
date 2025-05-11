@@ -225,7 +225,13 @@ export type UmojaLinnMilestoneSubmission = {
   id: string;
   milestoneId: string;
   description: string;
-  images: Array<string>;
+  images: Array<{
+    url: string;
+    meta: {
+      fileName: string // eg. "invite.png",
+      fileSize: string // eg. "46.31 KB"
+    }
+  }>;
   links: Array<string>;
   deliveryMilestoneId: null | string;
   state: null | string;
@@ -254,6 +260,10 @@ export type UmojaLinnMilestoneSubmission = {
 export type UmojaLinnMediaLink = {
   type: "link" | "media";
   url: string;
+  meta: {
+    fileName: string // eg. "invite.png",
+    fileSize: string // eg. "46.31 KB"
+  }
   createdAt: string;
 };
 

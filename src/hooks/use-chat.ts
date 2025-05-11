@@ -1,19 +1,12 @@
 import { UmojaLinnChat } from '@/types/project';
 import { useEffect, useState } from 'react'
-import { firebaseConfig } from "@/lib/firebase";
+import { app } from "@/lib/firebase";
 
 import { sendChatInProject } from "@/actions/project";
-import { initializeApp, getApps, FirebaseApp } from "firebase/app";
-import { base62ToUuidSafe } from "@/lib/uuid";
+// import { base62ToUuidSafe } from "@/lib/uuid";
 import { getDatabase, ref, onValue, off } from "firebase/database";
 import { jsonToFormData } from '@/lib/utils';
 import useHandleError from './useHandleError';
-
-let app: FirebaseApp
-if (!getApps?.()?.length) {
-	app = initializeApp?.(firebaseConfig);
-}
-
 
 
 const useChat = (projectId: string
@@ -25,51 +18,74 @@ const useChat = (projectId: string
 	const [images, setImages] = useState<File[]>([]);
 
 	const { handleError } = useHandleError("Send Chat");
-	useEffect(() => {
 
-		const database = getDatabase(app);
+	// useEffect(() => {
 
-		// Reference to the specific collection in the database
-		const collectionRef = ref(
-			database,
-			`chats/${base62ToUuidSafe(projectId)}/messages`,
-		);
+	// 	const database = getDatabase(app);
 
-		// Function to fetch data from the database
-		const fetchData = () => {
-			// Listen for changes in the collection
-			onValue(collectionRef, (snapshot) => {
-				const dataItem = snapshot.val();
+	// 	// Reference to the specific collection in the database
+	// 	const collectionRef = ref(
+	// 		database,
+	// 		`chats/${base62ToUuidSafe(projectId)}/messages`,
+	// 	);
 
-				console.log(dataItem, "<<< DATA FROM CHAT");
+	// 	// Function to fetch data from the database
+	// 	const handleSnapshot = () => {
+	// 		// Listen for changes in the collection
+	// 		onValue(collectionRef, (snapshot) => {
+	// 			const dataItem = snapshot.val();
 
-				// Check if dataItem exists
-				if (dataItem) {
-					// Convert the object values into an array
-					const displayItem = Object.values(
-						dataItem,
-					) as unknown as UmojaLinnChat[];
-					console.log("HISTORY >>>", displayItem);
-					setData(displayItem);
-				}
-			});
-		};
+	// 			console.log(dataItem, "<<< DATA FROM CHAT");
 
-		// Fetch data when the component mounts
-		fetchData();
+	// 			// Check if dataItem exists
+	// 			if (dataItem) {
+	// 				// Convert the object values into an array
+	// 				const displayItem = Object.values(
+	// 					dataItem,
+	// 				) as unknown as UmojaLinnChat[];
+	// 				console.log("HISTORY >>>", displayItem);
+	// 				setData(displayItem);
+	// 			}
+	// 		});
+	// 	};
 
-		return () => off(collectionRef);
-	}, [projectId]);
+	// 	// Fetch data when the component mounts
+	// 	handleSnapshot();
 
+	// 	return () => off(collectionRef);
+	// }, [projectId]);
+
+useEffect(() => {
+	if (!projectId) return;
+
+	const db = getDatabase(app);
+	const messagesRef = ref(db, `chats/${projectId}/messages`);
+
+	const unsubscribe = onValue(messagesRef, (snapshot) => {
+		const dataItem = snapshot.val();
+		if (dataItem) {
+			const displayItem = Object.values(dataItem) as UmojaLinnChat[];
+			setData(displayItem);
+		} else {
+			setData([]); // Clear if no data
+		}
+	});
+
+
+	return () => {
+		unsubscribe();
+		off(messagesRef); // ✅ Detach listener on unmount
+	};
+}, [projectId]);
 
 
 	const handleSend = async () => {
 		try {
 			setLoading(true);
 			await sendChatInProject(projectId, jsonToFormData({ message, images }));
-			setMessage("");
-			setImages([]);
-			setPreviewUrls([]);
+			// setMessage("");
+			// setImages([]);
+			// setPreviewUrls([]);
 		} catch (error) {
 			handleError(error);
 		} finally {

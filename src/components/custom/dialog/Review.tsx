@@ -30,26 +30,28 @@ type ReviewRatingStarsProps = {
 
 export const ReviewRatingStars = (props: ReviewRatingStarsProps) => {
   return (
-    <div className="inline-flex gap-2 items-center">
-      {new Array(5).fill(0).map((_, index) => (
-        <button
-          key={index}
-          className={"focus:outline-none"}
-          onClick={() => props.setRating?.(index + 1)}
-          disabled={props.disabled}
-        >
-          {
-            <RatingStar
-              stroke="#FAC515"
-              className={cn(
-                "size-6",
-                props.small && "size-4",
-                index < props.rating ? "text-primary-600" : "text-transparent"
-              )}
-            />
-          }
-        </button>
-      ))}
+    <div className="flex gap-2 items-center justify-between w-48">
+      <div className="flex gap-1.5">
+        {new Array(5).fill(0).map((_, index) => (
+          <button
+            key={index}
+            className={"focus:outline-none"}
+            onClick={() => props.setRating?.(index + 1)}
+            disabled={props.disabled}
+          >
+            {
+              <RatingStar
+                stroke="#FAC515"
+                className={cn(
+                  "size-6",
+                  props.small && "size-4",
+                  index < props.rating ? "text-primary-600" : "text-transparent"
+                )}
+              />
+            }
+          </button>
+        ))}
+      </div>
       {props.rating && (
         <p
           className={cn(
@@ -74,7 +76,7 @@ const ReviewDialog = (props: CustomReviewDialogProps) => {
     ...verifyDialogProps
   } = props;
 
-  const [rating, setRating] = React.useState<number>(0);
+  const [rating, setRating] = React.useState<number>(1);
   const [message, setMessage] = React.useState<string>("");
   const [images, setImages] = React.useState<File | FileList | null>(null);
 
@@ -190,8 +192,8 @@ const ReviewDialog = (props: CustomReviewDialogProps) => {
       disableActions={
         isAddingProjectReview ||
         !message?.trim() ||
-        !rating ||
-        (reviewType === "CLOTHING_QUALITY" && !images)
+        !rating 
+        // || (reviewType === "CLOTHING_QUALITY" && !images)
       }
     />
   );
