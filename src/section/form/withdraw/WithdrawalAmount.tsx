@@ -401,8 +401,8 @@ const WithdrawalAmountForm = (props: {
         hideDraft
         saveText={
           mode === "PAYMENT" || !paymentMethod
-            ? "Save details"
-            : "Proceed to withdrawal"
+            ? "Proceed to withdrawal"
+            : "Save details"
         }
         handleSave={handleContinue}
         loading={
