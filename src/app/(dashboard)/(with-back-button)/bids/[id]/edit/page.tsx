@@ -317,7 +317,7 @@ const BidPage = () => {
         </div>
         <p className="flex justify-between p-4 py-2 bg-gray-200">
           {" "}
-          <span className="text-foreground-body">You recieve</span>
+          <span className="text-foreground-body">You receive</span>
           <span>
             {getCurrencySymbol(project?.currency)}
             {formatCurrencyValue(totalPrice * (1 - SERVICE_FEE))}
