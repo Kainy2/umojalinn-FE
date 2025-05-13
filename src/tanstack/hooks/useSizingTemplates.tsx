@@ -22,10 +22,11 @@ import {
   GenericUseQueryProps,
 } from "@/types/tanstack";
 import { ArrayApiResponse, SingleApiResponse } from "@/types/util";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { PROJECT, SIZING_TEMPLATE } from "../keys";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { BID, PROJECT, SIZING_TEMPLATE } from "../keys";
 import { useSession } from "next-auth/react";
 import { requestSizingTemplateInProject } from "@/actions/project";
+import { useParams } from "next/navigation";
 
 export const useCreateSizingTemplate = (
   options?: GenericUseMutationProps<
@@ -213,7 +214,10 @@ export const useAddSizingTemplateToProject = (
 export const useRequestSizingTemplateInProject = (
   options?: GenericUseMutationProps<SingleApiResponse, string>
 ) => {
+    const { id } = useParams<{ id: string }>();
+    const { data: me } = useSession();
   const { handleError } = useHandleError("Request Sizing Template");
+  const queryclient = useQueryClient();
   return useMutation({
     ...options,
     mutationFn: requestSizingTemplateInProject,
@@ -221,5 +225,9 @@ export const useRequestSizingTemplateInProject = (
       handleError(error);
       options?.onError?.(error, variables, context);
     },
+    onSuccess:(...args) => {
+      queryclient.invalidateQueries({ queryKey: [BID, { id, role: me?.user?.profileRole }]});
+      options?.onSuccess?.(...args);
+    }
   });
 };
