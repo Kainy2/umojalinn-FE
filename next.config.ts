@@ -20,6 +20,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "res.cloudinary.com",
       },
+      {
+        protocol: "https",
+        hostname: "firebase.com",
+      },
+      {
+        protocol: "https",
+        hostname: "firebase.googleapis.com",
+      },
     ],
   },
 };
