@@ -37,11 +37,12 @@ const SizingTemplateTag = (props: SizingTemplateTagProps) => {
     return (
       <>
         <Popover>
-          <PopoverTrigger asChild>
-            <button
-              disabled={loadingSizingTemplate || loadingProject}
-              className="disabled:opacity-50"
-            >
+          <PopoverTrigger 
+            className="group popover-trigger"
+            asChild
+            disabled={loadingSizingTemplate || loadingProject}
+           >
+            <div className="group-[.popover-trigger]:opacity-50">
               <AvatarIconTag
                 label="No sizing template"
                 icon={
@@ -50,7 +51,7 @@ const SizingTemplateTag = (props: SizingTemplateTagProps) => {
                   </span>
                 }
               />
-            </button>
+            </div>
           </PopoverTrigger>
           <PopoverContent align="center" className="w-48 p-0 overflow-hidden">
             {sizingTemplateData?.data?.data?.map((template) => (
