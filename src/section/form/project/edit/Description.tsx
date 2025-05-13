@@ -386,7 +386,7 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
                         <span className="text-sm">
                           {
                             !sizingTemplateData?.data?.data?.length ?
-                              "You have no sizing templates created yet, you can add sizing template later from the Sizing templates tab" :
+                              "You have no sizing templates available, you can add sizing template later from the Sizing templates tab" :
                               "Include Sizing template in your Project description or at project start"
                           }
                         </span>
