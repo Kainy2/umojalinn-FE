@@ -6,8 +6,10 @@ import { sendChatInProject } from "@/actions/project";
 import { ref, onValue } from "firebase/database";
 import { jsonToFormData } from '@/lib/utils';
 import useHandleError from './useHandleError';
+import {  base62ToUuidSafe } from '@/lib/uuid';
 
-const useChat = (projectId: string
+const useChat = (
+	projectId: string
 ) => {
 	const [data, setData] = useState<UmojaLinnChat[]>([]);
 	const [loading, setLoading] = useState<boolean>(false);
@@ -19,11 +21,11 @@ const useChat = (projectId: string
 
 	useEffect(() => {
 		// Reference to the specific collection in the database
-		const collectionRef = ref(database, `chats/${projectId}/messages`);
+		const collectionRef = ref(database, `chats/${base62ToUuidSafe(projectId)}/messages`);
 
 		// Listen for changes in the collection
 		const unSubscribe = onValue(collectionRef, (snapshot) => {
-			const dataItem = snapshot.val() as Record<string, UmojaLinnChat> | null;
+			const dataItem: Record<string, UmojaLinnChat> | null = snapshot.val() ;
 
 			if (dataItem) {
 				const displayItem = Object.values(dataItem);
