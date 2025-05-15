@@ -7,16 +7,28 @@ import { getDatabase } from "firebase/database";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-export const firebaseConfig = {
-  apiKey: "AIzaSyCnAK5zHbWKgu8RH3fUmWmj5uHploP_FOE",
-  authDomain: "umoja-linn-1ba27.firebaseapp.com",
-  projectId: "umoja-linn-1ba27",
-  storageBucket: "umoja-linn-1ba27.firebasestorage.app",
-  messagingSenderId: "753143096460",
-  appId: "1:753143096460:web:e732af784b261f741d07a9",
-  measurementId: "G-VX7QDFTSBF",
-  databaseURL:
-    "https://umoja-linn-1ba27-default-rtdb.europe-west1.firebasedatabase.app/",
+// export const firebaseConfig = {
+//   apiKey: "AIzaSyCnAK5zHbWKgu8RH3fUmWmj5uHploP_FOE",
+//   authDomain: "umoja-linn-1ba27.firebaseapp.com",
+//   projectId: "umoja-linn-1ba27",
+//   storageBucket: "umoja-linn-1ba27.firebasestorage.app",
+//   messagingSenderId: "753143096460",
+//   appId: "1:753143096460:web:e732af784b261f741d07a9",
+//   measurementId: "G-VX7QDFTSBF",
+//   databaseURL:
+//     "https://umoja-linn-1ba27-default-rtdb.europe-west1.firebasedatabase.app/",
+// } satisfies FirebaseOptions;
+
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAKV-9ZQxetCXn-tja-1cE5b5UXyxap2xI",
+  authDomain: "umoja-linn-web-app.firebaseapp.com",
+  databaseURL: "https://umoja-linn-web-app-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "umoja-linn-web-app",
+  storageBucket: "umoja-linn-web-app.firebasestorage.app",
+  messagingSenderId: "272405379877",
+  appId: "1:272405379877:web:d67f28ddeb9e9f77eab8cc",
+  measurementId: "G-PQHEE5VHN8"
 } satisfies FirebaseOptions;
 
 // Initialize Firebase
