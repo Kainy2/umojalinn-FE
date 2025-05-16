@@ -61,7 +61,9 @@ const SettingsProfilePage = () => {
     resolver: zodResolver(updateProfileSchema),
   });
 
-  const reset = useCallback(() => {
+  const reset = useCallback(() => {  
+    console.log(meData?.data?.data);
+      
     if (meData?.data?.data) {
       Object.entries(meData.data.data).forEach(([key, value]) => {
         if (
@@ -199,6 +201,7 @@ const SettingsProfilePage = () => {
               render={({ field }) => (
                 <FormTextField
                   placeholder="Last Name"
+                  disabled={disableForm}
                   {...field}
                 />
               )}
@@ -578,9 +581,9 @@ const SettingsProfilePage = () => {
                 type="button"
                 disabled={disableForm}
                 onClick={() => {
+                  reset();
                   setEditMode(false);
                   form?.clearErrors();
-                  reset();
                 }}
               >
                 Cancel
