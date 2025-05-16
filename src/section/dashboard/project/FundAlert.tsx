@@ -31,7 +31,7 @@ const FundProjectAlert = () => {
   )
     return (
       <Alert
-        className="absolute lg:fixed w-[90vw] lg:w-[70vw] top-28 z-[50] rounded-lg shadow-md shadow-error-700/25"
+        className="w-[90vw] lg:w-[70vw] mt-28 rounded-lg shadow-md shadow-error-700/25"
         type="error"
         icon={<AlertTriangle />}
         title="Awaiting fund"

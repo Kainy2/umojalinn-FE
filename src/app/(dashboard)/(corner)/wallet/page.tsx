@@ -100,7 +100,16 @@ const WithdrawalPage = () => {
 									"WITHDRAWAL_REQUEST"
 										? transactionSign
 										: ""
-								} ${getCurrencySymbol(
+								}
+                
+                ${
+                  trans?.transactionType !==
+									"WITHDRAWAL_REQUEST"
+                  ? trans?.status?.toLowerCase()
+                  :""          
+                }
+                
+                ${getCurrencySymbol(
 									trans?.currency
 								)}${formatCurrencyValue(trans?.amount)}`}
 							</p>
