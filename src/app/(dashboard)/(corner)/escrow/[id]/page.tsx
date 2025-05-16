@@ -56,7 +56,7 @@ const EscrowPage = () => {
       <div className="flex flex-col lg:flex-row gap-4">
         <div className="flex-1">
           <div className="p-2 bg-gray-200 flex justify-between">
-            <p className="text-md">Paid Out</p>
+            <p className="text-md">Released</p>
             <p className="text-md font-semibold">
               {getCurrencySymbol(projectData?.data?.data?.currency)}
               {formatCurrencyValue(projectData?.data?.data?.amountFunded || 0)}

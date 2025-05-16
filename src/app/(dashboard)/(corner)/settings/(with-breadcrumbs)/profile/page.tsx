@@ -188,6 +188,7 @@ const SettingsProfilePage = () => {
               render={({ field }) => (
                 <FormTextField
                   placeholder="First Name"
+                  disabled={disableForm}
                   {...field}
                 />
               )}

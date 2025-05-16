@@ -50,6 +50,19 @@ const EscrowCard = (props: EscrowCardProps) => {
 
   const hasAllMilestoneCompleted = !isIncompleteMilestone;
 
+  const totalReleased = props?.milestones?.reduce?.(
+    (acc, milestone) => {
+      if (milestone?.transactionStatus!=="PAID") return acc;
+      return acc + (milestone?.amount || 0);
+    },
+    0
+  );
+
+
+
+
+
+
   return (
     <div
       className={cn(
@@ -78,7 +91,7 @@ const EscrowCard = (props: EscrowCardProps) => {
           <p className="text-md">Released</p>
           <p className="text-md font-semibold">
             {getCurrencySymbol(props?.currency)}
-            {formatCurrencyValue(props.paidOut)}
+            {formatCurrencyValue(totalReleased)}
           </p>
           {props.milestones?.map?.((milestone) => (
             <React.Fragment key={milestone?.id}>
