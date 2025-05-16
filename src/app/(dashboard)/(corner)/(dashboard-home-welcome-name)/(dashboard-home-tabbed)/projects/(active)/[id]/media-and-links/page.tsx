@@ -57,7 +57,7 @@ const ActiveProjectMediaAndLinksPage = () => {
               {value?.type === "media" && <ImageIcon />}
               {value?.type === "link" && <Link2 />}
             </span>
-            <p>{value?.type === "media" ? "Image" : value.url}</p>
+            <p>{value?.type === "media" ? value.meta.fileName : value.url}</p>
           </a>
         </div>
       ))}
