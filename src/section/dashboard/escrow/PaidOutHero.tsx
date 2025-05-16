@@ -84,7 +84,7 @@ const EscrowPaidOutHero = () => {
               orientation="vertical"
             />
             <p>
-              Paid out{" "}
+              Released{" "}
               <span className="font-bold">
                 {walletData?.data?.data?.transactions?.length || 0}
               </span>
