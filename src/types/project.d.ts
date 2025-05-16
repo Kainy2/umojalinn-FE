@@ -24,6 +24,7 @@ export type UmojaLinnProject = {
   sizingTemplateId: string | null;
   sizingTemplate: UmojaLinnSizingTemplate | null;
   percentageCompleted: number;
+  draftPercentageCompleted: number;
   reviews: Array<UmojaLinnProjectReview> | null;
   deliveryAddress: {
     id: string;
