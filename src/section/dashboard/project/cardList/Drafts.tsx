@@ -80,7 +80,7 @@ const DraftCardList = () => {
             {imgSrc ? (
               <Image
                 alt=""
-                className="w-80 aspect-video shrink-0"
+                className="w-80 object-cover aspect-video shrink-0"
                 src={imgSrc}
                 width={200}
                 height={200}
