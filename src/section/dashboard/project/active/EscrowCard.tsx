@@ -75,7 +75,7 @@ const EscrowCard = (props: EscrowCardProps) => {
           }
         />
         <div className="label-grid mb-4">
-          <p className="text-md">Approved</p>
+          <p className="text-md">Released</p>
           <p className="text-md font-semibold">
             {getCurrencySymbol(props?.currency)}
             {formatCurrencyValue(props.paidOut)}
