@@ -77,6 +77,24 @@ const WithdrawalPage = () => {
               }
             }
 
+             const getTrxStatusText = () => {
+                switch (trans?.status) {
+                  case "FAILED":
+                    return "rejected";
+                    break;
+                  case "PENDING":
+                    return "submitted";
+                    break;
+                  case "SUCCESS":
+                    return "approved";
+                    break;
+
+                  default:
+                    return "submitted";
+                    break;
+                }
+              };
+
             return (
 				<div
 					className="flex items-center text-foreground-body gap-1 border-b border-border/50 py-2"
@@ -97,7 +115,7 @@ const WithdrawalPage = () => {
                  {
                   trans?.transactionType ===
 									"WITHDRAWAL_REQUEST"
-                  ? trans?.status?.toLowerCase()
+                  ? getTrxStatusText()
                   :""          
                 }
 							</p>
