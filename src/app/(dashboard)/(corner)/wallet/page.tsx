@@ -93,8 +93,9 @@ const WithdrawalPage = () => {
 								{capitalizeFirstLetter(
 									trans?.transactionType?.replaceAll("_", " ")
 								)}
+                {" "}
                  {
-                  trans?.transactionType !==
+                  trans?.transactionType ===
 									"WITHDRAWAL_REQUEST"
                   ? trans?.status?.toLowerCase()
                   :""          
