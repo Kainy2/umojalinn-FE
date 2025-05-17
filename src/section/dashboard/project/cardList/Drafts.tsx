@@ -104,11 +104,11 @@ const DraftCardList = () => {
                   <div
                     className={`bg-primary h-full rounded-full`}
                     style={{
-                      width: `${project?.percentageCompleted || 0}%`,
+                      width: `${project?.draftPercentageCompleted || 0}%`,
                     }}
                   />
                 </div>
-                <p>{project?.percentageCompleted || 0}%</p>
+                <p>{project?.draftPercentageCompleted || 0}%</p>
               </div>
             </div>
           </button>

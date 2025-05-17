@@ -43,7 +43,7 @@ const WithdrawalPage = () => {
             />
             {isDesigner && (
               <EscrowCard
-                subtitle="Money in Escrows"
+                subtitle="Money in Escrow"
                 value={{
                   EURO: wallet?.eurEscrowBalance || 0,
                   NAIRA: wallet?.ngnEscrowBalance || 0,
@@ -93,6 +93,12 @@ const WithdrawalPage = () => {
 								{capitalizeFirstLetter(
 									trans?.transactionType?.replaceAll("_", " ")
 								)}
+                 {
+                  trans?.transactionType !==
+									"WITHDRAWAL_REQUEST"
+                  ? trans?.status?.toLowerCase()
+                  :""          
+                }
 							</p>
 							<p className={getColorClass()}>
 								{`${
@@ -100,15 +106,7 @@ const WithdrawalPage = () => {
 									"WITHDRAWAL_REQUEST"
 										? transactionSign
 										: ""
-								}
-                
-                ${
-                  trans?.transactionType !==
-									"WITHDRAWAL_REQUEST"
-                  ? trans?.status?.toLowerCase()
-                  :""          
-                }
-                
+								}                
                 ${getCurrencySymbol(
 									trans?.currency
 								)}${formatCurrencyValue(trans?.amount)}`}
