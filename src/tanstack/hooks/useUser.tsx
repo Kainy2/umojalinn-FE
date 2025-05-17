@@ -14,7 +14,7 @@ import {
 } from "@/types/tanstack";
 import { UmojaLinnNotification, UmojaLinnUser } from "@/types/user";
 import { ArrayApiResponse, SingleApiResponse } from "@/types/util";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { signOut, useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
@@ -72,6 +72,17 @@ export const useMarkNotificationAsRead = (
       queryClient.invalidateQueries({ queryKey: [NOTIFICATION] });
       options?.onSuccess?.(data, variables, context);
     },
+  });
+};
+
+export const useGetInfiniteNotifications = (lastId?: string) => {
+  const { data: me } = useSession();
+  return useInfiniteQuery({
+    initialPageParam: lastId,
+    enabled: !!me?.user,
+    queryKey: [NOTIFICATION],
+    queryFn: ({pageParam}) => getNotifications(pageParam),
+    getNextPageParam: (lastPage) => lastPage?.data.lastId,
   });
 };
 

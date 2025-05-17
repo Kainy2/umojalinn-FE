@@ -5,30 +5,29 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-import { useGetNotifications } from "@/tanstack/hooks/useUser";
+import { useGetInfiniteNotifications } from "@/tanstack/hooks/useUser";
 import { PopoverClose } from "@radix-ui/react-popover";
 import { Bell, X } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 import NotificationCard from "../card/Notification";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
-import { UmojaLinnNotification } from "@/types/user";
 
 const NotificationPopover = () => {
-	const [lastIdParam, setLastIdParam] = useState<string>();
 	const [open, setOpen] = useState(false);
-	const [displayedNotifications, setDisplayedNotifications] = useState<
-		UmojaLinnNotification[]
-	>([]);
 
 	const {
-		data: notificationData,
-		isLoading: loadingNotification,
-		isFetching,
-	} = useGetNotifications(lastIdParam);
+		data: infiniteNotificationData,
+		isPending: loadingNotification,
+		isFetchingNextPage,
+		fetchNextPage,
+		hasNextPage,
+	} = useGetInfiniteNotifications();
 
-	const allNotifications = notificationData?.data?.data;
-	const lastId = notificationData?.data.lastId
+	const allNotifications = useMemo(() => 
+		infiniteNotificationData?.pages?.map((page) => page.data.data).flat(), [infiniteNotificationData]
+	);
+	// const lastId = useMemo (() => infiniteNotificationData?.pages?.[infiniteNotificationData?.pages?.length - 1]?.data.lastId ?? "", [infiniteNotificationData]);
 
 	const unreadNotifications = useMemo(() => {
 		return allNotifications?.filter?.(
@@ -37,14 +36,9 @@ const NotificationPopover = () => {
 	}, [allNotifications]);
 
 	const loadMore = () => {
-		if (lastId)
-			setLastIdParam(lastId);
+		if (hasNextPage)
+			fetchNextPage()
 	};
-
-	useEffect(() => {
-		if (allNotifications) 
-			setDisplayedNotifications((prev) => [...prev, ...allNotifications]);
-	}, [lastId]);
 
 	useEffect(() => {
 		if (unreadNotifications?.length) {
@@ -85,13 +79,13 @@ const NotificationPopover = () => {
 									/>
 								))}
 						{!loadingNotification &&
-							!notificationData?.data?.total && (
+							!allNotifications?.length && (
 								<div className="flex items-center justify-center h-40 text-sm text-gray-500 transition">
 									<p>No Notifications</p>
 								</div>
 							)}
 						<div className="flex flex-col max-h-[70vh] overflow-scroll">
-							{displayedNotifications?.map((notification) => (
+							{allNotifications?.map((notification) => (
 								<React.Fragment key={notification?.id}>
 									<PopoverClose
 										asChild
@@ -114,12 +108,12 @@ const NotificationPopover = () => {
 									<Separator className="bg-gray-200" />
 								</React.Fragment>
 							))}
-							{lastId && (
+							{hasNextPage && (
 								<button
 									onClick={loadMore}
 									className="text-primary text-sm text-center block w-full mt-4 py-2 hover:text-primary/70 transition"
 								>
-									{isFetching
+									{isFetchingNextPage
 										? "loading more..."
 										: "Read more"}
 								</button>
