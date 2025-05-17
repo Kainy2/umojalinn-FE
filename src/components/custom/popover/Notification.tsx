@@ -115,7 +115,7 @@ const NotificationPopover = () => {
 								>
 									{isFetchingNextPage
 										? "loading more..."
-										: "Read more"}
+										: "Show more"}
 								</button>
 							)}
 						</div>
