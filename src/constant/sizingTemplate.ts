@@ -273,7 +273,7 @@ export const MALE_SIZING_TEMPLATE: MaleSizingTemplateProp[] = [
   {
     name: "Waist to Knee Point",
     prop: "waistToKneePoint",
-    img: "/img/png/sizing-template/male/waistToKneePoint.png",
+    img: "/img/png/sizing-template/male/waistTokneePoint.png",
   },
 
   {
