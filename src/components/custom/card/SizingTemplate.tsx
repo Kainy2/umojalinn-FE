@@ -18,9 +18,43 @@ const SizingTemplateCard = (props: { template: UmojaLinnSizingTemplate }) => {
 	const inUse = template?.status === "IN_USE";
 	const isDraft = template?.status === "DRAFT";
 	const projectInUse = template?.projects?.find(
-		(temp) => temp?.status !== "COMPLETED"
+		(project) => project?.status !== "COMPLETED"
 	);
-console.log({inUse, projectInUse, template });
+	// console.log({inUse, projectInUse, template });
+
+
+	const getProjectUrl = () => {
+		let projectHref: string;
+		const role = session?.user.profileRole;
+		const projectId = projectInUse?.id;
+
+		switch (projectInUse?.status) {
+			case "ADS":
+				projectHref =
+					role === "BUYER"
+						? `/ads/${uuidToBase62Safe(projectId || "")}`
+						: `/jobs/${uuidToBase62Safe(projectId || "")}`;
+				break;
+			case "COMPLETED":
+				projectHref = `/completed-jobs/${uuidToBase62Safe(
+					projectId || ""
+				)}`;
+				break;
+			case "DRAFT":
+				projectHref = `/drafts/${uuidToBase62Safe(projectId || "")}`;
+				break;
+			case "LIVE":
+			default: {
+				const projectPath = role === "BUYER" ? "projects" : "active-jobs";
+				const newProjectId = uuidToBase62Safe(projectId || "");
+
+				projectHref = `/${projectPath}/${newProjectId}`;
+				break;
+			}
+		}
+
+		return projectHref;
+	};
 
 	return (
 		<SizingTemplateDialog
@@ -94,7 +128,7 @@ console.log({inUse, projectInUse, template });
 				{inUse && !!projectInUse && (
 					<Link
             onClick={e=> e.stopPropagation()}
-            href={`/projects/${uuidToBase62Safe(projectInUse?.id)}`}
+            href={getProjectUrl()}
             className="absolute top-2 left-2 px-2 py-1 bg-primary rounded-full text-sm max-w-[50%] truncate text-white"
            >
 						{projectInUse?.title}

@@ -89,8 +89,12 @@ const SizingTemplateDialog = (
     
   const TEMPLATE =
     gender === "FEMALE" ? FEMALE_SIZING_TEMPLATE : MALE_SIZING_TEMPLATE;
-  const type = props.type ||
-    session?.user.profileRole === "BUYER" ? "BUYER-VIEW" : "DESIGNER-VIEW";
+  const type =
+		props.type || session?.user.profileRole === "BUYER"
+			? sizingTemplateData?.data.data.status !== "IN_USE"
+				? "DRAFT-EDIT"
+				: "BUYER-VIEW"
+			: "DESIGNER-VIEW";
   const noOfInputs = TEMPLATE?.length;
 
 
