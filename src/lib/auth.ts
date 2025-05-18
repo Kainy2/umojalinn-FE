@@ -10,6 +10,7 @@ import { getServerSession } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { login, retrieveUserInfoFromGoogle } from "@/actions/auth";
 import { serverInstance } from "./rollbar";
+import { signOut, SignOutParams } from "next-auth/react";
 
 export const authOptions: NextAuthOptions = {
   // adapter: PrismaAdapter(prisma) as Adapter,
@@ -214,4 +215,9 @@ export function auth( // <-- use this function to access the jwt from React comp
     | []
 ) {
   return getServerSession(...args, authOptions);
+}
+
+export const logOut = (userType?: string | null, options?: SignOutParams) => {
+  signOut(options);
+  localStorage?.setItem("umoja-last-user", userType ?? "");
 }

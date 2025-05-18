@@ -16,12 +16,13 @@ import { UmojaLinnNotification, UmojaLinnUser } from "@/types/user";
 import { ArrayApiResponse, SingleApiResponse } from "@/types/util";
 import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { ME, NOTIFICATION, USER } from "../keys";
 import { getNotifications, markNotificationAsRead } from "@/actions/project";
 import useHandleError from "@/hooks/useHandleError";
 import { NotificationSettingsProps, PasswordUpdateProps } from "@/types/form";
+import { logOut } from "@/lib/auth";
 
 export const useGetMe = (
   options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnUser>>,
@@ -39,7 +40,9 @@ export const useGetMe = (
         [400, 401].includes(error?.status || 0)
       ) {
         queryClient.clear();
-        signOut({
+        logOut(
+          me?.user?.profileRole,
+          {
           callbackUrl: `/login?redirectTo=${path}`,
           redirect: true,
         });
