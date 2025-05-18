@@ -1,9 +1,10 @@
 "use client";
 import { SidebarFooter } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { logOut } from "@/lib/auth";
 import { useGetMe } from "@/tanstack/hooks/useUser";
 import { LogOut } from "lucide-react";
-import { signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import React from "react";
 
@@ -50,6 +51,7 @@ export const DashbordSidebarFooterContent = (props: {
 };
 
 const DashbordSidebarFooter = () => {
+const { data: session } = useSession();
   return (
     <SidebarFooter className="">
       <div className="flex gap-2 items-center">
@@ -57,7 +59,7 @@ const DashbordSidebarFooter = () => {
           action={
             <LogOut
               className="cursor-pointer"
-              onClick={() => signOut({ callbackUrl: "/login", redirect: true })}
+              onClick={() => logOut(session?.user?.profileRole, { callbackUrl: "/login", redirect: true })}
             />
           }
         />

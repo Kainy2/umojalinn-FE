@@ -12,10 +12,11 @@ import {
   LogOut,
   // Search
 } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import React from "react";
 import MobileMenu from "../sidebar/Mobile";
 import Image from "next/image";
+import { logOut } from "@/lib/auth";
 
 const DashboardAppbarContent = () => {
   const { data: meData } = useGetMe();
@@ -57,7 +58,7 @@ const DashboardAppbarContent = () => {
         <PopoverMenu
           menus={[
             {
-              onClick: () => signOut(),
+              onClick: () => logOut(session?.user?.profileRole),
               children: "Logout",
               icon: <LogOut className="text-error" />,
             },

@@ -332,6 +332,13 @@ const BidPage = () => {
           {formatCurrencyValue(totalPrice)}
         </span>
       </p>
+       {bid?.additionalNotesToClient && (
+        <Alert
+          type="error"
+          title="Your rationale"
+          message={bid.additionalNotesToClient}
+        />
+      )}
       <Separator className="bg-gray-200 h-px" orientation="horizontal" />
       {editMode && addNote && (
         <div className="card p-8">

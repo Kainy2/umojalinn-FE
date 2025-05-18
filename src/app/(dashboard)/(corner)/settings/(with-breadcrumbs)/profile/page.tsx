@@ -61,9 +61,7 @@ const SettingsProfilePage = () => {
     resolver: zodResolver(updateProfileSchema),
   });
 
-  const reset = useCallback(() => {  
-    console.log(meData?.data?.data);
-      
+  const reset = useCallback(() => {       
     if (meData?.data?.data) {
       Object.entries(meData.data.data).forEach(([key, value]) => {
         if (
@@ -582,8 +580,8 @@ const SettingsProfilePage = () => {
                 disabled={disableForm}
                 onClick={() => {
                   reset();
-                  setEditMode(false);
                   form?.clearErrors();
+                  setEditMode(false);
                 }}
               >
                 Cancel

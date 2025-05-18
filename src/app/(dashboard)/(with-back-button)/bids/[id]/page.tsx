@@ -36,6 +36,8 @@ const IndividualBidPage = () => {
   const myNote = session?.user?.profileRole === "BUYER" 
   ? bid?.rejectionReason
   : bid?.additionalNotesToClient
+  console.log("myNote", myNote);
+  
 
   const { mutate: acceptOrReject } = useAcceptOrRejectBid(id, {
     onSuccess() {

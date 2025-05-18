@@ -6,6 +6,8 @@ import Link from "next/link";
 import React, { ComponentProps } from "react";
 
 export type CustomCardProps = {
+  blurred?: boolean;
+  disabled?: boolean;
   title: string;
   preTitle?: React.ReactNode;
   img?: string;
@@ -26,8 +28,10 @@ const CustomCardWrapper = (props: {
   href?: string;
   onClick?: CustomCardProps["onClick"];
   img?: string;
+  blurred?: boolean;
+  disabled?: boolean;
 }) => {
-  if (props.href) {
+  if (props.href && !props.disabled) {
     return (
       <Link
         style={
@@ -40,7 +44,10 @@ const CustomCardWrapper = (props: {
               }
             : undefined
         }
-        className={props.className}
+      className={cn(
+        props.className, 
+        props.blurred && "opacity-50",
+      )}
         href={props.href}
         onClick={props.onClick as ComponentProps<"a">["onClick"]}
       >
@@ -60,9 +67,13 @@ const CustomCardWrapper = (props: {
             }
           : undefined
       }
-      className={props.className}
+      className={cn(
+        props.className, 
+        (props.blurred || props.disabled) && "opacity-50",
+        props.disabled && "cursor-not-allowed"    
+        )}      
       type="button"
-      onClick={props.onClick as ComponentProps<"button">["onClick"]}
+      onClick={ props.disabled ? undefined : props.onClick as ComponentProps<"button">["onClick"]}
     >
       {props.children}
     </button>
@@ -73,6 +84,8 @@ const CustomCard = (props: CustomCardProps) => {
   if (props.type === "PROJECT") {
     return (
       <CustomCardWrapper
+        blurred={props.blurred}
+        disabled={props.disabled}
         img={props.img}
         href={props.href}
         onClick={props.onClick as ComponentProps<"a">["onClick"]}
@@ -90,7 +103,7 @@ const CustomCard = (props: CustomCardProps) => {
           </span>
         )}
         <h3 className="text-subtitle-2 font-semibold text-foreground">
-          {props.title}
+          {props.title} {props.blurred && "- Blurred"} {props.disabled && "- Disabled"}
         </h3>
       </CustomCardWrapper>
     );
@@ -98,6 +111,8 @@ const CustomCard = (props: CustomCardProps) => {
 
   return (
     <CustomCardWrapper
+      blurred={props.blurred}
+      disabled={props.disabled}
       href={props.href}
       onClick={props.onClick}
       className="bg-white p-4 text-left"

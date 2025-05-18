@@ -16,8 +16,9 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
+import { logOut } from "@/lib/auth";
 
 const MobileMenu = () => {
   const { data: session } = useSession();
@@ -69,7 +70,7 @@ const MobileMenu = () => {
                   <LogOut
                     className="cursor-pointer"
                     onClick={() =>
-                      signOut({ callbackUrl: "/login", redirect: true })
+                      logOut(session?.user?.profileRole, { callbackUrl: "/login", redirect: true })
                     }
                   />
                 }
