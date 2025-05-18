@@ -10,6 +10,8 @@ import { Separator } from "@/components/ui/separator";
 import MilestoneProgress from "../milestone/Progress";
 
 type JobCardProps = {
+  blurred?: boolean;
+  disabled?: boolean;
   isPrivate?: boolean;
   name: string;
   img: string;
@@ -35,6 +37,8 @@ const JobCard = (props: JobCardProps) => {
     <CustomCard
       type="DASHBOARD"
       href={props?.href}
+      blurred={props?.blurred}
+      disabled={props?.disabled}
       preTitle={
         props?.isPrivate ? (
           <EyeOff className="text-teal-500 h-6 w-6" />

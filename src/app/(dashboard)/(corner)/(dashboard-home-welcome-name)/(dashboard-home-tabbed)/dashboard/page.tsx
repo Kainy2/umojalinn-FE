@@ -23,7 +23,7 @@ const DashboardPage = () => {
     useState<OptionsType>("MY_BIDS");
 
   const { data: myBids, isPending: isLoadingMyBids } = useGetDesignerBids({
-    bidStatus: ["PENDING", "REJECTED", "DRAFT"],
+    bidStatus: ["PENDING", "REJECTED", "DRAFT", "ACCEPTED"],
     projectStatus: ["ADS","LIVE"],
   });
 
@@ -62,9 +62,11 @@ const DashboardPage = () => {
   const myBidsContent = useMemo(
     () => (
       <>
-        {myBidsDataWithoutDraft?.data?.data?.map((bid) => (
+        {myBids?.data?.data?.map((bid) => (
           <JobCard
             key={bid?.id}
+            blurred={bid?.status === "ACCEPTED"}
+            disabled={bid?.status === "REJECTED"}
             isPrivate={bid.project?.projectType === "PRIVATE"}
             name={bid?.project?.title || "No title"}
             href={`/bids/${uuidToBase62Safe(bid?.id)}/edit`}
