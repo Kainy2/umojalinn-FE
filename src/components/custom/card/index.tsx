@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { EyeOff } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import React, { ComponentProps } from "react";
+import React, { ComponentProps, useEffect, useRef } from "react";
 
 export type CustomCardProps = {
   blurred?: boolean;
@@ -30,10 +30,12 @@ const CustomCardWrapper = (props: {
   img?: string;
   blurred?: boolean;
   disabled?: boolean;
+  wrapperRef?: React.RefObject<HTMLAnchorElement> | React.RefObject<HTMLButtonElement>;
 }) => {
   if (props.href && !props.disabled) {
     return (
       <Link
+        ref={props.wrapperRef as React.RefObject<HTMLAnchorElement>}
         style={
           props.img
             ? {
@@ -57,6 +59,7 @@ const CustomCardWrapper = (props: {
   }
   return (
     <button
+      ref={props.wrapperRef as React.RefObject<HTMLButtonElement>}
       style={
         props.img
           ? {
@@ -81,9 +84,21 @@ const CustomCardWrapper = (props: {
 };
 
 const CustomCard = (props: CustomCardProps) => {
+  const ref = useRef<HTMLAnchorElement>(null)
+  useEffect(() => {
+    if (props.color === "primary" && props.type === "PROJECT") {
+      ref.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [props.color, props.type]);
+  
+
   if (props.type === "PROJECT") {
     return (
       <CustomCardWrapper
+        wrapperRef={ref}
         blurred={props.blurred}
         disabled={props.disabled}
         img={props.img}
@@ -103,7 +118,7 @@ const CustomCard = (props: CustomCardProps) => {
           </span>
         )}
         <h3 className="text-subtitle-2 font-semibold text-foreground">
-          {props.title} {props.blurred && "- Blurred"} {props.disabled && "- Disabled"}
+          {props.title}
         </h3>
       </CustomCardWrapper>
     );
