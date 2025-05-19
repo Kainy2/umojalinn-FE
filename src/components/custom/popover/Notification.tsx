@@ -12,6 +12,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import NotificationCard from "../card/Notification";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
+import { useInfiniteData } from "@/hooks/use-infinite-data";
 
 const NotificationPopover = () => {
 	const [open, setOpen] = useState(false);
@@ -24,10 +25,8 @@ const NotificationPopover = () => {
 		hasNextPage,
 	} = useGetInfiniteNotifications();
 
-	const allNotifications = useMemo(() => 
-		infiniteNotificationData?.pages?.map((page) => page.data.data).flat(), [infiniteNotificationData]
-	);
-	// const lastId = useMemo (() => infiniteNotificationData?.pages?.[infiniteNotificationData?.pages?.length - 1]?.data.lastId ?? "", [infiniteNotificationData]);
+
+	const allNotifications = useInfiniteData(infiniteNotificationData);
 
 	const unreadNotifications = useMemo(() => {
 		return allNotifications?.filter?.(
