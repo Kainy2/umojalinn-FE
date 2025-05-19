@@ -4,6 +4,7 @@ export const DESIGNER = "DESIGNER";
 export const PROJECT = "PROJECT";
 export const MILESTONE = "MILESTONE";
 export const WALLET = "WALLET";
+export const TRANSACTION = "TRANSACTION";
 export const WITHDRAWAL_METHODS = "WITHDRAWAL_METHODS";
 export const MEDIA_AND_LINK = "MEDIA_AND_LINK";
 export const SUBMISSION = "SUBMISSION";

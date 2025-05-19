@@ -14,6 +14,7 @@ import {
   UmojalinnWallet,
   UmojaLinnWithdrawalMethod,
 } from "@/types/project";
+import { UmojaLinnTransaction } from "@/types/transaction";
 import { UmojaLinnNotification } from "@/types/user";
 
 import {
@@ -325,6 +326,17 @@ export const getWallet = async (options?: ServerActionOption) => {
   }
   return axios.get<unknown, AxiosResponse<SingleApiResponse<UmojalinnWallet>>>(
     `/wallet`
+  );
+};
+
+export const getAllTransactions = async (params?: Record<string, unknown>, options?: ServerActionOption) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.get<unknown, AxiosResponse<ArrayApiResponse<UmojaLinnTransaction>>>(
+    `/transaction/all`,
+    {params}
   );
 };
 

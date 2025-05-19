@@ -16,6 +16,7 @@ import {
   getProjectMediaAndLinks,
   getProjectMilestones,
   getSpecialistTypes,
+  getAllTransactions,
   getWallet,
   getWithdrawalMethods,
   inviteBuyer,
@@ -41,7 +42,7 @@ import {
   GenericUseQueryProps,
 } from "@/types/tanstack";
 import { ArrayApiResponse, SingleApiResponse } from "@/types/util";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import {
   BUYER,
@@ -51,6 +52,7 @@ import {
   MILESTONE,
   PROJECT,
   SUBMISSION,
+  TRANSACTION,
   WALLET,
   WITHDRAWAL_METHODS,
 } from "../keys";
@@ -60,6 +62,7 @@ import {
   RequestWithdrawalPayload,
 } from "@/section/form/withdraw/WithdrawalAmount";
 import { getUserReviews, UserReviewsApiProps } from "@/actions/user";
+
 
 export const useInviteBuyer = (
   options: GenericUseMutationProps<SingleApiResponse, { emails: string[] }>
@@ -333,6 +336,22 @@ export const useGetWallet = (
     queryKey: [PROJECT, WALLET],
     queryFn: () => getWallet(),
   });
+};
+
+export const useGetInfiniteTransactions = (
+  params?: Record<string, unknown>,
+  // options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnTransaction>>
+) => {
+  const { data: me } = useSession();
+  const lastId = params?.lastId;
+
+  return useInfiniteQuery({
+    initialPageParam: lastId,
+    enabled: !!me?.user,
+    queryKey: [TRANSACTION, params],
+    queryFn: () => getAllTransactions(params),
+     getNextPageParam: (lastPage) => lastPage?.data,
+   });
 };
 
 export const useGetWithdrawalMethods = (

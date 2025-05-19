@@ -1,8 +1,7 @@
 "use client";
 import WalletCard, { EscrowCard } from "@/components/custom/card/Wallet";
 import { Separator } from "@/components/ui/separator";
-import { useGetWallet } from "@/tanstack/hooks/useProject";
-import { UmojalinnWalletTransaction } from "@/types/project";
+import { useGetInfiniteTransactions, useGetWallet } from "@/tanstack/hooks/useProject";
 import React from "react";
 
 import { capitalizeFirstLetter, getCurrencySymbol } from "@/lib/string";
@@ -13,12 +12,23 @@ import {
   getTransactionIcon,
   getTransactionStatus,
 } from "@/components/util/wallet";
+import { cn } from "@/lib/utils";
+import { useInfiniteData } from "@/hooks/use-infinite-data";
 
 const WithdrawalPage = () => {
-  const { data: walletData } = useGetWallet();
-  const wallet = walletData?.data?.data;
-  const { transactions } = wallet || {};
   const { data: session } = useSession();
+  const { data: walletData } = useGetWallet();
+  const {
+    data: allTransactions,
+    isPending,
+		isFetchingNextPage,
+		fetchNextPage,
+		hasNextPage,
+   } = useGetInfiniteTransactions();
+  
+  const wallet = walletData?.data?.data;
+  const transactions = useInfiniteData(allTransactions)
+
   const isDesigner = session?.user?.profileRole === "DESIGNER";
 
   return (
@@ -52,10 +62,10 @@ const WithdrawalPage = () => {
             )}
           </div>
         </div>
-        <div className="flex-1 shrink-0  lg:max-w-[500px] p-8 border border-border/50">
+        <div className="flex-1 shrink-0  lg:max-w-[500px] max-h-[80vh] overflow-h-scroll p-8 border border-border/50">
           <h2 className="font-semibold mb-2">Recent transactions</h2>
           <Separator className="bg-border/50" />
-          {transactions?.map?.((trans: UmojalinnWalletTransaction) => {
+          {transactions?.map?.((trans) => {
             const isCredit =
               !!session?.user?.profileRole &&
               getTransactionStatus(
@@ -134,8 +144,14 @@ const WithdrawalPage = () => {
                     </p>
                   </div>
                   <div className="flex justify-between">
-                    <p className="text-sm text-foreground-body">
-                      {trans?.project?.title || ""}
+                    <p className={cn(
+                      "text-sm text-foreground-body",
+                      !trans.withdrawalMethod?.paypalEmail && "capitalize"
+                    )}>
+                      {trans.withdrawalMethod?.paypalEmail 
+                      || trans?.project?.title 
+                      || trans?.paymentChannel.replace("_", " ").toLowerCase() 
+                      || ""}
                     </p>
                     <p className="text-sm">
                       {formatDate(trans?.createdAt, "dd/MM/yy")}
@@ -145,7 +161,19 @@ const WithdrawalPage = () => {
               </div>
             );
           })}
-          {!transactions?.length && (
+
+          {hasNextPage && (
+            <button
+              onClick={()=> hasNextPage && fetchNextPage()}
+              className="text-primary text-sm text-right block w-full mt-4 py-2 hover:text-primary/70 transition"
+            >
+              {isFetchingNextPage
+                ? "loading more..."
+                : "Show more"}
+            </button>
+          )}
+
+          {!isPending && !transactions?.length && (
             <div className="flex items-center justify-center h-[30vh] text-gray-500 text-sm">
               <p>No transaction data</p>
             </div>
