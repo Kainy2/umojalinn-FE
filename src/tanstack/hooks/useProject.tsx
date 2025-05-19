@@ -27,11 +27,11 @@ import {
 import { queryClient } from "@/components/provider/TanstackQueryClient";
 import useHandleError from "@/hooks/useHandleError";
 import {
+  NewUmojaLinnProjectReview,
   UmojaLinnMediaLink,
   UmojaLinnMilestone,
   UmojaLinnMilestoneSubmission,
   UmojaLinnProject,
-  UmojaLinnProjectReview,
   UmojaLinnSpecialistType,
   UmojalinnWallet,
   UmojaLinnWithdrawalMethod,
@@ -479,7 +479,7 @@ export const useAddProjectReview = (
 
 export const useGetUserReviews = (
   apiParams: UserReviewsApiProps,
-  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnProjectReview>>
+  options?: GenericUseQueryProps<ArrayApiResponse<NewUmojaLinnProjectReview>>
 ) => {
   const { data: me } = useSession();
   return useQuery({

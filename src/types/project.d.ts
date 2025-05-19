@@ -343,6 +343,12 @@ export type UmojaLinnProjectReview = {
   project?: UmojaLinnProject;
 } & UmojaLinnTimestamp;
 
+export type NewUmojaLinnProjectReview = {
+  projectId: string;
+  projectTitle: string;
+  reviews: Array<UmojaLinnProjectReview>;
+} 
+
 export type UmojaLinnSpecialistType = {
   id: string;
   name: string;
