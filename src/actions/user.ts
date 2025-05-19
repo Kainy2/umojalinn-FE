@@ -2,7 +2,7 @@ import { clientAxios, getServerAxiosWithToken } from "@/lib/axios";
 import { convertApiParams } from "@/lib/request";
 import { base62ToUuidSafe } from "@/lib/uuid";
 import { NotificationSettingsProps, PasswordUpdateProps } from "@/types/form";
-import { UmojaLinnProjectReview } from "@/types/project";
+import { NewUmojaLinnProjectReview } from "@/types/project";
 import { UmojaLinnUser, UmojaLinnUserRole } from "@/types/user";
 import {
   ArrayApiResponse,
@@ -100,7 +100,7 @@ export const getUserReviews = async (
   }
   return axios.get<
     unknown,
-    AxiosResponse<ArrayApiResponse<UmojaLinnProjectReview>>
+    AxiosResponse<ArrayApiResponse<NewUmojaLinnProjectReview>>
   >(`/user/reviews${convertApiParams(apiParams)}`);
 };
 

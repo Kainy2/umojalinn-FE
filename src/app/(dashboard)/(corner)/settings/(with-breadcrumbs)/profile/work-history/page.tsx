@@ -48,44 +48,56 @@ const SettingsProfileWorkHistoryPage = () => {
 
   return (
     <div className="flex flex-col gap-8">
-      {userReviews?.data?.data?.map((review) => {
+      {userReviews?.data?.data?.map((proj) => {
+        const firstReview = proj?.reviews?.[0];
+
         const href = getProjectHref(
-          review?.project?.id,
-          review?.project?.status,
+          proj?.projectId,
+          firstReview?.project?.status,
         );
+
         return (
           <div
-            key={review?.id}
+            key={proj?.projectId}
             className="border border-input p-4 text-foreground-body"
           >
             <h3 className="text-subtitle-2 text-foreground font-semibold mb-2.5">
-              {review?.project?.title}
+              {proj?.projectTitle}
             </h3>
+  
+            <div className="space-y-4">
+              {proj.reviews?.map((review) => (
+                <div key={review?.id}>
+                  <h4 className="font-medium mb-1">
+                    {review?.reviewType === "EXPERIENCE"
+                      ? "Experience"
+                      : "Clothing Quality"}{" "}
+                    feedback
+                  </h4>
+                  <p className="mb-2">&quot;{review?.message}&quot;</p>
 
-            <h4 className="font-medium mb-1">
-              {review?.reviewType === "EXPERIENCE"
-                ? "Experience"
-                : "Clothing Quality"}{" "}
-              feedback
-            </h4>
-            <p className="mb-2">&quot;{review?.message}&quot;</p>
+                  <p className="text-sm mb-2">
+                    {formatDate(review?.createdAt, "MMM d, yyyy")} - Present
+                  </p>
+                  <ReviewRatingStars small rating={review?.rating} disabled />
 
-            <p className="text-sm mb-4">
-              {formatDate(review?.createdAt, "MMM d, yyyy")} - Present
-            </p>
-            <ReviewRatingStars small rating={review?.rating} disabled />
-            <Separator className="bg-border/50  my-2" />
+                </div>
+              ))}
+            </div>
+
+
+            <Separator className="bg-border/50  mb-2 mt-8" />
             <div className="flex  justify-between text-sm gap-8">
               <p className="font-semibold">
-                {getCurrencySymbol(review?.project?.currency)}
-                {formatCurrencyValue(review?.project?.approvedBudget)}
+                {getCurrencySymbol(firstReview?.project?.currency)}
+                {formatCurrencyValue(firstReview?.project?.approvedBudget)}
               </p>
               {session?.user?.profileRole === "DESIGNER" ? (
                 <p className="text-foreground-body">
                   Designer{" "}
                   <span className="font-semibold text-foreground">
-                    {review?.project?.designer?.user?.firstName}{" "}
-                    {review?.project?.designer?.user?.lastName}
+                    {firstReview?.project?.designer?.user?.firstName}{" "}
+                    {firstReview?.project?.designer?.user?.lastName}
                   </span>
                 </p>
               ) : (
