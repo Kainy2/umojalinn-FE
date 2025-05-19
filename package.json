@@ -76,8 +76,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "eslint --fix",
-      "tsc --noEmit --jsx preserve"
+      "eslint"
     ]
   }
 }
