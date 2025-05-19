@@ -9,7 +9,7 @@ import { LoginFormItemProps, loginFormTemplate } from "@/lib/formTemplate";
 import SocialsForm from "./Socials";
 import { Button } from "@/components/ui/button";
 import NestedFormItem from "@/components/custom/NestedFormItem";
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -49,13 +49,22 @@ const LoginForm = (props: {
         password: values.password,
         redirect: false,
       });
+
+      const session = await getSession();
+      const prevUser = localStorage?.getItem("umoja-last-user");
+      const currentUser = session?.user.profileRole;      
+
       if (res?.ok) {
         setLoading(false);
-        const redirectURL = props.inviterTag
-          ? `/project/create?inviterTag=${props.inviterTag}`
-          : typeof props.redirectHref === "string"
-          ? props.redirectHref
-          : "/";
+
+        let redirectURL = "/"
+        if (props.inviterTag) {
+          redirectURL = `/project/create?inviterTag=${props.inviterTag}`
+        } 
+        if (typeof props.redirectHref === "string" && currentUser === prevUser) {
+          redirectURL = props.redirectHref
+        } 
+
         router.push(redirectURL);
       } else if (
         res?.error?.includes("400") ||
