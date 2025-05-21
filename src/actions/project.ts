@@ -4,6 +4,7 @@ import { base62ToUuidSafe } from "@/lib/uuid";
 import {
   CreateWithdrawalMethodPayload,
   RequestWithdrawalPayload,
+  SetDefaultWithdrawalMethodPayload,
 } from "@/section/form/withdraw/WithdrawalAmount";
 import {
   UmojaLinnMediaLink,
@@ -365,6 +366,20 @@ export const createWithdrawalMethod = async (
   >(`/wallet/add-withdrawal-method`, body);
 };
 
+export const setDefaultWithdrawalMethod = async (
+  body: SetDefaultWithdrawalMethodPayload,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<
+    unknown,
+    AxiosResponse<SingleApiResponse<UmojaLinnWithdrawalMethod>>
+  >(`/wallet/set-default-withdrawal-method`, body);
+};
+
 export const editWithdrawalMethod = async (
   id: string,
   body: CreateWithdrawalMethodPayload,
@@ -377,7 +392,7 @@ export const editWithdrawalMethod = async (
   return axios.put<
     unknown,
     AxiosResponse<SingleApiResponse<UmojaLinnWithdrawalMethod>>
-  >(`/wallet/add-withdrawal-method/${id}`, body);
+  >(`/wallet/withdrawal-method/${id}`, body);
 };
 
 export const deleteWithdrawalMethod = async (
@@ -391,7 +406,7 @@ export const deleteWithdrawalMethod = async (
   return axios.delete<
     unknown,
     AxiosResponse<SingleApiResponse<UmojaLinnWithdrawalMethod>>
-  >(`/wallet/add-withdrawal-method/${id}`);
+  >(`/wallet/withdrawal-method/${id}`);
 };
 
 export const requestWithdrawal = async (

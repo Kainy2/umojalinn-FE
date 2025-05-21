@@ -18,7 +18,7 @@ export const PUT = async (
     const response = await customAxios.put<
       unknown,
       AxiosResponse<SingleApiResponse, unknown>
-    >(`/wallet/withdrawal-methods/${id}${handleQueryParams(req, true)}`, body);
+    >(`/wallet/withdrawal-method/${id}${handleQueryParams(req, true)}`, body);
 
     return NextResponse.json(response.data);
   } catch (error) {
@@ -38,7 +38,7 @@ export const DELETE = async (
     const response = await customAxios.delete<
       unknown,
       AxiosResponse<SingleApiResponse, unknown>
-    >(`/wallet/withdrawal-methods/${id}${handleQueryParams(req, true)}`);
+    >(`/wallet/withdrawal-method/${id}${handleQueryParams(req, true)}`);
 
     return NextResponse.json(response.data);
   } catch (error) {
