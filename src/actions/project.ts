@@ -377,7 +377,7 @@ export const editWithdrawalMethod = async (
   return axios.put<
     unknown,
     AxiosResponse<SingleApiResponse<UmojaLinnWithdrawalMethod>>
-  >(`/wallet/add-withdrawal-method/${id}`, body);
+  >(`/wallet/withdrawal-method/${id}`, body);
 };
 
 export const deleteWithdrawalMethod = async (
