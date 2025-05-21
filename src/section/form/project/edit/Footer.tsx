@@ -11,6 +11,7 @@ type ProjectEditFooterProps = {
   hideDraft?: boolean;
   hideBack?: boolean;
   saveText?: string;
+  onCancel?: React.ComponentProps<"button">["onClick"];
 };
 
 const ProjectEditFooter = (props: ProjectEditFooterProps) => {
@@ -24,7 +25,7 @@ const ProjectEditFooter = (props: ProjectEditFooterProps) => {
             Back
           </Button>
         )}
-        <div className="flex-1" />
+        <div className="flex-1 space-x-4" />
         {!props.hideDraft && (
           <Button
             name="submit"
@@ -37,6 +38,17 @@ const ProjectEditFooter = (props: ProjectEditFooterProps) => {
             Save & Exit
           </Button>
         )}
+
+        {props.saveText === "Save details" && (
+          <Button
+            name="submit"
+            type="button"
+            variant="ghost"
+            onClick={props.onCancel}
+          >
+            Cancel
+          </Button>
+        )}        
         <Button
           name="submit"
           value="save_and_continue"

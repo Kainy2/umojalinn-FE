@@ -24,6 +24,7 @@ import {
   requestWithdrawal,
   submitMilestone,
   updateProjectById,
+  setDefaultWithdrawalMethod,
 } from "@/actions/project";
 import { queryClient } from "@/components/provider/TanstackQueryClient";
 import useHandleError from "@/hooks/useHandleError";
@@ -60,6 +61,7 @@ import { AxiosProgressEvent } from "axios";
 import {
   CreateWithdrawalMethodPayload,
   RequestWithdrawalPayload,
+  SetDefaultWithdrawalMethodPayload,
 } from "@/section/form/withdraw/WithdrawalAmount";
 import { getUserReviews, UserReviewsApiProps } from "@/actions/user";
 
@@ -376,6 +378,29 @@ export const useCreateWithdrawalMethod = (
   return useMutation({
     ...options,
     mutationFn: (variables) => createWithdrawalMethod(variables),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: [PROJECT, WALLET, WITHDRAWAL_METHODS],
+      });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useSetDefaultWithdrawalMethod = (
+  options?: GenericUseMutationProps<
+    SingleApiResponse<UmojaLinnWithdrawalMethod>,
+    SetDefaultWithdrawalMethodPayload
+  >
+) => {
+  const { handleError } = useHandleError("Create Withdrawal Method");
+  return useMutation({
+    ...options,
+    mutationFn: (variables) => setDefaultWithdrawalMethod(variables),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: [PROJECT, WALLET, WITHDRAWAL_METHODS],

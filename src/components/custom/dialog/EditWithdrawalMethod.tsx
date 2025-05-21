@@ -1,12 +1,10 @@
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import Bank from "@/icons/Bank";
 import { capitalizeFirstLetter } from "@/lib/string";
@@ -19,30 +17,34 @@ import {
   useEditWithdrawalMethod,
   useGetWithdrawalMethods,
 } from "@/tanstack/hooks/useProject";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TextField from "../input/TextField";
 import TextAreaField from "../input/TextAreaField";
 import { Mail } from "lucide-react";
 import { getTransactionIcon } from "@/components/util/wallet";
+import { UmojaLinnWithdrawalMethod } from "@/types/project";
 
-const EditWithdrawalMethod = (props: { id: string }) => {
-  const [open, setOpen] = useState(false);
+const EditWithdrawalMethod = (props: {
+    id: string
+    onSuccess: () => void
+  }) => {
+  const [editWithdrawalMethodPayload, setEditWithdrawalMethodPayload] =
+    useState<Partial<PaypalPayload & DirectTransferPayload>>({});
+
   const { data: withdrawalMethodsData } = useGetWithdrawalMethods();
   const { mutate: editWithdrawalMethod, isPending: isEditing } =
     useEditWithdrawalMethod(props.id, {
       onSuccess() {
-        setOpen(false);
-      },
+        props.onSuccess()
+   },
     });
   const { mutate: deleteWithdrawalMethod, isPending: isDeleting } =
     useDeleteWithdrawalMethod(props.id, {
       onSuccess() {
-        setOpen(false);
-      },
-    });
+        props.onSuccess()   
+   },
 
-  const [editWithdrawalMethodPayload, setEditWithdrawalMethodPayload] =
-    useState<Partial<PaypalPayload & DirectTransferPayload>>({});
+    });
 
   const withdrawalMethod = withdrawalMethodsData?.data?.data?.find(
     (method) => method?.id === props.id
@@ -76,7 +78,74 @@ const EditWithdrawalMethod = (props: { id: string }) => {
     }
   };
 
-  const FormContent = () => {
+  useEffect(() => {
+		if (withdrawalMethod) {
+			setEditWithdrawalMethodPayload({
+				paypalEmail: withdrawalMethod?.paypalEmail ?? undefined,
+				accountName: withdrawalMethod?.accountName ?? undefined,
+				bankName: withdrawalMethod?.bankName ?? undefined,
+				accountNumber: withdrawalMethod?.accountNumber ?? undefined,
+				bankAddress: withdrawalMethod?.bankAddress ?? undefined,
+				iban: withdrawalMethod?.iban ?? undefined,
+				swiftCode: withdrawalMethod?.swiftCode ?? undefined,
+			});
+		}
+  }, [withdrawalMethod]);
+
+  if (!withdrawalMethod) return null;
+
+  return (
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <span className="size-7 border border-border/20 rounded-md flex items-center justify-center [&>*]:size-5 mb-2">
+            {icon}
+          </span>
+          <DialogTitle className="font-semibold">{title}</DialogTitle>
+          <DialogDescription>
+            Update your {title?.toLocaleLowerCase?.()} details
+          </DialogDescription>
+        </DialogHeader>
+          <FormContent
+            withdrawalMethod={withdrawalMethod}
+            handlePayloadChange={handlePayloadChange}
+            editWithdrawalMethodPayload={editWithdrawalMethodPayload}
+          />
+        <DialogFooter className="flex gap-4 flex-col md:flex-row">
+          <Button
+            fullWidth
+            variant="outline"
+            type="button"
+            disabled={isDeleting || isEditing}
+            onClick={() => deleteWithdrawalMethod()}
+          >
+            Remove from wallet
+          </Button>
+          <Button
+            fullWidth
+            variant="default"
+            type="button"
+            onClick={handleSubmit}
+            disabled={isDeleting || isEditing}
+          >
+            Update
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+
+  );
+};
+
+
+
+  const FormContent = ({ 
+    withdrawalMethod, 
+    handlePayloadChange,
+    editWithdrawalMethodPayload
+  }:{
+    withdrawalMethod: UmojaLinnWithdrawalMethod,
+    handlePayloadChange: (prop: keyof typeof editWithdrawalMethodPayload, value: string) => void,
+    editWithdrawalMethodPayload: Partial<PaypalPayload & DirectTransferPayload>
+  }) => {
     switch (withdrawalMethod?.channel) {
       case "PAYPAL":
         return (
@@ -84,6 +153,7 @@ const EditWithdrawalMethod = (props: { id: string }) => {
             placeholder="Your email address"
             value={editWithdrawalMethodPayload.paypalEmail}
             onChange={(e) => handlePayloadChange("paypalEmail", e.target.value)}
+            // onChange={(e) => setPayPalEmail(e.target.value)}
             startAdornment={<Mail className="size-5 text-foreground-body" />}
           />
         );
@@ -147,47 +217,5 @@ const EditWithdrawalMethod = (props: { id: string }) => {
     }
   };
 
-  if (!withdrawalMethod) return null;
-
-  return (
-    <Dialog open={open} onOpenChange={(value) => setOpen(value)}>
-      <DialogTrigger asChild onClick={() => setOpen(true)}>
-        <button className="text-primary font-semibold">Edit</button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <span className="size-7 border border-border/20 rounded-md flex items-center justify-center [&>*]:size-5 mb-2">
-            {icon}
-          </span>
-          <DialogTitle className="font-semibold">{title}</DialogTitle>
-          <DialogDescription>
-            Update your {title?.toLocaleLowerCase?.()} details
-          </DialogDescription>
-        </DialogHeader>
-        <FormContent />
-        <DialogFooter className="flex gap-4 flex-col md:flex-row">
-          <Button
-            fullWidth
-            variant="outline"
-            type="button"
-            disabled={isDeleting || isEditing}
-            onClick={() => deleteWithdrawalMethod()}
-          >
-            Remove from wallet
-          </Button>
-          <Button
-            fullWidth
-            variant="default"
-            type="button"
-            onClick={handleSubmit}
-            disabled={isDeleting || isEditing}
-          >
-            Update
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-};
 
 export default EditWithdrawalMethod;

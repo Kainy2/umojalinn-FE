@@ -14,6 +14,7 @@ import {
   useCreateWithdrawalMethod,
   useGetWithdrawalMethods,
   useRequestWithdrawal,
+  useSetDefaultWithdrawalMethod,
 } from "@/tanstack/hooks/useProject";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -22,6 +23,7 @@ import CheckCircle from "@/icons/CheckCircle";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import EditWithdrawalMethod from "@/components/custom/dialog/EditWithdrawalMethod";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 
 const noPaypalOption = [
   {
@@ -78,6 +80,11 @@ export type CreateWithdrawalMethodPayload = {
   currency: UmojaLinnCurrency;
 } & (PaypalPayload | DirectTransferPayload);
 
+export type SetDefaultWithdrawalMethodPayload = {
+  withdrawalMethod: string;
+  currency: UmojaLinnCurrency;
+}
+
 const WithdrawalAmountForm = (props: {
   currency: UmojaLinnCurrency;
   mode?: "WITHDRAWAL" | "PAYMENT";
@@ -87,11 +94,11 @@ const WithdrawalAmountForm = (props: {
     null | UmojaLinnWithdrawalMethod["channel"]
   >(null);
   const [agree, setAgree] = useState(false);
-
+const [isFormModalOpen, setIsFormModalOpen] = useState(false)
   const router = useRouter();
   const { toast } = useToast();
 
-  const [withdrawalMethod, setWithdrawalMethod] = useState<string | null>(null);
+  const [withdrawalMethodId, setWithdrawalMethodId] = useState<string | null>(null);
   const [amount, setAmount] = useState<string | null>(null);
 
   const { data: withdrawalMethodsData, isPending: loadingWithdrawalMethods } =
@@ -173,33 +180,88 @@ const WithdrawalAmountForm = (props: {
       },
     });
 
+  const { mutate: setDefaultWithdrawalMethod, isPending: isPendingSetDefault } =
+    useSetDefaultWithdrawalMethod();
+
+
+const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: UmojaLinnCurrency) => {
+	if (!withdrawalMethodId) return;
+
+	setDefaultWithdrawalMethod(
+		{
+			withdrawalMethod: withdrawalMethodId,
+			currency,
+		},
+		{
+			onSuccess: () => {
+				setPaypalPayload({
+					paypalEmail: "",
+				});
+				setDirectTransferPayload({
+					accountName: "",
+					bankName: "",
+					accountNumber: "",
+					bankAddress: "",
+					iban: "",
+					swiftCode: "",
+				});
+				setPaymentMethod(null);
+				toast({
+					description:
+						"Successfully set as withdrawal method",
+				});
+			},
+      onError: () => {
+        toast({
+          description:
+            "Failed to set as withdrawal method",
+        });
+      }
+		}
+	);
+};
+
+
+
   const handleContinue = () => {
-    if (!withdrawalMethod) {
-      if (!paymentMethod) return;
-      return createWithdrawalMethod({
-        channel: paymentMethod!,
-        currency,
-        ...(paymentMethod === "DIRECT_TRANSFER"
-          ? directTransferPayload
-          : paypalPayload),
-      });
-    }
-    return requestWithdrawal({
-      currency,
-      withdrawalMethodId: withdrawalMethod,
-      amount: parseInt(amount || ""),
-    });
+		if (!withdrawalMethodId && !paymentMethod) return;
+
+		if (!withdrawalMethodId) {
+			createWithdrawalMethod({
+				channel: paymentMethod!,
+				currency,
+				...(paymentMethod === "DIRECT_TRANSFER"
+					? directTransferPayload
+					: paypalPayload),
+			});
+			return;
+		}
+
+		requestWithdrawal({
+			currency,
+			withdrawalMethodId: withdrawalMethodId,
+			amount: parseInt(amount || ""),
+		});
   };
 
   const withdrawalMethodsForThisCurrency =
     withdrawalMethodsData?.data?.data?.filter(
       (method) => method?.currency === currency
     );
+    
 
   return (
+        <Dialog open={isFormModalOpen} onOpenChange={setIsFormModalOpen}  >
+
+        	{withdrawalMethodId && (
+					<EditWithdrawalMethod
+						id={withdrawalMethodId}
+						onSuccess={()=>setIsFormModalOpen(false)}
+					/>
+				)}
+		
+        
     <div className="flex flex-col gap-6">
-      {
-        <>
           {mode === "WITHDRAWAL" &&
             !!withdrawalMethodsForThisCurrency?.length && (
               <TextField
@@ -222,25 +284,24 @@ const WithdrawalAmountForm = (props: {
             description="Select withdrawal method"
           >
             <div className="flex flex-col gap-6">
-              <>
                 {loadingWithdrawalMethods &&
                   new Array(3)
                     .fill("")
                     .map((_, i) => (
                       <Skeleton key={_ + i} className="h-28 rounded-md" />
-                    ))}
+                ))}
                 {withdrawalMethodsForThisCurrency?.map?.((method) => (
-                  <div
+                  <button
                     onClick={() =>
                       mode === "WITHDRAWAL" &&
-                      setWithdrawalMethod((prev) =>
+                      setWithdrawalMethodId((prev) =>
                         prev === method?.id ? null : method.id
                       )
                     }
                     key={method.id}
                     className={cn(
                       "p-4 rounded-md border relative flex gap-4",
-                      withdrawalMethod === method?.id && "border-primary",
+                      withdrawalMethodId === method?.id && "border-primary",
                       mode === "WITHDRAWAL" && "cursor-pointer"
                     )}
                   >
@@ -249,30 +310,49 @@ const WithdrawalAmountForm = (props: {
                       <p>{method?.paypalEmail || method?.bankName}</p>
                       <p className="text-sm mb-2">{method?.accountNumber}</p>
                       <div className="flex items-center gap-2">
-                        {withdrawalMethod !== method?.id &&
-                          mode === "WITHDRAWAL" && (
-                            <span className="font-bold">Set as default</span>
+                        {mode === "WITHDRAWAL"  && (
+                            <button 
+                              disabled={isPendingSetDefault} 
+                              onClick={() => handleSetDefaultWithdrawalMethod(method?.id, currency)} className="font-bold disabled:opacity-50"
+                            >
+                              Set as default
+                            </button>
                           )}
-                        <EditWithdrawalMethod id={method?.id} />
+                        <DialogTrigger 
+                          asChild
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setWithdrawalMethodId(method.id)
+                            setIsFormModalOpen(true)}
+                        }
+                         >
+                          <button className="text-primary font-semibold cursor-pointer">
+                            Edit
+                            </button>
+                        </DialogTrigger>
                       </div>
                     </div>
                     {mode === "WITHDRAWAL" &&
-                      (withdrawalMethod === method?.id ? (
+                      (withdrawalMethodId === method?.id ? (
                         <CheckCircle className="size-5 text-primary shrink-0 absolute top-4 right-4" />
                       ) : (
                         <span className="border border-gray-400 rounded-full size-5 shrink-0 absolute top-4 right-4" />
                       ))}
-                  </div>
+                  </button>
                 ))}
-              </>
+                
               <CustomSelect
-                value={paymentMethod || ""}
-                placeholder="Add withdrawal details"
-                onValueChange={(value: UmojaLinnWithdrawalMethod["channel"]) =>
-                  setPaymentMethod(value)
-                }
-                options={getOptions(currency)}
-              />
+                  value={paymentMethod || ""}
+                  placeholder="Add withdrawal details"
+                  onValueChange={(
+                    value: UmojaLinnWithdrawalMethod["channel"]
+                  ) => {
+                    setWithdrawalMethodId(null); 
+                    setPaymentMethod(value);
+                  }}
+                  options={getOptions(currency)}
+                />
+
               {paymentMethod === "PAYPAL" && (
                 <TextField
                   placeholder="Your email address"
@@ -395,25 +475,30 @@ const WithdrawalAmountForm = (props: {
               )}
             </div>
           </FormItemWrapper>
-        </>
-      }
-      <ProjectEditFooter
-        hideDraft
-        saveText={
-          mode === "PAYMENT" || !paymentMethod
-            ? "Proceed to withdrawal"
-            : "Save details"
-        }
-        handleSave={handleContinue}
-        loading={
-          isCreatingWithdrawalMethod ||
-          isRequestingWithdrawal ||
-          loadingWithdrawalMethods ||
-          (withdrawalMethod && !amount) ||
-          (paymentMethod === "DIRECT_TRANSFER" && !agree)
-        }
-      />
-    </div>
+   
+
+					<ProjectEditFooter
+						hideDraft
+            onCancel={()=> setPaymentMethod(null)}
+						saveText={
+							mode === "PAYMENT" || !paymentMethod
+								? "Proceed to withdrawal"
+								: "Save details"
+						}
+						handleSave={handleContinue}
+						loading={
+							(!paymentMethod && !withdrawalMethodId) ||
+							isCreatingWithdrawalMethod ||
+							isRequestingWithdrawal ||
+							loadingWithdrawalMethods ||
+							(withdrawalMethodId && !amount) ||
+							(paymentMethod === "DIRECT_TRANSFER" && !agree)
+						}
+					/>
+				</div>
+
+			</Dialog>
+
   );
 };
 
