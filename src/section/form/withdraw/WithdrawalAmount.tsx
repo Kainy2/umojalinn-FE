@@ -316,7 +316,7 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
                               onClick={() => handleSetDefaultWithdrawalMethod(method?.id, currency)}
                               className={
                                 cn("font-bold disabled:opacity-50",
-                                method.isDefault &&"text-green")
+                                method.isDefault &&"text-green-500")
                               }
                             >
                               {method.isDefault ? "Default" : "Set as default"}
