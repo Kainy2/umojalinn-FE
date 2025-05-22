@@ -31,7 +31,7 @@ const OnboardAddressForm = (props: { role: UmojaLinnUserRole }) => {
     },
   });
 
-  const { getItem, setItem } = useStorage();
+  const { getItem } = useStorage();
   const onboardMe = useMemo(() => getItem("ONBOARD_INFO") || {}, [getItem]);
 
   useEffect(() => {
@@ -54,8 +54,12 @@ const OnboardAddressForm = (props: { role: UmojaLinnUserRole }) => {
   async function onSubmit(values: OnboardingProps["address"]) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
+    // setItem("ONBOARD_INFO", { ...onboardMe, address: { ...values } });
 
-    setItem("ONBOARD_INFO", { ...onboardMe, address: { ...values } });
+    const data = JSON.stringify(
+      { ...onboardMe, address: { ...values } }
+    )
+    sessionStorage.setItem("ONBOARD_INFO", data);
     router.push(nextUrl);
   }
 

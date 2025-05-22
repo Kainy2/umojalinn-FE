@@ -4,7 +4,7 @@ import { CustomPhonePickerField } from "@/components/custom/picker/Phone";
 import { CustomSelectField } from "@/components/custom/Select";
 import { Form, FormField } from "@/components/ui/form";
 
-import useStorage from "@/hooks/useStorage";
+// import useStorage from "@/hooks/useStorage";
 import { onboardingDetailsFormSchema } from "@/lib/schema";
 
 import OnboardActionButtons from "@/section/onboard/ActionButtons";
@@ -29,8 +29,8 @@ const OnboardDetailsForm = (props: { role: UmojaLinnUserRole }) => {
     },
   });
 
-  const { getItem, setItem } = useStorage();
-  const onboardMe = useMemo(() => getItem("ONBOARD_INFO") || {}, [getItem]);
+  // const { getItem, setItem } = useStorage();
+  const onboardMe: OnboardingProps["details"] = useMemo (() => sessionStorage.getItem("ONBOARD_INFO") ?? {}, []);
 
   useEffect(() => {
     if (Object.values(onboardMe)) {
@@ -46,8 +46,13 @@ const OnboardDetailsForm = (props: { role: UmojaLinnUserRole }) => {
   async function onSubmit(values: OnboardingProps["details"]) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
+    // setItem("ONBOARD_INFO", { ...onboardMe, ...values });
 
-    setItem("ONBOARD_INFO", { ...onboardMe, ...values });
+    const data = JSON.stringify(
+      { ...onboardMe, ...values }
+    )
+
+    sessionStorage.setItem("ONBOARD_INFO", data);
     router.push(nextUrl);
   }
 
