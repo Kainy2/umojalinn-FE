@@ -79,7 +79,7 @@ const MilestoneInputSectionImageUpload = (
 						src={url}
 						height={150}
 						width={150}
-						className="object-cover rounded-md"
+						className="object-contain rounded-md"
 					/>
 				</div>
 			))}

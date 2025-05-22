@@ -83,7 +83,7 @@ const ChatBubble = (props: UmojaLinnChat) => {
   }
 
   return (
-    <div className="flex gap-4 items-start">
+    <div className="flex gap-4 items-start max-w-[70%]">
       {user?.profilePhotoUri ? (
         <Image
           src={user?.profilePhotoUri}
