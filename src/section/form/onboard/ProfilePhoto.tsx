@@ -3,10 +3,11 @@ import ProfilePhotoPicker from "@/components/custom/picker/ProfilePhoto";
 import { MAX_FILE_SIZE_FOR_FILE_UPLOAD } from "@/constant";
 import { useFileSizeError } from "@/hooks/useFilePicker";
 import useHandleError from "@/hooks/useHandleError";
-import useStorage from "@/hooks/useStorage";
+// import useStorage from "@/hooks/useStorage";
 import { jsonToFormData } from "@/lib/utils";
 import OnboardActionButtons from "@/section/onboard/ActionButtons";
 import { useGetMe, useOnboard } from "@/tanstack/hooks/useUser";
+import { OnboardingProps } from "@/types/form";
 import { UmojaLinnUserRole } from "@/types/user";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -27,6 +28,7 @@ const OnboardProfilePhotoForm = (props: { role: UmojaLinnUserRole }) => {
           hasOnboarded: true,
         },
       });
+      sessionStorage.removeItem("ONBOARD_INFO");
       router.push("/onboard/congratulations");
     },
     onError: (error) => handleError(error),
@@ -42,8 +44,8 @@ const OnboardProfilePhotoForm = (props: { role: UmojaLinnUserRole }) => {
 
   const { tag, firstName, lastName } = me || {};
 
-  const { getItem } = useStorage();
-  const onboardMe = useMemo(() => getItem("ONBOARD_INFO") || {}, [getItem]);
+  // const { getItem } = useStorage();
+  const onboardMe: OnboardingProps["details"] = useMemo (() => sessionStorage.getItem("ONBOARD_INFO") ?? {}, []);
 
   const onSubmit = async () => {
     await onboard(
