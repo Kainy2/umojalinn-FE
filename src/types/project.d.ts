@@ -283,6 +283,7 @@ export type UmojaLinnWithdrawalMethod = {
   bankAddress: null;
   iban: null | string;
   swiftCode: null | string;
+  isDefault: boolean;
 } & UmojaLinnTimestamp;
 
 export type UmojalinnWalletTransaction = {

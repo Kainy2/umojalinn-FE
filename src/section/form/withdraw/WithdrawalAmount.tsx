@@ -310,7 +310,7 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
                       <p>{method?.paypalEmail || method?.bankName}</p>
                       <p className="text-sm mb-2">{method?.accountNumber}</p>
                       <div className="flex items-center gap-2">
-                        {mode === "WITHDRAWAL"  && (
+                        {mode === "WITHDRAWAL" && !method.isDefault && (
                             <button 
                               disabled={isPendingSetDefault} 
                               onClick={() => handleSetDefaultWithdrawalMethod(method?.id, currency)} className="font-bold disabled:opacity-50"
