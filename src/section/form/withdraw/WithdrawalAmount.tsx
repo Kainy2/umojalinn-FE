@@ -312,7 +312,7 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
                       <div className="flex items-center gap-2">
                         {mode === "WITHDRAWAL" && (
                             <button 
-                              disabled={isPendingSetDefault || isDefault} 
+                              disabled={isPendingSetDefault || method.isDefault} 
                               onClick={() => handleSetDefaultWithdrawalMethod(method?.id, currency)}
                               className={
                                 cn("font-bold disabled:opacity-50",
