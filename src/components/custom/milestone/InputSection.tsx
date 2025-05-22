@@ -33,6 +33,18 @@ type MilestoneInputSectionProps = {
   ) => void;
 };
 
+
+const removeFileFromFileList = (fileList: FileList, index: number): FileList => {
+  const dataTransfer = new DataTransfer();
+
+  Array.from(fileList)
+    .filter(file => file !== fileList[index])
+    .forEach(file => dataTransfer.items.add(file));
+
+  return dataTransfer.files;
+};
+
+
 const MilestoneInputSectionImageUpload = (
   props: Pick<MilestoneInputSectionProps, "files" | "onFilesChange"> & {
     disabled?: boolean;
@@ -40,25 +52,37 @@ const MilestoneInputSectionImageUpload = (
 ) => {
   const { previewUrls, getPreview } = useImagePreviewUrls();
 
-  if (props?.files) {
+
+  if (props?.files?.length) {
     return (
       <div className="flex gap-4 relative">
-        {previewUrls?.map((url) => (
-          <Image
-            alt=""
-            key={url}
-            src={url}
-            height={150}
-            width={150}
-            className="object-cover rounded-md"
-          />
-        ))}
-        <button
-          onClick={() => props?.onFilesChange?.(null)}
-          className="bg-error text-white [&>svg]:size-4 p-1.5 rounded-full absolute -left-2 -top-2"
+        {previewUrls?.map((url, index) => (
+				<div 
+        key={url}
+        className="relative border border-gray-100"
         >
-          <Trash2 />
-        </button>
+					<button
+						className="bg-error text-white [&>svg]:size-4 p-1.5 rounded-full absolute -left-2 -top-2"
+						onClick={() => {
+							if (!props?.files) return;
+							const updatedFiles = removeFileFromFileList(props.files, index);
+              
+							props?.onFilesChange?.(updatedFiles);
+              getPreview(updatedFiles);
+						}}
+					>
+						<Trash2 />
+					</button>
+
+					<Image
+						alt=""
+						src={url}
+						height={150}
+						width={150}
+						className="object-cover rounded-md"
+					/>
+				</div>
+			))}
       </div>
     );
   }
