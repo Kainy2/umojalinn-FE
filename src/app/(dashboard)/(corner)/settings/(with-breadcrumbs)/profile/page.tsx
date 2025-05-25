@@ -27,13 +27,38 @@ import {
 } from "@/tanstack/hooks/useProject";
 import { useGetMe, useUpdateUserDetails } from "@/tanstack/hooks/useUser";
 import { UpdateProfileProps } from "@/types/form";
+import { UmojaLinnUser } from "@/types/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { subYears } from "date-fns";
 import { Copy, Mail, MailPlus } from "lucide-react";
 import { useSession } from "next-auth/react";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+
+const getDefaultValues = (data:UmojaLinnUser | undefined ): UpdateProfileProps => {
+  return {
+    firstName: data?.firstName,
+    lastName: data?.lastName,
+    phoneNumber: data?.phoneNumber ?? "",
+    email: data?.email,
+    alternativeEmail: data?.alternativeEmail,
+    address: data?.address?.address,
+    city: data?.address?.city,
+    state: data?.address?.state,
+    country: data?.address?.country,
+    zipCode: data?.address?.zipCode,
+    specialistType: data?.designerProfile?.specialistType ?? "",
+    clothingTypes: data?.designerProfile?.clothingTypes?.map(({id}) => id) ?? [],
+    experienceLevel: data?.designerProfile?.experienceLevel as "ONE_TO_TWO_YEARS" | "THREE_TO_FIVE_YEARS" | "SIX_TO_EIGHT_YEARS" | "NINE_PLUS_YEARS" | undefined,
+    about: data?.designerProfile?.about ?? "",
+    gender: data?.gender as "MALE" | "FEMALE" | "RATHER_NOT_SAY" | undefined,
+    dateOfBirth: data?.dateOfBirth ?? "",
+    tag: data?.tag,
+    brandName: data?.designerProfile?.brandName ?? "",
+  }
+}
+
 
 const SettingsProfilePage = () => {
   const { data: clothingTypes } = useGetClothingTypes();
@@ -56,61 +81,16 @@ const SettingsProfilePage = () => {
   const { handleCopy } = useClipboard();
 
   const isDesigner = session?.user?.profileRole === "DESIGNER";
+  const defaultValues = useMemo(() => getDefaultValues(meData?.data?.data) , [meData?.data?.data]);
+
 
   const form = useForm<UpdateProfileProps>({
-    resolver: zodResolver(updateProfileSchema),
+    resolver: zodResolver(updateProfileSchema)
   });
 
-  const reset = useCallback(() => {       
-    if (meData?.data?.data) {
-      Object.entries(meData.data.data).forEach(([key, value]) => {
-        if (
-          value !== null &&
-          typeof value !== "object" &&
-          updateProfileKeys?.includes(key as keyof UpdateProfileProps)
-        ) {
-          form.setValue(key as keyof UpdateProfileProps, value.toString());
-        }
-        if (
-          ["designerProfile", "address"].includes(key) &&
-          !!value &&
-          typeof value === "object"
-        ) {
-          Object.entries(value).forEach(([key, value]) => {
-            if (
-              value !== null &&
-              typeof value !== "object" &&
-              updateProfileKeys?.includes(key as keyof UpdateProfileProps)
-            ) {
-              form.setValue(key as keyof UpdateProfileProps, value.toString());
-            }
-          });
-        }
-      });
-    }
-
-    if (meData?.data?.data?.designerProfile?.clothingTypes?.length) {
-      form.setValue(
-        "clothingTypes",
-        meData?.data?.data?.designerProfile?.clothingTypes?.map?.(
-          (type) => type?.id,
-        ),
-      );
-    }
-    // if (meData?.data?.data?.designerProfile?.languages?.length) {
-    //   form.setValue(
-    //     "languages",
-    //     meData?.data?.data?.designerProfile?.languages?.map?.((lang) => ({
-    //       name: lang?.name,
-    //       languageProficiency: lang?.languageProficiency,
-    //     })),
-    //   );
-    // }
-  }, [meData, form]);
-
   useEffect(() => {
-    reset();
-  }, [meData?.data?.data, form, reset]);
+    form.reset(defaultValues)
+  }, [form, defaultValues]);
 
   const disableForm = isUpdatingMe || !editMode;
 
@@ -354,6 +334,7 @@ const SettingsProfilePage = () => {
                 name="clothingTypes"
                 render={({ field }) => (
                   <FormCustomTagSelectField
+                    key={editMode.toString()}
                     hint={`${field.value?.length || 0}/8 tags`}
                     disabled={disableForm}
                     options={
@@ -509,6 +490,7 @@ const SettingsProfilePage = () => {
             render={({ field }) => {
               return (
                 <CustomSelectCountry
+                  key={editMode.toString()}
                   {...field}
                   value={field.value}
                   isDisabled={disableForm}
@@ -579,8 +561,8 @@ const SettingsProfilePage = () => {
                 type="button"
                 disabled={disableForm}
                 onClick={() => {
-                  reset();
-                  form?.clearErrors();
+                  form.clearErrors();
+                  form.reset(defaultValues)
                   setEditMode(false);
                 }}
               >
