@@ -59,11 +59,11 @@ const JobCard = (props: JobCardProps) => {
       action={
         <div className="flex">
           <div className="flex-1 shrink-0 flex -space-x-2">
-            {props?.sharedWith?.map((user) => (
-              <Avatar key={user} className="h-7 w-7 border-background border-1">
-                <AvatarImage src={user} />
+              <Avatar className="h-7 w-7 border-background border ">
+                <AvatarImage src={props.img} width={40} height={40} />
               </Avatar>
-            ))}
+            {/* {props?.sharedWith?.map((user) => (
+            ))} */}
           </div>
           <div className="flex-1 shrink-0 flex justify-center">
             {!!props?.meetingUrl && (
@@ -74,7 +74,7 @@ const JobCard = (props: JobCardProps) => {
           </div>
           <div className="flex-1 shrink-0 justify-end">
             {props?.status ? (
-              <p className={cn("text-gray-400")}>{props?.status?.value}</p>
+              <p style={{ color: props?.status?.color }} className={cn("text-gray-400 pt-1.5 text-sm text-right")}>{props?.status?.value}</p>
             ) : (
               <div
                 className={cn(

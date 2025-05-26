@@ -22,10 +22,10 @@ const DashboardPage = () => {
   const [mobileSelection, setMobileSelection] =
     useState<OptionsType>("MY_BIDS");
 
-  const { data: myBids, isPending: isLoadingMyBids } = useGetDesignerBids({
-    bidStatus: ["PENDING", "REJECTED", "DRAFT", "ACCEPTED"],
-    projectStatus: ["ADS","LIVE"],
-  });
+  // const { data: myBids, isPending: isLoadingMyBids } = useGetDesignerBids({
+  //   bidStatus: ["PENDING", "REJECTED"],
+  //   projectStatus: ["ADS","LIVE"],
+  // });
 
   const { data: draftBidData, isPending: isLoadingDraftBidData } =
     useGetDesignerBids({
@@ -59,14 +59,22 @@ const DashboardPage = () => {
       bidStatus: ["REJECTED", "PENDING"],
     });
 
+    const totalBids = useMemo(() => {
+      if (
+        myBidsDataWithoutDraft?.data?.data?.length === undefined 
+        || draftBidData?.data?.data?.length === undefined
+      ) return 0
+
+      return myBidsDataWithoutDraft?.data?.data?.length + draftBidData?.data?.data?.length;
+    }, [myBidsDataWithoutDraft?.data?.data?.length, draftBidData?.data?.data?.length]);
+
   const myBidsContent = useMemo(
     () => (
       <>
-        {myBids?.data?.data?.map((bid) => (
+        {myBidsDataWithoutDraft?.data?.data?.map((bid) => (
           <JobCard
             key={bid?.id}
-            blurred={bid?.status === "ACCEPTED"}
-            disabled={bid?.status === "REJECTED"}
+            blurred={bid?.status === "REJECTED"}
             isPrivate={bid.project?.projectType === "PRIVATE"}
             name={bid?.project?.title || "No title"}
             href={`/bids/${uuidToBase62Safe(bid?.id)}/edit`}
@@ -76,6 +84,10 @@ const DashboardPage = () => {
             }}
             img={getCoverImage(bid.project)}
             dueDate={bid?.project?.dueDate}
+            status={bid?.status === "PENDING" || bid?.status === "REJECTED" ? {
+              color: bid?.status === "PENDING" ? "yellow": "red",
+              value: bid?.status === "PENDING" ? "In Review" : "Rejected",
+            }: undefined}
           />
         ))}
         {!!draftBidData?.data?.data?.length && (
@@ -101,7 +113,7 @@ const DashboardPage = () => {
         ))}
       </>
     ),
-    [draftBidData?.data?.data, myBidsDataWithoutDraft?.data?.data]
+    [draftBidData?.data?.data, myBidsDataWithoutDraft?.data?.data] 
   );
 
   const myActiveJobsContent = useMemo(
@@ -223,12 +235,11 @@ const DashboardPage = () => {
         default:
           return {
             title: "My Bids",
-            count: myBids?.data?.data?.length || 0,
+            count: totalBids,
             loading:
-              isLoadingMyBids ||
               isLoadingDraftBidData ||
               isLoadingMyBidsWithoutDraftData,
-            empty: !myBids?.data?.data?.length,
+            empty: !totalBids,
           };
       }
     },
@@ -238,10 +249,9 @@ const DashboardPage = () => {
       isLoadingCompletedProjectsData,
       isLoadingDraftBidData,
       isLoadingLiveProjectsData,
-      isLoadingMyBids,
       isLoadingMyBidsWithoutDraftData,
       liveProjectsData?.data?.data?.length,
-      myBids?.data?.data?.length,
+      totalBids,
     ]
   );
 

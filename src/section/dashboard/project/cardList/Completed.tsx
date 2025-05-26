@@ -43,6 +43,8 @@ const CompletedCardList = () => {
             {imgSrc ? (
               <Image
                 alt=""
+                width={200}
+                height={200}
                 className="w-80 aspect-video object-cover shrink-0"
                 src={imgSrc || "/img/svg/null.svg"}
               />
