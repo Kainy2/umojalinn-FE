@@ -59,7 +59,6 @@ const SizingTemplateCard = (props: { template: UmojaLinnSizingTemplate }) => {
 	return (
 		<SizingTemplateDialog
 			id={template?.id}
-			type={isDraft ? "DRAFT-EDIT" : undefined}
 		>
 			<button className="relative h-52">
 				<Image
