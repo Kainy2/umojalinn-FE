@@ -82,7 +82,6 @@ const SizingTemplateTag = (props: SizingTemplateTagProps) => {
         <SizingTemplateDialog
           open={openSizingTemplate}
           onOpenChange={setOpenSizingTemplate}
-          type="CREATE"
         />
         { projectData?.data?.data?.status === "COMPLETED" && <div className="w-full h-full absolute top-0 left-0 cursor-not-allowed bg-gray-200 opacity-10" /> }
 
