@@ -5,7 +5,9 @@ import { useGetBuyerBids } from "@/tanstack/hooks/useBid";
 import React from "react";
 
 const BidPage = () => {
-  const { data, isPending } = useGetBuyerBids();
+  const { data, isPending } = useGetBuyerBids({
+    bidStatus: [ "PENDING","REJECTED"],
+  });
 
   if (isPending) {
     return (

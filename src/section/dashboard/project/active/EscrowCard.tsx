@@ -5,6 +5,7 @@ import ReviewDialog, {
 import { InvoiceButton } from "@/components/custom/Invoice";
 import MilestoneProgress from "@/components/custom/milestone/Progress";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { formatCurrencyValue } from "@/lib/number";
 import { getCurrencySymbol } from "@/lib/string";
@@ -179,15 +180,47 @@ const EscrowCard = (props: EscrowCardProps) => {
               </p>
               <ReviewRatingStars small rating={review.rating || 0} disabled />
               <div className="flex gap-4 overflow-scroll">
-                {review.images?.map?.((image) => (
-                  <Image
+                {review.images?.map?.((image, i) => (
+                  <>
+                  {/* <Image
                     key={image}
                     src={image}
                     alt=""
                     height={100}
                     width={100}
                     className="object-cover"
-                  />
+                  /> */}
+
+                  <Dialog key={image}>
+									<DialogTrigger asChild>
+										<button
+											className={cn(
+												"relative w-28 h-28 rounded-md overflow-hidden"
+											)}
+										>
+											<Image
+												alt={`Review-${i}`}
+												src={image}
+												className="shrink-0 object-cover absolute"
+												fill
+											/>
+										</button>
+									</DialogTrigger>
+									<DialogContent className="h-full w-full max-w-[80vw] max-h-[80vh] p-0 border-0 bg-black/50 [&>button>svg]:text-white overflow-hidden">
+										<div className="relative">
+											<DialogTitle className="hidden">
+												Image
+											</DialogTitle>
+											<Image
+												src={image}
+												className="shrink-0 object-contain absolute"
+												fill
+												alt={`Review-${i}`}
+											/>
+										</div>
+									</DialogContent>
+								</Dialog>
+                  </>
                 ))}
               </div>
             </div>

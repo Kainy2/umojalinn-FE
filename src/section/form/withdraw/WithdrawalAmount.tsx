@@ -310,12 +310,16 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
                       <p>{method?.paypalEmail || method?.bankName}</p>
                       <p className="text-sm mb-2">{method?.accountNumber}</p>
                       <div className="flex items-center gap-2">
-                        {mode === "WITHDRAWAL" && !method.isDefault && (
+                        {mode === "WITHDRAWAL" && (
                             <button 
-                              disabled={isPendingSetDefault} 
-                              onClick={() => handleSetDefaultWithdrawalMethod(method?.id, currency)} className="font-bold disabled:opacity-50"
+                              disabled={isPendingSetDefault || method.isDefault} 
+                              onClick={() => handleSetDefaultWithdrawalMethod(method?.id, currency)}
+                              className={
+                                cn("font-bold disabled:opacity-50",
+                                method.isDefault &&"text-green-500")
+                              }
                             >
-                              Set as default
+                              {method.isDefault ? "Default" : "Set as default"}
                             </button>
                           )}
                         <DialogTrigger 

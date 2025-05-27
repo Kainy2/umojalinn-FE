@@ -33,7 +33,7 @@ const AvatarIconTag = (props: AvatarIconTagProps) => {
             src={props.avatar?.src || "/img/webp/user.webp"}
             height={25}
             width={25}
-            className="rounded-full shrink-0 relative"
+            className="rounded-full w-10 h-10 shrink-0 relative"
           />
         </span>
       )}

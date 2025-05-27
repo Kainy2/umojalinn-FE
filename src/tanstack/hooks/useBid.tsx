@@ -60,7 +60,7 @@ export const useGetDesignerBids = (
   const { data: me } = useSession();
   return useQuery({
     ...options,
-    enabled: !!me?.user && options?.enabled !== false,
+    enabled: !!me?.user && me?.user?.profileRole === "DESIGNER" && options?.enabled !== false,
     queryKey: [BID, DESIGNER, apiParams],
     queryFn: () => getDesignerBids(apiParams),
   });
@@ -80,7 +80,7 @@ export const useGetBuyerBids = (
   const { data: me } = useSession();
   return useQuery({
     ...options,
-    enabled: !!me?.user && options?.enabled !== false,
+    enabled: !!me?.user && me?.user?.profileRole === "BUYER" && options?.enabled !== false,
     queryKey: [BID, BUYER, apiParams],
     queryFn: () => getBuyerBids(apiParams),
   });
