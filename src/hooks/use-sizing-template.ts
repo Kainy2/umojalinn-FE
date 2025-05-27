@@ -59,6 +59,15 @@ export const useSizingTemplateDialog = (
   const [recommendationMode, setRecommendationMode] = useState(false);
   const [openRequestChangesDialog, setOpenRequestChangesDialog] =
     useState(false);
+  const [reviewsEdit, setReviewsEdit] = useState<
+    Partial<
+      Record<
+        keyof (UmojaLinnFemaleSizingTemplateProps &
+          UmojaLinnMaleSizingTemplateProps),
+        string
+      >
+    >
+  >({});
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -95,8 +104,26 @@ export const useSizingTemplateDialog = (
 			if (sizingTemplateResult?.status !== "IN_USE") return "VIEW-ONLY";
 			return "EDIT";
 		}
-	},[ isDesigner, props?.id, sizingTemplateResult?.status]);
+	},[isDesigner, props?.id, sizingTemplateResult?.status]);
 
+
+  const [hasLiveProject, isDraft] = useMemo(() => {
+    return [
+      !!sizingTemplateResult?.projects?.some(
+        (project) => project?.status === "LIVE",
+      ),
+      sizingTemplateResult?.status === "DRAFT",
+    ];
+  }, [sizingTemplateResult]);
+
+  const highlightedSizingName = useMemo(
+    () =>
+      (highlighted &&
+        ALL_SIZING_TEMPLATES?.find?.((value) => highlighted === value?.prop)
+          ?.name) ||
+      "",
+    [highlighted],
+  );
 
   // Function to handle the Enter key press
   const handleKeyPress = (
@@ -112,15 +139,6 @@ export const useSizingTemplateDialog = (
     }
   };
 
-  const [reviewsEdit, setReviewsEdit] = useState<
-    Partial<
-      Record<
-        keyof (UmojaLinnFemaleSizingTemplateProps &
-          UmojaLinnMaleSizingTemplateProps),
-        string
-      >
-    >
-  >({});
 
   const handleChangeValuesByUnit = (
     prevUnit: UmojaLinnSizingTemplate["unit"],
@@ -160,23 +178,6 @@ export const useSizingTemplateDialog = (
     [],
   );
 
-  const [hasLiveProject, isDraft] = useMemo(() => {
-    return [
-      !!sizingTemplateResult?.projects?.some(
-        (project) => project?.status === "LIVE",
-      ),
-      sizingTemplateResult?.status === "DRAFT",
-    ];
-  }, [sizingTemplateResult]);
-
-  const highlightedSizingName = useMemo(
-    () =>
-      (highlighted &&
-        ALL_SIZING_TEMPLATES?.find?.((value) => highlighted === value?.prop)
-          ?.name) ||
-      "",
-    [highlighted],
-  );
 
   useEffect(() => {
     if (sizingTemplateResult) {

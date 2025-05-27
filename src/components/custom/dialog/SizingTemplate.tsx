@@ -28,7 +28,7 @@ const SizingTemplateDialog = (
 
 const {
     loading,
-    isDesigner,
+    // isDesigner,
     highlightedSizingName,
     handleReviewsEditChange,
     handleChange,
@@ -36,7 +36,7 @@ const {
     sizingTemplateResult,
     reviewsEdit,
     isDraft,
-    hasLiveProject,
+    // hasLiveProject,
     TEMPLATE,
     open,
     setOpen,
@@ -84,11 +84,13 @@ const {
       </Dialog>
     );
   }
+  // If modalType === "VIEW-ONLY" or modalType === "EDIT"
 
   // THE EDITABLE SCREEN THAT A BUYER SEES
   // TO EITHER CREATE A NEW TEMPLATE OR
   // EDIT AN OLD ONE WHEN A LIVE PROJECT IS NOT ATTACHED
   if (
+    // former implementation
     // !props?.id ||
     // (
     //   !hasLiveProject &&
@@ -255,8 +257,9 @@ const {
       </Dialog>
     );
   }
-
-  // THE UNEDITABLE SCREEN THAT EVERYONE, INCLUDING THE DESIGNER SEES AND CAN DROP REVIEWS
+  
+  // If modalType === RECOMMEND
+  // THE UNEDITABLE SCREEN THAT THE DESIGNER SEES AND CAN DROP REVIEWS
   return (
     <Dialog open={open} onOpenChange={setOpen} {...props}>
       <DialogTrigger asChild onClick={() => setOpen(true)}>
@@ -322,7 +325,7 @@ const {
                 key={template.prop}
                 label={template.name}
                 highlighted={highlighted === template.prop}
-                hasLiveProject={hasLiveProject}
+                // hasLiveProject={hasLiveProject}
                 metadata={{
                   review:
                     (recommendationMode
@@ -357,7 +360,9 @@ const {
               confirmText="Submit changes"
             />
           </div>
-          {isDesigner && recommendationMode && !hasLiveProject && (
+          { recommendationMode 
+          // && isDesigner && !hasLiveProject 
+          && (
             <div className="flex justify-center gap-2 lg:hidden">
               <Button
                 variant="outline"
@@ -374,7 +379,9 @@ const {
               </Button>
             </div>
           )}
-          {isDesigner && !recommendationMode && !hasLiveProject && (
+           { recommendationMode 
+          // && isDesigner && !hasLiveProject 
+          && (
             <div className="flex justify-center gap-2 lg:hidden">
               <Button
                 disabled={loading}
@@ -397,8 +404,9 @@ const {
               />
             )}
           </div>
-          {!hasLiveProject &&
+          {
             highlighted &&
+            // !hasLiveProject &&
             (reviewsEdit?.[highlighted] ||
               sizingTemplateResult?.metadata?.reviews?.[
                 highlighted
@@ -415,10 +423,11 @@ const {
                 className="absolute top-16 w-full"
               />
             )}
-          {isDesigner &&
+          {
             highlighted &&
-            recommendationMode &&
-            !hasLiveProject && (
+            recommendationMode 
+            // && !hasLiveProject
+            && (
               <div className="flex justify-end gap-2">
                 <Button
                   variant="outline"
@@ -435,7 +444,7 @@ const {
                 </Button>
               </div>
             )}
-          {isDesigner && !recommendationMode && !hasLiveProject && (
+          {modalType==="RECOMMEND" && !recommendationMode && (
             <div className="flex justify-end gap-2">
               <Button
                 disabled={loading}
