@@ -15,18 +15,16 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useGetWallet } from "@/tanstack/hooks/useProject";
-import { UmojalinnWalletTransaction } from "@/types/project";
+import { useGetInfiniteTransactions } from "@/tanstack/hooks/useProject";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { uuidToBase62Safe } from "@/lib/uuid";
 import { capitalizeFirstLetter, getCurrencySymbol } from "@/lib/string";
 import { formatCurrencyValue } from "@/lib/number";
 import { formatDate } from "date-fns";
 import { cn } from "@/lib/utils";
-import { Check, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useInfiniteData } from "@/hooks/use-infinite-data";
+import { UmojaLinnTransaction } from "@/types/transaction";
 
-const columns: ColumnDef<UmojalinnWalletTransaction>[] = [
+const columns: ColumnDef<UmojaLinnTransaction>[] = [
   {
     accessorKey: "projectName",
     header: "Project Name",
@@ -50,7 +48,7 @@ const columns: ColumnDef<UmojalinnWalletTransaction>[] = [
           </Avatar>
           <div className="text-foreground-body">
             <p className="font-semibold">{row?.project?.title}</p>
-            <p className="text-sm">#{uuidToBase62Safe(row?.projectId)}</p>
+            {/* <p className="text-sm">#{uuidToBase62Safe(row?.projectId)}</p> */}
           </div>
         </div>
       );
@@ -72,18 +70,21 @@ const columns: ColumnDef<UmojalinnWalletTransaction>[] = [
     header: "Status",
     cell: (cell) => {
       const row = cell?.row?.original;
-      
+      const isCompleted = row?.transactionType === "MILESTONE_COMPLETED";
       return (
         <p
           className={cn(
             "p-2 text-sm flex items-center gap-2 w-fit [&>svg]:size-4 ",
-            row?.status === "PENDING" && "text-warning bg-warning-25",
-            row?.status === "SUCCESS" && "text-success bg-success-25",
-            row?.status === "FAILED" && "text-error bg-error-25"
+            isCompleted 
+            ? "text-success bg-success-25"
+            : "text-warning bg-warning-25",
+            // row?.status === "FAILED" && "text-error bg-error-25"
           )}
         >
-          {{ PENDING: <></>, SUCCESS: <Check />, FAILED: <X /> }[row?.status]}{" "}
-          {capitalizeFirstLetter(row?.status)}
+          {/* {{ PENDING: <></>, SUCCESS: <Check />, FAILED: <X /> }[row?.status]}{" "}
+          {capitalizeFirstLetter(row?.status)} */}
+
+          {capitalizeFirstLetter(isCompleted? "Released" : "Pending")}
         </p>
       );
     },
@@ -92,9 +93,17 @@ const columns: ColumnDef<UmojalinnWalletTransaction>[] = [
 ];
 
 const EscrowPaidOut = () => {
-  const { data: walletData, isPending: loading } = useGetWallet();
-
-  const transactionPaidOutData = walletData?.data?.data?.transactions;
+  const {
+    data: allTransactions,
+    isPending: loading,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+   } = useGetInfiniteTransactions({
+    transactionType: "MILESTONE_COMPLETED,FUND_ESCROW",
+    activeProjects: false
+   });
+   const transactionPaidOutData = useInfiniteData(allTransactions)
 
   const table = useReactTable({
     data: transactionPaidOutData || [],
@@ -124,6 +133,17 @@ const EscrowPaidOut = () => {
           ))}
         </TableHeader>
         <TableBody>
+         {loading && (
+            <TableRow>
+              <TableCell
+                colSpan={columns.length}
+                className="h-44 text-center text-muted-foreground"
+              >
+                Loading...
+              </TableCell>
+            </TableRow>
+          )}
+          <div></div>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
@@ -137,15 +157,6 @@ const EscrowPaidOut = () => {
                 ))}
               </TableRow>
             ))
-          ) : loading ? (
-            <TableRow>
-              <TableCell
-                colSpan={columns.length}
-                className="h-44 text-center text-muted-foreground"
-              >
-                Loading...
-              </TableCell>
-            </TableRow>
           ) : (
             <TableRow>
               <TableCell
@@ -159,25 +170,16 @@ const EscrowPaidOut = () => {
         </TableBody>
       </Table>
       <div className="flex items-center justify-end space-x-2 py-4 px-8">
-        <div className="flex-1 text-sm text-muted-foreground">Page 1 of 1</div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
-        </div>
+          {hasNextPage && (
+            <button
+              onClick={()=> hasNextPage && fetchNextPage()}
+              className="text-primary text-sm text-right block w-full mt-4 py-2 hover:text-primary/70 transition"
+            >
+              {isFetchingNextPage
+                ? "loading more..."
+                : "Show more"}
+            </button>
+          )}
       </div>
     </div>
   );
