@@ -10,208 +10,46 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
-import { useToast } from "@/hooks/use-toast";
 import { getCurrencySymbol } from "@/lib/string";
-import { uuidToBase62Safe } from "@/lib/uuid";
-import {
-  useCreateMilestone,
-  useDeleteMilestone,
-  useGetDesignerBidById,
-  useSubmitBid,
-  useUpdateBid,
-  useUpdateMilestone,
-} from "@/tanstack/hooks/useBid";
-// import { useGetMe } from "@/tanstack/hooks/useUser";
 import { UmojaLinnDeliveryMethod } from "@/types/project";
 import { Separator } from "@radix-ui/react-separator";
 import { Plus } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
-import React, { useEffect, useMemo, useState } from "react";
 import { formatCurrencyValue } from "@/lib/number";
-
-const MILESTONE_TEMPLATE = {
-  title: "",
-  description: "",
-  price: 0,
-};
+import { useBidEdit } from "@/hooks/use-bid-edit";
 
 const SERVICE_FEE = 0;
 
 const BidPage = () => {
-  const { id } = useParams<{ id: string }>();
-  const [milestones, setMilestones] = useState<
-    {
-      id?: string;
-      title: string;
-      description: string;
-      price: number;
-    }[]
-  >([MILESTONE_TEMPLATE]);
-  const [editing, setEditing] = useState<number | null>(0);
-  const [deliveryMilestonePrice, setDeliveryMilestonePrice] = useState(0);
-  const [deliveryMethod, setDeliveryMethod] =
-    useState<UmojaLinnDeliveryMethod | null>(null);
 
-  // const { data: meData } = useGetMe();
-
-  const { data, isPending } = useGetDesignerBidById(id);
-  const bid = data?.data?.data;
-  const project = bid?.project;
-
-  const router = useRouter();
-  const { toast } = useToast();
-
-  useEffect(() => {
-    if (bid?.milestones?.length) {
-      setMilestones(
-        bid.milestones.map((milestone) => ({
-          title: milestone?.title || "",
-          description: milestone?.description || "",
-          price: milestone?.amount || 0,
-          id: milestone?.id,
-        }))
-      );
-      setEditing(null);
-    }
-    if (bid?.deliveryMilestone?.deliveryMethod) {
-      setDeliveryMethod(bid?.deliveryMilestone?.deliveryMethod);
-    }
-    if (bid?.deliveryMilestone?.amount) {
-      setDeliveryMilestonePrice(bid?.deliveryMilestone?.amount);
-    }
-    if (bid?.additionalNotesToClient) {
-      setNote(bid?.additionalNotesToClient);
-      setAddNote(true);
-    }
-  }, [bid]);
-
-  const { mutate: createMilestone } = useCreateMilestone(id, {
-    onSuccess: () => {
-      setEditing(null);
-    },
-  });
-
-  const { mutate: updateMilestone } = useUpdateMilestone({
-    onSuccess: () => {
-      setEditing(null);
-    },
-  });
-
-  const { mutate: deleteMilestone } = useDeleteMilestone({
-    onSuccess: () => {
-      setMilestones((milestones) =>
-        milestones?.length === 1 ? [] : milestones
-      );
-      setEditing(null);
-    },
-  });
-
-  const { mutate: updateBid } = useUpdateBid(id, {
-    onSuccess() {
-      toast({
-        title: "Bid saved in Drafts",
-        description: "Your bid has been saved successfully.",
-      });
-      router.push(`/jobs/${uuidToBase62Safe(project?.id || "")}`);
-    },
-  });
-
-  // Called after last update
-  const { mutate: submitBid } = useSubmitBid(id, {
-    onSuccess() {
-      toast({
-        title: "Bid Live",
-        description: "Your bid has been published successfully.",
-      });
-      router.push("/dashboard");
-    },
-  });
-
-  // Update before sending live
-  const { mutate: updateToSubmit } = useUpdateBid(id, {
-    onSuccess() {
-      submitBid();
-    },
-  });
-
-  const handleSave =
-    (index: number) =>
-    (props: { title: string; description: string; price: number }) => {
-      const id = milestones[index]?.id;
-      const { price: amount, ...otherProps } = props;
-      const variables = {
-        ...otherProps,
-        amount,
-      };
-      if (id) {
-        updateMilestone(variables);
-      } else {
-        createMilestone(variables);
-      }
-    };
-
-  const [addNote, setAddNote] = useState<boolean>(false);
-  const [note, setNote] = useState<string>("");
-
-  const [excess, setExcess] = useState<number>(0);
-  const [showExcessDialog, setShowExcessDialog] = useState<boolean>(false);
-
-  const [mode, setMode] = useState<"UPDATE" | "LIVE" | null>(null);
-
-  const handleUpdateAction = (mode: "UPDATE" | "LIVE" | null) => {
-    switch (mode) {
-      case "UPDATE":
-        updateBid({
-          additionalNote: addNote ? note : undefined,
-          deliveryAmount: deliveryMilestonePrice,
-          deliveryMethod: deliveryMethod || undefined,
-        });
-        break;
-      case "LIVE":
-        updateToSubmit({
-          additionalNote: addNote ? note : undefined,
-          deliveryAmount: deliveryMilestonePrice,
-          deliveryMethod: deliveryMethod || undefined,
-        });
-        break;
-      default:
-        break;
-    }
-  };
-
-  const handleUpdate = (mode: "UPDATE" | "LIVE" | null) => {
-    if (
-      typeof bid?.project?.budget === "number" &&
-      bid?.project?.budget &&
-      totalPrice > bid?.project?.budget
-    ) {
-      setExcess(totalPrice - bid?.project?.budget);
-      setShowExcessDialog(true);
-      setMode(mode);
-    } else {
-      handleUpdateAction(mode);
-    }
-  };
-
-  const handleToggle = (index: number) => () =>
-    setEditing((prev) => (prev === index ? null : index));
-
-  const handleAdd = () => {
-    setMilestones((prev) => {
-      setEditing(prev.length);
-      return [...prev, MILESTONE_TEMPLATE];
-    });
-  };
-
-  const totalPrice = useMemo(
-    () =>
-      milestones?.reduce((prev, curr) => prev + (curr?.price || 0), 0) +
-      deliveryMilestonePrice,
-    [deliveryMilestonePrice, milestones]
-  );
-
-  const editMode = ["DRAFT", "REJECTED"].includes(bid?.status || "");
-
+  const {
+    bid,
+    project,
+    handleCancel,
+    handleUpdateAction,
+		handleAdd,
+		handleToggle,
+		handleSave,
+		handleUpdate,
+		milestones,
+		totalPrice,
+		addNote,
+		setAddNote,
+		note,
+		setNote,
+		excess,
+		showExcessDialog,
+		setShowExcessDialog,
+		deliveryMethod,
+		setDeliveryMethod,
+		deliveryMilestonePrice,
+		setDeliveryMilestonePrice,
+		mode,
+		editMode,
+		editing,
+		isPending,
+		deleteMilestone,
+  } = useBidEdit();
+  
   if (isPending) {
     return (
       <div className="flex flex-col gap-8">
@@ -248,17 +86,19 @@ const BidPage = () => {
         />
       )}
       {milestones.map((milestone, index) => (
-        <MilestoneCard
-          hideActions={(!!editing && index !== editing) || !editMode}
-          onDelete={() => deleteMilestone(milestone?.id || "")}
-          onCancel={handleToggle(index)}
-          onSave={handleSave(index)}
-          key={index}
-          view={index !== editing || !editMode}
-          {...milestone}
-          onEdit={handleToggle(index)}
-          currency={project?.currency || null}
-        />
+       <MilestoneCard
+					hideActions={(!!editing && index !== editing) || !editMode}
+					onDelete={() =>
+						milestone?.id && deleteMilestone(milestone?.id)
+					}
+					onCancel={()=> handleCancel(index)}
+					onSave={handleSave(index)}
+					key={index}
+					view={index !== editing || !editMode}
+					{...milestone}
+					onEdit={handleToggle(index)}
+					currency={project?.currency || null}
+				/>
       ))}
       <div className="card p-8">
         <div className="text-gray-400">
