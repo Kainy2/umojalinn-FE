@@ -85,7 +85,7 @@ const DashboardPage = () => {
             img={getCoverImage(bid.project)}
             dueDate={bid?.project?.dueDate}
             status={bid?.status === "PENDING" || bid?.status === "REJECTED" ? {
-              color: bid?.status === "PENDING" ? "yellow": "red",
+              color: bid?.status === "PENDING" ? "gold": "red",
               value: bid?.status === "PENDING" ? "In Review" : "Rejected",
             }: undefined}
           />

@@ -164,7 +164,7 @@ const MileStoneCard = (props: MileStoneCardProps) => {
   if (view) {
     return (
       <div className="relative card p-8 flex flex-col gap-4">
-        {!hideActions && (
+        {!hideActions && !!id && (
           <VerifyDialog
             destructive
             onConfirm={onDelete}
