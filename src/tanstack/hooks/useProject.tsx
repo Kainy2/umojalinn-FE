@@ -340,6 +340,17 @@ export const useGetWallet = (
   });
 };
 
+export const useGetTransactions = (
+  params?: Record<string, unknown>,
+) => {
+  const { data: me } = useSession();
+  return useQuery({
+    enabled: !!me?.user,
+		queryKey: [TRANSACTION, params],
+    queryFn: () => getAllTransactions(params),
+  });
+};
+
 export const useGetInfiniteTransactions = (
   params?: Record<string, unknown>,
   // options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnTransaction>>
@@ -348,12 +359,12 @@ export const useGetInfiniteTransactions = (
   const lastId = params?.lastId;
 
   return useInfiniteQuery({
-    initialPageParam: lastId,
-    enabled: !!me?.user,
-    queryKey: [TRANSACTION, params],
-    queryFn: () => getAllTransactions(params),
-     getNextPageParam: (lastPage) => lastPage?.data,
-   });
+		initialPageParam: lastId,
+		enabled: !!me?.user,
+		queryKey: [TRANSACTION, params],
+		queryFn: ({ pageParam: lastId }) => getAllTransactions({ lastId, ...params }),
+		getNextPageParam: (lastPage) => lastPage?.data.lastId,
+  });
 };
 
 export const useGetWithdrawalMethods = (
