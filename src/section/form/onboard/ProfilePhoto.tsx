@@ -45,8 +45,13 @@ const OnboardProfilePhotoForm = (props: { role: UmojaLinnUserRole }) => {
   const { tag, firstName, lastName } = me || {};
 
   // const { getItem } = useStorage();
-  const onboardMe: OnboardingProps["details"] = useMemo (() => sessionStorage.getItem("ONBOARD_INFO") ?? {}, []);
-
+	const onboardMe: OnboardingProps["details"] = useMemo(() => {
+    const data = sessionStorage.getItem("ONBOARD_INFO");
+		return data
+			? JSON.parse(data)
+			: {};
+	}, []);
+  
   const onSubmit = async () => {
     await onboard(
       jsonToFormData({
