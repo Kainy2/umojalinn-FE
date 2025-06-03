@@ -103,7 +103,7 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
         onSuccess() {
           router.push(
             mode === "DRAFT"
-              ? "/projects"
+              ? "/projects/drafts"
               : `${!!props.isOnboarding ? "/onboard" : ""
               }/project/${uuidToBase62Safe(props?.id)}/gallery`
           );
@@ -113,6 +113,10 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
     [props?.id, props.isOnboarding, router, updateProject]
   );
 
+console.log({sizingTemplateId: form.watch("sizingTemplateId")})
+
+// http://localhost:3000/project/67GVLHjOlYJVaign9DZK9T
+// http://localhost:3000/project/hoXw3ODhKDFm8LkfGAmLN
   if (loadingProject) {
     return (
       <div className="flex flex-col gap-6">
@@ -365,6 +369,7 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
             render={({ field }) => <Textarea {...field} />}
           />
         </FormItemWrapper>
+
         {!props.isOnboarding && (
           <FormItemWrapper
             title="Sizing Template"
@@ -392,6 +397,7 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
                         </span>
                       </div>
                       <CustomSelect
+                      key={String(sizingTemplateData?.data?.data?.length)}
                         {...field}
                         disabled={loadingSizingTemplate}
                         onValueChange={field.onChange}

@@ -25,9 +25,9 @@ const WithdrawalPage = () => {
 		fetchNextPage,
 		hasNextPage,
    } = useGetInfiniteTransactions();
+   const transactions = useInfiniteData(allTransactions)
   
   const wallet = walletData?.data?.data;
-  const transactions = useInfiniteData(allTransactions)
 
   const isDesigner = session?.user?.profileRole === "DESIGNER";
 
