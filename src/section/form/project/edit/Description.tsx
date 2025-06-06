@@ -113,8 +113,6 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
     [props?.id, props.isOnboarding, router, updateProject]
   );
 
-console.log({sizingTemplateId: form.watch("sizingTemplateId")})
-
 // http://localhost:3000/project/67GVLHjOlYJVaign9DZK9T
 // http://localhost:3000/project/hoXw3ODhKDFm8LkfGAmLN
   if (loadingProject) {

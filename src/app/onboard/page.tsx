@@ -52,7 +52,6 @@ const OnboardPage = async () => {
         <Link
           key={props.href}
           href={props.href}
-          onClick={()=> sessionStorage.removeItem("ONBOARD_INFO")}
           className={cn(
             "flex-1 cursor-pointer bg-cover bg-left-top group relative before:content-[''] before:absolute before:top-0 before:h-full before:w-full before:bg-gradient-to-t before:from-black before:to-transparent overflow-hidden",
             props.src
