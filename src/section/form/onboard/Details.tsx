@@ -30,8 +30,13 @@ const OnboardDetailsForm = (props: { role: UmojaLinnUserRole }) => {
   });
 
   // const { getItem, setItem } = useStorage();
-  const onboardMe: OnboardingProps["details"] = useMemo (() => sessionStorage.getItem("ONBOARD_INFO") ?? {}, []);
-
+  const onboardMe: OnboardingProps["details"] = useMemo(() => {
+    const data = sessionStorage.getItem("ONBOARD_INFO");
+    return data
+      ? JSON.parse(data)
+      : {};
+  }, []);
+  
   useEffect(() => {
     if (Object.values(onboardMe)) {
       const formProps = ["gender", "dateOfBirth", "phoneNumber"] as const;

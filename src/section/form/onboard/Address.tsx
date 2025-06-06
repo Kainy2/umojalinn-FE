@@ -12,7 +12,6 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 
-import useStorage from "@/hooks/useStorage";
 import CustomSelectCountry from "@/components/custom/SelectCountry";
 
 const OnboardAddressForm = (props: { role: UmojaLinnUserRole }) => {
@@ -31,9 +30,12 @@ const OnboardAddressForm = (props: { role: UmojaLinnUserRole }) => {
     },
   });
 
-  const { getItem } = useStorage();
-  const onboardMe = useMemo(() => getItem("ONBOARD_INFO") || {}, [getItem]);
-
+  const onboardMe: OnboardingProps = useMemo(() => {
+    const data = sessionStorage.getItem("ONBOARD_INFO");
+    return data
+      ? JSON.parse(data)
+      : {};
+  }, []);
   useEffect(() => {
     if (Object.values(onboardMe)) {
       const formProps = [
@@ -45,7 +47,7 @@ const OnboardAddressForm = (props: { role: UmojaLinnUserRole }) => {
       ] as const;
       formProps?.forEach((prop) => {
         if (onboardMe?.address?.[prop]) {
-          form?.setValue(prop, onboardMe?.address?.[prop] as string);
+          form?.setValue(prop, onboardMe?.address?.[prop]);
         }
       });
     }
