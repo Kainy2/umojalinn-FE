@@ -429,9 +429,9 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
                   </div>
                   <div className="flex flex-col lg:flex-row gap-6"></div>
                   <div>
-                    <p className="text-sm text-foreground-body mb-2">
+                    {/* <p className="text-sm text-foreground-body mb-2">
                       This is a hint to help user
-                    </p>
+                    </p> */}
                     <div className="bg-error-50/70 border-2 border-error/50 rounded-lg p-4">
                       <div className="flex gap-2 mb-4">
                         <span className="icon-wrapper error">

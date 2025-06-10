@@ -142,7 +142,7 @@ export const updateProfileSchema = z.object({
   alternativeEmail: z.string().email("Invalid email address").nullable().optional(),
   specialistType: z.string().optional(),
   clothingTypes: z.array(z.string()).max(8, "Select only up to 8 clothing types").optional(),
-  experienceLevel: z.enum([...EXPERIENCE_ENUMS_VALUES]).optional(),
+  experienceLevel: z.enum(EXPERIENCE_ENUMS_VALUES).nullable().optional(),
   // Uncomment and adjust if using languages:
   // languages: z
   //   .array(

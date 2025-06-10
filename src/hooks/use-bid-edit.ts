@@ -165,23 +165,23 @@ const { id } = useParams<{ id: string }>();
   };
 
   const handleUpdate = (mode: "UPDATE" | "LIVE" | null) => {
-			const isCompleteForm = milestones.every((milestone) => (
-				milestone?.title &&
-				milestone?.description
-			))
-			
-			if (!isCompleteForm) {
-				toast({
-					variant: "destructive",
-					title: "Submission Error",
-					description: "you have unsaved edits to your milestone. Please review and save or cancel before submitting.",
-				})
-				return
-			}
+    const isCompleteForm = milestones.every((milestone) => (
+      milestone?.title &&
+      milestone?.description
+    ))
+    
+    if (!isCompleteForm) {
+      toast({
+        variant: "destructive",
+        title: "Submission Error",
+        description: "you have unsaved edits to your milestone. Please review and save or cancel before submitting.",
+      })
+      return
+    }
 
 		if (mode === "LIVE") {
 			const canSubmit = isCompleteForm && deliveryMilestonePrice && deliveryMethod && milestones.length > 0
-			if (canSubmit) {
+			if (!canSubmit) {
 				toast({
 					variant: "destructive",
 					title: "Submission Error",
