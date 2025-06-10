@@ -3,6 +3,8 @@ import { convertApiParams } from "@/lib/request";
 import { base62ToUuidSafe } from "@/lib/uuid";
 import {
   CreateWithdrawalMethodPayload,
+  DirectTransferPayload,
+  PaypalPayload,
   RequestWithdrawalPayload,
   SetDefaultWithdrawalMethodPayload,
 } from "@/section/form/withdraw/WithdrawalAmount";
@@ -382,7 +384,7 @@ export const setDefaultWithdrawalMethod = async (
 
 export const editWithdrawalMethod = async (
   id: string,
-  body: CreateWithdrawalMethodPayload,
+  body: PaypalPayload | DirectTransferPayload,
   options?: ServerActionOption
 ) => {
   let axios = clientAxios;
