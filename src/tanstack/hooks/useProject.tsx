@@ -60,6 +60,8 @@ import {
 import { AxiosProgressEvent } from "axios";
 import {
   CreateWithdrawalMethodPayload,
+  DirectTransferPayload,
+  PaypalPayload,
   RequestWithdrawalPayload,
   SetDefaultWithdrawalMethodPayload,
 } from "@/section/form/withdraw/WithdrawalAmount";
@@ -429,7 +431,7 @@ export const useEditWithdrawalMethod = (
   id: string,
   options?: GenericUseMutationProps<
     SingleApiResponse<UmojaLinnWithdrawalMethod>,
-    CreateWithdrawalMethodPayload
+    PaypalPayload | DirectTransferPayload
   >
 ) => {
   const { handleError } = useHandleError("Edit Withdrawal Method");

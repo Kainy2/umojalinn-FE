@@ -8,7 +8,7 @@ import Bank from "@/icons/Bank";
 import NairaSign from "@/icons/NairaSign";
 import { UmojaLinnCurrency, UmojaLinnWithdrawalMethod } from "@/types/project";
 import { Euro, Mail, MessageSquareWarning } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import ProjectEditFooter from "../project/edit/Footer";
 import {
   useCreateWithdrawalMethod,
@@ -244,10 +244,21 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
 		});
   };
 
-  const withdrawalMethodsForThisCurrency =
-    withdrawalMethodsData?.data?.data?.filter(
-      (method) => method?.currency === currency
-    );
+  const withdrawalMethodsForThisCurrency = useMemo(
+    () =>
+      withdrawalMethodsData?.data?.data?.filter(
+        (method) => method?.currency === currency
+      ),
+    [withdrawalMethodsData, currency]
+  );
+
+  useEffect(() => {
+		const method = withdrawalMethodsForThisCurrency?.find(
+			(method) => method?.isDefault
+		);
+		setWithdrawalMethodId(method?.id || null);
+	}, [withdrawalMethodsForThisCurrency]);
+    
     
 
   return (

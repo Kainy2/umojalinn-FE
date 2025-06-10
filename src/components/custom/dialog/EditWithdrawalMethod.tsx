@@ -70,11 +70,13 @@ const EditWithdrawalMethod = (props: {
   const handleSubmit = () => {
     if (withdrawalMethod) {
       // @ts-expect-error Withdrawal method type is conditional
-      editWithdrawalMethod({
-        channel: withdrawalMethod?.channel,
-        currency: withdrawalMethod?.currency,
-        ...editWithdrawalMethodPayload,
-      });
+      // editWithdrawalMethod({
+      //   channel: withdrawalMethod?.channel,
+      //   currency: withdrawalMethod?.currency,
+      //   ...editWithdrawalMethodPayload,
+      // });
+      
+      editWithdrawalMethod(editWithdrawalMethodPayload);
     }
   };
 

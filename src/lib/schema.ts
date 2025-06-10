@@ -136,7 +136,7 @@ export const updateProfileSchema = z.object({
   lastName: z.string().min(1, "Last Name is required").optional(),
   brandName: z.string().optional(),
   tag: z.string().min(1, "Tag is required").optional(),
-  gender: z.enum(["MALE", "FEMALE", "RATHER_NOT_SAY"]).optional(),
+  gender: z.enum(["MALE", "FEMALE", "RATHER_NOT_SAY"]).nullable().optional(),
   dateOfBirth: z.union([z.date(), z.string()]).optional(),
   email: z.string().email("Invalid email address").optional(),
   alternativeEmail: z.string().email("Invalid email address").nullable().optional(),
