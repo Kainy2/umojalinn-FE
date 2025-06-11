@@ -52,7 +52,7 @@ const getDefaultValues = (data:UmojaLinnUser | undefined ): UpdateProfileProps =
     clothingTypes: data?.designerProfile?.clothingTypes?.map(({id}) => id) ?? [],
     experienceLevel: data?.designerProfile?.experienceLevel as "ONE_TO_TWO_YEARS" | "THREE_TO_FIVE_YEARS" | "SIX_TO_EIGHT_YEARS" | "NINE_PLUS_YEARS" | undefined,
     about: data?.designerProfile?.about ?? "",
-    gender: data?.gender as "MALE" | "FEMALE" | "RATHER_NOT_SAY" | undefined,
+    gender: data?.gender as "MALE" | "FEMALE" | "RATHER_NOT_SAY" | null | undefined,
     dateOfBirth: data?.dateOfBirth ?? "",
     tag: data?.tag,
     brandName: data?.designerProfile?.brandName ?? "",
@@ -239,7 +239,7 @@ const SettingsProfilePage = () => {
             name="gender"
             render={({ field }) => (
               <FormCustomSelectField
-                value={field?.value }
+                value={field?.value || ""}
                 onValueChange={(value) => field?.onChange(value)}
                 disabled={disableForm}
                 options={[
