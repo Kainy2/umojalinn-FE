@@ -179,17 +179,17 @@ const { id } = useParams<{ id: string }>();
       return
     }
 
-		if (mode === "LIVE") {
-			const canSubmit = isCompleteForm && deliveryMilestonePrice && deliveryMethod && milestones.length > 0
-			if (!canSubmit) {
-				toast({
-					variant: "destructive",
-					title: "Submission Error",
-					description: "At least One Milestone + Delivery Method must be filled before submitting",
-				})
-				return
-			}
-		}
+		// if (mode === "LIVE") {
+		// 	const canSubmit = isCompleteForm && deliveryMilestonePrice && deliveryMethod && milestones.length > 0
+		// 	if (!canSubmit) {
+		// 		toast({
+		// 			variant: "destructive",
+		// 			title: "Submission Error",
+		// 			description: "At least One Milestone + Delivery Method must be filled before submitting",
+		// 		})
+		// 		return
+		// 	}
+		// }
 
     if (
       typeof bid?.project?.budget === "number" &&
