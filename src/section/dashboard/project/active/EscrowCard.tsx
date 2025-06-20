@@ -137,6 +137,11 @@ const EscrowCard = (props: EscrowCardProps) => {
       {!!props?.reviews?.length && <Separator className="my-4" />}
       <div className="flex flex-col gap-8 text-sm">
         {props.reviews?.map?.((review) => {
+          const isDesigner = session?.user?.profileRole === "DESIGNER";
+
+          if (isDesigner && review?.buyerId && !props?.project?.allReviewsSubmitted) return null;
+          if (!isDesigner && review?.designerId && !props?.project?.allReviewsSubmitted) return null;
+
           return (
             <div
               key={review?.id}
