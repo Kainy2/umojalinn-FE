@@ -39,7 +39,7 @@ const SocialsForm = (props: SocialsFormProps) => {
         <hr className="flex-1" />
       </div>
       <div className="flex flex-col gap-2">
-        {socialButtonTemplate.map((btn) => (
+        {!inviterTag && socialButtonTemplate.map((btn) => (
           <Button
             key={btn.platform}
             variant="outline"
