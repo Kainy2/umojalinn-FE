@@ -134,7 +134,7 @@ const InviteClient = () => {
                     `${
                       process.env.NEXT_PUBLIC_WEB_URL ||
                       "https://dev.d1451lqyj8o4u7.amplifyapp.com"
-                    }register?inviterTag=${me?.data?.data?.tag}`,
+                    }/register?inviterTag=${me?.data?.data?.tag}`,
                   )
                 }
               >
