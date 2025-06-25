@@ -9,6 +9,7 @@ import { Toaster } from "@/components/ui/toaster";
 import TanstackQueryClientProvider from "@/components/provider/TanstackQueryClient";
 import { Provider as RollbarProvider } from "@rollbar/react";
 import { clientConfig } from "@/lib/rollbar";
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 const InterSans = Inter({
   subsets: ["latin"],
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: LayoutProps) {
             </TanstackQueryClientProvider>
           </NextAuthProvider>
         </body>
+      <GoogleAnalytics gaId="G-0R3CGFQCS3" />
       </html>
     </RollbarProvider>
   );
