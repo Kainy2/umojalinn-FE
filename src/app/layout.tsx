@@ -33,7 +33,7 @@ export default function RootLayout({ children }: LayoutProps) {
             </TanstackQueryClientProvider>
           </NextAuthProvider>
         </body>
-      <GoogleAnalytics gaId="G-0R3CGFQCS3" />
+      <GoogleAnalytics gaId={process.env.GOOGLE_ANALYTICS_TAG_ID || ''} />
       </html>
     </RollbarProvider>
   );
