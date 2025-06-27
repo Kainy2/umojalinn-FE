@@ -21,7 +21,7 @@ const SETTINGS: Array<SettingsCardProps> = [
     href: "/settings/security",
     icon: <ShieldCheck />,
     description:
-      "Your name, contacts and other relevant information about yourself",
+      "Manage password",
   },
   {
     title: "Notification",
@@ -36,7 +36,7 @@ const DESIGNER_SETTINGS: Array<SettingsCardProps> = [
     title: "Payment",
     href: "/settings/payment",
     icon: <CreditCard />,
-    description: "Notifications and alert preference",
+    description: "Manage your payment methods",
   },
 ];
 
