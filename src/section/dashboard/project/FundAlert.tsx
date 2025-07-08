@@ -8,11 +8,13 @@ import {
   useGetProjectMilestones,
 } from "@/tanstack/hooks/useProject";
 import { AlertTriangle } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { useParams, usePathname } from "next/navigation";
 import React, { useMemo } from "react";
 
 const FundProjectAlert = () => {
   const pathname=usePathname();
+  const { data: me } = useSession();
   const params = useParams<{ id: string }>();
   const { data: projectData } = useGetProjectById(params?.id);
 
@@ -26,12 +28,13 @@ const FundProjectAlert = () => {
     [projectMilestonesData?.data?.data]
   );
 
- const excludedPaths = ['ads', 'completed', 'bids', 'drafts'];
+  const isDesigner = me?.user?.profileRole === "DESIGNER";
+  const excludedPaths = ['ads', 'completed', 'bids', 'drafts'];
   const isExcludedPath = excludedPaths.some(path => pathname.includes(path));
   const isAwaitingFund = projectData?.data?.data?.fundStatus === "AWAITING_FUND";
   const isUnfunded = projectData?.data?.data?.amountFunded === 0;
 
-  if (isExcludedPath || !isAwaitingFund || !isUnfunded) return null;
+  if (isExcludedPath || !isAwaitingFund || !isUnfunded || isDesigner ) return null;
 
   return (
     <Alert

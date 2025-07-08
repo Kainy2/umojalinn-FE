@@ -54,7 +54,7 @@ export const useSizingTemplateDialog = (
   >({});
   const [gender, setGender] =
     useState<UmojaLinnSizingTemplate["gender"]>("MALE");
-  const [unit, setUnit] = useState<UmojaLinnSizingTemplate["unit"]>("CM");
+  const [unit, setUnit] = useState<UmojaLinnSizingTemplate["unit"]>("INCH");
   const [name, setName] = useState<string>("");
   const [recommendationMode, setRecommendationMode] = useState(false);
   const [openRequestChangesDialog, setOpenRequestChangesDialog] =
@@ -207,7 +207,7 @@ export const useSizingTemplateDialog = (
       setValue(templateDetails);
       setName(name);
       setGender(gender);
-      setUnit(unit);
+      if (unit) setUnit(unit);
     }
   }, [sizingTemplateResult]);
 

@@ -36,7 +36,7 @@ const DESIGNER_SETTINGS: Array<SettingsCardProps> = [
     title: "Payment",
     href: "/settings/payment",
     icon: <CreditCard />,
-    description: "Manage your payment methods",
+    description: "Payment Details and Preferences",
   },
 ];
 

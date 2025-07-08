@@ -304,10 +304,11 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
                 {withdrawalMethodsForThisCurrency?.map?.((method) => (
                   <button
                     onClick={() =>
-                      mode === "WITHDRAWAL" &&
+                      // mode === "WITHDRAWAL" &&
                       setWithdrawalMethodId((prev) =>
                         prev === method?.id ? null : method.id
                       )
+                    
                     }
                     key={method.id}
                     className={cn(
@@ -478,10 +479,10 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
               )}
               {paymentMethod && (
                 <p className="text-foreground-body text-sm -mt-4">
-                  Got any other payment suggestions{" "}
+                  Got any other payment suggestions?{" "}
                   <a
                     href="https://tally.so/r/mZDGMo"
-                    className="font-semibold text-foreground"
+                    className="font-semibold text-primary"
                     target="_blank"
                   >
                     Submit feedback
