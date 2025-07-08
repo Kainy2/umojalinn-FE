@@ -90,6 +90,7 @@ const styles = StyleSheet.create({
   },
   bodyWrapper: {
     flexGrow: 1,
+    borderSpacing: 5,
   },
   row: {
     flexDirection: "row",
@@ -149,6 +150,9 @@ const Invoice = (props: InvoiceProps) => {
     (amount, milestone) => amount + (milestone?.amount || 0),
     0
   )
+
+  const deliveryMilestone = props?.milestones?.[props?.milestones?.length - 1];
+  
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -208,8 +212,9 @@ const Invoice = (props: InvoiceProps) => {
             <View style={styles.dateWrapper}>
               <Text style={styles.fontBold}>Completion date:</Text>
               <Text style={styles.bodyText}>
-                {props.project?.dueDate &&
-                  formatDate(props.project?.dueDate, "dd.MM.yyy")}
+                {deliveryMilestone?.paidOutDate ?
+                  formatDate(deliveryMilestone?.paidOutDate, "dd.MM.yyy")
+                  : "N/A"}
               </Text>
             </View>
             <View style={styles.dateWrapper}>

@@ -74,7 +74,7 @@ const DashboardPage = () => {
         {myBidsDataWithoutDraft?.data?.data?.map((bid) => (
           <JobCard
             key={bid?.id}
-            blurred={bid?.status === "REJECTED"}
+            // blurred={bid?.status === "REJECTED"}
             isPrivate={bid.project?.projectType === "PRIVATE"}
             name={bid?.project?.title || "No title"}
             href={`/bids/${uuidToBase62Safe(bid?.id)}/edit`}

@@ -17,6 +17,8 @@ import { CircleHelp, Tag } from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
 import DialogListPickerItem from "./ListPickerItem";
+// import Link from "next/link";
+import SizingTemplateDialog from "./SizingTemplate";
 
 type ButtonOnClickProp = React.ComponentProps<"button">["onClick"];
 
@@ -194,6 +196,15 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
               ? "Confirm"
               : "Create New Sizing Template"}
           </Button>
+          <div className="flex items-center gap-2 mt-4">
+            {/* <Link href="/sizing-templates"> */}
+            <SizingTemplateDialog>
+              <button className="text-primary font-semibold cursor-pointer">
+                Create a new sizing template
+              </button>
+            </SizingTemplateDialog>
+            {/* </Link> */}
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

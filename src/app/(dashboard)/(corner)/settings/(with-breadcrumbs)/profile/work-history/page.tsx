@@ -92,25 +92,29 @@ const SettingsProfileWorkHistoryPage = () => {
                 {getCurrencySymbol(firstReview?.project?.currency)}
                 {formatCurrencyValue(firstReview?.project?.approvedBudget)}
               </p>
-              {session?.user?.profileRole === "DESIGNER" ? (
-                <p className="text-foreground-body">
-                  Designer{" "}
-                  <span className="font-semibold text-foreground">
-                    {firstReview?.project?.designer?.user?.firstName}{" "}
-                    {firstReview?.project?.designer?.user?.lastName}
-                  </span>
-                </p>
-              ) : (
-                <Link
-                  href={href || "#"}
-                  className={cn(
-                    "font-bold text-primary",
-                    !href && "text-muted cursor-not-allowed",
-                  )}
-                >
-                  View details
-                </Link>
-              )}
+              {/* Always show link except variables to show link are unavailable  */}
+              {session?.user?.profileRole === "DESIGNER" && !href ? (
+                  <p className="text-foreground-body">
+                    Designer{" "}
+                    <span className="font-semibold text-foreground">
+                      {
+                        firstReview?.project?.designer?.user
+                          ?.firstName
+                      }{" "}
+                      {firstReview?.project?.designer?.user?.lastName}
+                    </span>
+                  </p>
+                ) : (
+                  <Link
+                    href={href || "#"}
+                    className={cn(
+                      "font-bold text-primary",
+                      !href && "text-muted cursor-not-allowed"
+                    )}
+                  >
+                    View details
+                  </Link>
+                )}
             </div>
           </div>
         );

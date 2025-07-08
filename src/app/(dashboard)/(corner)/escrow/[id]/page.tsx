@@ -20,6 +20,14 @@ const EscrowPage = () => {
   const { data: projectData, isPending: isLoadingProject } =
     useGetProjectById(id);
 
+  const totalReleased = projectMilestonesData?.data?.data?.reduce?.(
+    (acc, milestone) => {
+      if (milestone?.transactionStatus !== "PAID") return acc;
+      return acc + (milestone?.amount || 0);
+    },
+    0
+  );
+
   if (isLoadingProjectMilestones || isLoadingProject)
     return (
       <div className="h-[30vh] flex items-center justify-center text-muted-foreground text-sm">
@@ -59,7 +67,7 @@ const EscrowPage = () => {
             <p className="text-md">Released</p>
             <p className="text-md font-semibold">
               {getCurrencySymbol(projectData?.data?.data?.currency)}
-              {formatCurrencyValue(projectData?.data?.data?.amountFunded || 0)}
+              {formatCurrencyValue(totalReleased ?? 0)}
             </p>
           </div>
           <div className="label-grid mb-4 bg-gray-100 p-2">
