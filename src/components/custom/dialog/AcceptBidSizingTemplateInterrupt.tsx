@@ -196,16 +196,16 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
               ? "Confirm"
               : "Create New Sizing Template"}
           </Button>
-          <div className="flex items-center gap-2 mt-4">
-            {/* <Link href="/sizing-templates"> */}
-            <SizingTemplateDialog>
-              <button className="text-primary font-semibold cursor-pointer">
-                Create a new sizing template
-              </button>
-            </SizingTemplateDialog>
-            {/* </Link> */}
-          </div>
         </DialogFooter>
+        <div className="flex -mt-4">
+          {/* <Link href="/sizing-templates"> */}
+          <SizingTemplateDialog>
+            <button className="text-primary font-semibold cursor-pointer flex-1">
+              Create a new sizing template
+            </button>
+          </SizingTemplateDialog>
+          {/* </Link> */}
+        </div>
       </DialogContent>
     </Dialog>
   );
