@@ -36,7 +36,7 @@ const {
     sizingTemplateResult,
     reviewsEdit,
     isDraft,
-    // hasLiveProject,
+    // isTemplateHaveLiveProject,
     TEMPLATE,
     open,
     setOpen,
@@ -62,7 +62,9 @@ const {
     previewImage,
     setPreviewImage,
     inputRefs,
-    modalType
+    modalType,
+    // editMode, 
+    // setEditMode
   } = useSizingTemplateDialog(props);
  
   // LOADING THE SIZING TEMPLATE DATA
@@ -93,7 +95,7 @@ const {
     // former implementation
     // !props?.id ||
     // (
-    //   !hasLiveProject &&
+    //   !isTemplateHaveLiveProject &&
     //   sizingTemplateResult?.buyerId ===
     //     meData?.data?.data?.buyerProfile?.id)
 
@@ -112,6 +114,7 @@ const {
             </DialogTitle>
             <div className="flex gap-4 items-center mb-4">
               <TextField
+                disabled={modalType !== "EDIT"}
                 placeholder="Template name"
                 className="flex-1 w-full"
                 maxLength={30}
@@ -119,6 +122,7 @@ const {
                 value={name}
               />
               <TabButtonSelect
+                disabled={modalType !== "EDIT"}
                 active={gender}
                 onChange={(value) =>
                   setGender(value as UmojaLinnSizingTemplate["gender"])
@@ -179,7 +183,7 @@ const {
                     label={template.name}
                     onFocus={() => setPreviewImage(template.img)}
                     highlighted={highlighted === template.prop}
-                    // hasLiveProject={hasLiveProject}
+                    // isTemplateHaveLiveProject={isTemplateHaveLiveProject}
                     hasLiveProject={false}
                     metadata={{
                       review: reviewValue,
@@ -198,13 +202,15 @@ const {
               })}
             </div>
             <div className="flex justify-center gap-2 lg:hidden">
-              <Button
-                variant="outline"
-                onClick={() => handleSubmit()}
-                disabled={loading}
-              >
-                Save
-              </Button>
+              {modalType === "EDIT" && (
+                <Button
+                  variant="outline"
+                  onClick={() => handleSubmit()}
+                  disabled={loading}
+                >
+                  Save
+                </Button>
+              )}
               {(isDraft || !props.id) && (
                 <Button onClick={() => handleSubmit(true)} disabled={loading}>
                   Submit
@@ -239,13 +245,15 @@ const {
                 )}
             </div>
             <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                onClick={() => handleSubmit()}
-                disabled={loading}
-              >
-                Save
-              </Button>
+              {modalType === "EDIT" && (
+                <Button
+                  variant="outline"
+                  onClick={() => handleSubmit()}
+                  disabled={loading}
+                >
+                  Save
+                </Button>
+              )}
               {(isDraft || !props.id) && (
                 <Button onClick={() => handleSubmit(true)} disabled={loading}>
                   Submit
@@ -325,7 +333,7 @@ const {
                 key={template.prop}
                 label={template.name}
                 highlighted={highlighted === template.prop}
-                // hasLiveProject={hasLiveProject}
+                // hasLiveProject={true}
                 metadata={{
                   review:
                     (recommendationMode
@@ -361,7 +369,7 @@ const {
             />
           </div>
           { recommendationMode 
-          // && isDesigner && !hasLiveProject 
+          // && isDesigner && !isTemplateHaveLiveProject 
           && (
             <div className="flex justify-center gap-2 lg:hidden">
               <Button
@@ -380,7 +388,7 @@ const {
             </div>
           )}
            { recommendationMode 
-          // && isDesigner && !hasLiveProject 
+          // && isDesigner && !isTemplateHaveLiveProject 
           && (
             <div className="flex justify-center gap-2 lg:hidden">
               <Button
@@ -406,7 +414,7 @@ const {
           </div>
           {
             highlighted &&
-            // !hasLiveProject &&
+            // !isTemplateHaveLiveProject &&
             (reviewsEdit?.[highlighted] ||
               sizingTemplateResult?.metadata?.reviews?.[
                 highlighted
@@ -426,7 +434,7 @@ const {
           {
             highlighted &&
             recommendationMode 
-            // && !hasLiveProject
+            // && !isTemplateHaveLiveProject
             && (
               <div className="flex justify-end gap-2">
                 <Button
