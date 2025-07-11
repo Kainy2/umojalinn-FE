@@ -41,6 +41,7 @@ export const useSizingTemplateDialog = (
 ) => {
 
  const [previewImage, setPreviewImage] = useState<string | null>(null);
+ const [editMode, setEditMode] = useState(false);
   const [open, setOpen] = useState(false);
   const [highlighted, setHighlighted] = useState<
     | keyof (UmojaLinnFemaleSizingTemplateProps &
@@ -96,18 +97,8 @@ export const useSizingTemplateDialog = (
 	// 			: "BUYER-VIEW"
 	// 		: "DESIGNER-VIEW";
 
-	const modalType: TemplateModalType = useMemo(() => {
-		if (isDesigner) {
-			return "RECOMMEND";
-		} else {
-			if (!props?.id) return "EDIT"
-			if (sizingTemplateResult?.status !== "IN_USE") return "VIEW-ONLY";
-			return "EDIT";
-		}
-	},[isDesigner, props?.id, sizingTemplateResult?.status]);
 
-
-  const [hasLiveProject, isDraft] = useMemo(() => {
+  const [isTemplateHaveLiveProject, isDraft] = useMemo(() => {
     return [
       !!sizingTemplateResult?.projects?.some(
         (project) => project?.status === "LIVE",
@@ -115,6 +106,23 @@ export const useSizingTemplateDialog = (
       sizingTemplateResult?.status === "DRAFT",
     ];
   }, [sizingTemplateResult]);
+
+
+  
+	const modalType: TemplateModalType = useMemo(() => {
+		if (isDesigner) {
+			return "RECOMMEND";
+		} else {
+			if (!props?.id) return "EDIT"
+			if (sizingTemplateResult?.status === "IN_USE" && isTemplateHaveLiveProject) return "VIEW-ONLY";
+			return "EDIT";
+		}
+	},[isDesigner, props?.id, sizingTemplateResult?.status, isTemplateHaveLiveProject]);
+
+  console.log(
+    sizingTemplateResult?.name, isDesigner, !props?.id, 
+    sizingTemplateResult?.status === "IN_USE", isTemplateHaveLiveProject, modalType
+  );
 
   const highlightedSizingName = useMemo(
     () =>
@@ -281,7 +289,7 @@ export const useSizingTemplateDialog = (
     sizingTemplateResult,
     reviewsEdit,
     isDraft,
-    hasLiveProject,
+    isTemplateHaveLiveProject,
     TEMPLATE,
     open,
     setOpen,
@@ -306,6 +314,8 @@ export const useSizingTemplateDialog = (
     previewImage,
     setPreviewImage,
     inputRefs,
-		modalType
+		modalType,
+    editMode, 
+    setEditMode
 	}
 };
