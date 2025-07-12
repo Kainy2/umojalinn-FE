@@ -18,7 +18,12 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Setup Vercel Project (pull .vercel config)
+      - name: Create .vercel/project.json
+        run: |
+          mkdir -p .vercel
+          echo '{ "orgId": "'$VERCEL_ORG_ID'", "projectId": "'$VERCEL_PROJECT_ID'" }' > .vercel/project.json
+
+      - name: Pull Vercel Environment Info
         run: vercel pull --yes --environment=preview --token=$VERCEL_TOKEN
 
       - name: Build Project
@@ -26,7 +31,4 @@ jobs:
 
       - name: Deploy to Vercel (Preview)
         run: |
-          vercel deploy --prebuilt --token=$VERCEL_TOKEN \
-            --yes --no-clipboard \
-            --scope $VERCEL_ORG_ID \
-            --project $VERCEL_PROJECT_ID
+          vercel deploy --prebuilt --yes --no-clipboard --token=$VERCEL_TOKEN
