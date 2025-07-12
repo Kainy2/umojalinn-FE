@@ -99,12 +99,13 @@ const MilestoneAction: React.FC<
                 isDelivery
                   ? jsonToFormData(deliverySubmission || {})
                   : jsonToFormData({ description: message, media: files })
+                  // ...(files ? { media: files } : {}),
               )
             }
             variant="success"
             fullWidth
             disabled={
-              submittingMilestone || (!isDelivery && (!message || !files))
+              submittingMilestone || (!isDelivery && !message)
             }
           >
             Submit
