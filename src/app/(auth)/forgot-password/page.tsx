@@ -10,7 +10,7 @@ const ForgotPasswordPage = () => {
           <KeyRound />
         </span>
         <h1 className="text-lg font-bold text-foreground mb-2">
-          Forgot password?
+          Have you forgotten your password?
         </h1>
         <p className="mb-6 text-foreground-body">
           No stress, we dey your back like shirt.
