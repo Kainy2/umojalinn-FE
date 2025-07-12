@@ -10,6 +10,7 @@ import TanstackQueryClientProvider from "@/components/provider/TanstackQueryClie
 import { Provider as RollbarProvider } from "@rollbar/react";
 import { clientConfig } from "@/lib/rollbar";
 import { GoogleAnalytics } from '@next/third-parties/google'
+import { Analytics } from '@vercel/analytics/next';
 
 const InterSans = Inter({
   subsets: ["latin"],
@@ -30,10 +31,11 @@ export default function RootLayout({ children }: LayoutProps) {
             <TanstackQueryClientProvider>
               {children}
               <Toaster />
+              <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_TAG_ID ?? ''} />
+              <Analytics />
             </TanstackQueryClientProvider>
           </NextAuthProvider>
         </body>
-      <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_TAG_ID ?? ''} />
       </html>
     </RollbarProvider>
   );
