@@ -5,6 +5,7 @@ import { getDatabase } from "firebase/database";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
+
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 // export const firebaseConfig = {
@@ -20,16 +21,9 @@ import { getDatabase } from "firebase/database";
 // } satisfies FirebaseOptions;
 
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAKV-9ZQxetCXn-tja-1cE5b5UXyxap2xI",
-  authDomain: "umoja-linn-web-app.firebaseapp.com",
-  databaseURL: "https://umoja-linn-web-app-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "umoja-linn-web-app",
-  storageBucket: "umoja-linn-web-app.firebasestorage.app",
-  messagingSenderId: "272405379877",
-  appId: "1:272405379877:web:d67f28ddeb9e9f77eab8cc",
-  measurementId: "G-PQHEE5VHN8"
-} satisfies FirebaseOptions;
+const firebaseConfig: FirebaseOptions = JSON.parse(
+  process.env.NEXT_PUBLIC_FIREBASE_CONFIG || "{}"
+)
 
 // Initialize Firebase
 export const app = initializeApp(firebaseConfig);
