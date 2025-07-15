@@ -182,14 +182,14 @@ const DirectTransferPage = () => {
             accept=".pdf, .jpg, .jpeg, .png"
             details={
               <>
-                or drag and drop payment reciept <br /> PDF, JPG or PDF
+                or drag and drop payment receipt <br /> PDF, JPG or PDF
               </>
             }
           />
         )}
         <p className="text-center">
           Note: Kindly transfer exact amount to the account details above and
-          upload your payment reciept
+          upload your payment receipt
         </p>
         <Button
           fullWidth
