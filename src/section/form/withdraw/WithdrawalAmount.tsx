@@ -266,6 +266,7 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
 
         	{withdrawalMethodId && (
 					<EditWithdrawalMethod
+          withdrawalMethods={withdrawalMethodsData?.data?.data}
 						id={withdrawalMethodId}
 						onSuccess={()=>setIsFormModalOpen(false)}
 					/>
@@ -328,7 +329,9 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
                               onClick={() => handleSetDefaultWithdrawalMethod(method?.id, currency)}
                               className={
                                 cn("font-bold disabled:opacity-50",
-                                method.isDefault &&"text-green-500")
+                                method.isDefault &&"text-green-500",
+                              isPendingSetDefault && "cursor-not-allowed"
+                              )
                               }
                             >
                               {method.isDefault ? "Default" : "Set as default"}

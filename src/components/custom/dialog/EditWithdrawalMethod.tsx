@@ -15,7 +15,6 @@ import {
 import {
   useDeleteWithdrawalMethod,
   useEditWithdrawalMethod,
-  useGetWithdrawalMethods,
 } from "@/tanstack/hooks/useProject";
 import React, { useEffect, useState } from "react";
 import TextField from "../input/TextField";
@@ -25,13 +24,13 @@ import { getTransactionIcon } from "@/components/util/wallet";
 import { UmojaLinnWithdrawalMethod } from "@/types/project";
 
 const EditWithdrawalMethod = (props: {
-    id: string
+    id: string,
+    withdrawalMethods: UmojaLinnWithdrawalMethod[] | undefined,
     onSuccess: () => void
   }) => {
   const [editWithdrawalMethodPayload, setEditWithdrawalMethodPayload] =
     useState<Partial<PaypalPayload & DirectTransferPayload>>({});
 
-  const { data: withdrawalMethodsData } = useGetWithdrawalMethods();
   const { mutate: editWithdrawalMethod, isPending: isEditing } =
     useEditWithdrawalMethod(props.id, {
       onSuccess() {
@@ -46,7 +45,7 @@ const EditWithdrawalMethod = (props: {
 
     });
 
-  const withdrawalMethod = withdrawalMethodsData?.data?.data?.find(
+  const withdrawalMethod = props.withdrawalMethods?.find(
     (method) => method?.id === props.id
   );
 

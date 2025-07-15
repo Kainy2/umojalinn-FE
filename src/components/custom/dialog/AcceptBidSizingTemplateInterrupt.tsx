@@ -198,7 +198,7 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
           </Button>
         </DialogFooter>
         <div className="flex -mt-4">
-         {!liveSizingTemplates?.data?.data?.length && (
+         {!!liveSizingTemplates?.data?.data?.length && (
 						<SizingTemplateDialog>
 							<button className="text-primary font-semibold cursor-pointer flex-1">
 								Create a new sizing template
