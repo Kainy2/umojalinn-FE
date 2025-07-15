@@ -368,10 +368,10 @@ const {
               confirmText="Submit changes"
             />
           </div>
-          { recommendationMode 
+          {recommendationMode 
           // && isDesigner && !isTemplateHaveLiveProject 
-          && (
-            <div className="flex justify-center gap-2 lg:hidden">
+          ? (
+            <div className="flex justify-center gap-2 lg:hidden pt-2">
               <Button
                 variant="outline"
                 onClick={() => setOpenRequestChangesDialog(true)}
@@ -386,16 +386,14 @@ const {
                 Submit
               </Button>
             </div>
-          )}
-           { recommendationMode 
-          // && isDesigner && !isTemplateHaveLiveProject 
-          && (
-            <div className="flex justify-center gap-2 lg:hidden">
+          ) : (
+            <div className="flex justify-center gap-2 lg:hidden pt-2">
               <Button
+                fullWidth
                 disabled={loading}
                 onClick={() => setRecommendationMode(true)}
               >
-                Submit request
+                Recommendation mode
               </Button>
             </div>
           )}
