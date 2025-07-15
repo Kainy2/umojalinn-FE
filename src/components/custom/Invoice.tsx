@@ -152,7 +152,12 @@ const Invoice = (props: InvoiceProps) => {
   )
 
   const deliveryMilestone = props?.milestones?.[props?.milestones?.length - 1];
-  
+  const currency = 
+  // "N"
+  getCurrencySymbol(props.project?.currency) === "₦" 
+  ? "N" 
+  : getCurrencySymbol(props.project?.currency);
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -270,15 +275,15 @@ const Invoice = (props: InvoiceProps) => {
                     : "-"}
                 </Text>
                 <Text style={[styles.column, styles.column3]}>
-                  {getCurrencySymbol(props?.project?.currency)}
+                  {currency}
                   {formatCurrencyValue(milestone?.amount)}
                 </Text>
                 <Text style={[styles.column, styles.column4, styles.successText]}>
-                  {getCurrencySymbol(props?.project?.currency)}
+                  {currency}
                   {0}
                 </Text>
                 <Text style={[styles.column, styles.column5]}>
-                  {getCurrencySymbol(props?.project?.currency)}
+                  {currency}
                   {formatCurrencyValue((milestone?.amount ?? 0))}
                 </Text>
               </View>
@@ -293,14 +298,14 @@ const Invoice = (props: InvoiceProps) => {
             <View style={styles.dateWrapper}>
               <Text>SERVICE CHARGE (0%)</Text>
               <Text>
-                {getCurrencySymbol(props.project?.currency)}
+                {currency}
                 {0}
               </Text>
             </View>
             <View style={styles.dateWrapper}>
               <Text>SUB TOTAL</Text>
               <Text>
-                {getCurrencySymbol(props.project?.currency)}
+                {currency}
                 {formatCurrencyValue(subTotal)}
               </Text>
             </View>
@@ -316,7 +321,7 @@ const Invoice = (props: InvoiceProps) => {
                 TOTAL AMOUNT
               </Text>
               <Text style={[styles.headerTitle, styles.primaryText]}>
-                {getCurrencySymbol(props.project?.currency)}
+                {currency}
                 {formatCurrencyValue(props?.project?.approvedBudget)}
               </Text>
             </View>
