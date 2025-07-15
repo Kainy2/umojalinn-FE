@@ -198,13 +198,13 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
           </Button>
         </DialogFooter>
         <div className="flex -mt-4">
-          {/* <Link href="/sizing-templates"> */}
-          <SizingTemplateDialog>
-            <button className="text-primary font-semibold cursor-pointer flex-1">
-              Create a new sizing template
-            </button>
-          </SizingTemplateDialog>
-          {/* </Link> */}
+         {!liveSizingTemplates?.data?.data?.length && (
+						<SizingTemplateDialog>
+							<button className="text-primary font-semibold cursor-pointer flex-1">
+								Create a new sizing template
+							</button>
+						</SizingTemplateDialog>
+					)}
         </div>
       </DialogContent>
     </Dialog>

@@ -8,7 +8,7 @@ type RejectButtonProps = { bidId: string };
 
 const RejectButton = (props: RejectButtonProps) => {
   const [reason, setReason] = useState<string>("");
-  const { mutate } = useAcceptOrRejectBid(props.bidId);
+  const { mutate, isPending } = useAcceptOrRejectBid(props.bidId);
   return (
     <VerifyDialog
       title="Rational"
@@ -29,9 +29,9 @@ const RejectButton = (props: RejectButtonProps) => {
           rejectionReason: reason,
         })
       }
-      disableActions={!reason}
+      disableActions={!reason || isPending}
     >
-      <Button variant="outline" className="border-error text-error">
+      <Button disabled={isPending} variant="outline" className="border-error text-error">
         Reject proposal
       </Button>
     </VerifyDialog>
