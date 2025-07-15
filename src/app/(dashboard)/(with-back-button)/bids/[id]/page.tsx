@@ -39,7 +39,7 @@ const IndividualBidPage = () => {
   console.log("myNote", myNote);
   
 
-  const { mutate: acceptOrReject } = useAcceptOrRejectBid(id, {
+  const { mutate: acceptOrReject, isPending } = useAcceptOrRejectBid(id, {
     onSuccess() {
       router.push(`/projects/${uuidToBase62Safe(bid?.projectId || "")}`);
     },
@@ -143,6 +143,7 @@ const IndividualBidPage = () => {
               <RejectButton bidId={id} />
               <Button
                 variant="success"
+                disabled={isPending}
                 onClick={() => {
                   if (bid?.project?.sizingTemplateId) {
                     acceptOrReject({
