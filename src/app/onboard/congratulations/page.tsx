@@ -33,7 +33,7 @@ const CongratulationsPage = () => {
         run={true}
       />
       <div className="container text-center flex flex-col items-center">
-        <h1 className="text-xl font-bold text-foreground mb-2 ">
+        <h1 className="text-4xl md:text-xl font-bold text-foreground mb-2 ">
           Congratulations
         </h1>
         <p>
