@@ -4,7 +4,7 @@ import SettingsCard, {
 } from "@/components/custom/card/Settings";
 import { Separator } from "@/components/ui/separator";
 import { capitalizeFirstLetter } from "@/lib/string";
-import { BellRing, CreditCard, FileText, ShieldCheck } from "lucide-react";
+import { BellRing, FileText, ShieldCheck } from "lucide-react";
 import { useSession } from "next-auth/react";
 import React from "react";
 
@@ -32,12 +32,12 @@ const SETTINGS: Array<SettingsCardProps> = [
 ];
 
 const DESIGNER_SETTINGS: Array<SettingsCardProps> = [
-  {
-    title: "Payment",
-    href: "/settings/payment",
-    icon: <CreditCard />,
-    description: "Payment Details and Preferences",
-  },
+  // {
+  //   title: "Payment",
+  //   href: "/settings/payment",
+  //   icon: <CreditCard />,
+  //   description: "Payment Details and Preferences",
+  // },
 ];
 
 const SettingPage = () => {

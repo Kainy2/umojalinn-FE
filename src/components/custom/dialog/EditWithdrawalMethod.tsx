@@ -197,7 +197,7 @@ const EditWithdrawalMethod = (props: {
                 handlePayloadChange("bankAddress", e.target.value)
               }
             />
-            <div className="flex flex-col lg:flex-row gap-6">
+            {/* <div className="flex flex-col lg:flex-row gap-6">
               <TextField
                 placeholder="Bank IBAN"
                 label="IBAN"
@@ -212,7 +212,7 @@ const EditWithdrawalMethod = (props: {
                   handlePayloadChange("swiftCode", e.target.value)
                 }
               />
-            </div>
+            </div> */}
           </div>
         );
     }
