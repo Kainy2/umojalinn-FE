@@ -254,13 +254,16 @@ const DashboardPage = () => {
       totalBids,
     ]
   );
-
+  
   return (
     <>
+    {/* TODO: REDO THE WAY THESE PROPS ARE PASSED */}
       <div className="block md:hidden">
         <CustomCardHolder
           {...holderProps(mobileSelection)}
-          options={options as unknown as string[]}
+
+          optionKeys={[...options]}
+          options={options.map(option=>holderProps(option))}
           onSelect={(tab) => setMobileSelection(tab as OptionsType)}
         >
           {mobileSelectedContent}

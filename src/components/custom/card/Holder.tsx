@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import React from "react";
 import { CustomCardProps } from ".";
-import { capitalizeFirstLetter, replaceSubsection } from "@/lib/string";
+import { replaceSubsection } from "@/lib/string";
 import {
   Popover,
   PopoverContent,
@@ -19,7 +19,7 @@ export type CustomCardHolderProps = {
   empty?: boolean;
   loading?: boolean;
   type?: CustomCardProps["type"];
-  options?: string[];
+  // options?: string[];
   onSelect?: (selection: string) => void;
 };
 
@@ -43,7 +43,12 @@ const CustomCardHolderChildren = (
   return props.children;
 };
 
-const CustomCardHolder = (props: CustomCardHolderProps) => {
+const CustomCardHolder = (
+  props: CustomCardHolderProps & {
+    options?: CustomCardHolderProps[]
+    optionKeys?: string[]
+  }
+) => {
   const { empty, loading, type, count, title, children, colour } = props;
 
   if (type === "PROJECT") {
@@ -88,19 +93,31 @@ const CustomCardHolder = (props: CustomCardHolderProps) => {
             {props?.options?.length && <ChevronDown className="size-4" />}
           </button>
         </PopoverTrigger>
-        <PopoverContent className="w-40">
-          <div>
+        <PopoverContent className="w-60 flex flex-col items-center">
             {props?.options?.map((option, i) => (
-              <PopoverClose key={i}>
+              <PopoverClose key={option.title}>
                 <button
-                  className="relative flex w-full cursor-default select-none items-center rounded-sm py-1 pl-8 pr-2 text-sm text-left outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
-                  onClick={() => props?.onSelect?.(option)}
+                  className={cn("relative flex gap-2 w-full cursor-default select-none items-center rounded-sm p-1 py-3 text-sm capitalize text-left outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+                    option.colour === "success" && "text-success",
+                    option.colour === "info" && "text-gray-500",
+                    option.colour === "primary" && "text-primary"
+                  )}
+                  onClick={() => props?.onSelect?.(props.optionKeys?.[i] ?? "")}
                 >
-                  {capitalizeFirstLetter(option)?.replaceAll("_", " ")}
+                    <span
+                      className={cn(
+                        "h-5 w-5 flex items-center justify-center text-white bg-teal-500 text-sm",
+                        option.colour === "success" && "bg-success",
+                        option.colour === "info" && "bg-gray-500",
+                        option.colour === "primary" && "bg-primary"
+                      )}
+                    >
+                      {option.count}
+                    </span>
+                  {option.title}
                 </button>
               </PopoverClose>
             ))}
-          </div>
         </PopoverContent>
       </Popover>
       <div className="flex flex-col gap-2">
