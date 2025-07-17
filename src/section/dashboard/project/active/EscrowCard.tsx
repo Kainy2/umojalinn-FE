@@ -68,10 +68,10 @@ const EscrowCard = (props: EscrowCardProps) => {
     <div
       className={cn(
         "flex flex-col gap-4 bg-gray-50 rounded-md p-4 py-8",
-        !hasAllMilestoneCompleted && "hidden lg:flex"
+        // !hasAllMilestoneCompleted && "hidden lg:flex"
       )}
     >
-      <div className="hidden lg:block">
+      <div className="">
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-subtitle-2 font-bold">Project Escrow</h2>
           <button>
@@ -123,8 +123,10 @@ const EscrowCard = (props: EscrowCardProps) => {
             {formatCurrencyValue(props.projectPrice)}
           </p>
         </div>
-        <InvoiceButton project={props.project} milestones={props.milestones} />
-        <div className="flex gap-2 items-center">
+        <div className="hidden lg:block">
+          <InvoiceButton project={props.project} milestones={props.milestones} />
+        </div>
+        <div className="flex gap-2 items-center mt-5 md:mt-0">
           <span className="h-6 w-6 shrink-0 bg-error-100 rounded-full flex items-center justify-center text-error">
             <CircleAlert className="h-4 w-4" />
           </span>

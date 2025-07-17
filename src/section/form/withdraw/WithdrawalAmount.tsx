@@ -98,7 +98,7 @@ const [isFormModalOpen, setIsFormModalOpen] = useState(false)
   const router = useRouter();
   const { toast } = useToast();
 
-  const [withdrawalMethodId, setWithdrawalMethodId] = useState<string | null>(null);
+  const [selectedWithdrawalMethod, setSelectedWithdrawalMethod] = useState<UmojaLinnWithdrawalMethod | null>(null);
   const [amount, setAmount] = useState<string | null>(null);
 
   const { data: withdrawalMethodsData, isPending: loadingWithdrawalMethods } =
@@ -224,9 +224,9 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
 
 
   const handleContinue = () => {
-		if (!withdrawalMethodId && !paymentMethod) return;
+		if (!selectedWithdrawalMethod?.id && !paymentMethod) return;
 
-		if (!withdrawalMethodId) {
+		if (!selectedWithdrawalMethod?.id) {
 			createWithdrawalMethod({
 				channel: paymentMethod!,
 				currency,
@@ -239,8 +239,8 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
 
 		requestWithdrawal({
 			currency,
-			withdrawalMethodId: withdrawalMethodId,
-			amount: parseInt(amount || ""),
+			withdrawalMethodId: selectedWithdrawalMethod.id,
+			amount: parseInt(amount ?? ""),
 		});
   };
 
@@ -256,21 +256,21 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
 		const method = withdrawalMethodsForThisCurrency?.find(
 			(method) => method?.isDefault
 		);
-		setWithdrawalMethodId(method?.id || null);
+		setSelectedWithdrawalMethod(method ?? null);
 	}, [withdrawalMethodsForThisCurrency]);
     
     
 
   return (
-        <Dialog open={isFormModalOpen} onOpenChange={setIsFormModalOpen}  >
+  <Dialog open={isFormModalOpen} onOpenChange={setIsFormModalOpen}  >
 
-        	{withdrawalMethodId && (
-					<EditWithdrawalMethod
-          withdrawalMethods={withdrawalMethodsData?.data?.data}
-						id={withdrawalMethodId}
-						onSuccess={()=>setIsFormModalOpen(false)}
-					/>
-				)}
+    {selectedWithdrawalMethod && (
+      <EditWithdrawalMethod
+        key={selectedWithdrawalMethod.id}
+        selectedWithdrawalMethod={selectedWithdrawalMethod}
+        onSuccess={()=>setIsFormModalOpen(false)}
+      />
+    )}
 		
         
     <div className="flex flex-col gap-6">
@@ -306,15 +306,15 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
                   <button
                     onClick={() =>
                       // mode === "WITHDRAWAL" &&
-                      setWithdrawalMethodId((prev) =>
-                        prev === method?.id ? null : method.id
+                      setSelectedWithdrawalMethod((prev) =>
+                        prev?.id === method?.id ? null : method
                       )
                     
                     }
                     key={method.id}
                     className={cn(
                       "p-4 rounded-md border relative flex gap-4",
-                      withdrawalMethodId === method?.id && "border-primary",
+                      selectedWithdrawalMethod?.id === method?.id && "border-primary",
                       mode === "WITHDRAWAL" && "cursor-pointer"
                     )}
                   >
@@ -341,7 +341,7 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
                           asChild
                           onClick={(e) => {
                             e.stopPropagation()
-                            setWithdrawalMethodId(method.id)
+                            setSelectedWithdrawalMethod(method)
                             setIsFormModalOpen(true)}
                         }
                          >
@@ -352,7 +352,7 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
                       </div>
                     </div>
                     {mode === "WITHDRAWAL" &&
-                      (withdrawalMethodId === method?.id ? (
+                      (selectedWithdrawalMethod?.id === method?.id ? (
                         <CheckCircle className="size-5 text-primary shrink-0 absolute top-4 right-4" />
                       ) : (
                         <span className="border border-gray-400 rounded-full size-5 shrink-0 absolute top-4 right-4" />
@@ -366,7 +366,7 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
                   onValueChange={(
                     value: UmojaLinnWithdrawalMethod["channel"]
                   ) => {
-                    setWithdrawalMethodId(null); 
+                    setSelectedWithdrawalMethod(null); 
                     setPaymentMethod(value);
                   }}
                   options={getOptions(currency)}
@@ -424,24 +424,34 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
                       handleDirectTransferChange("bankAddress", e.target.value)
                     }
                   />
-                  <div className="flex flex-col lg:flex-row gap-6">
-                    <TextField
-                      placeholder="Bank IBAN"
-                      label="IBAN"
-                      value={directTransferPayload.iban}
-                      onChange={(e) =>
-                        handleDirectTransferChange("iban", e.target.value)
-                      }
-                    />
-                    <TextField
-                      placeholder="Bank Swift code"
-                      label="Swift code"
-                      value={directTransferPayload.swiftCode}
-                      onChange={(e) =>
-                        handleDirectTransferChange("swiftCode", e.target.value)
-                      }
-                    />
-                  </div>
+                  {currency === "EURO" && (
+									<div className="flex flex-col lg:flex-row gap-6">
+										<TextField
+											placeholder="Bank IBAN"
+											label="IBAN"
+											value={directTransferPayload.iban}
+											onChange={(e) =>
+												handleDirectTransferChange(
+													"iban",
+													e.target.value
+												)
+											}
+										/>
+										<TextField
+											placeholder="Bank Swift code"
+											label="Swift code"
+											value={
+												directTransferPayload.swiftCode
+											}
+											onChange={(e) =>
+												handleDirectTransferChange(
+													"swiftCode",
+													e.target.value
+												)
+											}
+										/>
+									</div>
+								)}
                   <div className="flex flex-col lg:flex-row gap-6"></div>
                   <div>
                     {/* <p className="text-sm text-foreground-body mb-2">
@@ -506,11 +516,11 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
 						}
 						handleSave={handleContinue}
 						loading={
-							(!paymentMethod && !withdrawalMethodId) ||
+							(!paymentMethod && !selectedWithdrawalMethod) ||
 							isCreatingWithdrawalMethod ||
 							isRequestingWithdrawal ||
 							loadingWithdrawalMethods ||
-							(withdrawalMethodId && !amount) ||
+							(selectedWithdrawalMethod && !amount) ||
 							(paymentMethod === "DIRECT_TRANSFER" && !agree)
 						}
 					/>
