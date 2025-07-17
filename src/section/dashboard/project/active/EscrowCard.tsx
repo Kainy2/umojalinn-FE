@@ -123,10 +123,8 @@ const EscrowCard = (props: EscrowCardProps) => {
             {formatCurrencyValue(props.projectPrice)}
           </p>
         </div>
-        <div className="hidden lg:block">
           <InvoiceButton project={props.project} milestones={props.milestones} />
-        </div>
-        <div className="flex gap-2 items-center mt-5 md:mt-0">
+        <div className="flex gap-2 items-center mt-2">
           <span className="h-6 w-6 shrink-0 bg-error-100 rounded-full flex items-center justify-center text-error">
             <CircleAlert className="h-4 w-4" />
           </span>
