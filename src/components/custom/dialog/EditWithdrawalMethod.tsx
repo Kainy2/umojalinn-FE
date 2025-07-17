@@ -16,45 +16,50 @@ import {
   useDeleteWithdrawalMethod,
   useEditWithdrawalMethod,
 } from "@/tanstack/hooks/useProject";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import TextField from "../input/TextField";
 import TextAreaField from "../input/TextAreaField";
 import { Mail } from "lucide-react";
 import { getTransactionIcon } from "@/components/util/wallet";
-import { UmojaLinnWithdrawalMethod } from "@/types/project";
+import {  UmojaLinnWithdrawalMethod } from "@/types/project";
 
 const EditWithdrawalMethod = (props: {
-    id: string,
-    withdrawalMethods: UmojaLinnWithdrawalMethod[] | undefined,
+    selectedWithdrawalMethod: UmojaLinnWithdrawalMethod,
     onSuccess: () => void
   }) => {
+    const { selectedWithdrawalMethod} = props
   const [editWithdrawalMethodPayload, setEditWithdrawalMethodPayload] =
-    useState<Partial<PaypalPayload & DirectTransferPayload>>({});
+    useState<Partial<PaypalPayload & DirectTransferPayload>>({
+				paypalEmail: selectedWithdrawalMethod.paypalEmail ?? undefined,
+				accountName: selectedWithdrawalMethod.accountName ?? undefined,
+				bankName: selectedWithdrawalMethod.bankName ?? undefined,
+				accountNumber: selectedWithdrawalMethod.accountNumber ?? undefined,
+				bankAddress: selectedWithdrawalMethod.bankAddress ?? undefined,
+				...(selectedWithdrawalMethod.currency === "EURO" && {
+          iban: selectedWithdrawalMethod.iban ?? undefined,
+				swiftCode: selectedWithdrawalMethod.swiftCode ?? undefined,
+      })
+    });
 
   const { mutate: editWithdrawalMethod, isPending: isEditing } =
-    useEditWithdrawalMethod(props.id, {
+    useEditWithdrawalMethod(selectedWithdrawalMethod.id, {
       onSuccess() {
         props.onSuccess()
    },
     });
   const { mutate: deleteWithdrawalMethod, isPending: isDeleting } =
-    useDeleteWithdrawalMethod(props.id, {
+    useDeleteWithdrawalMethod(selectedWithdrawalMethod.id, {
       onSuccess() {
         props.onSuccess()   
    },
 
     });
 
-  const withdrawalMethod = props.withdrawalMethods?.find(
-    (method) => method?.id === props.id
-  );
-
   const title = capitalizeFirstLetter(
-    withdrawalMethod?.channel || ""
+    selectedWithdrawalMethod.channel || ""
   )?.replaceAll?.("_", " ");
 
-  const icon =
-    withdrawalMethod?.channel && getTransactionIcon(withdrawalMethod?.channel);
+  const icon = getTransactionIcon(selectedWithdrawalMethod.channel);
 
   const handlePayloadChange = (
     prop: keyof typeof editWithdrawalMethodPayload,
@@ -67,7 +72,7 @@ const EditWithdrawalMethod = (props: {
   };
 
   const handleSubmit = () => {
-    if (withdrawalMethod) {
+    if (selectedWithdrawalMethod) {
       // @ts-expect-error Withdrawal method type is conditional
       // editWithdrawalMethod({
       //   channel: withdrawalMethod?.channel,
@@ -78,22 +83,6 @@ const EditWithdrawalMethod = (props: {
       editWithdrawalMethod(editWithdrawalMethodPayload);
     }
   };
-
-  useEffect(() => {
-		if (withdrawalMethod) {
-			setEditWithdrawalMethodPayload({
-				paypalEmail: withdrawalMethod?.paypalEmail ?? undefined,
-				accountName: withdrawalMethod?.accountName ?? undefined,
-				bankName: withdrawalMethod?.bankName ?? undefined,
-				accountNumber: withdrawalMethod?.accountNumber ?? undefined,
-				bankAddress: withdrawalMethod?.bankAddress ?? undefined,
-				iban: withdrawalMethod?.iban ?? undefined,
-				swiftCode: withdrawalMethod?.swiftCode ?? undefined,
-			});
-		}
-  }, [withdrawalMethod]);
-
-  if (!withdrawalMethod) return null;
 
   return (
       <DialogContent className="sm:max-w-[425px]">
@@ -107,7 +96,7 @@ const EditWithdrawalMethod = (props: {
           </DialogDescription>
         </DialogHeader>
           <FormContent
-            withdrawalMethod={withdrawalMethod}
+            withdrawalMethod={selectedWithdrawalMethod}
             handlePayloadChange={handlePayloadChange}
             editWithdrawalMethodPayload={editWithdrawalMethodPayload}
           />
@@ -197,7 +186,7 @@ const EditWithdrawalMethod = (props: {
                 handlePayloadChange("bankAddress", e.target.value)
               }
             />
-            {/* <div className="flex flex-col lg:flex-row gap-6">
+           {withdrawalMethod.currency === "EURO" && <div className="flex flex-col lg:flex-row gap-6">
               <TextField
                 placeholder="Bank IBAN"
                 label="IBAN"
@@ -212,7 +201,7 @@ const EditWithdrawalMethod = (props: {
                   handlePayloadChange("swiftCode", e.target.value)
                 }
               />
-            </div> */}
+            </div>}
           </div>
         );
     }
