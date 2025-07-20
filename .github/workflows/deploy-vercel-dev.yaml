@@ -1,4 +1,4 @@
-name: Vercel Preview Deployment
+name: Vercel Development Deployment
 env:
   VERCEL_TOKEN: ${{ secrets.DEV_VERCEL_TOKEN }}
 
