@@ -107,7 +107,7 @@ const LoginForm = (props: {
             href="/forgot-password"
             className="text-sm text-foreground-body"
           >
-            Forgot password
+            Forgot your password?
           </Link>
         </div>
         <Button loading={loading} fullWidth type="submit">
