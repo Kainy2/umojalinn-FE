@@ -20,7 +20,7 @@ type OptionsType = (typeof options)[number];
 
 const DashboardPage = () => {
   const [mobileSelection, setMobileSelection] =
-    useState<OptionsType>("MY_BIDS");
+    useState<OptionsType>("MY_ACTIVE_JOBS");
 
   // const { data: myBids, isPending: isLoadingMyBids } = useGetDesignerBids({
   //   bidStatus: ["PENDING", "REJECTED"],
