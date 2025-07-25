@@ -165,7 +165,7 @@ const {
               <p>Measurement Point</p>
               <p>Measurement</p>
             </div>
-            <div className="max-h-[50vh] overflow-scroll">
+            <div className="max-h-[45vh] overflow-scroll">
               {TEMPLATE.map((template, index) => {
                 const isNotEdit = modalType !== "EDIT"
                 const reviewValue = (recommendationMode
@@ -312,7 +312,7 @@ const {
             />
             <TabButtonSelect
               active={unit}
-              disabled
+
               tabs={[
                 { title: "CM", value: "CM" },
                 { title: "INCH", value: "INCH" },
@@ -323,7 +323,7 @@ const {
             <p>Measurement Point</p>
             <p>Measurement</p>
           </div>
-          <div className="max-h-[50vh] overflow-scroll">
+          <div className="max-h-[45vh] overflow-scroll">
             {TEMPLATE.map((template) => (
               <SizingTemplateInputField
                 disabled
