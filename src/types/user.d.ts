@@ -39,7 +39,12 @@ export type UmojaLinnUserDesignerAddonProfile = {
     name: string;
     languageProficiency: (typeof languageProficiency)[number];
   }[];
-  specialistType: null | string;
+  specialistType: null | {
+    createdAt: string;
+    id: string;
+    name: string;
+    updatedAt: string;
+  };
 };
 
 export type UmojaLinnUser = {

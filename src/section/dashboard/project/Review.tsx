@@ -120,6 +120,11 @@ const ProjectReviewView = (props: {
       </Collapsible>
       <Collapsible title="Other Details">
         <LabelBadge
+            title="Additional notes"
+            value={props?.project?.additionalNotes}
+          />
+
+        <LabelBadge
           title="Clothing type"
           value={props?.project?.clothingTypes?.map?.((type) => type.name)}
         />

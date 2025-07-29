@@ -40,19 +40,13 @@ const DraftCardList = () => {
   }
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 ">
       {data?.data?.data?.map((project) => {
         const imgSrc = project?.Gallery?.find(
           (gallery) => gallery?.isCoverImage
         )?.imageUrl;
         return (
-          <button
-            key={project?.id}
-            onClick={() =>
-              router.push(`/project/${uuidToBase62Safe(project?.id)}`)
-            }
-            className="relative text-left card flex flex-col lg:flex-row gap-4 hover:bg-gray-50 transition-colors"
-          >
+          <div key={project?.id} className="relative">
             <VerifyDialog
               onOpenChange={setVerifyDelete}
               open={verifyDelete}
@@ -68,50 +62,56 @@ const DraftCardList = () => {
             >
               <button
                 className="absolute top-4 right-4 [&>svg]:size-5 p-2 "
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
+                onClick={() => {
                   setVerifyDelete(true);
                 }}
               >
                 <Trash2 />
               </button>
             </VerifyDialog>
-            {imgSrc ? (
-              <Image
-                alt=""
-                className="w-80 object-cover aspect-video shrink-0"
-                src={imgSrc}
-                width={200}
-                height={200}
-              />
-            ) : (
-              <p className="w-80 object-cover aspect-video bg-gray-100 shrink-0 flex items-center justify-center text-foreground-body">
-                No images
-              </p>
-            )}
-            <div className="flex-1 flex flex-col gap-2">
-              <h3 className="font-semibold text-subtitle-2">
-                {project?.title}
-              </h3>
-              <p className="mb-4 text-sm">
-                Created: {timeago?.format(project?.createdAt)}
-              </p>
 
-              <p className="flex-1 line-clamp-3">{project?.about}</p>
-              <div className="flex flex-row items-center gap-4 w-full">
-                <div className="block w-full flex-1 bg-gray-100 h-3 rounded-full">
-                  <div
-                    className={`bg-primary h-full rounded-full`}
-                    style={{
-                      width: `${project?.draftPercentageCompleted || 0}%`,
-                    }}
-                  />
+            <button
+              key={project?.id}
+              onClick={() => router.push(`/project/${uuidToBase62Safe(project?.id)}`)}
+              className="w-full text-left card flex-1 flex flex-col lg:flex-row gap-4 hover:bg-gray-50 transition-colors"
+            >
+              {imgSrc ? (
+                <Image
+                  alt=""
+                  className="w-full md:w-80 object-cover aspect-video shrink-0"
+                  src={imgSrc}
+                  width={200}
+                  height={200}
+                />
+              ) : (
+                <p className="w-full md:w-80 object-cover aspect-video bg-gray-100 shrink-0 flex items-center justify-center text-foreground-body">
+                  No images
+                </p>
+              )}
+              <div className="flex-1 flex flex-col gap-2">
+                <h3 className="font-semibold text-subtitle-2">
+                  {project?.title}
+                </h3>
+                <p className="mb-4 text-sm">
+                  Created: {timeago?.format(project?.createdAt)}
+                </p>
+
+                <p className="flex-1 line-clamp-3">{project?.about}</p>
+                <div className="flex flex-row items-center gap-4 w-full">
+                  <div className="block w-full flex-1 bg-gray-100 h-3 rounded-full">
+                    <div
+                      className={`bg-primary h-full rounded-full`}
+                      style={{
+                        width: `${project?.draftPercentageCompleted || 0}%`,
+                      }}
+                    />
+                  </div>
+                  <p>{project?.draftPercentageCompleted || 0}%</p>
                 </div>
-                <p>{project?.draftPercentageCompleted || 0}%</p>
               </div>
-            </div>
-          </button>
+            </button>
+          </div>
+
         );
       })}
     </div>
