@@ -39,7 +39,7 @@ const MilestoneAction: React.FC<
   deliverySubmission,
   projectId,
 }) => {
-  const { mutate: submitMilestone, isPending: submittingMilestone } =
+  const { mutate: submitMilestone, isPending: isSubmittingMilestone } =
     useSubmitMilestone(id, {
       onSuccess: () => {
         clear();
@@ -105,7 +105,7 @@ const MilestoneAction: React.FC<
             variant="success"
             fullWidth
             disabled={
-              submittingMilestone || (!isDelivery && !message)
+              isSubmittingMilestone || (!isDelivery && !message)
             }
           >
             Submit

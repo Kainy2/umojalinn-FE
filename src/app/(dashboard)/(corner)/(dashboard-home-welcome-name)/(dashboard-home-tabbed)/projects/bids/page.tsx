@@ -6,7 +6,7 @@ import React from "react";
 
 const BidPage = () => {
   const { data, isPending } = useGetBuyerBids({
-    bidStatus: [ "PENDING","REJECTED"],
+    bidStatus: [ "ACCEPTED","PENDING","REJECTED"],
   });
 
   if (isPending) {

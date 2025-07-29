@@ -46,6 +46,7 @@ import { ArrayApiResponse, SingleApiResponse } from "@/types/util";
 import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import {
+  BID,
   BUYER,
   CLOTHING_TYPES,
   DESIGNER,
@@ -500,7 +501,7 @@ export const useDeleteProject = (
     ...options,
     mutationFn: (id) => deleteProjectById(id),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: [PROJECT] });
+      queryClient.invalidateQueries({ queryKey: [PROJECT, BID] });
       options?.onSuccess?.(data, variables, context);
     },
     onError: (error, variables, context) => {
