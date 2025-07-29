@@ -100,6 +100,7 @@ export type UmojaLinnMilestone = {
   city?: string;
   country?: string;
   deliveryMethod?: UmojaLinnDeliveryMethod;
+  lastMilestoneApprovedAt: string | null;
   status:
     | "IN_ACTIVE"
     | "PENDING"

@@ -164,7 +164,7 @@ const MilestoneInputSection = (props: MilestoneInputSectionProps) => {
               onChange={handleChange("courierService")}
               value={courierService || ""}
               disabled={!isDeliveryMilestoneEditable}
-              placeholder="Enter courier service"
+              placeholder="Courier Name e.g. DHL"
             />
             <TextAreaField
               onChange={handleChange("description")}
@@ -182,13 +182,13 @@ const MilestoneInputSection = (props: MilestoneInputSectionProps) => {
               onChange={handleChange("courierService")}
               value={courierService || ""}
               disabled={!isDeliveryMilestoneEditable}
-              placeholder="Enter courier service"
+              placeholder="Courier Name e.g. DHL"
             />
             <TextField
               onChange={handleChange("courierServiceLink")}
               value={courierServiceLink || ""}
               disabled={!isDeliveryMilestoneEditable}
-              placeholder="Tracking link"
+              placeholder="Tracking Link or Courier Website e.g. www.dhl.com"
               startAdornment={<Link2 className="size-5 text-gray-600" />}
             />
             <TextField

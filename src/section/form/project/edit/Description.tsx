@@ -249,7 +249,7 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
         </FormItemWrapper>
         <FormItemWrapper
           title="About Project"
-          description="Tell the designer what you want and how you want it done"
+          description="Tell the designer what you want and how you want it done. You can attach your inspo photos on the next page!"
         >
           <FormField
             control={form.control}

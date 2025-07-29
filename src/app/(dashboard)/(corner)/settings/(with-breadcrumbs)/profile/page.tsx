@@ -40,7 +40,7 @@ const getDefaultValues = (data:UmojaLinnUser | undefined ): UpdateProfileProps =
   return {
     firstName: data?.firstName,
     lastName: data?.lastName,
-    phoneNumber: data?.phoneNumber ?? "",
+    phoneNumber: data?.phoneNumber ?? undefined,
     email: data?.email,
     alternativeEmail: data?.alternativeEmail,
     address: data?.address?.address,
@@ -48,7 +48,7 @@ const getDefaultValues = (data:UmojaLinnUser | undefined ): UpdateProfileProps =
     state: data?.address?.state,
     country: data?.address?.country,
     zipCode: data?.address?.zipCode,
-    specialistType: data?.designerProfile?.specialistType ?? "",
+    specialistType: data?.designerProfile?.specialistType?.id ?? "",
     clothingTypes: data?.designerProfile?.clothingTypes?.map(({id}) => id) ?? [],
     experienceLevel: data?.designerProfile?.experienceLevel as "ONE_TO_TWO_YEARS" | "THREE_TO_FIVE_YEARS" | "SIX_TO_EIGHT_YEARS" | "NINE_PLUS_YEARS" | undefined,
     about: data?.designerProfile?.about ?? "",
@@ -93,6 +93,7 @@ const SettingsProfilePage = () => {
   }, [form, defaultValues]);
 
   const disableForm = isUpdatingMe || !editMode;
+  console.log((typeof form.watch("phoneNumber")), "errors", form.formState.errors, );
 
   const onSubmit = useCallback(
     async (values: UpdateProfileProps) => {
@@ -476,7 +477,7 @@ const SettingsProfilePage = () => {
               <FormField
                 control={form.control}
                 name="phoneNumber"
-                disabled={disableForm}
+                disabled={disableForm && isDesigner}
                 render={({ field }) => <CustomPhonePicker {...field} />}
               />
             </FormItemWrapper>

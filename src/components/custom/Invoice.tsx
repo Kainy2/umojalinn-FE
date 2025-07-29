@@ -217,8 +217,8 @@ const Invoice = (props: InvoiceProps) => {
             <View style={styles.dateWrapper}>
               <Text style={styles.fontBold}>Completion date:</Text>
               <Text style={styles.bodyText}>
-                {deliveryMilestone?.paidOutDate ?
-                  formatDate(deliveryMilestone?.paidOutDate, "dd.MM.yyy")
+                {deliveryMilestone?.lastMilestoneApprovedAt ?
+                  formatDate(deliveryMilestone?.lastMilestoneApprovedAt, "dd.MM.yyy")
                   : "N/A"}
               </Text>
             </View>

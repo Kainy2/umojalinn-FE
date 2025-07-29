@@ -137,7 +137,7 @@ const ChatWindow = (props: ChatWindowProps) => {
             <ImageIcon />
           </button>
           <Input />
-          <Button onClick={handleSend} disabled={!message || loading}>
+          <Button onClick={handleSend} disabled={(!message && !images.length) || loading}>
             Send
           </Button>
         </div>
