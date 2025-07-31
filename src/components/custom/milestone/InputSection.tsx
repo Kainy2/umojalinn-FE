@@ -14,6 +14,7 @@ import TextAreaField from "../input/TextAreaField";
 import CustomSelectCountry from "../SelectCountry";
 import { useGetMilestoneSubmissions } from "@/tanstack/hooks/useProject";
 import { Textarea } from "@/components/ui/textarea";
+import { removeFileFromFileList } from "@/lib/utils";
 
 type MilestoneInputSectionProps = {
   id?: string;
@@ -33,16 +34,6 @@ type MilestoneInputSectionProps = {
   ) => void;
 };
 
-
-const removeFileFromFileList = (fileList: FileList, index: number): FileList => {
-  const dataTransfer = new DataTransfer();
-
-  Array.from(fileList)
-    .filter(file => file !== fileList[index])
-    .forEach(file => dataTransfer.items.add(file));
-
-  return dataTransfer.files;
-};
 
 
 const MilestoneInputSectionImageUpload = (

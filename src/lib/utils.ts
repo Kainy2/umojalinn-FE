@@ -177,3 +177,41 @@ export function formatSize(sizeInBytes: number): string {
 
   return `${formattedSize} ${units[unitIndex]}`;
 }
+
+
+export const extractUrls = (text: string): string[] => {
+  const urlPattern =
+    /(?:(?:https?:\/\/|www\.)[^\s/$.?#].[^\s]*)|(?:\b(?:[a-z0-9-]+\.)+[a-z]{2,})(?:\/[^\s]*)?/gi;
+
+  const matches = text.match(urlPattern);
+  return matches ? matches.map(url => {
+    // Normalise naked domains by prepending 'http://'
+    if (!/^https?:\/\//i.test(url) && !/^www\./i.test(url)) {
+      return `http://${url}`;
+    }
+    return url;
+  }) : [];
+};
+
+
+export const removeFileFromFileList = (fileList: FileList, index: number): FileList => {
+  const dataTransfer = new DataTransfer();
+
+  Array.from(fileList)
+    .filter(file => file !== fileList[index])
+    .forEach(file => dataTransfer.items.add(file));
+
+  return dataTransfer.files;
+};
+
+export const numberToCommadString = (number: number | string): string => {
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
+export const removeNonDigits = (input: number | string): string => {
+  return input.toString().replace(/[^\d]/g, "")
+};
+
+export const commadStringToNumber = (input: string): number => {
+  return Number(input.replace(/,/g, ""));
+};

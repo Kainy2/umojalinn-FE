@@ -1,9 +1,9 @@
 "use client";
 import { categorizeDate } from "@/lib/date";
-import { cn } from "@/lib/utils";
+import { cn, extractUrls } from "@/lib/utils";
 import { UmojaLinnChat } from "@/types/project";
 import { formatDate } from "date-fns";
-import { ImageIcon, User, X, Check } from "lucide-react";
+import { ImageIcon, User, X, Check, Link2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import React from "react";
@@ -13,6 +13,8 @@ const ChatBubble = (props: UmojaLinnChat) => {
     props;
   const { data: session } = useSession();
   const isMe = user?.id === session?.user?.id;
+  const messageUrl = extractUrls(message??'')[0];
+
   if (!session?.user?.id) return;
 
   if (type === "NOTIFICATION") {
@@ -37,7 +39,7 @@ const ChatBubble = (props: UmojaLinnChat) => {
   }
 
   if (isMe) {
-    return (
+    return !messageUrl ? (
       <div className="flex justify-end">
         <div className="max-w-[70%] min-w-12">
           <div className="flex justify-between gap-4  text-foreground-body mb-1">
@@ -79,10 +81,33 @@ const ChatBubble = (props: UmojaLinnChat) => {
           )}
         </div>
       </div>
-    );
+    ): (
+      <div className="text-foreground-body gap-4 my-2 self-end justify-end max-w-[70%] min-w-12">
+         <div className="flex justify-between gap-4  text-foreground-body mb-1">
+            <p className="font-semibold">You</p>
+            <p>
+              {categorizeDate(createdAt) === "Today"
+                ? ""
+                : formatDate(createdAt, "dd/MM/yy, ")}
+              {formatDate(createdAt, "hh:mmaa")}
+            </p>
+          </div>
+            <a
+              href={messageUrl}
+              // download={value?.type === "media"}
+              target="_blank"
+              className={" flex gap-2  items-center border border-border/20 bg-slate-50"}
+            >
+              <span className="icon-wrapper warning">
+                 <Link2 />
+              </span>
+              <p>{message}</p>
+            </a>
+        </div>
+    )
   }
 
-  return (
+  return !messageUrl ? (
     <div className="flex gap-4 items-start max-w-[70%]">
       {user?.profilePhotoUri ? (
         <Image
@@ -139,7 +164,46 @@ const ChatBubble = (props: UmojaLinnChat) => {
         )}
       </div>
     </div>
-  );
+  ): (
+      <div className="flex max-w-[70%] min-w-12 gap-4">
+          {user?.profilePhotoUri ? (
+        <Image
+          src={user?.profilePhotoUri}
+          alt=""
+          height={100}
+          width={100}
+          className="rounded-full shrink-0 object-cover size-14"
+        />
+      ) : (
+        <div className="rounded-full shrink-0 bg-gray-100 size-14 flex items-center justify-center [&>svg]:size-8 text-foreground-body">
+          <User />
+        </div>
+      )}
+
+        <div className="flex-1 text-foreground-body gap-4 my-2 self-start justify-end ">
+          <div className="flex justify-between gap-4  text-foreground-body mb-1">
+              <p className="font-semibold">{user?.firstName} {user?.lastName}</p>
+              <p>
+                {categorizeDate(createdAt) === "Today"
+                  ? ""
+                  : formatDate(createdAt, "dd/MM/yy, ")}
+                {formatDate(createdAt, "hh:mmaa")}
+              </p>
+            </div>
+              <a
+                href={messageUrl}
+                // download={value?.type === "media"}
+                target="_blank"
+                className={" flex gap-2  items-center border border-border/20 bg-slate-50"}
+              >
+                <span className="icon-wrapper warning">
+                  <Link2 />
+                </span>
+                <p>{message}</p>
+              </a>
+          </div>
+      </div>
+    )
 };
 
 export default ChatBubble;

@@ -10,7 +10,7 @@ import { useImagePreviewUrls } from "@/hooks/useImagePreviewUrls";
 import Image from "next/image";
 import { Trash2 } from "lucide-react";
 import { useAddProjectReview } from "@/tanstack/hooks/useProject";
-import { cn, jsonToFormData } from "@/lib/utils";
+import { cn, jsonToFormData, removeFileFromFileList } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { MAX_FILE_SIZE_FOR_FILE_UPLOAD } from "@/constant";
 
@@ -78,7 +78,7 @@ const ReviewDialog = (props: CustomReviewDialogProps) => {
 
   const [rating, setRating] = React.useState<number>(1);
   const [message, setMessage] = React.useState<string>("");
-  const [images, setImages] = React.useState<File | FileList | null>(null);
+  const [images, setImages] = React.useState<FileList | null>(null);
 
   const hasFile = reviewType === "CLOTHING_QUALITY";
   const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD);
@@ -133,23 +133,33 @@ const ReviewDialog = (props: CustomReviewDialogProps) => {
   const fileComponent =
     hasFile &&
     (images && previewUrls?.length ? (
-      <div className="flex gap-4 relative">
-        {previewUrls.map((url) => (
-          <Image
-            alt=""
-            key={url}
-            src={url}
-            height={150}
-            width={150}
-            className="object-cover rounded-md"
-          />
+      <div className="flex gap-4">
+        {previewUrls.map((url, index) => (
+          <div key={url} className="relative">
+            <Image
+              alt=""
+              key={url}
+              src={url}
+              height={150}
+              width={150}
+              className="object-cover rounded-md"
+            />
+            <button
+              onClick={() => {
+                setImages(prev => {
+                  if (!prev?.length) return null;
+                  const updatedFiles = removeFileFromFileList(prev, index);
+
+                  getPreview(updatedFiles);
+                  return updatedFiles;
+                });
+              }}
+              className="bg-error text-white [&>svg]:size-4 p-1.5 rounded-full absolute -left-2 -top-2"
+            >
+              <Trash2 />
+            </button>
+          </div>
         ))}
-        <button
-          onClick={() => setImages?.(null)}
-          className="bg-error text-white [&>svg]:size-4 p-1.5 rounded-full absolute -left-2 -top-2"
-        >
-          <Trash2 />
-        </button>
       </div>
     ) : (
       <FileUploadPicker

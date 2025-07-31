@@ -72,6 +72,7 @@ const MilestoneSubmissionsPreview = (
           courierService,
           courierServiceLink,
           trackingId,
+          zipCode
         } = submission;
         const address = [street, state, city, country]
           .filter((place) => place)
@@ -88,6 +89,10 @@ const MilestoneSubmissionsPreview = (
                 {
                   icon: <MapPin />,
                   value: address,
+                },
+                {
+                  icon: <MapPin />,
+                  value: zipCode,
                 },
                 {
                   icon: <Truck />,
