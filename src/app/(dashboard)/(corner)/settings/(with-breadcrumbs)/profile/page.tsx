@@ -52,7 +52,7 @@ const getDefaultValues = (data:UmojaLinnUser | undefined ): UpdateProfileProps =
     clothingTypes: data?.designerProfile?.clothingTypes?.map(({id}) => id) ?? [],
     experienceLevel: data?.designerProfile?.experienceLevel as "ONE_TO_TWO_YEARS" | "THREE_TO_FIVE_YEARS" | "SIX_TO_EIGHT_YEARS" | "NINE_PLUS_YEARS" | undefined,
     about: data?.designerProfile?.about ?? "",
-    gender: data?.gender as "MALE" | "FEMALE" | "RATHER_NOT_SAY" | null | undefined,
+    gender: (data?.gender || undefined) as "MALE" | "FEMALE" | "RATHER_NOT_SAY" | undefined,
     dateOfBirth: data?.dateOfBirth ?? "",
     tag: data?.tag,
     brandName: data?.designerProfile?.brandName ?? "",
@@ -80,20 +80,21 @@ const SettingsProfilePage = () => {
   const { data: session } = useSession();
   const { handleCopy } = useClipboard();
 
-  const isDesigner = session?.user?.profileRole === "DESIGNER";
-  const defaultValues = useMemo(() => getDefaultValues(meData?.data?.data) , [meData?.data?.data]);
-
-
   const form = useForm<UpdateProfileProps>({
     resolver: zodResolver(updateProfileSchema)
   });
 
-  useEffect(() => {
-    form.reset(defaultValues)
-  }, [form, defaultValues]);
+  const isDesigner = session?.user?.profileRole === "DESIGNER";
+
+  const defaultValues = useMemo(() => {
+    
+    const newVal = getDefaultValues(meData?.data?.data)
+    form.reset(newVal)
+    
+    return newVal;
+  } , [form, meData?.data?.data]);
 
   const disableForm = isUpdatingMe || !editMode;
-  console.log((typeof form.watch("phoneNumber")), "errors", form.formState.errors, );
 
   const onSubmit = useCallback(
     async (values: UpdateProfileProps) => {
@@ -240,7 +241,7 @@ const SettingsProfilePage = () => {
             name="gender"
             render={({ field }) => (
               <FormCustomSelectField
-                value={field?.value || ""}
+                value={field?.value}
                 onValueChange={(value) => field?.onChange(value)}
                 disabled={disableForm}
                 options={[

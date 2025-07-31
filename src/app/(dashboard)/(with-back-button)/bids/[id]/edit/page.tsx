@@ -41,8 +41,9 @@ const BidPage = () => {
 		setShowExcessDialog,
 		deliveryMethod,
 		setDeliveryMethod,
+    deliveryMilestoneStringPrice,
 		deliveryMilestonePrice,
-		setDeliveryMilestonePrice,
+		setDeliveryMilestoneStringPrice,
 		mode,
 		editMode,
 		editing,
@@ -96,6 +97,7 @@ const BidPage = () => {
 					key={index}
 					view={index !== editing || !editMode}
 					{...milestone}
+          stringPrice={deliveryMilestoneStringPrice}
 					onEdit={handleToggle(index)}
 					currency={project?.currency || null}
 				/>
@@ -125,8 +127,9 @@ const BidPage = () => {
           view={!!editing || !editMode}
           currency={project?.currency || null}
           label="Milestone Payment"
+          stringPrice={deliveryMilestoneStringPrice}
           price={deliveryMilestonePrice}
-          onPriceChange={setDeliveryMilestonePrice}
+          onPriceChange={setDeliveryMilestoneStringPrice}
         />
       </div>
       {editMode && !editing && (

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { getCurrencySymbol } from "@/lib/string";
-import { parseStringToNumber } from "@/lib/utils";
+import { commadStringToNumber, numberToCommadString } from "@/lib/utils";
 import { UmojaLinnCurrency } from "@/types/project";
 import { Edit, Minus, Plus, Save, Trash2 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
@@ -21,33 +21,39 @@ type MileStoneCardProps = {
     description: string;
     price: number;
   }) => void;
+  price: number;
+  stringPrice: string;
   onEdit: React.ComponentProps<"button">["onClick"];
   onCancel: React.ComponentProps<"button">["onClick"];
   onDelete?: () => void;
   currency: UmojaLinnCurrency | null;
-  price: number;
   hideActions: boolean;
 };
 
 export const MileStoneCardFooter = (
-  props: Pick<MileStoneCardProps, "view" | "price" | "currency"> & {
+  props: Pick<MileStoneCardProps, "view" | "price" | "stringPrice" | "currency"> & {
     label: string;
-    onPriceChange: (value: number) => void;
+    onPriceChange: (value: string) => void;
   }
 ) => {
-  const { view, price, onPriceChange, label, currency } = props;
-  const [content, setContent] = useState(price);
+  const { view, price, stringPrice, onPriceChange, label, currency } = props;
+  const [content, setContent] = useState(String(stringPrice));
   const [width, setWidth] = useState<number | undefined>();
   const span = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     setWidth(span.current?.offsetWidth);
-  }, [content, price]);
+  }, [content, stringPrice]);
 
   const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseStringToNumber(e?.target?.value)?.value || 0;
-    setContent(value);
-    onPriceChange(value);
+    // const value = parseStringToNumber(e?.target?.value)?.value ;
+    const value = e?.target?.value;
+    const numericValue = value.replace(/[^\d]/g, "")
+		const commaValue = numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    console.log({ numericValue, commaValue });
+    
+    setContent(commaValue);
+    onPriceChange(commaValue);
   };
 
   return (
@@ -64,7 +70,7 @@ export const MileStoneCardFooter = (
               variant="outline"
               size="sm"
               onClick={() =>
-                onPriceChange(price && price > 10 ? price - 10 : 0)
+                onPriceChange(price && price > 10 ? numberToCommadString(price - 10) : "0")
               }
             >
               <Minus />
@@ -81,12 +87,12 @@ export const MileStoneCardFooter = (
                 {price || content}
               </span>
               <input
-                value={price || ""}
+                value={content || ""}
                 onChange={changeHandler}
                 className="pl-4 transition shrink-0 w-fit block disabled:bg-background ring-ring placeholder:text-subtitle-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 placeholder="0"
                 disabled={view}
-                type="number"
+                type="text"
                 min={0}
                 style={{ width: width ? `${width + 20}px` : "30px" }}
               />
@@ -94,7 +100,7 @@ export const MileStoneCardFooter = (
             <Button
               variant="outline"
               size="sm"
-              onClick={() => onPriceChange(price ? price + 10 : 10)}
+              onClick={() => onPriceChange(price ? numberToCommadString(price + 10) : "10")}
             >
               <Plus />
             </Button>
@@ -105,13 +111,14 @@ export const MileStoneCardFooter = (
   );
 };
 
-const MileStoneCard = (props: MileStoneCardProps) => {
+const MilestoneCard = (props: MileStoneCardProps) => {
   const {
     id,
     view,
     title,
     description,
     currency,
+    stringPrice,
     price,
     hideActions,
     onSave,
@@ -123,7 +130,7 @@ const MileStoneCard = (props: MileStoneCardProps) => {
   const [editedValues, setEditedValues] = useState({
     title,
     description,
-    price,
+    price: stringPrice,
   });
 
   useEffect(() => {
@@ -131,10 +138,10 @@ const MileStoneCard = (props: MileStoneCardProps) => {
       setEditedValues({
         title,
         description,
-        price,
+        price: stringPrice,
       });
     }
-  }, [description, price, title, view]);
+  }, [description, stringPrice, price, title, view]);
 
   const handleEdit =
     (value: "title" | "description" | "price") =>
@@ -142,19 +149,20 @@ const MileStoneCard = (props: MileStoneCardProps) => {
       e:
         | React.ChangeEvent<HTMLInputElement>
         | React.ChangeEvent<HTMLTextAreaElement>
-        | number
+        | string
     ) => {
       setEditedValues((prev) => ({
         ...prev,
         [value]:
-          value === "price" || typeof e === "number" ? e : e.target.value,
+          value === "price" || typeof e === "string" ? e : e.target.value,
       }));
     };
 
   const footer = (
     <MileStoneCardFooter
       currency={currency}
-      price={view ? price : editedValues.price}
+      stringPrice={view ? stringPrice : numberToCommadString(editedValues.price)}
+      price={view ? price : commadStringToNumber(editedValues.price)}
       onPriceChange={handleEdit("price")}
       view={view}
       label="Payment"
@@ -214,7 +222,11 @@ const MileStoneCard = (props: MileStoneCardProps) => {
       {footer}
       <div className="flex gap-4 items-center">
         <button
-          onClick={() => onSave({ ...editedValues, id })}
+          onClick={() => onSave({ 
+            ...editedValues, 
+            id,
+            price: commadStringToNumber(editedValues.price), 
+           })}
           className="text-left items-center w-fit flex text-sm text-primary [&>svg]:size-5 gap-2"
         >
           <Save />
@@ -232,4 +244,4 @@ const MileStoneCard = (props: MileStoneCardProps) => {
   );
 };
 
-export default MileStoneCard;
+export default MilestoneCard;

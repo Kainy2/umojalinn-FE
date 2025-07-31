@@ -312,7 +312,13 @@ const {
             />
             <TabButtonSelect
               active={unit}
-
+              onChange={(value) => {
+                  setUnit((prevUnit) => {
+                    const finalUnit = value as UmojaLinnSizingTemplate["unit"];
+                    handleChangeValuesByUnit(prevUnit, finalUnit);
+                    return finalUnit;
+                  });
+                }}           
               tabs={[
                 { title: "CM", value: "CM" },
                 { title: "INCH", value: "INCH" },
