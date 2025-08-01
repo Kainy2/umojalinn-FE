@@ -4,7 +4,7 @@ import { FormCustomSelectField } from "@/components/custom/Select";
 import { FormTextField } from "@/components/custom/input/TextField";
 import { Form, FormField } from "@/components/ui/form";
 import { requirementsAndBugetSchema } from "@/lib/schema";
-import { jsonToFormData } from "@/lib/utils";
+import { jsonToFormData, numberToCommadString, removeNonDigits } from "@/lib/utils";
 import {
   useGetProjectById,
   useUpdateProjectById,
@@ -30,12 +30,7 @@ export const EXPERIENCE_ENUMS = [
   "9+ years",
 ] as const;
 
-export const EXPERIENCE_ENUMS_VALUES = [
-  "ONE_TO_TWO_YEARS",
-  "THREE_TO_FIVE_YEARS",
-  "SIX_TO_EIGHT_YEARS",
-  "NINE_PLUS_YEARS",
-] as const;
+
 
 const RequirementsBudgetForm = (props: ProjectFormProps) => {
   const { data, isPending: loadingProject } = useGetProjectById(props?.id);
@@ -176,7 +171,13 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
                   <FormTextField
                     {...field}
                     placeholder="0"
-                    type="number"
+                    type="text"
+                    value={numberToCommadString(field.value || "")}
+                    onChange={(e) => {
+                      if (e.target.value.length > 20) return
+                      e.target.value = removeNonDigits(e.target.value)
+                      field.onChange(e)
+                    }}
                     startAdornment={
                       <span className="text-gray-500 [&>svg]:size-5">
                         {currencyField?.value === "EURO" ? (

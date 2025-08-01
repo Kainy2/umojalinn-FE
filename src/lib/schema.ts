@@ -1,6 +1,12 @@
-import { EXPERIENCE_ENUMS_VALUES } from "@/section/form/project/edit/RequirementAndBudget";
 import { z } from "zod";
+
 // import { isPhoneValid } from "./utils";
+export const EXPERIENCE_ENUMS_VALUES = [
+  "ONE_TO_TWO_YEARS",
+  "THREE_TO_FIVE_YEARS",
+  "SIX_TO_EIGHT_YEARS",
+  "NINE_PLUS_YEARS",
+] as const;
 
 const passwordValidation = z
   .string()

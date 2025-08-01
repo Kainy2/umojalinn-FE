@@ -17,7 +17,7 @@ import {
   useSetDefaultWithdrawalMethod,
 } from "@/tanstack/hooks/useProject";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
+import { cn, numberToCommadString, removeNonDigits } from "@/lib/utils";
 import Paypal from "@/icons/Paypal";
 import CheckCircle from "@/icons/CheckCircle";
 import { useToast } from "@/hooks/use-toast";
@@ -277,11 +277,15 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
           {mode === "WITHDRAWAL" &&
             !!withdrawalMethodsForThisCurrency?.length && (
               <TextField
-                type="number"
-                label="Withdraw Amount"
+                type="text"
+                label="Withdrawal Amount"
                 placeholder="Amount to withdraw"
-                value={amount || ""}
-                onChange={(e) => setAmount(e.target.value)}
+                value={ numberToCommadString(amount || "") }
+                onChange={(e) => {
+                  if (e.target.value.length > 27) return
+                  const formattedValue = removeNonDigits(e.target.value)
+                  setAmount(formattedValue)
+                }}
                 startAdornment={
                   currency === "EURO" ? (
                     <Euro className="size-4 text-foreground-body" />
