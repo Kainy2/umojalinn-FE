@@ -172,7 +172,7 @@ const {
                   ? reviewsEdit?.[template.prop]
                   : undefined) ??
                   sizingTemplateResult?.metadata?.reviews?.[template.prop];
-              
+
                 return (
                   <SizingTemplateInputField
                     disabled={isNotEdit && !reviewValue}
@@ -202,7 +202,9 @@ const {
               })}
             </div>
             <div className="flex justify-center gap-2 lg:hidden">
-              {modalType === "EDIT" && (
+              {modalType === "EDIT"
+                || Object.values(sizingTemplateResult?.metadata?.reviews ?? {}).some(Boolean)
+              && (
                 <Button
                   variant="outline"
                   onClick={() => handleSubmit()}
@@ -211,7 +213,10 @@ const {
                   Save
                 </Button>
               )}
-              {(isDraft || !props.id) && (
+              {(
+                isDraft
+                 || !props.id 
+                ) && (
                 <Button onClick={() => handleSubmit(true)} disabled={loading}>
                   Submit
                 </Button>
@@ -245,7 +250,9 @@ const {
                 )}
             </div>
             <div className="flex justify-end gap-2">
-              {modalType === "EDIT" && (
+              {modalType === "EDIT"                  
+              || Object.values(sizingTemplateResult?.metadata?.reviews ?? {}).some(Boolean)
+              && (
                 <Button
                   variant="outline"
                   onClick={() => handleSubmit()}
@@ -254,7 +261,10 @@ const {
                   Save
                 </Button>
               )}
-              {(isDraft || !props.id) && (
+              {(
+                isDraft
+                 || !props.id 
+                ) && (
                 <Button onClick={() => handleSubmit(true)} disabled={loading}>
                   Submit
                 </Button>

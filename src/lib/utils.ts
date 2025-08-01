@@ -204,14 +204,28 @@ export const removeFileFromFileList = (fileList: FileList, index: number): FileL
   return dataTransfer.files;
 };
 
-export const numberToCommadString = (number: number | string): string => {
-  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+export const numberToCommaString = (number: number | string): string => {
+  return number
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    
+    // allow decimals
+    // .replace(/^(\d+)(\.\d+)?$/, (_, intPart, decimalPart) =>
+    //   intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + (decimalPart || "")
+    // );
 };
 
-export const removeNonDigits = (input: number | string): string => {
-  return input.toString().replace(/[^\d]/g, "")
+export const removeNonDigits = (input: number | string) => {
+  return input
+    .toString()
+    // Remove all non-digits and non-dots
+    .replace(/[^\d]/g, '')
+
+    // Keep only the first dot, remove all others
+    // .replace(/^([^.]*)([^.]*)\.*/g, '$1.$2')
+
 };
 
-export const commadStringToNumber = (input: string): number => {
-  return Number(input.replace(/,/g, ""));
+export const commaStringToNumber = (input: string): number => {
+  return Number(removeNonDigits(input));
 };
