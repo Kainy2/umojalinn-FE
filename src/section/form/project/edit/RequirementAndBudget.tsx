@@ -4,7 +4,7 @@ import { FormCustomSelectField } from "@/components/custom/Select";
 import { FormTextField } from "@/components/custom/input/TextField";
 import { Form, FormField } from "@/components/ui/form";
 import { requirementsAndBugetSchema } from "@/lib/schema";
-import { jsonToFormData, numberToCommadString, removeNonDigits } from "@/lib/utils";
+import { jsonToFormData, numberToCommaString, removeNonDigits } from "@/lib/utils";
 import {
   useGetProjectById,
   useUpdateProjectById,
@@ -172,7 +172,7 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
                     {...field}
                     placeholder="0"
                     type="text"
-                    value={numberToCommadString(field.value || "")}
+                    value={numberToCommaString(field.value || "")}
                     onChange={(e) => {
                       if (e.target.value.length > 20) return
                       e.target.value = removeNonDigits(e.target.value)

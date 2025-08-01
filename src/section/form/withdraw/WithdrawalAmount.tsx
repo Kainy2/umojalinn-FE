@@ -17,7 +17,7 @@ import {
   useSetDefaultWithdrawalMethod,
 } from "@/tanstack/hooks/useProject";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn, numberToCommadString, removeNonDigits } from "@/lib/utils";
+import { cn, numberToCommaString, removeNonDigits } from "@/lib/utils";
 import Paypal from "@/icons/Paypal";
 import CheckCircle from "@/icons/CheckCircle";
 import { useToast } from "@/hooks/use-toast";
@@ -280,7 +280,7 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
                 type="text"
                 label="Withdrawal Amount"
                 placeholder="Amount to withdraw"
-                value={ numberToCommadString(amount || "") }
+                value={ numberToCommaString(amount || "") }
                 onChange={(e) => {
                   if (e.target.value.length > 27) return
                   const formattedValue = removeNonDigits(e.target.value)

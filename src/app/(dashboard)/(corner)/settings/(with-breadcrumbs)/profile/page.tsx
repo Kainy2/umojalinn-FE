@@ -15,11 +15,10 @@ import { Separator } from "@/components/ui/separator";
 // import { LANGUAGES } from "@/constant";
 import { useToast } from "@/hooks/use-toast";
 import useClipboard from "@/hooks/useClipboard";
-import { updateProfileKeys, updateProfileSchema } from "@/lib/schema";
+import { EXPERIENCE_ENUMS_VALUES, updateProfileKeys, updateProfileSchema } from "@/lib/schema";
 import { jsonToFormData } from "@/lib/utils";
 import {
   EXPERIENCE_ENUMS,
-  EXPERIENCE_ENUMS_VALUES,
 } from "@/section/form/project/edit/RequirementAndBudget";
 import {
   useGetClothingTypes,

@@ -12,7 +12,6 @@ import {
   useUpdateMilestone,
 } from "@/tanstack/hooks/useBid";
 import { UmojaLinnDeliveryMethod } from "@/types/project";
-import { commadStringToNumber, numberToCommadString } from "@/lib/utils";
 
 
 const MILESTONE_TEMPLATE = {
@@ -34,11 +33,11 @@ const { id } = useParams<{ id: string }>();
     }[]
   >([MILESTONE_TEMPLATE]);
   const [editing, setEditing] = useState<number | null>(0);
-  const [deliveryMilestoneStringPrice, setDeliveryMilestoneStringPrice] = useState("0");
+  const [deliveryMilestonePrice, setDeliveryMilestonePrice] = useState(0);
   const [deliveryMethod, setDeliveryMethod] =
     useState<UmojaLinnDeliveryMethod | null>(null);
 
-const deliveryMilestonePrice = commadStringToNumber(deliveryMilestoneStringPrice)
+  // const { data: meData } = useGetMe();
 
   const { data, isPending } = useGetDesignerBidById(id);
   const bid = data?.data?.data;
@@ -63,7 +62,7 @@ const deliveryMilestonePrice = commadStringToNumber(deliveryMilestoneStringPrice
       setDeliveryMethod(bid?.deliveryMilestone?.deliveryMethod);
     }
     if (bid?.deliveryMilestone?.amount) {
-      setDeliveryMilestoneStringPrice(numberToCommadString(bid?.deliveryMilestone?.amount));
+      setDeliveryMilestonePrice(bid?.deliveryMilestone?.amount);
     }
     if (bid?.additionalNotesToClient) {
       setNote(bid?.additionalNotesToClient);
@@ -269,9 +268,8 @@ const deliveryMilestonePrice = commadStringToNumber(deliveryMilestoneStringPrice
 		setShowExcessDialog,
 		deliveryMethod,
 		setDeliveryMethod,
-    deliveryMilestoneStringPrice,
 		deliveryMilestonePrice,
-		setDeliveryMilestoneStringPrice,
+		setDeliveryMilestonePrice,
 		mode,
 		editMode,
 		editing,

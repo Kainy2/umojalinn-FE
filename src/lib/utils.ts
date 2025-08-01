@@ -204,7 +204,7 @@ export const removeFileFromFileList = (fileList: FileList, index: number): FileL
   return dataTransfer.files;
 };
 
-export const numberToCommadString = (number: number | string): string => {
+export const numberToCommaString = (number: number | string): string => {
   return number
     .toString()
     .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -226,6 +226,6 @@ export const removeNonDigits = (input: number | string) => {
 
 };
 
-export const commadStringToNumber = (input: string): number => {
+export const commaStringToNumber = (input: string): number => {
   return Number(removeNonDigits(input));
 };
