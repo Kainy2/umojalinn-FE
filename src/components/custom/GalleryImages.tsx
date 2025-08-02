@@ -130,7 +130,7 @@ const GalleryImages = (props: GalleryImagesProps) => {
 
                   <p
                 className={cn(
-                  "absolute bottom-0 px-4 py-2 max-h-full overflow-scroll text-foreground w-full backdrop-blur-md bg-white/30 border-t-1 border-white/50 truncate",
+                  "absolute bottom-0 px-4 py-2 max-h-full overflow-scroll text-center text-foreground w-1/5 backdrop-blur-lg  bg-white/50 border-t-1 border-white/50 truncate",
                   titleClassName,
                 )}
               >
