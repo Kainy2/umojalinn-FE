@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 
 import "./globals.css";
 import "react-international-phone/style.css";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 import { Inter } from "next/font/google";
 import NextAuthProvider from "@/components/provider/NextAuth";
