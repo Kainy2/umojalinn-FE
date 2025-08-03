@@ -21,7 +21,8 @@ import { addYears } from "date-fns";
 import { FormCustomTagSelectField } from "@/components/custom/tag/Select";
 import { jsonToFormData } from "@/lib/utils";
 import CustomSelect from "@/components/custom/Select";
-import ProjectEditFooter from "./Footer";
+import ProjectEditFooter from "./ProjectEditFooter";
+// import ProjectEditFooter from "./Footer";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { uuidToBase62Safe } from "@/lib/uuid";
@@ -115,6 +116,9 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
 
 // http://localhost:3000/project/67GVLHjOlYJVaign9DZK9T
 // http://localhost:3000/project/hoXw3ODhKDFm8LkfGAmLN
+
+const isAds = data?.data?.data.status === 'ADS'
+
   if (loadingProject) {
     return (
       <div className="flex flex-col gap-6">
@@ -415,12 +419,28 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
           </FormItemWrapper>
         )}
 
-        <ProjectEditFooter
+        {/* <ProjectEditFooter
           handleSave={form.handleSubmit(onSubmit("SAVE"))}
           handleDraft={form.handleSubmit(onSubmit("DRAFT"))}
           loading={isUpdating}
           hideBack={props.isOnboarding}
-        />
+        /> */}
+
+        <ProjectEditFooter
+          leftButtonProps={{ hidden: props.isOnboarding }}
+          rightSecondaryButtonProps={{
+            text: isAds ? "Cancel" : "Save & Exit",
+            disabled: isUpdating,
+            onClick: () => {
+                if (isAds) router.push("/project/ads");
+                else return form.handleSubmit(onSubmit("DRAFT"));
+            },
+          }}
+          rightPrimaryButtonProps={{
+            disabled: isUpdating,
+            onClick: form.handleSubmit(onSubmit("SAVE")),
+          }}
+          />
       </form>
     </Form>
   );

@@ -2,7 +2,8 @@
 import DialogListPickerItem from "@/components/custom/dialog/ListPickerItem";
 import FormItemWrapper from "@/components/custom/FormItemWrapper";
 import { Separator } from "@/components/ui/separator";
-import ProjectEditFooter from "@/section/form/project/edit/Footer";
+import ProjectEditFooter from "@/section/form/project/edit/ProjectEditFooter";
+// import ProjectEditFooter from "@/section/form/project/edit/Footer";
 import { ArrowUpRight } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -62,13 +63,21 @@ const FundPage = () => {
         </FormItemWrapper>
       </div>
 
-      <ProjectEditFooter
+      {/* <ProjectEditFooter
         handleSave={() =>
           fundType && router.push(getFundTypeUrl(fundType, pathname))
         }
         loading={!fundType}
         hideDraft
         saveText="Fund Escrow"
+      /> */}
+
+      <ProjectEditFooter
+        rightPrimaryButtonProps={{
+          text: "Fund Escrow",
+          disabled: !fundType,
+          onClick: () => fundType && router.push(getFundTypeUrl(fundType, pathname)),
+        }}
       />
     </>
   );

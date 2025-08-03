@@ -9,7 +9,8 @@ import NairaSign from "@/icons/NairaSign";
 import { UmojaLinnCurrency, UmojaLinnWithdrawalMethod } from "@/types/project";
 import { Euro, Mail, MessageSquareWarning } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
-import ProjectEditFooter from "../project/edit/Footer";
+import ProjectEditFooter from "../project/edit/ProjectEditFooter";
+// import ProjectEditFooter from "../project/edit/Footer";
 import {
   useCreateWithdrawalMethod,
   useGetWithdrawalMethods,
@@ -221,7 +222,14 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
 	);
 };
 
-
+  const isLoadingFooterButtons =
+    (!paymentMethod && !selectedWithdrawalMethod) ||
+    isCreatingWithdrawalMethod ||
+    isRequestingWithdrawal ||
+    loadingWithdrawalMethods ||
+    (selectedWithdrawalMethod && !amount) ||
+    (paymentMethod === "DIRECT_TRANSFER" && !agree);
+						
 
   const handleContinue = () => {
 		if (!selectedWithdrawalMethod?.id && !paymentMethod) return;
@@ -509,8 +517,7 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
             </div>
           </FormItemWrapper>
    
-
-					<ProjectEditFooter
+					{/* <ProjectEditFooter
 						hideDraft
             onCancel={()=> setPaymentMethod(null)}
 						saveText={
@@ -527,7 +534,23 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
 							(selectedWithdrawalMethod && !amount) ||
 							(paymentMethod === "DIRECT_TRANSFER" && !agree)
 						}
-					/>
+					/> */}
+
+          <ProjectEditFooter
+            rightSecondaryButtonProps={{
+              text: "Cancel", 
+              disabled: isLoadingFooterButtons,
+              onClick: ()=> setPaymentMethod(null),
+            }}
+            rightPrimaryButtonProps={{
+              disabled: isLoadingFooterButtons,
+              onClick: handleContinue,
+              text:
+                mode === "PAYMENT" || !paymentMethod
+                  ? "Proceed to withdrawal"
+                  : "Save details",
+              }}
+          />
 				</div>
 
 			</Dialog>

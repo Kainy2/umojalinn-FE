@@ -4,7 +4,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import ProjectReviewView from "@/section/dashboard/project/Review";
-import ProjectEditFooter from "@/section/form/project/edit/Footer";
+import ProjectEditFooter from "@/section/form/project/edit/ProjectEditFooter";
+// import ProjectEditFooter from "@/section/form/project/edit/Footer";
 import {
   useGetProjectById,
   usePostProjectLive,
@@ -53,12 +54,21 @@ const ReviewPage = () => {
       </div>
       <Separator className="bg-gray-200" />
       <ProjectReviewView project={data?.data?.data} />
-      <ProjectEditFooter
+      {/* <ProjectEditFooter
         handleSave={async () => goLive(params?.id)}
         loading={isPending}
         hideDraft
         saveText="Post"
+      /> */}
+
+      <ProjectEditFooter
+        rightPrimaryButtonProps={{
+          text: "Post",
+          disabled: isPending,
+          onClick: () => goLive(params?.id),
+        }}
       />
+
     </div>
   );
 };

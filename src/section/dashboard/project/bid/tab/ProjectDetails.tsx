@@ -130,15 +130,13 @@ const BidTabProjectDetailsSection = () => {
         <p className="text-sm mb-4 text-foreground-body">
           Snapshots of your work
         </p>
-        <div className="grid grid-cols-2 gap-4">
-          {project?.Gallery?.map?.((gallery) => (
+        {/* <div className="grid grid-cols-2 gap-4"> */}
+          {project?.Gallery ? (
             <GalleryImages
-              title={gallery?.title}
-              src={gallery?.imageUrl}
+              images={project.Gallery}
               wrapperClassName="aspect-square w-full h-auto"
-              key={gallery.id}
             />
-          )) || (
+          ) : (
             <Image
               src="/img/svg/null.svg"
               alt=""
@@ -147,7 +145,7 @@ const BidTabProjectDetailsSection = () => {
               className="w-full col-span-2 aspect-square object-cover"
             />
           )}
-        </div>
+        {/* </div> */}
       </div>
     </div>
   );

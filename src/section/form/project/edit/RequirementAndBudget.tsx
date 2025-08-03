@@ -14,7 +14,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Euro, Lock, Unlock } from "lucide-react";
 import React, { useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import ProjectEditFooter from "./Footer";
+import ProjectEditFooter from "./ProjectEditFooter";
+// import ProjectEditFooter from "./Footer";
 import NairaSign from "@/icons/NairaSign";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -44,6 +45,7 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
     resolver: zodResolver(requirementsAndBugetSchema),
     defaultValues: {},
   });
+  const isAds = data?.data.data.status === 'ADS'
 
   useEffect(() => {
     if (data?.data?.data?.budget) {
@@ -215,10 +217,31 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
             )}
           />
         </FormItemWrapper>
-        <ProjectEditFooter
+        {/* <ProjectEditFooter
           handleSave={form.handleSubmit(onSubmit("SAVE"))}
           handleDraft={form.handleSubmit(onSubmit("DRAFT"))}
           loading={isUpdating}
+        /> */}
+
+        <ProjectEditFooter
+          leftButtonProps={{ 
+            onClick: () => {
+              form.handleSubmit(onSubmit("SAVE"))
+              router.back()
+            }
+            }}
+          rightSecondaryButtonProps={{
+            text: isAds ? "Cancel" : "Save & Exit", 
+            disabled: isUpdating,
+            onClick: () => {
+                if (isAds) router.push("/project/ads");
+                else return form.handleSubmit(onSubmit("DRAFT"));
+            },
+          }}
+          rightPrimaryButtonProps={{
+            disabled: isUpdating,
+            onClick: form.handleSubmit(onSubmit("SAVE")),
+          }}
         />
       </div>
     </Form>

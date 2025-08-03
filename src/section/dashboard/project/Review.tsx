@@ -78,22 +78,26 @@ const ProjectReviewView = (props: {
           </p>
         </div>
       </div>
-      {props?.project?.Gallery?.length && (
+      {!!props?.project?.Gallery?.length && (
         <div>
           <h3 className="text-md font-semibold text-foreground mb-2">
             Project Gallery
           </h3>
-          <div className="flex flex-row gap-4 overflow-scroll">
-            {props?.project?.Gallery?.map?.((gallery) => (
+          <div className="flex flex-row gap-4">
+            {/* {props?.project?.Gallery?.map?.((gallery) => ( */}
               <GalleryImages
-                key={gallery?.id}
+                images={
+                  props?.project?.Gallery ? 
+                    props.project.Gallery
+                   :[]}
+                // key={gallery?.id}
                 width={310}
                 height={170}
-                src={gallery.imageUrl}
-                title={gallery?.title}
+                // src={gallery.imageUrl}
+                // title={gallery?.title}
                 wrapperClassName="aspect-video "
               />
-            ))}
+            {/* ))} */}
           </div>
         </div>
       )}

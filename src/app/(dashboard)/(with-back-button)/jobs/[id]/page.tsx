@@ -163,15 +163,16 @@ const JobPage = () => {
         <h3 className="text-subtitle-2 font-bold mb-2">Styling inspiration</h3>
         <p className="text-sm text-foreground-body mb-8">Project images</p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {project?.Gallery?.map((gallery) => (
+        {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"> */}
+          {project?.Gallery ? (
             <GalleryImages
-              title={gallery?.title}
-              src={gallery?.imageUrl}
+              // title={gallery?.title}
+              // src={gallery?.imageUrl}
+              images={project.Gallery}
+
               wrapperClassName="aspect-square w-full h-auto"
-              key={gallery.id}
             />
-          )) || (
+          ) : (
             <Image
               alt=""
               src="/img/svg/null.svg"
@@ -182,7 +183,7 @@ const JobPage = () => {
           )}
         </div>
       </div>
-    </div>
+    // </div>
   );
 };
 
