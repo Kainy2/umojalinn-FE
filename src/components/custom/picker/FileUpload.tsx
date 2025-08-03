@@ -2,7 +2,7 @@
 import useFilePicker, { FilePickerOptions } from "@/hooks/useFilePicker";
 import { cn } from "@/lib/utils";
 import { UploadCloud } from "lucide-react";
-import React from "react";
+import React, { memo } from "react";
 
 type FileUploadPickerProps = FilePickerOptions & {
   cta?: string;
@@ -44,4 +44,4 @@ const FileUploadPicker = (props: FileUploadPickerProps) => {
   );
 };
 
-export default FileUploadPicker;
+export default memo(FileUploadPicker);

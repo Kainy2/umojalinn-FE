@@ -11,7 +11,8 @@ import { RadioGroup } from "@radix-ui/react-radio-group";
 import { Trash2 } from "lucide-react";
 import Image from "next/image";
 import React, { useCallback, useId, useMemo, useState } from "react";
-import ProjectEditFooter from "./Footer";
+import ProjectEditFooter from "./ProjectEditFooter";
+// import ProjectEditFooter from "./Footer";
 import FormItemWrapper from "@/components/custom/FormItemWrapper";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
@@ -32,7 +33,6 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
   const router = useRouter();
 
   const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD);
-
   const [values, setValues] = useState<
     {
       id: string | number;
@@ -42,6 +42,8 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
       image: string | File;
     }[]
   >([]);
+
+  const isAds = data?.data.data.status === 'ADS'
 
   useMemo(() => {
     if (data?.data?.data?.Gallery) {
@@ -182,6 +184,8 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
     );
   }
 
+console.log(preview);
+
   return (
     <>
       <FormItemWrapper
@@ -231,6 +235,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
               </div>
             </div>
           ))}
+          
           <div
             className={cn(
               "flex flex-col gap-4",
@@ -240,7 +245,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
             <TextField
               maxLength={500}
               value={entryTitle}
-              onChange={(e) => setEntryTitle(e.currentTarget.value)}
+              onChange={(e) => setEntryTitle(e.target.value)}
               hint={`${entryTitle?.length || 0} / 500 characters`}
             />
             <FileUploadPicker
@@ -255,10 +260,32 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
           </div>
         </div>
       </FormItemWrapper>
-      <ProjectEditFooter
+      {/* <ProjectEditFooter
         handleSave={handleSubmit("SAVE")}
         handleDraft={handleSubmit("DRAFT")}
         loading={isUpdating}
+      /> */}
+
+
+      <ProjectEditFooter
+        leftButtonProps={{ 
+          onClick: () => {
+            handleSubmit("SAVE")
+            router.back()
+          }
+        }}
+        rightSecondaryButtonProps={{
+          text: isAds ? "Cancel" : "Save & Exit", 
+          disabled: isUpdating,
+          onClick: () => {
+              if (isAds) router.push("/project/ads");
+              else return handleSubmit("DRAFT");
+          },
+        }}
+        rightPrimaryButtonProps={{
+          disabled: isUpdating,
+          onClick: handleSubmit("SAVE"),
+        }}
       />
     </>
   );
