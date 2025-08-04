@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { PhoneNumberUtil } from "google-libphonenumber";
+import { ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -179,18 +180,44 @@ export function formatSize(sizeInBytes: number): string {
 }
 
 
-export const extractUrls = (text: string): string[] => {
-  const urlPattern =
-    /(?:(?:https?:\/\/|www\.)[^\s/$.?#].[^\s]*)|(?:\b(?:[a-z0-9-]+\.)+[a-z]{2,})(?:\/[^\s]*)?/gi;
 
-  const matches = text.match(urlPattern);
-  return matches ? matches.map(url => {
-    // Normalise naked domains by prepending 'http://'
-    if (!/^https?:\/\//i.test(url) && !/^www\./i.test(url)) {
-      return `http://${url}`;
-    }
-    return url;
-  }) : [];
+export const isLinks = (message: string) => {
+	const urlPattern =
+		/(?:(?:https?:\/\/|www\.)[^\s/$.?#].[^\s]*)|(?:\b(?:[a-z0-9-]+\.)+[a-z]{2,})(?:\/[^\s]*)?/gi;
+
+	return urlPattern.test(message);
+};
+
+export const formatMessageWithLinks = (rawMessage: string) => {
+	let urlCount = 0;
+	// check if message contains a link
+	const hasLink = isLinks(rawMessage);
+
+	let message: ReactNode = rawMessage;
+	if (hasLink) {
+		message = rawMessage.split(/(\r\n|\n|\r|\s+)/).map((word, i) => {
+			if (/^\r\n|\n|\r$/.test(word)) {
+				// render line break
+				return <br key={`br-${i}`} />;
+			} else if (isLinks(word)) {
+				urlCount++;
+				return (
+					<a
+						key={word}
+						href={word}
+						target="_blank"
+						rel="noopener noreferrer"
+						className="text-white border-b border-inherit"
+					>
+						{word}
+					</a>
+				);
+			}
+			return <span key={`text-${i}`}>{word}</span>;
+		});
+	}
+
+	return { message, urlCount };
 };
 
 
