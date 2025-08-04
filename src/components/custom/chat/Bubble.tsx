@@ -1,20 +1,22 @@
 "use client";
+
 import { categorizeDate } from "@/lib/date";
-import { cn, extractUrls } from "@/lib/utils";
+import { cn, formatMessageWithLinks } from "@/lib/utils";
 import { UmojaLinnChat } from "@/types/project";
 import { formatDate } from "date-fns";
-import { ImageIcon, User, X, Check, Link2 } from "lucide-react";
+import {  User, X, Check, Link2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import React from "react";
 
 const ChatBubble = (props: UmojaLinnChat) => {
-  const { user, createdAt, message, type, imageMeta, imageUrl, severity } =
+  const { user, createdAt, message: rawMessage, type, imageMeta, imageUrl, severity } =
     props;
   const { data: session } = useSession();
   const isMe = user?.id === session?.user?.id;
-  const messageUrl = extractUrls(message??'')[0];
-
+  
+  const {message, urlCount} = formatMessageWithLinks(rawMessage ?? ""); 
+  
   if (!session?.user?.id) return;
 
   if (type === "NOTIFICATION") {
@@ -39,7 +41,7 @@ const ChatBubble = (props: UmojaLinnChat) => {
   }
 
   if (isMe) {
-    return !messageUrl ? (
+    return imageUrl || urlCount !== 1 ? (
       <div className="flex justify-end">
         <div className="max-w-[70%] min-w-12">
           <div className="flex justify-between gap-4  text-foreground-body mb-1">
@@ -54,7 +56,7 @@ const ChatBubble = (props: UmojaLinnChat) => {
           {message && (
             <div
               className={cn(
-                "bg-primary text-white rounded-md py-2.5 px-4 rounded-tr-none",
+                "bg-primary text-white rounded-md py-2.5 px-4 rounded-tr-none whitespace-pre-wrap",
                 imageUrl && "mb-4"
               )}
             >
@@ -66,10 +68,16 @@ const ChatBubble = (props: UmojaLinnChat) => {
               download
               target='_blank'
               href={imageUrl}
-              className="w-full text-foreground-body border border-gray-200 rounded-md py-2.5 px-4 rounded-tr-none flex gap-4 items"
+              className="w-full text-foreground-body border border-gray-200 rounded-md py-2.5 pr-4 rounded-tr-none flex gap-4 items"
             >
               <span className="icon-wrapper primary ">
-                <ImageIcon />
+                <Image
+                  src={imageUrl}
+                  alt=""
+                  height={100}
+                  width={100}
+                  className="rounded-lg shrink-0 object-cover size-14"
+                />
               </span>
               <span>
                 <span className="font-semibold block">
@@ -92,22 +100,19 @@ const ChatBubble = (props: UmojaLinnChat) => {
               {formatDate(createdAt, "hh:mmaa")}
             </p>
           </div>
-            <a
-              href={messageUrl}
-              // download={value?.type === "media"}
-              target="_blank"
+            <div
               className={" flex gap-2  items-center border border-border/20 bg-slate-50"}
             >
               <span className="icon-wrapper warning">
                  <Link2 />
               </span>
-              <p>{message}</p>
-            </a>
+              <p className="whitespace-pre-wrap">{message}</p>
+            </div>
         </div>
     )
   }
 
-  return !messageUrl ? (
+  return imageUrl || urlCount !== 1 ? (
     <div className="flex gap-4 items-start max-w-[70%]">
       {user?.profilePhotoUri ? (
         <Image
@@ -152,7 +157,13 @@ const ChatBubble = (props: UmojaLinnChat) => {
             className="w-full text-foreground-body border border-gray-200 rounded-md py-2.5 px-4 rounded-tl-none flex gap-4 items"
           >
             <span className="icon-wrapper primary ">
-              <ImageIcon />
+              <Image
+                src={imageUrl}
+                alt=""
+                height={100}
+                width={100}
+                className="rounded-lg shrink-0 object-cover size-14"
+              />
             </span>
             <span>
               <span className="font-semibold block">
@@ -167,18 +178,18 @@ const ChatBubble = (props: UmojaLinnChat) => {
   ): (
       <div className="flex max-w-[70%] min-w-12 gap-4">
           {user?.profilePhotoUri ? (
-        <Image
-          src={user?.profilePhotoUri}
-          alt=""
-          height={100}
-          width={100}
-          className="rounded-full shrink-0 object-cover size-14"
-        />
-      ) : (
-        <div className="rounded-full shrink-0 bg-gray-100 size-14 flex items-center justify-center [&>svg]:size-8 text-foreground-body">
-          <User />
-        </div>
-      )}
+              <Image
+                src={user?.profilePhotoUri}
+                alt=""
+                height={100}
+                width={100}
+                className="rounded-full shrink-0 object-cover size-14"
+              />
+            ) : (
+              <div className="rounded-full shrink-0 bg-gray-100 size-14 flex items-center justify-center [&>svg]:size-8 text-foreground-body">
+                <User />
+              </div>
+            )}
 
         <div className="flex-1 text-foreground-body gap-4 my-2 self-start justify-end ">
           <div className="flex justify-between gap-4  text-foreground-body mb-1">
@@ -190,17 +201,17 @@ const ChatBubble = (props: UmojaLinnChat) => {
                 {formatDate(createdAt, "hh:mmaa")}
               </p>
             </div>
-              <a
-                href={messageUrl}
+              <div
+                // href={messageUrl}
                 // download={value?.type === "media"}
-                target="_blank"
+                // target="_blank"
                 className={" flex gap-2  items-center border border-border/20 bg-slate-50"}
               >
                 <span className="icon-wrapper warning">
                   <Link2 />
                 </span>
                 <p>{message}</p>
-              </a>
+              </div>
           </div>
       </div>
     )

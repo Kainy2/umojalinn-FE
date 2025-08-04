@@ -29,7 +29,6 @@ const useChat = (
 
 			if (dataItem) {
 				const displayItem = Object.values(dataItem);
-				console.log("HISTORY >>>", displayItem);
 				setData(displayItem);
 			}
 		});
