@@ -202,8 +202,8 @@ const {
               })}
             </div>
             <div className="flex justify-center gap-2 lg:hidden">
-              {modalType === "EDIT"
-                || Object.values(sizingTemplateResult?.metadata?.reviews ?? {}).some(Boolean)
+              {(modalType === "EDIT"
+                || Object.values(sizingTemplateResult?.metadata?.reviews ?? {}).some(Boolean))
               && (
                 <Button
                   variant="outline"
@@ -250,8 +250,8 @@ const {
                 )}
             </div>
             <div className="flex justify-end gap-2">
-              {modalType === "EDIT"                  
-              || Object.values(sizingTemplateResult?.metadata?.reviews ?? {}).some(Boolean)
+              {(modalType === "EDIT"                  
+              || Object.values(sizingTemplateResult?.metadata?.reviews ?? {}).some(Boolean))
               && (
                 <Button
                   variant="outline"

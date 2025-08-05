@@ -59,7 +59,7 @@ const ProjectEditFooter = ({
 						value="save_and_submit"
 						onClick={rightSecondaryButtonProps?.onClick}
 						disabled={rightSecondaryButtonProps.disabled}
-						type={ rightSecondaryButtonProps.type || "submit"}
+						type={ rightSecondaryButtonProps.type || "button"}
 						variant="outline"
 					>
 						{rightSecondaryButtonProps.text || "Save & Exit"}

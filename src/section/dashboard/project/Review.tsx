@@ -7,6 +7,7 @@ import { UmojaLinnProject } from "@/types/project";
 import { formatDate } from "date-fns";
 import React from "react";
 import GalleryImages from "@/components/custom/GalleryImages";
+import { formatCurrencyValue } from "@/lib/number";
 
 const ProjectReviewView = (props: {
   project?: UmojaLinnProject;
@@ -73,7 +74,7 @@ const ProjectReviewView = (props: {
             Project budget:{" "}
             <span className="font-semibold">
               {getCurrencySymbol(props?.project?.currency)}
-              {props?.project?.budget || "0"}
+              {formatCurrencyValue(props?.project?.budget) || "0"}
             </span>
           </p>
         </div>

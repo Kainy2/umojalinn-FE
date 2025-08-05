@@ -431,9 +431,9 @@ const isAds = data?.data?.data.status === 'ADS'
           rightSecondaryButtonProps={{
             text: isAds ? "Cancel" : "Save & Exit",
             disabled: isUpdating,
-            onClick: () => {
+            onClick: (e) => {
                 if (isAds) router.push("/project/ads");
-                else return form.handleSubmit(onSubmit("DRAFT"));
+                else form.handleSubmit(onSubmit("DRAFT"))(e);
             },
           }}
           rightPrimaryButtonProps={{
