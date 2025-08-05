@@ -168,6 +168,8 @@ const JobPage = () => {
             <GalleryImages
               // title={gallery?.title}
               // src={gallery?.imageUrl}
+              width={310}
+              height={170}
               images={project.Gallery}
 
               wrapperClassName="aspect-square w-full h-auto"
