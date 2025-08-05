@@ -225,17 +225,19 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
 
         <ProjectEditFooter
           leftButtonProps={{ 
-            onClick: () => {
-              form.handleSubmit(onSubmit("SAVE"))
+            onClick: (e) => {
+              if (isAds) form.handleSubmit(onSubmit("SAVE"))(e);
+              else form.handleSubmit(onSubmit("DRAFT"))(e);
+
               router.back()
             }
-            }}
+          }}
           rightSecondaryButtonProps={{
             text: isAds ? "Cancel" : "Save & Exit", 
             disabled: isUpdating,
-            onClick: () => {
+            onClick: (e) => {
                 if (isAds) router.push("/project/ads");
-                else return form.handleSubmit(onSubmit("DRAFT"));
+                else form.handleSubmit(onSubmit("DRAFT"))(e);
             },
           }}
           rightPrimaryButtonProps={{

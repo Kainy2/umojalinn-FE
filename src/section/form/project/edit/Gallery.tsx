@@ -119,6 +119,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
   const handleCoverImageToggle =
     (index: number) => (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       e.preventDefault();
+      
       setValues((prev) =>
         prev.map((val, i) =>
           i === index
@@ -136,6 +137,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
           ?.map((val) => val?.id)
           .filter((val) => typeof val === "string");
         const toAdd = values?.filter((val) => typeof val?.image !== "string");
+
         updateProject(
           jsonToFormData({
             imagesMeta: toAdd?.map(({ title, fileName, isCoverImage }) => ({
@@ -183,8 +185,6 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
       </FormItemWrapper>
     );
   }
-
-console.log(preview);
 
   return (
     <>
@@ -269,17 +269,19 @@ console.log(preview);
 
       <ProjectEditFooter
         leftButtonProps={{ 
-          onClick: () => {
-            handleSubmit("SAVE")
+          onClick: (e) => {
+            if (isAds) handleSubmit("SAVE")(e);
+            else handleSubmit("DRAFT")(e);
+
             router.back()
           }
         }}
         rightSecondaryButtonProps={{
           text: isAds ? "Cancel" : "Save & Exit", 
           disabled: isUpdating,
-          onClick: () => {
+          onClick: (e) => {
               if (isAds) router.push("/project/ads");
-              else return handleSubmit("DRAFT");
+              else handleSubmit("DRAFT")(e);
           },
         }}
         rightPrimaryButtonProps={{
