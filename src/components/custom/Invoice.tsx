@@ -169,7 +169,7 @@ const Invoice = (props: InvoiceProps) => {
               <Text style={[styles.headerTitle, styles.fontBold]}>
                 {props.project?.title}
               </Text>
-              <Text>Generated via Umojalinn</Text>
+              <Text>Generated via Umoja linn</Text>
             </View>
           </View>
           <View style={styles.alignRight}>
@@ -329,7 +329,7 @@ const Invoice = (props: InvoiceProps) => {
         </View>
         <View style={[styles.alignCenter, styles.bodyText, { gap: 2 }]}>
           <Text style={[styles.fontBold]}>
-            Thank you for supporting Umojalinn. We trust you got your PERFECT FIT
+            Thank you for supporting Umoja linn. We trust you got your PERFECT FIT
           </Text>
           <Text>For inquiries contact support@umojalinn.com</Text>
         </View>
