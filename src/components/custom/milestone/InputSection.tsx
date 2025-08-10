@@ -5,7 +5,7 @@ import FileUploadPicker from "../picker/FileUpload";
 import { MilestoneStatus, MilestoneTimelineItem } from "./Timeline";
 import { useImagePreviewUrls } from "@/hooks/useImagePreviewUrls";
 import Image from "next/image";
-import { Link2, Locate, Trash2 } from "lucide-react";
+import { Link2, Locate, PlusCircle, Trash2 } from "lucide-react";
 import {
   UmojaLinnDeliveryMilestoneReviewProps,
   UmojaLinnMilestone,
@@ -14,7 +14,8 @@ import TextAreaField from "../input/TextAreaField";
 import CustomSelectCountry from "../SelectCountry";
 import { useGetMilestoneSubmissions } from "@/tanstack/hooks/useProject";
 import { Textarea } from "@/components/ui/textarea";
-import { removeFileFromFileList } from "@/lib/utils";
+import { mergeFiles, removeFileFromFileList } from "@/lib/utils";
+import useFilePicker from "@/hooks/useFilePicker";
 
 type MilestoneInputSectionProps = {
   id?: string;
@@ -42,11 +43,21 @@ const MilestoneInputSectionImageUpload = (
   }
 ) => {
   const { previewUrls, getPreview } = useImagePreviewUrls();
+  const { Input, onClick } = useFilePicker({
+    onSelect: (files) => {
+      if (!files) return;
+      const combinedFiles = mergeFiles(props?.files, files);
 
+      props?.onFilesChange?.(combinedFiles);
+      getPreview(combinedFiles);
+    },
+    accept: 'image/*',
+    multiple: true,
+  });
 
   if (props?.files?.length) {
     return (
-      <div className="flex gap-4 relative">
+      <div className="flex flex-wrap gap-4 relative">
         {previewUrls?.map((url, index) => (
 				<div 
         key={url}
@@ -74,6 +85,12 @@ const MilestoneInputSectionImageUpload = (
 					/>
 				</div>
 			))}
+      <button 
+       onClick={onClick}
+       className="h-20 w-20 rounded-full self-center flex items-center justify-center">
+        <PlusCircle className="text-primary" />
+        <Input/>
+      </button>
       </div>
     );
   }
@@ -85,7 +102,6 @@ const MilestoneInputSectionImageUpload = (
       accept="image/*"
       multiple
       onSelect={(files) => {
-        console.log(files);
         if (files && files instanceof FileList) {
           props?.onFilesChange?.(files);
           getPreview(files);

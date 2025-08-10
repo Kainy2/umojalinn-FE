@@ -27,6 +27,8 @@ export type UmojaLinnProject = {
   draftPercentageCompleted: number;
   allReviewsSubmitted: boolean;
   reviews: Array<UmojaLinnProjectReview> | null;
+  chatLinks: Array<string> | null;
+  chatMedia: Array<string> | null;
   deliveryAddress: {
     id: string;
     country: null | string;

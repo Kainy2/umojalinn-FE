@@ -68,7 +68,9 @@ const ReviewForm = (props: ProjectFormProps) => {
           onClick: () => 
             router.push(isAds ? "/project/ads" : "/projects")
         }}
-        rightPrimaryButtonProps={{
+        rightPrimaryButtonProps={isAds 
+          ? undefined 
+          : {
           text: "Post",
           disabled: isPending,
           onClick: () => goLive(props?.id),

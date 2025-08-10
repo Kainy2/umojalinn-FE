@@ -105,8 +105,9 @@ const MilestoneAction: React.FC<
             variant="success"
             fullWidth
             disabled={
-              isSubmittingMilestone || (!isDelivery && !message)
+              (!isDelivery && !message)
             }
+            loading={isSubmittingMilestone}
           >
             Submit
           </Button>

@@ -28,6 +28,9 @@ const ReviewPage = () => {
     },
   });
 
+  const isAds = data?.data.data.status === 'ADS'
+
+
   if (projectLoading) {
     return (
       <div className="flex flex-col gap-8">
@@ -62,7 +65,9 @@ const ReviewPage = () => {
       /> */}
 
       <ProjectEditFooter
-        rightPrimaryButtonProps={{
+        rightPrimaryButtonProps={isAds 
+          ? undefined 
+          : {
           text: "Post",
           disabled: isPending,
           onClick: () => goLive(params?.id),

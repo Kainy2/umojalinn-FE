@@ -207,7 +207,7 @@ export const formatMessageWithLinks = (rawMessage: string) => {
 						href={word}
 						target="_blank"
 						rel="noopener noreferrer"
-						className="text-white border-b border-inherit"
+						className="text-blue-700 visited:text-blue-700 border-b border-inherit"
 					>
 						{word}
 					</a>
@@ -255,4 +255,25 @@ export const removeNonDigits = (input: number | string) => {
 
 export const commaStringToNumber = (input: string): number => {
   return Number(removeNonDigits(input));
+};
+
+export const mergeFiles = (
+  existing?: FileList | null,
+  incoming?: FileList | File | null
+): FileList => {
+  const dataTransfer = new DataTransfer();
+
+  // Add existing files if any
+  if (existing instanceof FileList) {
+    Array.from(existing).forEach(file => dataTransfer.items.add(file));
+  }
+
+  // Add incoming files if any
+  if (incoming instanceof FileList) {
+    Array.from(incoming).forEach(file => dataTransfer.items.add(file));
+  } else if (incoming instanceof File) {
+    dataTransfer.items.add(incoming);
+  }
+
+  return dataTransfer.files; // ✅ returns a proper FileList
 };

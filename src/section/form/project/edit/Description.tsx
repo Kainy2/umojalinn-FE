@@ -437,6 +437,7 @@ const isAds = data?.data?.data.status === 'ADS'
             },
           }}
           rightPrimaryButtonProps={{
+            text: isAds ? "Save & Continue" : undefined,
             disabled: isUpdating,
             onClick: form.handleSubmit(onSubmit("SAVE")),
           }}
