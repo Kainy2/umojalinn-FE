@@ -211,3 +211,11 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.slick-dots li button:before {
+  color: white !important;
+  opacity: 1;
+}
+.slick-dots li.slick-active button:before {
+  color: white !important;
+}

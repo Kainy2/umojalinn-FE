@@ -82,6 +82,7 @@ const DashboardPage = () => {
               value: 0,
               total: 1,
             }}
+            // attachedFileCount={bid?.project?.cha}
             img={getCoverImage(bid.project)}
             dueDate={bid?.project?.dueDate}
             status={bid?.status === "PENDING" || bid?.status === "REJECTED" ? {
@@ -129,6 +130,7 @@ const DashboardPage = () => {
               value: 0,
               total: 1,
             }}
+            attachedFileCount={job.chatLinks?.length}
             img={getCoverImage(job)}
             dueDate={job.dueDate}
           />
@@ -151,6 +153,7 @@ const DashboardPage = () => {
               value: 0,
               total: 1,
             }}
+            attachedFileCount={job.chatLinks?.length}
             img={getCoverImage(job)}
             dueDate={job.dueDate}
           />

@@ -83,10 +83,10 @@ const JobCard = (props: JobCardProps) => {
                 )}
               >
                 <Paperclip className="h-4 w-4" />
-                <p className="text-inherit">{props?.attachedFileCount || 0}</p>
+                <p className="text-inherit">{props?.attachedFileCount ?? 0}</p>
                 <Separator orientation="vertical" className="mx-0.5 h-5" />
                 <MessageSquare className="h-4 w-4" />
-                <p className="text-inherit">{props?.messageCount || 0}</p>
+                <p className="text-inherit">{props?.messageCount ?? 0}</p>
               </div>
             )}
           </div>

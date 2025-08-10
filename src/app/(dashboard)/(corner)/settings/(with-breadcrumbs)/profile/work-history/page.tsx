@@ -50,6 +50,12 @@ const SettingsProfileWorkHistoryPage = () => {
     <div className="flex flex-col gap-8">
       {userReviews?.data?.data?.map((proj) => {
         const firstReview = proj?.reviews?.[0];
+        const isDesigner = session?.user?.profileRole === "DESIGNER";
+        
+        if (isDesigner && firstReview?.buyerId &&!firstReview?.project?.allReviewsSubmitted)
+					return null;
+				if (!isDesigner && firstReview?.designerId &&!firstReview?.project?.allReviewsSubmitted)
+					return null;
 
         const href = getProjectHref(
           proj?.projectId,
@@ -66,23 +72,27 @@ const SettingsProfileWorkHistoryPage = () => {
             </h3>
   
             <div className="space-y-4">
-              {proj.reviews?.map((review) => (
-                <div key={review?.id}>
-                  <h4 className="font-medium mb-1">
-                    {review?.reviewType === "EXPERIENCE"
-                      ? "Experience"
-                      : "Clothing Quality"}{" "}
-                    feedback
-                  </h4>
-                  <p className="mb-2">&quot;{review?.message}&quot;</p>
+              {proj.reviews?.map((review) => {
 
-                  <p className="text-sm mb-2">
-                    {formatDate(review?.createdAt, "MMM d, yyyy")} - Present
-                  </p>
-                  <ReviewRatingStars small rating={review?.rating} disabled />
 
-                </div>
-              ))}
+                return (
+                  <div key={review?.id}>
+                    <h4 className="font-medium mb-1">
+                      {review?.reviewType === "EXPERIENCE"
+                        ? "Experience"
+                        : "Clothing Quality"}{" "}
+                      feedback
+                    </h4>
+                    <p className="mb-2">&quot;{review?.message}&quot;</p>
+
+                    <p className="text-sm mb-2">
+                      {formatDate(review?.createdAt, "MMM d, yyyy")} - Present
+                    </p>
+                    <ReviewRatingStars small rating={review?.rating} disabled />
+
+                  </div>
+                );
+              })}
             </div>
 
 

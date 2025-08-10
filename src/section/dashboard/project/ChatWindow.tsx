@@ -69,7 +69,7 @@ const ChatWindow = (props: ChatWindowProps) => {
         props.className,
       )}
     >
-      <div className="flex flex-1 flex-col gap-4">
+      <div className="flex flex-1 flex-col gap-4 break-words">
         {data?.map((d: UmojaLinnChat, i) => {
           return (
             <React.Fragment key={i}>
@@ -137,7 +137,7 @@ const ChatWindow = (props: ChatWindowProps) => {
             <ImageIcon />
           </button>
           <Input />
-          <Button onClick={handleSend} disabled={(!message && !images.length) || loading}>
+          <Button onClick={handleSend} loading={loading} disabled={(!message && !images.length)}>
             Send
           </Button>
         </div>
