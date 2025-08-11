@@ -48,6 +48,9 @@ const BidPage = () => {
 		editing,
 		isPending,
 		deleteMilestone,
+    isUpdatingBid,
+    isSubmittingBid,
+    isPendingDelete,
   } = useBidEdit();
   
   if (isPending) {
@@ -87,6 +90,7 @@ const BidPage = () => {
       )}
       {milestones.map((milestone, index) => (
        <MilestoneCard
+          loadingDelete={isPendingDelete}
 					hideActions={(!!editing && index !== editing) || !editMode}
 					onDelete={() =>
 						milestone?.id && deleteMilestone(milestone?.id)
@@ -202,16 +206,26 @@ const BidPage = () => {
         {editMode && (
           <div className="flex gap-4">
             {bid?.status === "DRAFT" && (
-              <Button variant="outline" onClick={() => handleUpdate("UPDATE")}>
+              <Button 
+                variant="outline" 
+                disabled={isUpdatingBid || isSubmittingBid}
+                onClick={() => handleUpdate("UPDATE")}
+              >
                 Save & Exit
               </Button>
             )}
-            <Button variant="default" onClick={() => handleUpdate("LIVE")}>
+            <Button 
+              variant="default"
+              loading={isUpdatingBid || isSubmittingBid}
+              onClick={() => handleUpdate("LIVE")}
+            >
               Submit
             </Button>
           </div>
         )}
         <TotalPriceError
+          pendingConfirm={false}
+          // pendingConfirm={isUpdatingBid || isSubmittingBid}
           negotiable={!!bid?.project?.negotiable}
           open={showExcessDialog}
           onOpenChange={setShowExcessDialog}

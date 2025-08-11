@@ -261,6 +261,8 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
   );
 
   useEffect(() => {
+    if (mode !== "WITHDRAWAL") return;
+    
 		const method = withdrawalMethodsForThisCurrency?.find(
 			(method) => method?.isDefault
 		);
@@ -317,7 +319,7 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
                 {withdrawalMethodsForThisCurrency?.map?.((method) => (
                   <button
                     onClick={() =>
-                      // mode === "WITHDRAWAL" &&
+                      mode === "WITHDRAWAL" &&
                       setSelectedWithdrawalMethod((prev) =>
                         prev?.id === method?.id ? null : method
                       )
@@ -326,29 +328,30 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
                     key={method.id}
                     className={cn(
                       "p-4 rounded-md border relative flex gap-4",
-                      selectedWithdrawalMethod?.id === method?.id && "border-primary",
-                      mode === "WITHDRAWAL" && "cursor-pointer"
+                      mode === "WITHDRAWAL" && selectedWithdrawalMethod?.id === method?.id && "border-primary",
+                      // mode === "WITHDRAWAL" && "cursor-pointer",
+                      mode === "PAYMENT" && "cursor-default"
                     )}
                   >
                     {getIcon(method?.channel)}
-                    <div className="text-foreground-body">
+                    <div className="text-foreground-body text-start">
                       <p>{method?.paypalEmail || method?.bankName}</p>
                       <p className="text-sm mb-2">{method?.accountNumber}</p>
                       <div className="flex items-center gap-2">
-                        {mode === "WITHDRAWAL" && (
+                        {/* {mode === "WITHDRAWAL" && ( */}
                             <button 
                               disabled={isPendingSetDefault || method.isDefault} 
                               onClick={() => handleSetDefaultWithdrawalMethod(method?.id, currency)}
                               className={
-                                cn("font-bold disabled:opacity-50",
+                                cn("font-bold disabled:cursor-not-allowed",
                                 method.isDefault &&"text-green-500",
-                              isPendingSetDefault && "cursor-not-allowed"
+                              isPendingSetDefault && "opacity-50"
                               )
                               }
                             >
                               {method.isDefault ? "Default" : "Set as default"}
                             </button>
-                          )}
+                          {/* )} */}
                         <DialogTrigger 
                           asChild
                           onClick={(e) => {
@@ -363,6 +366,7 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
                         </DialogTrigger>
                       </div>
                     </div>
+                    {/* <CheckCircle className="size-5 text-primary shrink-0 absolute top-4 right-4" /> */}
                     {mode === "WITHDRAWAL" &&
                       (selectedWithdrawalMethod?.id === method?.id ? (
                         <CheckCircle className="size-5 text-primary shrink-0 absolute top-4 right-4" />
@@ -543,11 +547,12 @@ const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: 
               onClick: ()=> setPaymentMethod(null),
             }}
             rightPrimaryButtonProps={{
-              disabled: isLoadingFooterButtons,
+              disabled: isLoadingFooterButtons || (mode === "PAYMENT" && !paymentMethod),
               onClick: handleContinue,
               text:
-                mode === "PAYMENT" || !paymentMethod
-                  ? "Proceed to withdrawal"
+              mode === "WITHDRAWAL"
+                // mode === "PAYMENT" || !paymentMethod
+                  ? "Proceed to withdraw"
                   : "Save details",
               }}
           />

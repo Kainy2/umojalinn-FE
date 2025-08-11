@@ -143,7 +143,7 @@ const IndividualBidPage = () => {
               <RejectButton bidId={id} />
               <Button
                 variant="success"
-                disabled={isPending}
+                loading={isPending}
                 onClick={() => {
                   if (bid?.project?.sizingTemplateId) {
                     acceptOrReject({
@@ -169,11 +169,13 @@ const IndividualBidPage = () => {
       )}
 
       <AcceptBidSizingTemplateInterrupt
+        pendingConfirm={false}
         open={interruptOpen === "INTERRUPT"}
         onConfirm={() => setInterruptOpen("SELECT")}
         onOpenChange={(value) => setInterruptOpen(value ? "INTERRUPT" : null)}
       />
       <AcceptBidSizingTemplateInterruptConfirm
+        loadingCreate={false}
         open={interruptOpen === "SELECT"}
         loading={isAddingSizingTemplateToProject}
         onOpenChange={(value) => setInterruptOpen(value ? "SELECT" : null)}

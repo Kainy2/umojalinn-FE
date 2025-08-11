@@ -44,6 +44,7 @@ const RejectMilestoneDialog = (props: DialogProps & { id: string }) => {
         <DialogFooter>
           <Button
             fullWidth
+            loading={isPending}
             type="button"
             onClick={() =>
               mutate({
@@ -51,7 +52,7 @@ const RejectMilestoneDialog = (props: DialogProps & { id: string }) => {
                 rejectionReason,
               })
             }
-            disabled={isPending || !rejectionReason?.trim?.()}
+            disabled={!rejectionReason?.trim?.()}
           >
             Reject milestone
           </Button>

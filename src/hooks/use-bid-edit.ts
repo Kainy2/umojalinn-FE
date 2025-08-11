@@ -39,7 +39,7 @@ const { id } = useParams<{ id: string }>();
 
   // const { data: meData } = useGetMe();
 
-  const { data, isPending } = useGetDesignerBidById(id);
+  const { data, isLoading: isPending } = useGetDesignerBidById(id);
   const bid = data?.data?.data;
   const project = bid?.project;
 
@@ -82,7 +82,7 @@ const { id } = useParams<{ id: string }>();
     },
   });
 
-  const { mutate: deleteMilestone } = useDeleteMilestone({
+  const { mutate: deleteMilestone, isPending: isPendingDelete } = useDeleteMilestone({
     onSuccess: () => {
       setMilestones((milestones) =>
         milestones?.length === 1 ? [] : milestones
@@ -91,7 +91,7 @@ const { id } = useParams<{ id: string }>();
     },
   });
 
-  const { mutate: updateBid } = useUpdateBid(id, {
+  const { mutate: updateBid, isPending: isUpdatingBid } = useUpdateBid(id, {
     onSuccess() {
       toast({
         title: "Bid saved in Drafts",
@@ -102,7 +102,7 @@ const { id } = useParams<{ id: string }>();
   });
 
   // Called after last update
-  const { mutate: submitBid } = useSubmitBid(id, {
+  const { mutate: submitBid, isPending: isSubmittingBid } = useSubmitBid(id, {
     onSuccess() {
       toast({
         title: "Bid Live",
@@ -274,6 +274,9 @@ const { id } = useParams<{ id: string }>();
 		editMode,
 		editing,
 		isPending,
-		deleteMilestone
+		deleteMilestone,
+    isUpdatingBid,
+    isSubmittingBid,
+    isPendingDelete
 	}
 }

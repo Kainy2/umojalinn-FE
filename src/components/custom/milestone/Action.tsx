@@ -78,7 +78,7 @@ const MilestoneAction: React.FC<
               })
             }
             variant="success"
-            disabled={isReviewingMilestone}
+            loading={isReviewingMilestone}
             fullWidth
           >
             Accept

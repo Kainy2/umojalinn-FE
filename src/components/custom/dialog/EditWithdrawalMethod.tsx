@@ -105,7 +105,8 @@ const EditWithdrawalMethod = (props: {
             fullWidth
             variant="outline"
             type="button"
-            disabled={isDeleting || isEditing}
+            loading={isDeleting}
+            disabled={isEditing}
             onClick={() => deleteWithdrawalMethod()}
           >
             Remove from wallet
@@ -115,7 +116,8 @@ const EditWithdrawalMethod = (props: {
             variant="default"
             type="button"
             onClick={handleSubmit}
-            disabled={isDeleting || isEditing}
+            loading={isEditing}
+            disabled={isDeleting}
           >
             Update
           </Button>
