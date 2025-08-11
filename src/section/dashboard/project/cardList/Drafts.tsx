@@ -19,7 +19,7 @@ const DraftCardList = () => {
   });
   const router = useRouter();
 
-  const { mutate: deleteProjectById } = useDeleteProject();
+  const { mutate: deleteProjectById, isPending: isDeletePending } = useDeleteProject();
 
   if (isPending) {
     return (
@@ -55,6 +55,7 @@ const DraftCardList = () => {
               destructive
               confirmText="Yes"
               cancelText="No"
+              pendingConfirm={isDeletePending}
               onConfirm={() => {
                 deleteProjectById(project?.id);
                 setVerifyDelete(false);

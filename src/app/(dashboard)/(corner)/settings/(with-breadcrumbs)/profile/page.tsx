@@ -65,7 +65,7 @@ const SettingsProfilePage = () => {
   const [editMode, setEditMode] = useState(false);
   const { toast } = useToast();
 
-  const { data: meData, isPending: isGettingMyData } = useGetMe();
+  const { data: meData, isLoading: isGettingMyData } = useGetMe();
 
   const { mutate: updateMe, isPending: isUpdatingMe } = useUpdateUserDetails({
     onSuccess() {
@@ -551,6 +551,7 @@ const SettingsProfilePage = () => {
               variant="outline"
               type="button"
               onClick={() => setEditMode(true)}
+              loading={isGettingMyData}
               disabled={isGettingMyData}
             >
               Edit
@@ -561,6 +562,7 @@ const SettingsProfilePage = () => {
                 variant="outline"
                 type="button"
                 disabled={disableForm}
+                loading={isUpdatingMe}
                 onClick={() => {
                   form.clearErrors();
                   form.reset(defaultValues)
@@ -569,7 +571,7 @@ const SettingsProfilePage = () => {
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={disableForm}>
+              <Button type="submit" disabled={disableForm} loading={isUpdatingMe}>
                 Save
               </Button>
             </>

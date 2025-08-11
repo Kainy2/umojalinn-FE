@@ -198,6 +198,7 @@ const ReviewDialog = (props: CustomReviewDialogProps) => {
           {fileComponent}
         </div>
       }
+      pendingConfirm={isAddingProjectReview}
       onConfirm={handleSubmit}
       disableActions={
         isAddingProjectReview ||

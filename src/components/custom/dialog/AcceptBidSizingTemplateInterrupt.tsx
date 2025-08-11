@@ -25,6 +25,7 @@ type ButtonOnClickProp = React.ComponentProps<"button">["onClick"];
 const AcceptBidSizingTemplateInterrupt = (
   props: DialogProps & {
     onConfirm?: ButtonOnClickProp;
+    pendingConfirm: boolean;
   }
 ) => {
   const [open, setOpen] = useState(false);
@@ -48,7 +49,7 @@ const AcceptBidSizingTemplateInterrupt = (
           </div>
         </DialogHeader>
         <DialogFooter>
-          <Button onClick={props?.onConfirm} fullWidth>
+          <Button onClick={props?.onConfirm} loading={props.pendingConfirm} fullWidth>
             Select sizing template
           </Button>
         </DialogFooter>
@@ -60,6 +61,7 @@ const AcceptBidSizingTemplateInterrupt = (
 export const AcceptBidSizingTemplateInterruptConfirm = (
   props: DialogProps & {
     loading?: boolean;
+    loadingCreate: boolean;
     handleCreateNewSizingTemplate: ButtonOnClickProp;
     handleAddSizingTemplateToProject: (templateId: string) => void;
   }
@@ -186,6 +188,7 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
               }
             }}
             fullWidth
+            loading={props.loadingCreate}
             disabled={
               loadingLivesizingTemplates ||
               (!sizingTemplateId && !!liveSizingTemplates?.data?.data?.length)

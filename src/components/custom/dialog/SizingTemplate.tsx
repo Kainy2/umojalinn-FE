@@ -379,6 +379,7 @@ const {
                   maxLength={100}
                 />
               }
+              pendingConfirm={false}
               fullWidthActions
               hideCancel
               confirmText="Submit changes"

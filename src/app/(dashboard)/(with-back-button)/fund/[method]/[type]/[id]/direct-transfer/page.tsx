@@ -194,6 +194,7 @@ const DirectTransferPage = () => {
         <Button
           fullWidth
           onClick={handleClick}
+          loading={isFundingMilestone || isFundingProject}
           disabled={
             !transactionRecieptFile ||
             (params.type === "project" && isFundingProject) ||

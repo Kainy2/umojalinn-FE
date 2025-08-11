@@ -24,6 +24,7 @@ type MileStoneCardProps = {
   onEdit: React.ComponentProps<"button">["onClick"];
   onCancel: React.ComponentProps<"button">["onClick"];
   onDelete?: () => void;
+  loadingDelete: boolean;
   currency: UmojaLinnCurrency | null;
   price: number;
   hideActions: boolean;
@@ -119,6 +120,7 @@ const MileStoneCard = (props: MileStoneCardProps) => {
     onSave,
     onEdit,
     onDelete,
+    loadingDelete,
     onCancel,
   } = props;
 
@@ -169,6 +171,7 @@ const MileStoneCard = (props: MileStoneCardProps) => {
         {!hideActions && !!id && (
           <VerifyDialog
             destructive
+            pendingConfirm={loadingDelete}
             onConfirm={onDelete}
             title="Delete Milestone?"
             description="Are you sure you want to delete this milestone? Please note that this is irreversible."

@@ -23,6 +23,7 @@ const RejectButton = (props: RejectButtonProps) => {
           onChange={(e) => setReason(e.target.value)}
         />
       }
+      pendingConfirm={isPending}
       onConfirm={() =>
         mutate({
           status: "REJECTED",

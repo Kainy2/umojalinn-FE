@@ -19,7 +19,7 @@ const AdsProjectPage = () => {
 
   const { data, isPending } = useGetProjectById(params?.id);
 
-  const { mutate: deleteProjectById } = useDeleteProject();
+  const { mutate: deleteProjectById, isPending: isDeletePending } = useDeleteProject();
 
   const [verifyDelete, setVerifyDelete] = React.useState(false);
 
@@ -62,6 +62,7 @@ const AdsProjectPage = () => {
         destructive
         confirmText="Yes"
         cancelText="No"
+        pendingConfirm={isDeletePending}
         onConfirm={() => {
           deleteProjectById(params.id);
           setVerifyDelete(false);

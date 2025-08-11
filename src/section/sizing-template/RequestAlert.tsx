@@ -24,7 +24,7 @@ const RequestSizingTemplateAlert = () => {
     isSuccess,
   } = useRequestSizingTemplateInProject();
 
-  const requestSuccessfull = isSuccess || bid?.sizingTemplateRequested;
+  const requestSuccessful = isSuccess || bid?.sizingTemplateRequested;
 
   if (
     bid &&
@@ -47,12 +47,13 @@ const RequestSizingTemplateAlert = () => {
         <Button
           className={cn(
             "rounded-md",
-            requestSuccessfull ? "bg-yellow-200" : "bg-error"
+            requestSuccessful ? "bg-yellow-200" : "bg-error"
           )}
-          disabled={requestSuccessfull || isPending}
+          loading={isPending}
+          disabled={requestSuccessful}
           onClick={() => requestSizingTemplate(project?.id)}
         >
-          {requestSuccessfull ? "Requested" : "Request"}
+          {requestSuccessful ? "Requested" : "Request"}
         </Button>
       </div>
     );
