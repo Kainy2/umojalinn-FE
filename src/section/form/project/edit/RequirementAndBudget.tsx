@@ -99,7 +99,7 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
           onSuccess() {
             router.push(
               mode === "DRAFT"
-                ? "/projects"
+                  ? "/projects/drafts"
                 : `${
                     !!props.isOnboarding ? "/onboard" : ""
                   }/project/${uuidToBase62Safe(props?.id)}/review`
@@ -255,7 +255,7 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
             text: isAds ? "Cancel" : "Save & Exit", 
             disabled: isUpdating,
             onClick: (e) => {
-                if (isAds) router.push("/project/ads");
+                if (isAds) router.push(`/projects/ads/${uuidToBase62Safe(props?.id)}`);
                 else form.handleSubmit(onSubmit("DRAFT"))(e);
             },
           }}

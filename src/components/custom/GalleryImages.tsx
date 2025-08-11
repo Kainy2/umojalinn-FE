@@ -124,9 +124,9 @@ const GalleryImages = (props: GalleryImagesProps) => {
                         fallback ||
                         "/img/svg/null.svg"
                       }
-                      className="object-cover"
+                      className="object-contain"
                       fill
-                      objectFit="cover"
+                      objectFit="contain"
                       alt={gallery.title || `Image ${gallery.id}`}
                     />
                   </div>
