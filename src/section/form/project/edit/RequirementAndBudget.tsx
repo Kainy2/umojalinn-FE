@@ -23,6 +23,7 @@ import { uuidToBase62Safe } from "@/lib/uuid";
 import { ProjectFormProps } from "./Description";
 import TabButtonSelect from "@/components/custom/tab/ButtonSelect";
 import CustomReactSelect from "@/components/custom/ReactSelect";
+import { useCreateProjectContext } from "@/hooks/create-project/useCreateProjectContext";
 
 export const EXPERIENCE_ENUMS = [
   "1 - 2 years",
@@ -40,14 +41,27 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
   );
 
   const router = useRouter();
+  const { projectFormDetails, setProjectFormDetails } = useCreateProjectContext()
+  const isAds = data?.data.data.status === 'ADS'
 
   const form = useForm<ProjectFormRequirementsAndBugetProps>({
     resolver: zodResolver(requirementsAndBugetSchema),
     defaultValues: {},
   });
-  const isAds = data?.data.data.status === 'ADS'
 
+  console.log({projectFormDetails});
+  
   useEffect(() => {
+    if (isAds && (
+      projectFormDetails.budget 
+      || projectFormDetails.currency 
+      || projectFormDetails.negotiable
+    )){
+      form.reset(projectFormDetails)
+      return
+    }
+
+
     if (data?.data?.data?.budget) {
       form.setValue("budget", data?.data?.data?.budget);
     }
@@ -69,8 +83,14 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
   }, [data?.data?.data, form]);
 
   const onSubmit = useCallback(
-    (mode: "SAVE" | "DRAFT") =>
+    (mode: "SAVE" | "DRAFT", ) =>
       (values: ProjectFormRequirementsAndBugetProps) => {
+        if (isAds) {
+          setProjectFormDetails(prev => ({ ...prev, ...values }))
+          router.push(`/project/${uuidToBase62Safe(props?.id)}/review`)
+          return
+        }
+
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const val = jsonToFormData({
           ...values,
@@ -87,7 +107,7 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
           },
         });
       },
-    [props?.id, props.isOnboarding, router, updateProject]
+    [props?.id, props.isOnboarding, router, updateProject, setProjectFormDetails, isAds]
   );
 
   if (loadingProject) {
@@ -228,8 +248,7 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
             onClick: (e) => {
               if (isAds) form.handleSubmit(onSubmit("SAVE"))(e);
               else form.handleSubmit(onSubmit("DRAFT"))(e);
-
-              router.back()
+              router.back();
             }
           }}
           rightSecondaryButtonProps={{
@@ -241,7 +260,7 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
             },
           }}
           rightPrimaryButtonProps={{
-            text: isAds ? "Save & Continue" : undefined,
+            text: isAds ? "Next" : undefined,
             disabled: isUpdating,
             onClick: form.handleSubmit(onSubmit("SAVE")),
           }}

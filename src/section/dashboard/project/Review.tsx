@@ -3,16 +3,21 @@ import Collapsible from "@/components/custom/Collapsible";
 import LabelBadge from "@/components/custom/LabelBadge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getCurrencySymbol } from "@/lib/string";
-import { UmojaLinnProject } from "@/types/project";
+import { UmojaLinnCurrency, UmojaLinnProject } from "@/types/project";
 import { formatDate } from "date-fns";
 import React from "react";
 import GalleryImages from "@/components/custom/GalleryImages";
 import { formatCurrencyValue } from "@/lib/number";
+import { StateType } from "@/layout/create-project/CreateProjectProvider";
 
 const ProjectReviewView = (props: {
   project?: UmojaLinnProject;
+  projectFormDetails?: StateType;
+  isAds?: boolean;
   loading?: boolean;
 }) => {
+const { projectFormDetails } = props
+
   if (props.loading) {
     return (
       <>
@@ -52,11 +57,12 @@ const ProjectReviewView = (props: {
       </>
     );
   }
+
   return (
     <>
       <div className="p-4 bg-gray-100 mb-4">
         <h3 className="text-md font-semibold text-foreground-body mb-1">
-          {props?.project?.title || "No title"}
+          {projectFormDetails?.title || props?.project?.title || "No title"}
         </h3>
         <p className="text-muted-foreground text-sm mb-8">
           {props?.project?.about || "No description"}
@@ -65,7 +71,10 @@ const ProjectReviewView = (props: {
           <p className="text-sm text-muted-foreground">
             Project due:{" "}
             <span className="font-semibold">
-              {props?.project?.dueDate
+              {
+                projectFormDetails?.dueDate
+                ? formatDate(projectFormDetails?.dueDate, "MMM dd, yyyy")
+                : props?.project?.dueDate
                 ? formatDate(props?.project?.dueDate, "MMM dd, yyyy")
                 : "None"}
             </span>
@@ -73,8 +82,8 @@ const ProjectReviewView = (props: {
           <p className="text-sm text-muted-foreground">
             Project budget:{" "}
             <span className="font-semibold">
-              {getCurrencySymbol(props?.project?.currency)}
-              {formatCurrencyValue(props?.project?.budget) || "0"}
+              {getCurrencySymbol( (projectFormDetails?.currency as UmojaLinnCurrency) || props?.project?.currency)}
+              {formatCurrencyValue( (projectFormDetails?.budget as number ) || props?.project?.budget)  || "0"}
             </span>
           </p>
         </div>
@@ -85,10 +94,21 @@ const ProjectReviewView = (props: {
             Project Gallery
           </h3>
           <div className="flex flex-row gap-4">
+            {/* { id: string; projectId: string; imageUrl: string; title: string; isCoverImage: boolean; } */}
             {/* {props?.project?.Gallery?.map?.((gallery) => ( */}
               <GalleryImages
                 images={
-                  props?.project?.Gallery ? 
+                  projectFormDetails?.gallery?.length
+                    ? projectFormDetails?.gallery.map((gal, i) => ({
+                      id: (gal?.id ?? '') as string,
+                      projectId: (props.project?.id || '0'),
+                      imageUrl: (gal?.image || '') as string,
+                      title: gal?.title,
+                      isCoverImage: gal?.isCoverImage,
+                      createdAt: props?.project?.Gallery?.[i]?.createdAt ?? '',
+                      updatedAt: props?.project?.Gallery?.[i]?.updatedAt ?? ''
+                    }))
+                    : props?.project?.Gallery ? 
                     props.project.Gallery
                    :[]}
                 // key={gallery?.id}
@@ -105,7 +125,7 @@ const ProjectReviewView = (props: {
       <Collapsible title="Delivery Details">
         <LabelBadge
           title="Country"
-          value={props?.project?.deliveryAddress?.country}
+          value={ projectFormDetails?.country || props?.project?.deliveryAddress?.country}
         />
         <LabelBadge
           title="City"
@@ -114,24 +134,24 @@ const ProjectReviewView = (props: {
         <LabelBadge
           title="Province / State / Zip code"
           value={[
-            props?.project?.deliveryAddress?.state,
-            props?.project?.deliveryAddress?.zipCode,
+            projectFormDetails?.state || props?.project?.deliveryAddress?.state,
+            projectFormDetails?.zipCode || props?.project?.deliveryAddress?.zipCode,
           ]}
         />
         <LabelBadge
           title="Address"
-          value={props?.project?.deliveryAddress?.address}
+          value={ projectFormDetails?.address || props?.project?.deliveryAddress?.address}
         />
       </Collapsible>
       <Collapsible title="Other Details">
         <LabelBadge
             title="Additional notes"
-            value={props?.project?.additionalNotes}
+            value={projectFormDetails?.additionalNotes || props?.project?.additionalNotes}
           />
 
         <LabelBadge
           title="Clothing type"
-          value={props?.project?.clothingTypes?.map?.((type) => type.name)}
+          value={ projectFormDetails?.clothingTypes || props?.project?.clothingTypes?.map?.((type) => type.name)}
         />
         {/* <LabelBadge
           title="Specialist"
