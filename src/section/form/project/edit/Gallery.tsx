@@ -22,6 +22,7 @@ import { ProjectFormProps } from "./Description";
 import FileUploadPicker from "@/components/custom/picker/FileUpload";
 import { useFileSizeError } from "@/hooks/useFilePicker";
 import { MAX_FILE_SIZE_FOR_FILE_UPLOAD } from "@/constant";
+import { useCreateProjectContext } from "@/hooks/create-project/useCreateProjectContext";
 
 const ProjectGalleryForm = (props: ProjectFormProps) => {
   const id = useId();
@@ -31,6 +32,8 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
   );
   const { toast } = useToast();
   const router = useRouter();
+  const { projectFormDetails, setProjectFormDetails } = useCreateProjectContext()
+  const isAds = data?.data.data.status === 'ADS'
 
   const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD);
   const [values, setValues] = useState<
@@ -43,21 +46,24 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
     }[]
   >([]);
 
-  const isAds = data?.data.data.status === 'ADS'
+console.log({projectFormDetails});
 
   useMemo(() => {
-    if (data?.data?.data?.Gallery) {
-      setValues(
-        data?.data?.data?.Gallery?.map((gallery) => ({
-          id: gallery?.id,
-          title: gallery.title,
-          fileName: gallery.imageUrl,
-          isCoverImage: gallery.isCoverImage,
-          image: gallery.imageUrl,
-        })) || []
-      );
+    if (isAds && !!projectFormDetails.gallery?.length){
+      setValues(projectFormDetails.gallery)
+      return 
     }
-  }, [data?.data?.data?.Gallery]);
+
+    if (data?.data?.data?.Gallery) {
+      setValues(data?.data?.data?.Gallery.map((gallery) => ({
+        id: gallery?.id,
+        title: gallery.title,
+        fileName: gallery.imageUrl,
+        isCoverImage: gallery.isCoverImage,
+        image: gallery.imageUrl,
+      }) ) || []);
+    }
+  }, [data?.data?.data?.Gallery, projectFormDetails.gallery, isAds]);
 
   const preview = useMemo(() => {
     return values?.map((val) => ({
@@ -129,14 +135,24 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
       );
     };
 
+
+
   const handleSubmit = useCallback(
     (mode: "SAVE" | "DRAFT") =>
       (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.preventDefault();
+
+        if (isAds){
+          setProjectFormDetails( prev => ({...prev, gallery: values }))
+          router.push(`/project/${uuidToBase62Safe(props?.id)}/requirements-and-budget`);
+          return
+        }
+
         const oldIdList = values
           ?.map((val) => val?.id)
           .filter((val) => typeof val === "string");
         const toAdd = values?.filter((val) => typeof val?.image !== "string");
+
 
         updateProject(
           jsonToFormData({
@@ -172,6 +188,9 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
       router,
       updateProject,
       values,
+      isAds,
+      setProjectFormDetails,
+
     ]
   );
 
@@ -272,7 +291,6 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
           onClick: (e) => {
             if (isAds) handleSubmit("SAVE")(e);
             else handleSubmit("DRAFT")(e);
-
             router.back()
           }
         }}
@@ -285,7 +303,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
           },
         }}
         rightPrimaryButtonProps={{
-          text: isAds ? "Save & Continue" : undefined,
+          text: isAds ? "Next" : undefined,
           disabled: isUpdating,
           onClick: handleSubmit("SAVE"),
         }}

@@ -29,6 +29,7 @@ import { uuidToBase62Safe } from "@/lib/uuid";
 import { useGetAllSizingTemplates } from "@/tanstack/hooks/useSizingTemplates";
 import CustomSelectCountry from "@/components/custom/SelectCountry";
 import CustomReactSelect from "@/components/custom/ReactSelect";
+import { useCreateProjectContext } from "@/hooks/create-project/useCreateProjectContext";
 
 export type ProjectFormProps = {
   id: string;
@@ -36,15 +37,17 @@ export type ProjectFormProps = {
 };
 
 const ProjectDescriptionForm = (props: ProjectFormProps) => {
-  const { data, isPending: loadingProject } = useGetProjectById(props?.id);
+  const { data, isLoading: loadingProject } = useGetProjectById(props?.id);
   const { data: clothingTypes } = useGetClothingTypes();
   const { mutate: updateProject, isPending: isUpdating } = useUpdateProjectById(
     props?.id
   );
-
   const [useSizingTemplate, setUseSizingTemplate] = useState(false);
-
+  
   const router = useRouter();
+  const { projectFormDetails, setProjectFormDetails } = useCreateProjectContext()
+
+  const isAds = data?.data?.data.status === 'ADS'
 
   const form = useForm<ProjectFormDetailsProps>({
     resolver: zodResolver(projectFormDetailsSchema),
@@ -57,7 +60,12 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
     });
 
   useEffect(() => {
-    if (data?.data?.data) {
+    if (isAds && projectFormDetails.firstName){
+      form.reset(projectFormDetails)
+      return
+    }
+
+    if (data?.data?.data ) {
       Object.entries(data.data.data).forEach(([key, value]) => {
         if (
           value !== null &&
@@ -92,14 +100,26 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
       form.setValue("lastName", data?.data?.data?.buyer?.user?.lastName);
     }
   }, [data?.data?.data, form]);
+  
+  console.log('isAds', isAds);
 
   const onSubmit = useCallback(
-    (mode: "SAVE" | "DRAFT") => (values: ProjectFormDetailsProps) => {
+    (mode: "SAVE" | "DRAFT") => (values: ProjectFormDetailsProps) => {  
+        
+      if (isAds) {
+        setProjectFormDetails(prev => ({...prev, ...values}))
+        router.push(`/project/${uuidToBase62Safe(props?.id)}/gallery`);
+        return 
+      }      
+      
+      console.log('isUpdating',);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { firstName, lastName, designerId, ...otherValues } = values;
       const val = jsonToFormData({
         ...otherValues,
       });
+
+
       updateProject(val, {
         onSuccess() {
           router.push(
@@ -111,13 +131,12 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
         },
       });
     },
-    [props?.id, props.isOnboarding, router, updateProject]
+    [props?.id, props.isOnboarding, router, updateProject, setProjectFormDetails, isAds ]
   );
 
 // http://localhost:3000/project/67GVLHjOlYJVaign9DZK9T
 // http://localhost:3000/project/hoXw3ODhKDFm8LkfGAmLN
 
-const isAds = data?.data?.data.status === 'ADS'
 
   if (loadingProject) {
     return (
@@ -437,7 +456,7 @@ const isAds = data?.data?.data.status === 'ADS'
             },
           }}
           rightPrimaryButtonProps={{
-            text: isAds ? "Save & Continue" : undefined,
+            text: isAds ? "Next" : undefined,
             disabled: isUpdating,
             onClick: form.handleSubmit(onSubmit("SAVE")),
           }}
