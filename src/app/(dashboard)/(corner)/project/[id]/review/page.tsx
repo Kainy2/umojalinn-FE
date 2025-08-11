@@ -138,6 +138,13 @@ const ReviewPage = () => {
       /> */}
 
       <ProjectEditFooter
+        rightSecondaryButtonProps={!isAds ? undefined :{
+            text: "Cancel", 
+            disabled: isUpdating,
+            onClick: () => {
+              router.push(`/projects/ads/${uuidToBase62Safe(params?.id)}`);
+            },
+          }}
         rightPrimaryButtonProps={{
           text: isAds ? "Update" : "Post",
           disabled: isPending || isUpdating,

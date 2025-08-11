@@ -65,7 +65,7 @@ const { projectFormDetails } = props
           {projectFormDetails?.title || props?.project?.title || "No title"}
         </h3>
         <p className="text-muted-foreground text-sm mb-8">
-          {props?.project?.about || "No description"}
+          {projectFormDetails?.about || props?.project?.about || "No description"}
         </p>
         <div className="flex gap-4 flex-col lg:flex-row justify-between">
           <p className="text-sm text-muted-foreground">
@@ -129,7 +129,7 @@ const { projectFormDetails } = props
         />
         <LabelBadge
           title="City"
-          value={props?.project?.deliveryAddress?.city}
+          value={ projectFormDetails?.city || props?.project?.deliveryAddress?.city}
         />
         <LabelBadge
           title="Province / State / Zip code"

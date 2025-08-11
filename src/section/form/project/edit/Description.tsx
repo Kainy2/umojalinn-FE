@@ -112,7 +112,6 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
         return 
       }      
       
-      console.log('isUpdating',);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { firstName, lastName, designerId, ...otherValues } = values;
       const val = jsonToFormData({
@@ -451,8 +450,8 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
             text: isAds ? "Cancel" : "Save & Exit",
             disabled: isUpdating,
             onClick: (e) => {
-                if (isAds) router.push("/project/ads");
-                else form.handleSubmit(onSubmit("DRAFT"))(e);
+                if (isAds) router.push(`/projects/ads/${uuidToBase62Safe(props?.id)}`);
+                else {form.handleSubmit(onSubmit("DRAFT"))(e)};
             },
           }}
           rightPrimaryButtonProps={{
