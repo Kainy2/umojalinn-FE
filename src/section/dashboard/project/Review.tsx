@@ -9,14 +9,17 @@ import React from "react";
 import GalleryImages from "@/components/custom/GalleryImages";
 import { formatCurrencyValue } from "@/lib/number";
 import { StateType } from "@/layout/create-project/CreateProjectProvider";
+import { useGetClothingTypes } from "@/tanstack/hooks/useProject";
 
 const ProjectReviewView = (props: {
   project?: UmojaLinnProject;
   projectFormDetails?: StateType;
-  isAds?: boolean;
   loading?: boolean;
 }) => {
 const { projectFormDetails } = props
+const {data} = useGetClothingTypes()
+
+const allClothingTypes = data?.data?.data
 
   if (props.loading) {
     return (
@@ -102,7 +105,9 @@ const { projectFormDetails } = props
                     ? projectFormDetails?.gallery.map((gal, i) => ({
                       id: (gal?.id ?? '') as string,
                       projectId: (props.project?.id || '0'),
-                      imageUrl: (gal?.image || '') as string,
+                      imageUrl: typeof gal.image === 'string'
+                        ? gal.image 
+                        : URL.createObjectURL(gal.image),
                       title: gal?.title,
                       isCoverImage: gal?.isCoverImage,
                       createdAt: props?.project?.Gallery?.[i]?.createdAt ?? '',
@@ -151,7 +156,10 @@ const { projectFormDetails } = props
 
         <LabelBadge
           title="Clothing type"
-          value={ projectFormDetails?.clothingTypes || props?.project?.clothingTypes?.map?.((type) => type.name)}
+          value={ 
+            projectFormDetails?.clothingTypes?.map(
+              id => allClothingTypes?.find(type => type.id === id)?.name
+            ) || props?.project?.clothingTypes?.map?.((type) => type.name)}
         />
         {/* <LabelBadge
           title="Specialist"
