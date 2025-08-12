@@ -91,15 +91,6 @@ const ReviewPage = () => {
 		});
   };
 
-
-  const dataToBePassed = isAds
-		? {
-
-    }
-		: data?.data?.data;
-
-  console.log({dataToBePassed});
-
   if (projectLoading) {
     return (
       <div className="flex flex-col gap-8">
@@ -127,8 +118,7 @@ const ReviewPage = () => {
       <Separator className="bg-gray-200" />
       <ProjectReviewView 
         project={data?.data?.data}  
-        projectFormDetails={projectFormDetails} 
-        isAds={isAds} 
+        projectFormDetails={projectFormDetails}
       />
       {/* <ProjectEditFooter
         handleSave={async () => goLive(params?.id)}

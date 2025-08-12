@@ -99,9 +99,8 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
       form.setValue("firstName", data?.data?.data?.buyer?.user?.firstName);
       form.setValue("lastName", data?.data?.data?.buyer?.user?.lastName);
     }
-  }, [data?.data?.data, form]);
+  }, [data?.data?.data, form, isAds, projectFormDetails]);
   
-  console.log('isAds', isAds);
 
   const onSubmit = useCallback(
     (mode: "SAVE" | "DRAFT") => (values: ProjectFormDetailsProps) => {  
