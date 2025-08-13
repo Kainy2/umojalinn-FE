@@ -14,6 +14,7 @@ import * as timeago from "timeago.js";
 
 const DraftCardList = () => {
   const [verifyDelete, setVerifyDelete] = useState<boolean>(false);
+const [selectedDeleteId, setSelectedDeleteId] = useState("")
   const { data, isPending } = useGetAllBuyerProject({
     projectStatus: "DRAFT",
   });
@@ -57,7 +58,8 @@ const DraftCardList = () => {
               cancelText="No"
               pendingConfirm={isDeletePending}
               onConfirm={() => {
-                deleteProjectById(project?.id);
+                deleteProjectById(selectedDeleteId);
+                setSelectedDeleteId("");
                 setVerifyDelete(false);
               }}
             >
@@ -65,6 +67,7 @@ const DraftCardList = () => {
                 className="absolute top-4 right-4 [&>svg]:size-5 p-2 "
                 onClick={() => {
                   setVerifyDelete(true);
+                  setSelectedDeleteId(project?.id)
                 }}
               >
                 <Trash2 />

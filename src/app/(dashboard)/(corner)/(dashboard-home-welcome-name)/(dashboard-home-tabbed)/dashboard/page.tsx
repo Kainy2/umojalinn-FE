@@ -3,7 +3,7 @@ import CustomCardHolder, {
   CustomCardHolderProps,
 } from "@/components/custom/card/Holder";
 import JobCard from "@/components/custom/card/Job";
-import { getCoverImage } from "@/lib/project";
+// import { getCoverImage } from "@/lib/project";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { useGetDesignerBids } from "@/tanstack/hooks/useBid";
 import { useGetAllDesignerProject } from "@/tanstack/hooks/useProject";
@@ -82,8 +82,9 @@ const DashboardPage = () => {
               value: 0,
               total: 1,
             }}
+            img={bid.project.buyer?.user?.profilePhotoUri || "/img/svg/null.svg"}
             // attachedFileCount={bid?.project?.cha}
-            img={getCoverImage(bid.project)}
+            // img={getCoverImage(bid.project)}
             dueDate={bid?.project?.dueDate}
             status={bid?.status === "PENDING" || bid?.status === "REJECTED" ? {
               color: bid?.status === "PENDING" ? "gold": "red",
@@ -108,7 +109,8 @@ const DashboardPage = () => {
               value: 0,
               total: 1,
             }}
-            img={getCoverImage(bid.project)}
+            img={bid.project.buyer?.user?.profilePhotoUri || "/img/svg/null.svg"}
+            // img={getCoverImage(bid.project)}
             dueDate={bid?.project?.dueDate}
           />
         ))}
@@ -131,7 +133,8 @@ const DashboardPage = () => {
               total: 1,
             }}
             attachedFileCount={job.chatLinks?.length}
-            img={getCoverImage(job)}
+            img={job.buyer.user?.profilePhotoUri || "/img/svg/null.svg"}
+            // img={getCoverImage(job)}
             dueDate={job.dueDate}
           />
         ))}
@@ -154,7 +157,8 @@ const DashboardPage = () => {
               total: 1,
             }}
             attachedFileCount={job.chatLinks?.length}
-            img={getCoverImage(job)}
+            img={job.buyer.user?.profilePhotoUri || "/img/svg/null.svg"}
+            // img={getCoverImage(job)}
             dueDate={job.dueDate}
           />
         ))}
@@ -176,7 +180,8 @@ const DashboardPage = () => {
               value: 0,
               total: 1,
             }}
-            img={getCoverImage(bid.project)}
+            img={bid.project.buyer?.user?.profilePhotoUri || "/img/svg/null.svg"}
+            // img={getCoverImage(bid.project)}
             dueDate={bid.project?.dueDate}
           />
         ))}

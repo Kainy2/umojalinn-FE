@@ -97,19 +97,23 @@ const styles = StyleSheet.create({
   },
   column: { flexGrow: 1 },
   column1Header: {
-    width: 90 + 12,
+    width: 110 + 12,
   },
   column1: {
-    width: 90,
+    width: 110,
   },
   column2: {
-    width: 60,
+    width: 40,
   },
   column3: {
-    width: 60,
+    width: 80,
   },
   column4: {
     width: 60,
+  },
+  column4Header: {
+    width: 60,
+    transform: "translateX(-24px)",
   },
   column5: {
     textAlign: "right",
@@ -253,7 +257,7 @@ const Invoice = (props: InvoiceProps) => {
             </Text>
             <Text style={[styles.column, styles.column2]}>Date</Text>
             <Text style={[styles.column, styles.column3]}>Price</Text>
-            <Text style={[styles.column, styles.column4]}>Service charge</Text>
+            <Text style={[styles.column, styles.column4Header]}>Service charge</Text>
             <Text style={[styles.column, styles.column5, styles.alignRight]}>
               TOTAL
             </Text>
@@ -329,7 +333,7 @@ const Invoice = (props: InvoiceProps) => {
         </View>
         <View style={[styles.alignCenter, styles.bodyText, { gap: 2 }]}>
           <Text style={[styles.fontBold]}>
-            Thank you for supporting Umoja linn. We trust you got your PERFECT FIT
+            Thank you for your support. Your PERFECT FIT is our priority.
           </Text>
           <Text>For inquiries contact support@umojalinn.com</Text>
         </View>
