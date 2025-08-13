@@ -204,7 +204,7 @@ const {
             <div className="flex justify-center gap-2 lg:hidden">
               {(modalType === "EDIT"
                 || Object.values(sizingTemplateResult?.metadata?.reviews ?? {}).some(Boolean))
-              && (
+              && !props.disableSaving && (
                 <Button
                   variant="outline"
                   onClick={() => handleSubmit()}
@@ -252,7 +252,7 @@ const {
             <div className="flex justify-end gap-2">
               {(modalType === "EDIT"                  
               || Object.values(sizingTemplateResult?.metadata?.reviews ?? {}).some(Boolean))
-              && (
+              && !props.disableSaving && (
                 <Button
                   variant="outline"
                   onClick={() => handleSubmit()}
