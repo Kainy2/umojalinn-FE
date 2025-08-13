@@ -188,6 +188,7 @@ const IndividualBidPage = () => {
         }}
       />
       <SizingTemplateDialog
+        disableSaving
         open={createSizingTemplateOpen}
         onOpenChange={setCreateSizingTemplateOpen}
         handleSuccess={() => setInterruptOpen("INTERRUPT")}

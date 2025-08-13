@@ -32,6 +32,7 @@ type TemplateModalType = "EDIT" | "RECOMMEND" | "VIEW-ONLY"
  export type SizingTemplateDialogProps = DialogProps & {
   id?: string;
   handleSuccess?: (template?: UmojaLinnSizingTemplate) => void;
+  disableSaving?: boolean;
   // type?: "CREATE" | "DRAFT-EDIT" | "DESIGNER-VIEW" | "BUYER-VIEW";
 };
 
