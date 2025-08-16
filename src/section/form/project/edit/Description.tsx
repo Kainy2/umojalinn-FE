@@ -444,7 +444,8 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
         /> */}
 
         <ProjectEditFooter
-          leftButtonProps={{ hidden: props.isOnboarding }}
+          leftButtonProps={{ hidden: true }}
+          // leftButtonProps={{ hidden: !props.isOnboarding }}
           rightSecondaryButtonProps={{
             text: isAds ? "Cancel" : "Save & Exit",
             disabled: isUpdating,

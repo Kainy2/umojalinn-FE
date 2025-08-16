@@ -199,6 +199,7 @@ const BidPage = () => {
           <Switch
             id="add-note-switch"
             checked={addNote}
+            disabled={!editMode || isUpdatingBid || isSubmittingBid}
             onCheckedChange={() => setAddNote((prev) => !prev)}
           />{" "}
           <Label htmlFor="add-note-switch">Add note</Label>

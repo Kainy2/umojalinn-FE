@@ -12,8 +12,8 @@ import Slider from 'react-slick';
 import { UmojaLinnTimestamp } from "@/types/util";
 
 type GalleryImagesProps = {
-  height?: number;
-  width?: number;
+  height: number;
+  width: number;
   wrapperClassName?: string;
   titleClassName?: string;
   imgClassName?: string;
@@ -89,7 +89,7 @@ const GalleryImages = (props: GalleryImagesProps) => {
               key={(gallery.id||'')+i}
               style={{ width, height }}
               onClick={() => setActiveImage(i)}
-              className={cn("relative my-2", wrapperClassName)}
+              className={cn("relative my-2 border border-gray-200", wrapperClassName)}
             >
               <Image
                 alt={gallery.title || ""}

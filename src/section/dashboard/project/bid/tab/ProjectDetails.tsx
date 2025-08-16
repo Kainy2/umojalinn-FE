@@ -133,6 +133,8 @@ const BidTabProjectDetailsSection = () => {
         {/* <div className="grid grid-cols-2 gap-4"> */}
           {project?.Gallery ? (
             <GalleryImages
+              height={100}
+              width={100}
               images={project.Gallery}
               wrapperClassName="aspect-square w-full h-auto"
             />

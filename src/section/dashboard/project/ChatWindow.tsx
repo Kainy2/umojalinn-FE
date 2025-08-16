@@ -94,7 +94,21 @@ const ChatWindow = (props: ChatWindowProps) => {
           value={message}
           onChange={(e) => setMessage(e?.target?.value)}
           placeholder="Send a message"
-          className="w-full resize-none mb-4 focus-visible:ring-transparent focus-visible:outline-none"
+          className="w-full md:hidden resize-none mb-4 focus-visible:ring-transparent focus-visible:outline-none"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault(); // Prevent newline
+              if (message.trim()) {
+                handleSend(); // Send message
+              }
+            }
+          }}
+        />
+        <textarea
+          value={message}
+          onChange={(e) => setMessage(e?.target?.value)}
+          placeholder="Send a message"
+          className="w-full hidden md:block resize-none mb-4 focus-visible:ring-transparent focus-visible:outline-none"
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault(); // Prevent newline
@@ -137,7 +151,7 @@ const ChatWindow = (props: ChatWindowProps) => {
             <ImageIcon />
           </button>
           <Input />
-          <Button type="submit" onClick={handleSend} loading={loading} disabled={(!message && !images.length)}>
+          <Button onClick={handleSend} loading={loading} disabled={(!message && !images.length)}>
             Send
           </Button>
         </div>

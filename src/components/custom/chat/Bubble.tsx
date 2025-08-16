@@ -1,7 +1,7 @@
 "use client";
 
 import { categorizeDate } from "@/lib/date";
-import { cn, formatMessageWithLinks } from "@/lib/utils";
+import { cn, formatMessageWithLinks, normaliseLink } from "@/lib/utils";
 import { UmojaLinnChat } from "@/types/project";
 import { formatDate } from "date-fns";
 import {  User, X, Check, Link2 } from "lucide-react";
@@ -70,6 +70,7 @@ const ChatBubble = (props: UmojaLinnChat) => {
             <a
               download
               target='_blank'
+              rel="noopener noreferrer"
               href={imageUrl}
               className="w-full text-foreground-body border border-gray-200 rounded-md py-2.5 pr-4 rounded-tr-none flex gap-4 items"
             >
@@ -79,7 +80,7 @@ const ChatBubble = (props: UmojaLinnChat) => {
                   alt=""
                   height={100}
                   width={100}
-                  className="rounded-lg shrink-0 object-cover size-14"
+                  className="rounded-lg shrink-0 object-cover size-8"
                 />
               </span>
               <span>
@@ -93,7 +94,7 @@ const ChatBubble = (props: UmojaLinnChat) => {
         </div>
       </div>
     ): (
-      <a target='_blank' href={rawMessage ?? "#"} className="text-foreground-body rounded-md gap-4 my-2 self-end max-w-[70%] min-w-12">
+      <a target='_blank' rel="noopener noreferrer" href={normaliseLink(rawMessage)} className="text-foreground-body rounded-md gap-4 my-2 self-end max-w-[70%] min-w-12">
          <div className="flex justify-between gap-4  text-foreground-body mb-1">
             <p className="font-semibold">You</p>
             <p>
@@ -123,10 +124,10 @@ const ChatBubble = (props: UmojaLinnChat) => {
           alt=""
           height={100}
           width={100}
-          className="rounded-full shrink-0 object-cover size-14"
+          className="rounded-full shrink-0 object-cover size-8"
         />
       ) : (
-        <div className="rounded-full shrink-0 bg-gray-100 size-14 flex items-center justify-center [&>svg]:size-8 text-foreground-body">
+        <div className="rounded-full shrink-0 bg-gray-100 size-8 flex items-center justify-center [&>svg]:size-5 text-foreground-body">
           <User />
         </div>
       )}
@@ -156,6 +157,7 @@ const ChatBubble = (props: UmojaLinnChat) => {
           <a
             download
             target="_blank"
+            rel="noopener noreferrer"
             href={imageUrl}
             className="w-full text-foreground-body border border-gray-200 rounded-md py-2.5 px-4 rounded-tl-none flex gap-4 items"
           >
@@ -165,12 +167,13 @@ const ChatBubble = (props: UmojaLinnChat) => {
                 alt=""
                 height={100}
                 width={100}
-                className="rounded-lg shrink-0 object-cover size-14"
+                className="rounded-lg shrink-0 object-cover size-8"
               />
             </span>
             <span>
               <span className="font-semibold block">
-                {imageMeta?.fileName || "No filename"}
+                {/* {imageMeta?.fileName || "No filename"} */}
+                Image
               </span>
               <span>{imageMeta?.fileSize || "Unknown size"}</span>
             </span>
@@ -184,17 +187,17 @@ const ChatBubble = (props: UmojaLinnChat) => {
             <Image
               src={user?.profilePhotoUri}
               alt=""
-              height={100}
-              width={100}
-              className="rounded-full shrink-0 object-cover size-14"
+              height={50}
+              width={50}
+              className="rounded-full shrink-0 object-cover size-8"
             />
         ) : (
-          <div className="rounded-full shrink-0 bg-gray-100 size-14 flex items-center justify-center [&>svg]:size-8 text-foreground-body">
+          <div className="rounded-full shrink-0 bg-gray-100 size-8 flex items-center justify-center [&>svg]:size-5 text-foreground-body">
             <User />
           </div>
         )}
 
-        <a target='_blank' href={rawMessage ?? "#"} className="flex-1 w-full rounded-md text-foreground-body gap-4 my-2 self-start justify-end ">
+        <a target='_blank' rel="noopener noreferrer" href={normaliseLink(rawMessage)} className="flex-1 w-full rounded-md text-foreground-body gap-4 my-2 self-start justify-end ">
           <div className="flex justify-between gap-4  text-foreground-body mb-1">
             <p className="font-semibold">{user?.firstName} {user?.lastName}</p>
             <p>
