@@ -85,7 +85,7 @@ const DashboardPage = () => {
             }}
             // attachedFileCount={bid?.project?.cha}
             img={getCoverImage(bid.project)}
-            userImg={bid.project.buyer?.user?.profilePhotoUri || "/img/svg/null.svg"}
+            userImg={bid.project.buyer?.user?.profilePhotoUri ||  "/img/webp/user.webp"}
             dueDate={bid?.project?.dueDate}
             status={bid?.status === "PENDING" || bid?.status === "REJECTED" ? {
               color: bid?.status === "PENDING" ? "gold": "red",
@@ -111,7 +111,7 @@ const DashboardPage = () => {
               total: 1,
             }}
             img={getCoverImage(bid.project)}
-            userImg={bid.project.buyer?.user?.profilePhotoUri || "/img/svg/null.svg"}
+            userImg={bid.project.buyer?.user?.profilePhotoUri ||  "/img/webp/user.webp"}
             // img={getCoverImage(bid.project)}
             dueDate={bid?.project?.dueDate}
           />
@@ -136,7 +136,7 @@ const DashboardPage = () => {
             }}
             attachedFileCount={job.chatLinks?.length}
             img={getCoverImage(job)}
-            userImg={job.buyer.user?.profilePhotoUri || "/img/svg/null.svg"}
+            userImg={job.buyer.user?.profilePhotoUri ||  "/img/webp/user.webp"}
             dueDate={job.dueDate}
           />
         ))}
@@ -160,7 +160,7 @@ const DashboardPage = () => {
             }}
             attachedFileCount={job.chatLinks?.length}
             img={getCoverImage(job)}
-            userImg={job.buyer.user?.profilePhotoUri || "/img/svg/null.svg"}
+            userImg={job.buyer.user?.profilePhotoUri ||  "/img/webp/user.webp"}
             dueDate={job.dueDate}
           />
         ))}
@@ -183,7 +183,7 @@ const DashboardPage = () => {
               total: 1,
             }}
             img={getCoverImage(bid.project)}
-            userImg={bid.project.buyer?.user?.profilePhotoUri || "/img/svg/null.svg"}
+            userImg={bid.project.buyer?.user?.profilePhotoUri ||  "/img/webp/user.webp"}
             dueDate={bid.project?.dueDate}
           />
         ))}

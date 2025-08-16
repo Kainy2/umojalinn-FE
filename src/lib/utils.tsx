@@ -188,6 +188,11 @@ export const isLinks = (message: string) => {
 	return urlPattern.test(message);
 };
 
+export const normaliseLink = (url: string) => {
+  if (!url) return "#";
+  return url.startsWith("http://") || url.startsWith("https://") ? url : `https://${url}`
+}
+
 export const formatMessageWithLinks = (rawMessage: string) => {
 	let urlCount = 0;
 	// check if message contains a link
@@ -204,7 +209,7 @@ export const formatMessageWithLinks = (rawMessage: string) => {
 				return (
 					<a
 						key={word}
-						href={word}
+						href={normaliseLink(word)}
 						target="_blank"
 						rel="noopener noreferrer"
 						className="text-blue-700 visited:text-blue-700 border-b border-inherit"

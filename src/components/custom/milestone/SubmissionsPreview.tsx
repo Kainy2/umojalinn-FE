@@ -4,7 +4,7 @@ import { UmojaLinnUser } from "@/types/user";
 import Image from "next/image";
 import React from "react";
 import { MilestoneStatus, MilestoneTimelineItem } from "./Timeline";
-import { cn } from "@/lib/utils";
+import { cn, normaliseLink } from "@/lib/utils";
 import { Link2, Locate, MapPin, Truck } from "lucide-react";
 // import {
 //   Dialog,
@@ -114,7 +114,7 @@ const MilestoneSubmissionsPreview = (
                   const Comp: React.ElementType = link ? "a" : "span";
                   return (
                     <Comp
-                      href={value}
+                      href={normaliseLink(value)}
                       target="_blank"
                       className="flex gap-2 border border-gray-300  rounded-full [&>svg]:size-5 text-sm px-2 py-1 items-center leading-none text-foreground-body"
                       key={value}
@@ -156,11 +156,11 @@ const MilestoneSubmissionsPreview = (
               ))} */}
 
                 <GalleryImages
-                  // height={100}
-                  // width={100}
+                  height={100}
+                  width={100}
                   images={submission.images?.map?.((image, i) => ({
                     imageUrl: image.url,
-                    title: image.meta.fileName,
+                    // title: image.meta.fileName,
                     id: `Review-${i}`,
                   }))}
                 />

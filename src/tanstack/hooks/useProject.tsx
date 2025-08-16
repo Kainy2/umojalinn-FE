@@ -503,6 +503,11 @@ export const useDeleteProject = (
       queryClient.invalidateQueries({ 
         queryKey: [PROJECT, BUYER, { apiParams: { projectStatus: "DRAFT", } }] 
       });
+      queryClient.invalidateQueries({
+        queryKey: [PROJECT, BUYER, { 
+          apiParams: { projectStatus: "ADS" } 
+        }],
+      });
       options?.onSuccess?.(data, variables, context);
     },
     onError: (error, variables, context) => {

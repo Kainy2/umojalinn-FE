@@ -57,11 +57,11 @@ const MilestoneInputSectionImageUpload = (
 
   if (props?.files?.length) {
     return (
-      <div className="flex flex-wrap gap-4 relative">
+      <div className="flex flex-wrap gap-4 relative items-start ">
         {previewUrls?.map((url, index) => (
 				<div 
         key={url}
-        className="relative border border-gray-100"
+        className="relative  border border-gray-100"
         >
 					<button
 						className="bg-error text-white [&>svg]:size-4 p-1.5 rounded-full absolute -left-2 -top-2"
