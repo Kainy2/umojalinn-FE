@@ -50,12 +50,13 @@ const SettingsProfileWorkHistoryPage = () => {
     <div className="flex flex-col gap-8">
       {userReviews?.data?.data?.map((proj) => {
         const firstReview = proj?.reviews?.[0];
-        const isDesigner = session?.user?.profileRole === "DESIGNER";
+        // const isDesigner = session?.user?.profileRole === "DESIGNER";
         
-        if (isDesigner && firstReview?.buyerId &&!firstReview?.project?.allReviewsSubmitted)
-					return null;
-				if (!isDesigner && firstReview?.designerId &&!firstReview?.project?.allReviewsSubmitted)
-					return null;
+        // if (isDesigner && firstReview?.buyerId &&!proj?.allReviewsSubmitted)
+				// 	return null;
+				// if (!isDesigner && firstReview?.designerId &&!proj?.allReviewsSubmitted)
+				// 	return null;
+        if (!proj?.allReviewsSubmitted) return null;
 
         const href = getProjectHref(
           proj?.projectId,

@@ -351,6 +351,7 @@ export type UmojaLinnProjectReview = {
 export type NewUmojaLinnProjectReview = {
   projectId: string;
   projectTitle: string;
+  allReviewsSubmitted: boolean;
   reviews: Array<UmojaLinnProjectReview>;
 } 
 
