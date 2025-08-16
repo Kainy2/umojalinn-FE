@@ -65,7 +65,7 @@ const ChatWindow = (props: ChatWindowProps) => {
   return (
     <div
       className={cn(
-        "min-h-[50vh] max-h-[80vh] overflow-scroll flex-1 flex flex-col",
+        "min-h-[50vh] max-h-[60vh] md:max-h-[80vh] overflow-scroll flex-1 flex flex-col",
         props.className,
       )}
     >
@@ -137,7 +137,7 @@ const ChatWindow = (props: ChatWindowProps) => {
             <ImageIcon />
           </button>
           <Input />
-          <Button onClick={handleSend} loading={loading} disabled={(!message && !images.length)}>
+          <Button type="submit" onClick={handleSend} loading={loading} disabled={(!message && !images.length)}>
             Send
           </Button>
         </div>

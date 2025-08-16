@@ -29,7 +29,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         <input
           type={type}
           className={cn(
-            "flex h-12 w-full border border-gray-300 border-input bg-background px-4 py-3 text-md ring-offset-background file:border-0 file:bg-transparent file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-100 transition-all duration-100",
+            "flex h-16 w-full border border-gray-300 border-input bg-background px-4 py-3 text-md ring-offset-background file:border-0 file:bg-transparent file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-100 transition-all duration-100",
             startAdornment && "pl-10",
             endAdornment && "pr-10",
             className
@@ -51,7 +51,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <div
             className={cn(
               "absolute inset-y-0 right-0 flex items-center pr-3",
-              divider && "border-l-1 border-gray-300 "
+              divider && "!border-l-1 border-gray-300 border sm:border-0 sm:border-inherit sm:bg-inherit bg-white"
             )}
           >
             {endAdornment}

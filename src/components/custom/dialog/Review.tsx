@@ -5,12 +5,12 @@ import Alert, { AlertProps } from "../Alert";
 import FileUploadPicker from "../picker/FileUpload";
 import TextAreaField from "../input/TextAreaField";
 import RatingStar from "@/icons/RatingStar";
-import { useFileSizeError } from "@/hooks/useFilePicker";
+import useFilePicker, { useFileSizeError } from "@/hooks/useFilePicker";
 import { useImagePreviewUrls } from "@/hooks/useImagePreviewUrls";
 import Image from "next/image";
-import { Trash2 } from "lucide-react";
+import { PlusCircle, Trash2 } from "lucide-react";
 import { useAddProjectReview } from "@/tanstack/hooks/useProject";
-import { cn, jsonToFormData, removeFileFromFileList } from "@/lib/utils";
+import { cn, jsonToFormData, mergeFiles, removeFileFromFileList } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { MAX_FILE_SIZE_FOR_FILE_UPLOAD } from "@/constant";
 
@@ -83,6 +83,18 @@ const ReviewDialog = (props: CustomReviewDialogProps) => {
   const hasFile = reviewType === "CLOTHING_QUALITY";
   const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD);
   const { previewUrls, getPreview } = useImagePreviewUrls();
+    const { Input, onClick } = useFilePicker({
+    onSelect: (files) => {
+      if (!files) return;
+      const combinedFiles = mergeFiles(images, files);
+
+      setImages(combinedFiles);
+      getPreview(combinedFiles);
+    },
+    accept: 'image/*',
+    multiple: true,
+  });
+
   const { data: session } = useSession();
 
   const [title, description] =
@@ -133,7 +145,7 @@ const ReviewDialog = (props: CustomReviewDialogProps) => {
   const fileComponent =
     hasFile &&
     (images && previewUrls?.length ? (
-      <div className="flex gap-4">
+      <div className="flex flex-wrap gap-4">
         {previewUrls.map((url, index) => (
           <div key={url} className="relative">
             <Image
@@ -160,6 +172,14 @@ const ReviewDialog = (props: CustomReviewDialogProps) => {
             </button>
           </div>
         ))}
+
+				<button
+					onClick={onClick}
+					className="h-20 w-20 rounded-full self-center flex items-center justify-center"
+				>
+					<PlusCircle className="text-primary" />
+					<Input />
+				</button>
       </div>
     ) : (
       <FileUploadPicker

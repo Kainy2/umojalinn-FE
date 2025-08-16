@@ -20,13 +20,13 @@ type GalleryImagesProps = {
   src?: string;
   fallback?: string;
   title?: string;
-  images?: ({
+  images?: Partial<({
     id: string;
     projectId: string;
     imageUrl: string;
     title: string;
     isCoverImage: boolean;
-} & UmojaLinnTimestamp)[]
+} & UmojaLinnTimestamp)>[]
 };
 
   
@@ -86,7 +86,7 @@ const GalleryImages = (props: GalleryImagesProps) => {
         <div className="flex flex-wrap gap-4">
           {images?.map((gallery, i) => ( 
             <button
-              key={gallery.id+i}
+              key={(gallery.id||'')+i}
               style={{ width, height }}
               onClick={() => setActiveImage(i)}
               className={cn("relative my-2", wrapperClassName)}
@@ -120,7 +120,7 @@ const GalleryImages = (props: GalleryImagesProps) => {
           ">
             <Slider {...settings} initialSlide={activeImage} className="h-full "> 
               {images?.map((gallery, i) => (
-                <div key={gallery.id+i} className="relative h-[65vh] md:h-[76vh]">
+                <div key={(gallery.id||'')+i} className="relative h-[65vh] md:h-[76vh]">
                   <div className="relative h-[50vh] md:h-[68vh] translate-y-[6vh] md:translate-y-0">
                     <Image
                       src={
