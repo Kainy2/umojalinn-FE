@@ -15,6 +15,7 @@ type JobCardProps = {
   isPrivate?: boolean;
   name: string;
   img: string;
+  userImg?: string;
   progress?: {
     value: number;
     total: number;
@@ -31,6 +32,7 @@ type JobCardProps = {
   newMessage?: boolean;
   href?: string;
 };
+
 
 const JobCard = (props: JobCardProps) => {
   return (
@@ -60,7 +62,7 @@ const JobCard = (props: JobCardProps) => {
         <div className="flex">
           <div className="flex-1 shrink-0 flex -space-x-2">
               <Avatar className="h-7 w-7 border-background border ">
-                <AvatarImage src={props.img} width={40} height={40} />
+                <AvatarImage src={props.userImg} width={40} height={40} />
               </Avatar>
             {/* {props?.sharedWith?.map((user) => (
             ))} */}
