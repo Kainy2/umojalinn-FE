@@ -122,7 +122,7 @@ const JobPage = () => {
           width={200}
           className="size-10 shrink-0 rounded-full object-cover"
         />
-        <div className="text-foreground-body">
+        <div className="text-foreground-body text-center">
           <h3 className="font-semibold mb-2 text-foreground">
             {`${project?.buyer?.user?.firstName || ""} ${
               project?.buyer?.user?.lastName || ""

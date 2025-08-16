@@ -2,10 +2,11 @@ import Alert from "@/components/custom/Alert";
 import ReviewDialog, {
   ReviewRatingStars,
 } from "@/components/custom/dialog/Review";
+import GalleryImages from "@/components/custom/GalleryImages";
 import { InvoiceButton } from "@/components/custom/Invoice";
 import MilestoneProgress from "@/components/custom/milestone/Progress";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+// import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { formatCurrencyValue } from "@/lib/number";
 import { getCurrencySymbol } from "@/lib/string";
@@ -185,17 +186,16 @@ const EscrowCard = (props: EscrowCardProps) => {
               </p>
               <ReviewRatingStars small rating={review.rating || 0} disabled />
               <div className="flex gap-4 overflow-scroll">
-                {review.images?.map?.((image, i) => (
-                  <>
-                  {/* <Image
-                    key={image}
-                    src={image}
-                    alt=""
-                    height={100}
-                    width={100}
-                    className="object-cover"
-                  /> */}
-
+                <>
+                {/* <Image
+                  key={image}
+                  src={image}
+                  alt=""
+                  height={100}
+                  width={100}
+                  className="object-cover"
+                /> */}
+                {/* {review.images?.map?.((image, i) => (
                   <Dialog key={image}>
 									<DialogTrigger asChild>
 										<button
@@ -225,8 +225,17 @@ const EscrowCard = (props: EscrowCardProps) => {
 										</div>
 									</DialogContent>
 								</Dialog>
-                  </>
-                ))}
+                ))} */}
+                </>
+
+
+                <GalleryImages
+                  // height={100}
+                  // width={100}
+                  images={review.images?.map?.((image) => ({
+                    imageUrl: image,
+                  }))}
+                />
               </div>
             </div>
           );
