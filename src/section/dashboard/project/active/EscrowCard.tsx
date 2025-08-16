@@ -232,8 +232,10 @@ const EscrowCard = (props: EscrowCardProps) => {
                 <GalleryImages
                   // height={100}
                   // width={100}
-                  images={review.images?.map?.((image) => ({
+                  images={review.images?.map?.((image, i) => ({
                     imageUrl: image,
+                    title: `Review-${i}`,
+                    id: `Review-${i}`,
                   }))}
                 />
               </div>

@@ -6,12 +6,13 @@ import React from "react";
 import { MilestoneStatus, MilestoneTimelineItem } from "./Timeline";
 import { cn } from "@/lib/utils";
 import { Link2, Locate, MapPin, Truck } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+// import {
+//   Dialog,
+//   DialogContent,
+//   DialogTitle,
+//   DialogTrigger,
+// } from "@/components/ui/dialog";
+import GalleryImages from "../GalleryImages";
 
 type MilestoneSubmissionsPreviewProps = {
   milestoneId: string;
@@ -124,7 +125,7 @@ const MilestoneSubmissionsPreview = (
                 })}
             </div>
             <div className="flex gap-2">
-              {submission.images?.map(({url, meta}) => (
+              {/* {submission.images?.map(({url, meta}) => (
                 <Dialog key={url}>
                   <DialogTrigger asChild>
                     <button
@@ -152,7 +153,17 @@ const MilestoneSubmissionsPreview = (
                     </div>
                   </DialogContent>
                 </Dialog>
-              ))}
+              ))} */}
+
+                <GalleryImages
+                  // height={100}
+                  // width={100}
+                  images={submission.images?.map?.((image, i) => ({
+                    imageUrl: image.url,
+                    title: image.meta.fileName,
+                    id: `Review-${i}`,
+                  }))}
+                />
             </div>
             {!!submission.rejectionReason && (
               <>
