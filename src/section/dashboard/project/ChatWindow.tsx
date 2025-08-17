@@ -95,14 +95,6 @@ const ChatWindow = (props: ChatWindowProps) => {
           onChange={(e) => setMessage(e?.target?.value)}
           placeholder="Send a message"
           className="w-full md:hidden resize-none mb-4 focus-visible:ring-transparent focus-visible:outline-none"
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault(); // Prevent newline
-              if (message.trim()) {
-                handleSend(); // Send message
-              }
-            }
-          }}
         />
         <textarea
           value={message}
