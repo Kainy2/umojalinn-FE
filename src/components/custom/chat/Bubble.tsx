@@ -85,7 +85,8 @@ const ChatBubble = (props: UmojaLinnChat) => {
               </span>
               <span>
                 <span className="font-semibold block">
-                  {imageMeta?.fileName || "No filename"}
+                  {/* {imageMeta?.fileName || "No filename"} */}
+                  Image
                 </span>
                 <span>{imageMeta?.fileSize || "Unknown size"}</span>
               </span>
