@@ -15,7 +15,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useGetInfiniteTransactions } from "@/tanstack/hooks/useProject";
+import { useGetInfiniteFundReleasedTransactions } from "@/tanstack/hooks/useProject";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { capitalizeFirstLetter, getCurrencySymbol } from "@/lib/string";
 import { formatCurrencyValue } from "@/lib/number";
@@ -99,10 +99,7 @@ const EscrowPaidOut = () => {
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
-   } = useGetInfiniteTransactions({
-    transactionType: "MILESTONE_COMPLETED,FUND_ESCROW",
-    activeProjects: false
-   });
+   } = useGetInfiniteFundReleasedTransactions();
    const transactionPaidOutData = useInfiniteData(allTransactions)
 
   const table = useReactTable({
@@ -143,8 +140,8 @@ const EscrowPaidOut = () => {
               </TableCell>
             </TableRow>
           )}
-          <div></div>
-          {table.getRowModel().rows?.length ? (
+
+          {!loading && table.getRowModel().rows?.length > 0 && table.getRowModel().rows?.length && (
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
@@ -157,7 +154,9 @@ const EscrowPaidOut = () => {
                 ))}
               </TableRow>
             ))
-          ) : (
+          )} 
+          
+          {!loading && table.getRowModel().rows?.length === 0 && (
             <TableRow>
               <TableCell
                 colSpan={columns.length}

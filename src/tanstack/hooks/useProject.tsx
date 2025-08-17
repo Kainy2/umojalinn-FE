@@ -25,6 +25,7 @@ import {
   submitMilestone,
   updateProjectById,
   setDefaultWithdrawalMethod,
+  getFundsReleasedTransactions,
 } from "@/actions/project";
 import { queryClient } from "@/components/provider/TanstackQueryClient";
 import useHandleError from "@/hooks/useHandleError";
@@ -49,6 +50,7 @@ import {
   BUYER,
   CLOTHING_TYPES,
   DESIGNER,
+  FUNDS_RELEASED,
   MEDIA_AND_LINK,
   MILESTONE,
   PROJECT,
@@ -365,6 +367,21 @@ export const useGetInfiniteTransactions = (
 		enabled: !!me?.user,
 		queryKey: [TRANSACTION, params],
 		queryFn: ({ pageParam: lastId }) => getAllTransactions({ lastId, ...params }),
+		getNextPageParam: (lastPage) => lastPage?.data.lastId,
+  });
+};
+export const useGetInfiniteFundReleasedTransactions = (
+  params?: { lastId?: string; limit?: string },
+  // options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnTransaction>>
+) => {
+  const { data: me } = useSession();
+  const lastId = params?.lastId;
+
+  return useInfiniteQuery({
+		initialPageParam: lastId,
+		enabled: !!me?.user,
+		queryKey: [FUNDS_RELEASED, params],
+		queryFn: ({ pageParam: lastId }) => getFundsReleasedTransactions({ lastId, ...params }),
 		getNextPageParam: (lastPage) => lastPage?.data.lastId,
   });
 };

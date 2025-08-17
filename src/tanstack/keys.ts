@@ -5,6 +5,7 @@ export const PROJECT = "PROJECT";
 export const MILESTONE = "MILESTONE";
 export const WALLET = "WALLET";
 export const TRANSACTION = "TRANSACTION";
+export const FUNDS_RELEASED = "FUNDS_RELEASED";
 export const WITHDRAWAL_METHODS = "WITHDRAWAL_METHODS";
 export const MEDIA_AND_LINK = "MEDIA_AND_LINK";
 export const SUBMISSION = "SUBMISSION";

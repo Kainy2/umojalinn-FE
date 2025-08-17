@@ -342,6 +342,16 @@ export const getAllTransactions = async (params?: Record<string, unknown>, optio
     {params}
   );
 };
+export const getFundsReleasedTransactions = async (params?: Record<string, unknown>, options?: ServerActionOption) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.get<unknown, AxiosResponse<ArrayApiResponse<UmojaLinnTransaction>>>(
+    `/transaction/funds-released`,
+    {params}
+  );
+};
 
 export const getWithdrawalMethods = async (options?: ServerActionOption) => {
   let axios = clientAxios;
