@@ -1,12 +1,22 @@
-import axios from "axios";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { auth } from "./auth";
 import { serverInstance } from "./rollbar";
+import { ServerActionOption } from "@/types/util";
+import { formDataHasFile } from "./utils";
 
 export const clientAxios = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
+});
+
+// This is to make api calls directly from the client, 
+// bypassing api routes and hence, vercel serverless 
+// functions as well. Token is set in
+// useStrictClientAxios and used in SidebarLayout.
+export const strictClientAxios = axios.create({
+  ...clientAxios.defaults,
+  baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
 });
 
 export const customAxios = axios.create({
@@ -76,3 +86,14 @@ export const getServerAxiosWithToken = async () => {
   }
   return axios;
 };
+
+
+export const getAxiosToBeUsed = ({ body, isServerAction }: ServerActionOption) => {
+  if (isServerAction) {
+    return getServerAxiosWithToken();
+  }
+  if (body instanceof FormData && formDataHasFile(body)) {
+    return strictClientAxios;
+  }
+  return clientAxios;
+}

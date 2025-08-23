@@ -1,4 +1,4 @@
-import { clientAxios, getServerAxiosWithToken } from "@/lib/axios";
+import { clientAxios, getAxiosToBeUsed, getServerAxiosWithToken } from "@/lib/axios";
 import { convertApiParams } from "@/lib/request";
 import { base62ToUuidSafe } from "@/lib/uuid";
 import { NotificationSettingsProps, PasswordUpdateProps } from "@/types/form";
@@ -22,10 +22,11 @@ export const getMe = async (options?: ServerActionOption) => {
 };
 
 export const onboard = async (body: FormData, options?: ServerActionOption) => {
-  let axios = clientAxios;
-  if (options?.isServerAction) {
-    axios = await getServerAxiosWithToken();
-  }
+  const axios = await getAxiosToBeUsed({
+    body,
+    isServerAction: options?.isServerAction
+  })
+
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
     "/user/onboard",
     body,
@@ -36,10 +37,11 @@ export const updateUserDetails = async (
   body: FormData,
   options?: ServerActionOption,
 ) => {
-  let axios = clientAxios;
-  if (options?.isServerAction) {
-    axios = await getServerAxiosWithToken();
-  }
+  const axios = await getAxiosToBeUsed({
+    body,
+    isServerAction: options?.isServerAction
+  })
+  
   return axios.put<unknown, AxiosResponse<SingleApiResponse>>(
     "/user/update-user-profile",
     body,

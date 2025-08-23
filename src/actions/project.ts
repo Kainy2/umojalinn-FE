@@ -1,4 +1,4 @@
-import { clientAxios, getServerAxiosWithToken } from "@/lib/axios";
+import { clientAxios, getAxiosToBeUsed, getServerAxiosWithToken } from "@/lib/axios";
 import { convertApiParams } from "@/lib/request";
 import { base62ToUuidSafe } from "@/lib/uuid";
 import {
@@ -90,10 +90,11 @@ export const addProjectReview = async (
   review: FormData,
   options?: ServerActionOption
 ) => {
-  let axios = clientAxios;
-  if (options?.isServerAction) {
-    axios = await getServerAxiosWithToken();
-  }
+  const axios = await getAxiosToBeUsed({ 
+    body: review, 
+    isServerAction: options?.isServerAction 
+  });
+
   return axios.post<
     unknown,
     AxiosResponse<SingleApiResponse<UmojaLinnProject>>
@@ -116,10 +117,11 @@ export const updateProjectById = async (
   body: FormData,
   options?: ServerActionOption
 ) => {
-  let axios = clientAxios;
-  if (options?.isServerAction) {
-    axios = await getServerAxiosWithToken();
-  }
+  const axios = await getAxiosToBeUsed({
+    body,
+    isServerAction: options?.isServerAction
+  })
+
   return axios.put<unknown, AxiosResponse<SingleApiResponse>>(
     `/project/update-project/${base62ToUuidSafe(id)}`,
     body
@@ -213,10 +215,11 @@ export const fundProject = async (
   apiParams?: Record<string, unknown>,
   options?: ServerActionOption
 ) => {
-  let axios = clientAxios;
-  if (options?.isServerAction) {
-    axios = await getServerAxiosWithToken();
-  }
+  const axios = await getAxiosToBeUsed({
+    body,
+    isServerAction: options?.isServerAction
+  })
+
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
     `/project/fund-project/${base62ToUuidSafe(id)}${
       apiParams ? convertApiParams(apiParams) : ""
@@ -235,10 +238,11 @@ export const fundMilestone = async (
   apiParams?: Record<string, unknown>,
   options?: ServerActionOption
 ) => {
-  let axios = clientAxios;
-  if (options?.isServerAction) {
-    axios = await getServerAxiosWithToken();
-  }
+  const axios = await getAxiosToBeUsed({
+    body,
+    isServerAction: options?.isServerAction
+  })
+  
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
     `/project/fund-milestone/${base62ToUuidSafe(id)}${
       apiParams ? convertApiParams(apiParams) : ""
@@ -312,10 +316,11 @@ export const submitMilestone = async (
   body: FormData,
   options?: ServerActionOption
 ) => {
-  let axios = clientAxios;
-  if (options?.isServerAction) {
-    axios = await getServerAxiosWithToken();
-  }
+  const axios = await getAxiosToBeUsed({
+    body,
+    isServerAction: options?.isServerAction
+  })
+  
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
     `/project/milestone/submit/${base62ToUuidSafe(id)}`,
     body
@@ -468,10 +473,11 @@ export const sendChatInProject = async (
   apiParams?: Record<string, unknown>,
   options?: ServerActionOption
 ) => {
-  let axios = clientAxios;
-  if (options?.isServerAction) {
-    axios = await getServerAxiosWithToken();
-  }
+  const axios = await getAxiosToBeUsed({
+    body,
+    isServerAction: options?.isServerAction
+  })
+
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
     `/project/chat/${base62ToUuidSafe(id)}${
       apiParams ? convertApiParams(apiParams) : ""

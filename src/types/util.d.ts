@@ -13,6 +13,7 @@ export type ArrayApiResponse<T = unknown> = SingleApiResponse<T[]> &
 
 export type ServerActionOption = {
   isServerAction?: boolean;
+  body?: unknown;
 };
 
 export type PageProps<
