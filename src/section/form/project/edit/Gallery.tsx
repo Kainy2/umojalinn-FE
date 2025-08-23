@@ -26,6 +26,7 @@ import { useCreateProjectContext } from "@/hooks/create-project/useCreateProject
 
 const ProjectGalleryForm = (props: ProjectFormProps) => {
   const id = useId();
+  const [submittingButtonType, setSubmittingButtonType] = useState<'DRAFT' | 'SAVE'>('SAVE')
   const { data, isPending: loadingProject } = useGetProjectById(props?.id);
   const { mutate: updateProject, isPending: isUpdating } = useUpdateProjectById(
     props?.id
@@ -45,8 +46,6 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
       image: string | File;
     }[]
   >([]);
-
-console.log({projectFormDetails});
 
   useMemo(() => {
     if (isAds && !!projectFormDetails.gallery?.length){
@@ -141,6 +140,7 @@ console.log({projectFormDetails});
     (mode: "SAVE" | "DRAFT") =>
       (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.preventDefault();
+        setSubmittingButtonType(mode)
 
         if (isAds){
           setProjectFormDetails( prev => ({...prev, gallery: values }))
@@ -268,7 +268,7 @@ console.log({projectFormDetails});
               hint={`${entryTitle?.length || 0} / 500 characters`}
             />
             <FileUploadPicker
-              accept="image/*"
+              accept="image/*,video/*"
               onSelect={(file) => {
                 const typedFile = file as File;
                 if (isFileSizeValid(typedFile)) {
@@ -296,7 +296,7 @@ console.log({projectFormDetails});
         }}
         rightSecondaryButtonProps={{
           text: isAds ? "Cancel" : "Save & Exit", 
-          disabled: isUpdating,
+          loading: isUpdating && submittingButtonType === "DRAFT",
           onClick: (e) => {
               if (isAds) router.push(`/projects/ads/${uuidToBase62Safe(props?.id)}`);
               else handleSubmit("DRAFT")(e);
@@ -304,7 +304,7 @@ console.log({projectFormDetails});
         }}
         rightPrimaryButtonProps={{
           text: isAds ? "Next" : undefined,
-          disabled: isUpdating,
+          loading: isUpdating && submittingButtonType === "SAVE",
           onClick: handleSubmit("SAVE"),
         }}
       />

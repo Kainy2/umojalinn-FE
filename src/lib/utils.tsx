@@ -22,6 +22,18 @@ export const isPhoneValid = (phone: string) => {
   }
 };
 
+
+export const formDataHasFile = (formData: FormData) => {
+  for (const [, value] of formData.entries()) {
+    if (value instanceof Blob && value.size > 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
+
+
 /**
  * Converts a JSON object to a FormData instance.
  * @param jsonObject - The JSON object to convert.

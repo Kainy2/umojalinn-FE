@@ -11,18 +11,21 @@ type ProjectEditFooterProps = {
 		onClick?: React.ComponentProps<"button">["onClick"];
 		type?: React.ComponentProps<"button">["type"];
 		disabled?: boolean;
+		loading?: boolean;
 	};
 	rightPrimaryButtonProps?: {
 		text?: string;
 		onClick?: React.ComponentProps<"button">["onClick"];
 		type?: React.ComponentProps<"button">["type"];
 		disabled?: boolean;
+		loading?: boolean;
 	};
 	rightSecondaryButtonProps?: {
 		text?: string;
 		onClick?: React.ComponentProps<"button">["onClick"];
 		type?: React.ComponentProps<"button">["type"];
 		disabled?: boolean;
+		loading?: boolean;
 	}
 };
 
@@ -39,6 +42,7 @@ const ProjectEditFooter = ({
 					{!leftButtonProps?.hidden && (
 						<Button
 							disabled={leftButtonProps?.disabled}
+							loading={leftButtonProps?.loading}
 							type={ leftButtonProps?.type || "button"}
 							variant="ghost"
 							onClick={(e) => {
@@ -58,6 +62,7 @@ const ProjectEditFooter = ({
 						name="submit"
 						value="save_and_submit"
 						onClick={rightSecondaryButtonProps?.onClick}
+						loading={rightSecondaryButtonProps.loading}
 						disabled={rightSecondaryButtonProps.disabled}
 						type={ rightSecondaryButtonProps.type || "button"}
 						variant="outline"
@@ -70,6 +75,7 @@ const ProjectEditFooter = ({
 					<Button
 					name="submit"
 					value="save_and_continue"
+					loading={rightPrimaryButtonProps.loading}
 					disabled={rightPrimaryButtonProps.disabled}
 					type={ rightPrimaryButtonProps.type || "submit"}
 					variant="default"

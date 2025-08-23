@@ -137,7 +137,7 @@ const ReviewPage = () => {
           }}
         rightPrimaryButtonProps={{
           text: isAds ? "Update" : "Post",
-          disabled: isPending || isUpdating,
+          loading: isPending || isUpdating,
           onClick: () => isAds ? onAdsSubmit() : goLive(params?.id),
         }}
       />
