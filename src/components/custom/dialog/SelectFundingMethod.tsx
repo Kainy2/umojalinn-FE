@@ -39,6 +39,8 @@ const SelectFundingMethodDialog = (
   props: DialogProps & {
     id: string;
     type: PaymentFundingType;
+    isOpen?: boolean, 
+		setIsOpen?:(open: boolean)=>void
   }
 ) => {
   const [open, setOpen] = useState(false);
@@ -67,9 +69,14 @@ const SelectFundingMethodDialog = (
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen} {...props}>
-      <DialogTrigger asChild onClick={() => setOpen(true)}>
-        {props.children}
+    <Dialog open={props.isOpen || open} onOpenChange={props.setIsOpen || setOpen} {...props}>
+      <DialogTrigger
+				asChild
+				onClick={() =>
+					props.setIsOpen ? props.setIsOpen(true) : setOpen(true)
+				}
+			>
+				        {props.children}
       </DialogTrigger>
       <DialogContent className="flex flex-col min-w-[30vw] lg:max-w-[150px]">
         <DialogHeader>

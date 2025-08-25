@@ -26,6 +26,8 @@ export type UmojaLinnProject = {
   percentageCompleted: number;
   draftPercentageCompleted: number;
   allReviewsSubmitted: boolean;
+  showDesignerReviews: boolean;
+  showBuyerReviews: boolean;
   reviews: Array<UmojaLinnProjectReview> | null;
   chatLinks: Array<string> | null;
   chatMedia: Array<string> | null;

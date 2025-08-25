@@ -38,6 +38,7 @@ const MilestoneAction: React.FC<
   isDelivery,
   deliverySubmission,
   projectId,
+  onAcceptMilestoneSuccess,
 }) => {
   const { mutate: submitMilestone, isPending: isSubmittingMilestone } =
     useSubmitMilestone(id, {
@@ -75,7 +76,7 @@ const MilestoneAction: React.FC<
             onClick={() =>
               approveOrRejectMilestone({
                 status: "APPROVED",
-              })
+              },{onSuccess: onAcceptMilestoneSuccess})
             }
             variant="success"
             loading={isReviewingMilestone}

@@ -11,12 +11,12 @@ import {
   useGetProjectById,
 } from "@/tanstack/hooks/useProject";
 import { Edit, MoreVertical, Trash } from "lucide-react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import React from "react";
 
 const AdsProjectPage = () => {
   const params = useParams<{ id: string }>();
-
+  const router = useRouter();
   const { data, isPending } = useGetProjectById(params?.id);
 
   const { mutate: deleteProjectById, isPending: isDeletePending } = useDeleteProject();
@@ -64,7 +64,11 @@ const AdsProjectPage = () => {
         cancelText="No"
         pendingConfirm={isDeletePending}
         onConfirm={() => {
-          deleteProjectById(params.id);
+          deleteProjectById(params.id,{
+            onSuccess: () => {
+              router.push("/projects/ads");
+            }
+          });
           setVerifyDelete(false);
         }}
       />

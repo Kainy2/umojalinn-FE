@@ -19,10 +19,12 @@ type MilestoneSubmissionsPreviewProps = {
   isBuyer?: boolean;
   isDesigner?: boolean;
   status?: MilestoneTimelineItem["status"];
+  designer: UmojaLinnUser | null | undefined;
+  buyer: UmojaLinnUser | null | undefined;
 };
 
 type MilestoneSubmissionsPreviewUserProps = {
-  user?: UmojaLinnUser;
+  user?: UmojaLinnUser | null;
   isMe?: boolean;
 };
 
@@ -81,7 +83,7 @@ const MilestoneSubmissionsPreview = (
         return (
           <div key={submission?.id} className="flex flex-col gap-2">
             <MilestoneSubmissionsPreviewUser
-              user={submission.milestone?.project?.designer?.user}
+              user={props?.isDesigner ? props?.buyer : props?.designer}
               isMe={props?.isDesigner}
             />
             <p className=" text-sm">{submission.description}</p>
