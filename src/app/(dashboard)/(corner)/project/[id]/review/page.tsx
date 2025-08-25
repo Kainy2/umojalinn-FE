@@ -3,7 +3,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCreateProjectContext } from "@/hooks/create-project/useCreateProjectContext";
 import { useToast } from "@/hooks/use-toast";
-import { jsonToFormData } from "@/lib/utils";
+import { getProjectImageDetailUpdate, jsonToFormData } from "@/lib/utils";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import ProjectReviewView from "@/section/dashboard/project/Review";
 import ProjectEditFooter from "@/section/form/project/edit/ProjectEditFooter";
@@ -15,6 +15,7 @@ import {
 } from "@/tanstack/hooks/useProject";
 import { useParams, useRouter } from "next/navigation";
 import React from "react";
+
 
 const ReviewPage = () => {
   const params = useParams<{ id: string }>();
@@ -39,11 +40,22 @@ const ReviewPage = () => {
 		// const { firstName, lastName, designerId, ...values } = projectFormDetails;
     const values = projectFormDetails
 
-    const oldIdList = values.gallery
-      ?.map((val) => val?.id)
-      .filter((val) => typeof val === "string");
-    const toAdd = values.gallery?.filter((val) => typeof val?.image !== "string");
-    const toUpdate = values.gallery?.filter((val) => typeof val?.image === "string");
+    // const gallery = values.gallery ?? [];
+    // const existingGallery = data?.data?.data?.Gallery ?? [];
+    // const oldIdList = gallery
+    //   .map((val) => val?.id)
+    //   .filter((id): id is string => typeof id === "string");
+
+    // const toAdd = [];
+    // const toUpdate = [];
+
+    // for (const item of gallery) {
+    //   if (typeof item.image === "string") {
+    //     toUpdate.push(item);
+    //   } else {
+    //     toAdd.push(item);
+    //   }
+    // }
 
 		const val = jsonToFormData({
       // Description Details
@@ -60,25 +72,28 @@ const ReviewPage = () => {
       clothingTypes: values?.clothingTypes,
       submit: values?.submit,
 
-      // Gallery Details
-      imagesMeta: toAdd?.map(({ title, fileName, isCoverImage }) => ({
-				title,
-				fileName,
-				isCoverImage,
-			})),
-			"gallery-images": toAdd?.map(({ image }) => image),
-			imagesToRemove: data?.data?.data?.Gallery?.filter(
-				(gallery) => !oldIdList?.includes(gallery?.id)
-			)?.map(({ id }) => id),
-      inspoTitles: toUpdate?.map(
-        ({ title, id }) => ({ title, id })
-      ),
+      // // Gallery Details
+      ...getProjectImageDetailUpdate(values?.gallery, data?.data?.data?.Gallery),
+
+
+			// imagesMeta: toAdd.map(({ title, fileName, isCoverImage }) => ({
+			// 	title,
+			// 	fileName,
+			// 	isCoverImage,
+			// })),
+			// imageToSetAsCover: toUpdate.find(({ isCoverImage }) => isCoverImage)
+			// 	?.id,
+			// "gallery-images": toAdd.map(({ image }) => image),
+			// imagesToRemove: existingGallery
+			// 	?.filter((g) => !oldIdList.includes(g.id))
+			// 	.map(({ id }) => id),
+			// inspoTitles: toUpdate.map(({ title, id }) => ({ title, id })),
 
       // Requirement and Budget Details
       currency: values?.currency,
       specialist: values?.specialist,
       experienceLevel: values?.experienceLevel,
-      budget:  values?.budget,
+      budget: values?.budget,
       negotiable: values?.negotiable,
 
 		});

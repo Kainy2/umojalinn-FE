@@ -1,3 +1,5 @@
+import { StateType } from "@/layout/create-project/CreateProjectProvider";
+import { UmojaLinnProject } from "@/types/project";
 import { clsx, type ClassValue } from "clsx";
 import { PhoneNumberUtil } from "google-libphonenumber";
 import { ReactNode } from "react";
@@ -81,6 +83,57 @@ export function jsonToFormData<T extends Record<string, unknown>>(
 
   return formData;
 }
+
+export const getProjectImageDetailUpdate = (
+  editedGallery: StateType["gallery"],
+  existingGallery: UmojaLinnProject["Gallery"] | undefined
+) => {
+  const gallery = editedGallery ?? [];
+
+  const existingIdList: string[] = [];
+  const toAdd: StateType["gallery"] = [];
+  const toUpdate: StateType["gallery"] = [];
+
+  // Precompute map for faster title comparisons
+  const existingMap = new Map(
+    gallery.map((item) => [item.id, item.title])
+  );
+
+  for (const item of gallery) {
+    if (typeof item.id === "string") {
+      existingIdList.push(item.id);
+    }
+
+    if (typeof item.image === "string") {
+      toUpdate.push(item);
+    } else {
+      toAdd.push(item);
+    }
+  }
+
+  return {
+    imagesMeta: toAdd.map(({ title, fileName, isCoverImage }) => ({
+      title,
+      fileName,
+      isCoverImage,
+    })),
+
+    imageToSetAsCover: toUpdate.find(({ isCoverImage }) => isCoverImage)?.id,
+
+    "gallery-images": toAdd.map(({ image }) => image),
+
+    // remove images in db that are not in the new/edited gallery
+    imagesToRemove: existingGallery
+      ?.filter((gallery) => !existingIdList.includes(gallery.id))
+      .map(({ id }) => id),
+
+    // Only update title if it has changed
+    inspoTitles: toUpdate
+      .filter(({ title, id }) => title !== existingMap.get(id))
+      .map(({ title, id }) => ({ title, id })),
+  };
+};
+
 
 /**
  * Converts a File to a preview URL.

@@ -51,8 +51,8 @@ export type MilestoneTimelineProps = {
   isBuyer?: boolean;
   currency: UmojaLinnProject["currency"];
   projectId?: string;
-  designer: UmojaLinnUser | undefined;
-  buyer: UmojaLinnUser | undefined;
+  designer: UmojaLinnUser | null | undefined;
+  buyer: UmojaLinnUser | null | undefined;
 };
 
 const getMilestoneStatus = (

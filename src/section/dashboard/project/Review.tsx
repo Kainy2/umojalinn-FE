@@ -91,7 +91,7 @@ const allClothingTypes = data?.data?.data
           </p>
         </div>
       </div>
-      {!!props?.project?.Gallery?.length && (
+      {!!(props?.project?.Gallery?.length || projectFormDetails?.gallery?.length) && (
         <div>
           <h3 className="text-md font-semibold text-foreground mb-2">
             Project Gallery
