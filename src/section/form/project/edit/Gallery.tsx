@@ -268,7 +268,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
               hint={`${entryTitle?.length || 0} / 500 characters`}
             />
             <FileUploadPicker
-              accept="image/*,video/*"
+              accept="image/*"
               onSelect={(file) => {
                 const typedFile = file as File;
                 if (isFileSizeValid(typedFile)) {
