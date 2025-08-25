@@ -2,7 +2,7 @@
 import TextField from "@/components/custom/input/TextField";
 import { Label } from "@/components/ui/label";
 import { RadioGroupItem } from "@/components/ui/radio-group";
-import { cn, fileToPreviewUrl, jsonToFormData } from "@/lib/utils";
+import { cn, fileToPreviewUrl, getProjectImageDetailUpdate, jsonToFormData } from "@/lib/utils";
 import {
   useGetProjectById,
   useUpdateProjectById,
@@ -79,7 +79,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
     (file: File | null) => {
       const fileObject = file as File;
 
-      if (fileObject.size / (1024 * 1024) < 50) {
+      if (fileObject.size < MAX_FILE_SIZE_FOR_FILE_UPLOAD) {
         setValues((prev) => [
           ...prev,
           {
@@ -94,7 +94,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
       } else {
         toast({
           title: "File error",
-          description: `Maximum file size is 50MB, this file is ${(
+          description: `Maximum file size is ${MAX_FILE_SIZE_FOR_FILE_UPLOAD/(1024 * 1024)}MB, this file is ${(
             fileObject.size /
             (1024 * 1024)
           ).toFixed(2)}MB. . You can compress the image using an image editor and try uploading again.`,
@@ -148,23 +148,25 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
           return
         }
 
-        const oldIdList = values
-          ?.map((val) => val?.id)
-          .filter((val) => typeof val === "string");
-        const toAdd = values?.filter((val) => typeof val?.image !== "string");
+        // const oldIdList = values
+        //   ?.map((val) => val?.id)
+        //   .filter((val) => typeof val === "string");
+        // const toAdd = values?.filter((val) => typeof val?.image !== "string");
 
 
         updateProject(
           jsonToFormData({
-            imagesMeta: toAdd?.map(({ title, fileName, isCoverImage }) => ({
-              title,
-              fileName,
-              isCoverImage,
-            })),
-            "gallery-images": toAdd.map(({ image }) => image),
-            imagesToRemove: data?.data?.data?.Gallery?.filter(
-              (gallery) => !oldIdList.includes(gallery?.id)
-            )?.map(({ id }) => id),
+            ...getProjectImageDetailUpdate(values, data?.data?.data?.Gallery),
+
+            // imagesMeta: toAdd?.map(({ title, fileName, isCoverImage }) => ({
+            //   title,
+            //   fileName,
+            //   isCoverImage,
+            // })),
+            // "gallery-images": toAdd.map(({ image }) => image),
+            // imagesToRemove: data?.data?.data?.Gallery?.filter(
+            //   (gallery) => !oldIdList.includes(gallery?.id)
+            // )?.map(({ id }) => id),
           }),
           {
             onSuccess() {
