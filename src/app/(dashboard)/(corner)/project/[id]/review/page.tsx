@@ -43,6 +43,7 @@ const ReviewPage = () => {
       ?.map((val) => val?.id)
       .filter((val) => typeof val === "string");
     const toAdd = values.gallery?.filter((val) => typeof val?.image !== "string");
+    const toUpdate = values.gallery?.filter((val) => typeof val?.image === "string");
 
 		const val = jsonToFormData({
       // Description Details
@@ -58,7 +59,7 @@ const ReviewPage = () => {
       zipCode: values?.zipCode,
       clothingTypes: values?.clothingTypes,
       submit: values?.submit,
-      
+
       // Gallery Details
       imagesMeta: toAdd?.map(({ title, fileName, isCoverImage }) => ({
 				title,
@@ -69,6 +70,9 @@ const ReviewPage = () => {
 			imagesToRemove: data?.data?.data?.Gallery?.filter(
 				(gallery) => !oldIdList?.includes(gallery?.id)
 			)?.map(({ id }) => id),
+      inspoTitles: toUpdate?.map(
+        ({ title, id }) => ({ title, id })
+      ),
 
       // Requirement and Budget Details
       currency: values?.currency,

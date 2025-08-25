@@ -11,7 +11,13 @@ import { UmojaLinnProject } from "@/types/project";
 import { formatDate } from "date-fns";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import React from "react";
+import React, { useMemo } from "react";
+
+  const getProjectHref = (id?: string, status?: UmojaLinnProject["status"]) => {
+    if (!id || !status) return null;
+    const baseHref = status === "COMPLETED" ? "completed-jobs" : "active-jobs";
+    return `/${baseHref}/${uuidToBase62Safe(id)}`;
+  };
 
 const SettingsProfileWorkHistoryPage = () => {
   const { data: session } = useSession();
@@ -24,11 +30,17 @@ const SettingsProfileWorkHistoryPage = () => {
     },
   );
 
-  const getProjectHref = (id?: string, status?: UmojaLinnProject["status"]) => {
-    if (!id || !status) return null;
-    const baseHref = status === "COMPLETED" ? "completed-jobs" : "active-jobs";
-    return `/${baseHref}/${uuidToBase62Safe(id)}`;
-  };
+  const projectReviews = useMemo(() => 
+    userReviews?.data?.data?.filter(proj => {
+      const firstReview = proj?.reviews?.[0];
+      const isDesigner = session?.user?.profileRole === "DESIGNER" && firstReview?.buyerId;
+      
+      if (isDesigner && !firstReview?.project?.showBuyerReviews) return false;
+      if (!isDesigner && !firstReview?.project?.showDesignerReviews) return false;
+      return true
+    }
+  ), [userReviews?.data?.data, session?.user?.profileRole]);
+
 
   if (isPending)
     return (
@@ -39,24 +51,19 @@ const SettingsProfileWorkHistoryPage = () => {
       </div>
     );
 
-  if (!userReviews?.data?.data?.length)
+  if (!projectReviews?.length)
     return (
       <div className="flex items-center justify-center h-72 text-muted-foreground">
-        <p>No reviews</p>
+        <p>No reviews to show</p>
       </div>
     );
 
   return (
     <div className="flex flex-col gap-8">
-      {userReviews?.data?.data?.map((proj) => {
+      {projectReviews?.map((proj) => {
         const firstReview = proj?.reviews?.[0];
-        // const isDesigner = session?.user?.profileRole === "DESIGNER";
-        
-        // if (isDesigner && firstReview?.buyerId &&!proj?.allReviewsSubmitted)
-				// 	return null;
-				// if (!isDesigner && firstReview?.designerId &&!proj?.allReviewsSubmitted)
-				// 	return null;
-        if (!proj?.allReviewsSubmitted) return null;
+
+        // if (!proj?.allReviewsSubmitted) return null;
 
         const href = getProjectHref(
           proj?.projectId,
@@ -73,27 +80,23 @@ const SettingsProfileWorkHistoryPage = () => {
             </h3>
   
             <div className="space-y-4">
-              {proj.reviews?.map((review) => {
+              {proj.reviews?.map((review) => (
+                <div key={review?.id}>
+                  <h4 className="font-medium mb-1">
+                    {review?.reviewType === "EXPERIENCE"
+                      ? "Experience"
+                      : "Clothing Quality"}{" "}
+                    feedback
+                  </h4>
+                  <p className="mb-2">&quot;{review?.message}&quot;</p>
 
+                  <p className="text-sm mb-2">
+                    {formatDate(review?.createdAt, "MMM d, yyyy")} - Present
+                  </p>
+                  <ReviewRatingStars small rating={review?.rating} disabled />
 
-                return (
-                  <div key={review?.id}>
-                    <h4 className="font-medium mb-1">
-                      {review?.reviewType === "EXPERIENCE"
-                        ? "Experience"
-                        : "Clothing Quality"}{" "}
-                      feedback
-                    </h4>
-                    <p className="mb-2">&quot;{review?.message}&quot;</p>
-
-                    <p className="text-sm mb-2">
-                      {formatDate(review?.createdAt, "MMM d, yyyy")} - Present
-                    </p>
-                    <ReviewRatingStars small rating={review?.rating} disabled />
-
-                  </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
 
 

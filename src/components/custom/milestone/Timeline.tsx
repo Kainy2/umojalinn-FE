@@ -14,6 +14,8 @@ import SelectFundingMethodDialog from "../dialog/SelectFundingMethod";
 import MilestoneInputSection from "./InputSection";
 import MilestoneSubmissionsPreview from "./SubmissionsPreview";
 import { capitalizeFirstLetter } from "@/lib/string";
+import FundMilestoneDialog from "../dialog/FundMilestoneDialog";
+import { UmojaLinnUser } from "@/types/user";
 
 export enum MilestoneStatus {
   INACTIVE = "INACTIVE",
@@ -37,6 +39,7 @@ export type MilestoneTimelineItem = {
   status?: keyof typeof MilestoneStatus;
   info?: string;
   onActionClick?: (action: MilestoneActionType) => void;
+  onAcceptMilestoneSuccess?: () => void;
   isDelivery?: boolean;
   deliverySubmission?: UmojaLinnDeliveryMilestoneReviewProps;
 };
@@ -48,6 +51,8 @@ export type MilestoneTimelineProps = {
   isBuyer?: boolean;
   currency: UmojaLinnProject["currency"];
   projectId?: string;
+  designer: UmojaLinnUser | undefined;
+  buyer: UmojaLinnUser | undefined;
 };
 
 const getMilestoneStatus = (
@@ -74,9 +79,14 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
   isBuyer,
   isDesigner,
   currency,
-  projectId
+  projectId,
+  designer,
+  buyer
 }) => {
-  const [message, setMessage] = React.useState<string>("");
+  const [openFundMilestoneModal, setOpenFundMilestoneModal] = useState(false);
+  const [openPayForMilestoneModal, setOpenPayForMilestoneModal] = useState(false)
+  const [selectedMilestoneId, setSelectedMilestoneId] = useState('')
+  const [message, setMessage] = React.useState<string>('');
   const [files, setFiles] = React.useState<FileList | null>(null);
   const [editableDeliverySubmission, setEditableDeliverySubmission] =
     useState<UmojaLinnDeliveryMilestoneReviewProps>({
@@ -91,7 +101,34 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
       trackingId: "",
     });
 
+    const onAcceptMilestoneSuccess = (milestone: MilestoneTimelineItem, isDelivery: boolean, index: number) => {
+      if (isDelivery) return
+      const nextMilestone = milestones[index + 1];
+      if (getMilestoneStatus(nextMilestone?.status,nextMilestone?.transactionStatus)
+        === MilestoneStatus.AWAITING_FUND
+      ) {
+        setOpenFundMilestoneModal(true);
+        setSelectedMilestoneId(milestone.id);
+      }
+    }
+
   return (
+  <>
+    <SelectFundingMethodDialog
+      id={selectedMilestoneId}
+      type="milestone"
+      open={openPayForMilestoneModal}
+      onOpenChange={setOpenPayForMilestoneModal}
+    />
+    <FundMilestoneDialog
+      open={openFundMilestoneModal}
+      setOpen={setOpenFundMilestoneModal}
+      onConfirm={() => {
+        setOpenFundMilestoneModal(false);
+        setOpenPayForMilestoneModal(true);
+      }}
+    />        
+
     <ol className={cn("flex flex-col gap-1.5", className)}>
       {milestones.map((item, index) => {
         const isDelivery = !!item?.deliveryMethod;
@@ -162,6 +199,8 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                   {...{
                     isBuyer,
                     isDesigner,
+                    designer,
+                    buyer,
                   }}
                 />
                 {/* Input */}
@@ -256,13 +295,17 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                   onActionClick={(action) => {
                     console.log(action);
                   }}
+                  onAcceptMilestoneSuccess={()=> onAcceptMilestoneSuccess(milestone, isDelivery, index)}
                 />
               </div>
             </div>
           </li>
+
         );
       })}
     </ol>
+  </>
+
   );
 };
 

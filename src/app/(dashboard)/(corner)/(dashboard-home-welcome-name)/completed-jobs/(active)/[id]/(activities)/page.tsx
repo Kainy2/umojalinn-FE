@@ -29,6 +29,8 @@ const ActiveJobsPage = () => {
   return (
     <div className="flex flex-col md:flex-row gap-12">
       <MilestoneTimeline
+        buyer={projectData?.data?.data?.buyer.user}
+        designer={projectData?.data?.data?.designer.user}
         projectId={projectData?.data?.data?.id}
         currency={projectData?.data?.data?.currency || null}
         isDesigner={
