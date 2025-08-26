@@ -95,9 +95,9 @@ export const getProjectImageDetailUpdate = (
   const toUpdate: StateType["gallery"] = [];
 
   // Precompute map for faster title comparisons
-  const existingMap = new Map(
-    gallery.map((item) => [item.id, item.title])
-  );
+  // const existingMap = new Map(
+  //   gallery.map((item) => [item.id, item.title])
+  // );
 
   for (const item of gallery) {
     if (typeof item.id === "string") {
@@ -129,7 +129,7 @@ export const getProjectImageDetailUpdate = (
 
     // Only update title if it has changed
     inspoTitles: toUpdate
-      .filter(({ title, id }) => title !== existingMap.get(id))
+      // .filter(({ title, id }) => title !== existingMap.get(id))
       .map(({ title, id }) => ({ title, id })),
   };
 };
