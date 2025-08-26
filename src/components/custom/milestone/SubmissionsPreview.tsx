@@ -83,7 +83,7 @@ const MilestoneSubmissionsPreview = (
         return (
           <div key={submission?.id} className="flex flex-col gap-2">
             <MilestoneSubmissionsPreviewUser
-              user={props?.isDesigner ? props?.buyer : props?.designer}
+              user={props?.designer}
               isMe={props?.isDesigner}
             />
             <p className=" text-sm">{submission.description}</p>
@@ -170,7 +170,7 @@ const MilestoneSubmissionsPreview = (
             {!!submission.rejectionReason && (
               <>
                 <MilestoneSubmissionsPreviewUser
-                  user={submission.milestone?.project?.buyer?.user}
+                  user={props?.buyer}
                   isMe={props?.isBuyer}
                 />
                 <p className="text-sm">{submission.rejectionReason}</p>
