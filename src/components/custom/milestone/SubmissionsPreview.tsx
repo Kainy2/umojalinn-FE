@@ -16,7 +16,7 @@ import GalleryImages from "../GalleryImages";
 
 type MilestoneSubmissionsPreviewProps = {
   milestoneId: string;
-  isBuyer?: boolean;
+  // isBuyer?: boolean;
   isDesigner?: boolean;
   status?: MilestoneTimelineItem["status"];
   designer: UmojaLinnUser | null | undefined;
@@ -171,7 +171,7 @@ const MilestoneSubmissionsPreview = (
               <>
                 <MilestoneSubmissionsPreviewUser
                   user={props?.buyer}
-                  isMe={props?.isBuyer}
+                  isMe={!props?.isDesigner}
                 />
                 <p className="text-sm">{submission.rejectionReason}</p>
               </>
