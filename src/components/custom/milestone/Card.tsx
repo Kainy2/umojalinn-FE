@@ -15,6 +15,7 @@ type MileStoneCardProps = {
   view: boolean;
   title: string;
   description: string;
+  loadingSave: boolean;
   onSave: (props: {
     id?: string;
     title: string;
@@ -219,6 +220,7 @@ const MileStoneCard = (props: MileStoneCardProps) => {
       {footer}
       <div className="flex gap-4 items-center">
         <button
+          // disabled={}
           onClick={() => onSave({ ...editedValues, id })}
           className="text-left items-center w-fit flex text-sm text-primary [&>svg]:size-5 gap-2"
         >
