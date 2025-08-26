@@ -21,14 +21,14 @@ export enum MilestoneActionType {
 
 const MilestoneAction: React.FC<
   MilestoneTimelineItem &
-    Pick<MilestoneTimelineProps, "isBuyer" | "isDesigner" | "projectId"> & {
+    Pick<MilestoneTimelineProps, "isDesigner" | "projectId"> & {
       message: string;
       files: FileList | null;
       clear: () => void;
     }
 > = ({
   isCurrent,
-  isBuyer,
+  // isBuyer,
   isDesigner,
   status,
   id,
@@ -56,7 +56,7 @@ const MilestoneAction: React.FC<
       },
     });
 
-  if (status === MilestoneStatus.IN_REVIEW && isCurrent && isBuyer)
+  if (status === MilestoneStatus.IN_REVIEW && isCurrent && !isDesigner)
     return (
       <>
         <Separator className="my-3" />

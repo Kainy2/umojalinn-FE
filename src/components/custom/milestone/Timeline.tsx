@@ -48,7 +48,7 @@ export type MilestoneTimelineProps = {
   milestones: UmojaLinnMilestone[];
   className?: string;
   isDesigner?: boolean;
-  isBuyer?: boolean;
+  // isBuyer?: boolean;
   currency: UmojaLinnProject["currency"];
   projectId?: string;
   designer: UmojaLinnUser | null | undefined;
@@ -76,7 +76,7 @@ const getMilestoneStatus = (
 const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
   milestones,
   className,
-  isBuyer,
+  // isBuyer,
   isDesigner,
   currency,
   projectId,
@@ -196,7 +196,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                   status={milestone?.status}
                   milestoneId={item?.id}
                   {...{
-                    isBuyer,
+                    // isBuyer,
                     isDesigner,
                     designer,
                     buyer,
@@ -206,7 +206,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                 <MilestoneInputSection
                   {...{
                     isDesigner,
-                    isBuyer,
+                    // isBuyer,
                     message,
                     files,
                     status: milestone?.status,
@@ -243,7 +243,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                   )}
                   <MilestonePill currency={currency} {...milestone} />
                   {milestone?.status === MilestoneStatus.AWAITING_FUND &&
-                    isBuyer && (
+                    !isDesigner && (
                       <SelectFundingMethodDialog
                         id={milestone?.id}
                         type="milestone"
@@ -290,7 +290,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                     setFiles(null);
                   }}
                   deliverySubmission={editableDeliverySubmission}
-                  {...{ isBuyer, isDesigner, isDelivery, projectId }}
+                  {...{ isDesigner, isDelivery, projectId }}
                   onActionClick={(action) => {
                     console.log(action);
                   }}

@@ -40,9 +40,9 @@ const ActiveProjectPage = () => {
         designer={projectData?.data?.data?.designer.user}
         projectId={projectData?.data?.data?.id}
         currency={projectData?.data?.data?.currency || null}
-        isBuyer={
+        isDesigner={
           projectData?.data?.data?.buyerId ===
-          meData?.data?.data?.buyerProfile?.id
+          meData?.data?.data?.designerProfile?.id
         }
         milestones={projectMilestonesData?.data?.data || []}
         className="flex-1"
