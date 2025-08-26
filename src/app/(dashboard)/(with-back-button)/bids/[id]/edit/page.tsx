@@ -51,6 +51,8 @@ const BidPage = () => {
     isUpdatingBid,
     isSubmittingBid,
     isPendingDelete,
+    isPendingUpdateBid,
+    isPendingCreateBid,
   } = useBidEdit();
   
   if (isPending) {
@@ -97,6 +99,7 @@ const BidPage = () => {
 					}
 					onCancel={()=> handleCancel(index)}
 					onSave={handleSave(index)}
+          loadingSave={isPendingUpdateBid||isPendingCreateBid}
 					key={index}
 					view={index !== editing || !editMode}
 					{...milestone}

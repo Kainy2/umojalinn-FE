@@ -104,11 +104,10 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
     const onAcceptMilestoneSuccess = (milestone: MilestoneTimelineItem, isDelivery: boolean, index: number) => {
       if (isDelivery) return
       const nextMilestone = milestones[index + 1];
-      if (getMilestoneStatus(nextMilestone?.status,nextMilestone?.transactionStatus)
-        === MilestoneStatus.AWAITING_FUND
-      ) {
+      
+      if (nextMilestone.transactionStatus === MilestoneStatus.AWAITING_FUND) {
         setOpenFundMilestoneModal(true);
-        setSelectedMilestoneId(milestone.id);
+        setSelectedMilestoneId(nextMilestone.id);
       }
     }
 

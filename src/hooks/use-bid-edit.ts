@@ -70,13 +70,13 @@ const { id } = useParams<{ id: string }>();
     }
   }, [bid]);
 
-  const { mutate: createMilestone } = useCreateMilestone(id, {
+  const { mutate: createMilestone, isPending: isPendingCreateBid } = useCreateMilestone(id, {
     onSuccess: () => {
       setEditing(null);
     },
   });
 
-  const { mutate: updateMilestone } = useUpdateMilestone({
+  const { mutate: updateMilestone, isPending: isPendingUpdateBid } = useUpdateMilestone({
     onSuccess: () => {
       setEditing(null);
     },
@@ -277,6 +277,8 @@ const { id } = useParams<{ id: string }>();
 		deleteMilestone,
     isUpdatingBid,
     isSubmittingBid,
-    isPendingDelete
+    isPendingDelete,
+    isPendingUpdateBid,
+    isPendingCreateBid,
 	}
 }
