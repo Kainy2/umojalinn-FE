@@ -140,8 +140,8 @@ const EscrowCard = (props: EscrowCardProps) => {
         {props.reviews?.map?.((review) => {
           const isDesigner = session?.user?.profileRole === "DESIGNER";
 
-          if (isDesigner && review?.buyerId && !props?.project?.showBuyerReviews) return null;
-          if (!isDesigner && review?.designerId && !props?.project?.showDesignerReviews) return null;
+          if (isDesigner && review?.buyerId && !props?.project?.showDesignerReviews) return null;
+          if (!isDesigner && review?.designerId && !props?.project?.showBuyerReviews) return null;
 
           return (
             <div

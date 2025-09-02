@@ -35,8 +35,8 @@ const SettingsProfileWorkHistoryPage = () => {
       const firstReview = proj?.reviews?.[0];
       const isDesigner = session?.user?.profileRole === "DESIGNER" && firstReview?.buyerId;
       
-      if (isDesigner && !firstReview?.project?.showBuyerReviews) return false;
-      if (!isDesigner && !firstReview?.project?.showDesignerReviews) return false;
+      if (isDesigner && !firstReview?.project?.showDesignerReviews  ) return false;
+      if (!isDesigner && !firstReview?.project?.showBuyerReviews) return false;
       return true
     }
   ), [userReviews?.data?.data, session?.user?.profileRole]);
