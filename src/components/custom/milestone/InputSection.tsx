@@ -51,7 +51,7 @@ const MilestoneInputSectionImageUpload = (
       props?.onFilesChange?.(combinedFiles);
       getPreview(combinedFiles);
     },
-    accept: 'image/*',
+    accept: 'image/*,video/*',
     multiple: true,
   });
 
@@ -99,7 +99,7 @@ const MilestoneInputSectionImageUpload = (
     <FileUploadPicker
       cta="Click to Upload"
       details="or drag and drop"
-      accept="image/*"
+      accept="image/*,video/*"
       multiple
       onSelect={(files) => {
         if (files && files instanceof FileList) {

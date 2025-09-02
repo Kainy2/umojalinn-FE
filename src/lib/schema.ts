@@ -109,7 +109,7 @@ export const projectFormDetailsSchema = z.object({
   address: z.string().optional(),
   state: z.string().optional(),
   zipCode: z.string().optional(),
-  clothingTypes: z.array(z.string()).max(8).optional(),
+  clothingTypes: z.array(z.string()).max(8, "Maximum 8 categories can be selected").optional(),
   submit: z.string().optional(),
   sizingTemplateId: z.string().optional(),
 });
@@ -147,7 +147,7 @@ export const updateProfileSchema = z.object({
   email: z.string().email("Invalid email address").optional(),
   alternativeEmail: z.string().email("Invalid email address").nullable().optional(),
   specialistType: z.string().optional(),
-  clothingTypes: z.array(z.string()).max(8, "Select only up to 8 clothing types").optional(),
+  clothingTypes: z.array(z.string()).max(8, "Maximum 8 categories can be selected").optional(),
   experienceLevel: z.enum(EXPERIENCE_ENUMS_VALUES).nullable().optional(),
   // Uncomment and adjust if using languages:
   // languages: z
