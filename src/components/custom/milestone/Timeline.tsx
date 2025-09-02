@@ -101,7 +101,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
       trackingId: "",
     });
 
-    const onAcceptMilestoneSuccess = (milestone: MilestoneTimelineItem, isDelivery: boolean, index: number) => {
+    const onAcceptMilestoneSuccess = (isDelivery: boolean, index: number) => {
       if (isDelivery) return
       const nextMilestone = milestones[index + 1];
       
@@ -294,7 +294,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                   onActionClick={(action) => {
                     console.log(action);
                   }}
-                  onAcceptMilestoneSuccess={()=> onAcceptMilestoneSuccess(milestone, isDelivery, index)}
+                  onAcceptMilestoneSuccess={()=> onAcceptMilestoneSuccess(isDelivery, index)}
                 />
               </div>
             </div>
