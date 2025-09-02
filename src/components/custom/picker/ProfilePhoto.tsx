@@ -18,6 +18,7 @@ const ProfilePhotoPicker = (props: {
 }) => {
   const { Input, onClick, previewUrl } = useFilePicker({
     onSelect: (file) => props.onSelect?.(file as File),
+    accept: "image/*",
   });
 
   const url = props.controlled ? props.src : previewUrl;
