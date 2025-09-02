@@ -13,10 +13,12 @@ import React, { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 
 import CustomSelectCountry from "@/components/custom/SelectCountry";
+import { useStrictClientAxios } from "@/hooks/use-strict-client-axios";
 
 const OnboardAddressForm = (props: { role: UmojaLinnUserRole }) => {
   const router = useRouter();
-
+  useStrictClientAxios();
+  
   const nextUrl = `/onboard/${props.role?.toLocaleLowerCase()}/profile-picture`;
 
   const form = useForm<OnboardingProps["address"]>({

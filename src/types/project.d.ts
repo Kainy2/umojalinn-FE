@@ -113,6 +113,15 @@ export type UmojaLinnMilestone = {
     | "REJECTED"
     | "APPROVED";
   transactionStatus: "AWAITING_FUND" | "PROCESSING" | "FUNDED" | "PAID";
+  project:{
+    fundStatus: "AWAITING_FUND" | "PROCESSING" | "FUNDED";
+    buyer: {
+      user: Pick<UmojaLinnUser, "firstName" | "lastName" | "profilePhotoUri" | "address">;
+    };
+    designer: {
+      user: Pick<UmojaLinnUser, "firstName" | "lastName" | "profilePhotoUri" | "address">
+    };
+  } 
   projectId: string | null;
   paidOutDate: string | null;
 } & UmojaLinnTimestamp;
