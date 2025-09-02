@@ -40,7 +40,7 @@ const ActiveJobsPage = () => {
         milestones={projectMilestonesData?.data?.data || []}
         className="flex-1"
       />
-      <aside className="md:max-w-80 flex-1 w-full shrink-0">
+      <aside className="hidden md:block md:max-w-80 flex-1 w-full shrink-0">
         <EscrowCard
           projectId={projectData?.data?.data?.id}
           milestones={projectMilestonesData?.data?.data || []}
