@@ -38,7 +38,7 @@ const ChatWindow = (props: ChatWindowProps) => {
       );
       setImages(files);
     },
-    accept: "image/*",
+    accept: "image/*,video/*",
     multiple: true,
   });
 

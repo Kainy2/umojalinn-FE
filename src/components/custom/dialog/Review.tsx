@@ -91,7 +91,7 @@ const ReviewDialog = (props: CustomReviewDialogProps) => {
       setImages(combinedFiles);
       getPreview(combinedFiles);
     },
-    accept: 'image/*',
+    accept: 'image/*,video/*',
     multiple: true,
   });
 
@@ -184,7 +184,7 @@ const ReviewDialog = (props: CustomReviewDialogProps) => {
     ) : (
       <FileUploadPicker
         multiple
-        accept="image/*"
+        accept="image/*,video/*"
         onSelect={(files) => {
           const typedFile = files as FileList;
           if (isFileSizeValid(typedFile)) {
