@@ -3,7 +3,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { categorizeDate } from "@/lib/date";
 import { cn } from "@/lib/utils";
 import { useGetProjectMediaAndlinks } from "@/tanstack/hooks/useProject";
-import { Image as ImageIcon, Link2 } from "lucide-react";
+import { Link2 } from "lucide-react";
+import Image from "next/image";
 import { useParams } from "next/navigation";
 import React from "react";
 
@@ -50,7 +51,15 @@ const ActiveProjectMediaAndLinksPage = () => {
             )}
           >
             <span className="icon-wrapper warning">
-              {value?.type === "media" && <ImageIcon />}
+              {value?.type === "media" && (
+                  <Image
+                    src={value.url}
+                    alt=""
+                    height={100}
+                    width={100}
+                    className="rounded-lg shrink-0 object-cover size-8"
+                  />
+                )}              
               {value?.type === "link" && <Link2 />}
             </span>
             <p>{value?.type === "media" ? value.meta.fileName : value.url}</p>
