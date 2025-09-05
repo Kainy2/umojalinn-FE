@@ -43,7 +43,7 @@ const EscrowCardReviews = (props: EscrowReviewProps) => {
 		const hasAllMilestoneCompleted = !isIncompleteMilestone;
 		
 	return (
-			<div className="flex flex-col gap-8 text-sm">
+			<div className="flex flex-col gap-8 text-sm mt-8 md:mt-0">
 				{props.reviews?.map?.((review) => {
 					const isDesigner = session?.user?.profileRole === "DESIGNER";
 
