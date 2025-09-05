@@ -5,28 +5,43 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-import { useGetInfiniteNotifications } from "@/tanstack/hooks/useUser";
+// import { useGetInfiniteNotifications } from "@/tanstack/hooks/useUser";
+// import { useInfiniteData } from "@/hooks/use-infinite-data";
 import { PopoverClose } from "@radix-ui/react-popover";
 import { Bell, X } from "lucide-react";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { 
+	// useEffect,
+	 useMemo, useState } from "react";
 import NotificationCard from "../card/Notification";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
-import { useInfiniteData } from "@/hooks/use-infinite-data";
+import { useGetFirebaseNotifications } from "@/hooks/use-get-firebase-notification";
 
 const NotificationPopover = () => {
 	const [open, setOpen] = useState(false);
 
+	// const {
+	// 	data: infiniteNotificationData,
+	// 	isPending: loadingNotification,
+	// 	isFetchingNextPage,
+	// 	fetchNextPage,
+	// 	hasNextPage,
+	// } = useGetInfiniteNotifications();
+
+	// const allNotifications = useInfiniteData(infiniteNotificationData);
+
+	// const loadMore = () => {
+	// 	if (hasNextPage)
+	// 		fetchNextPage()
+	// };
+
+
 	const {
-		data: infiniteNotificationData,
-		isPending: loadingNotification,
-		isFetchingNextPage,
-		fetchNextPage,
-		hasNextPage,
-	} = useGetInfiniteNotifications();
-
-
-	const allNotifications = useInfiniteData(infiniteNotificationData);
+		data: allNotifications,
+		// handleRead
+	} = useGetFirebaseNotifications();
+	
+	const loadingNotification = false
 
 	const unreadNotifications = useMemo(() => {
 		return allNotifications?.filter?.(
@@ -34,16 +49,12 @@ const NotificationPopover = () => {
 		);
 	}, [allNotifications]);
 
-	const loadMore = () => {
-		if (hasNextPage)
-			fetchNextPage()
-	};
-
-	useEffect(() => {
-		if (unreadNotifications?.length) {
-			setOpen(true);
-		}
-	}, [unreadNotifications]);
+	// useEffect(() => {
+	// 	if (unreadNotifications?.length) {
+	// 		handleRead();
+	// 		setOpen(true);
+	// 	}
+	// }, [unreadNotifications, handleRead]);
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
@@ -107,7 +118,7 @@ const NotificationPopover = () => {
 									<Separator className="bg-gray-200" />
 								</React.Fragment>
 							))}
-							{hasNextPage && (
+							{/* {hasNextPage && (
 								<button
 									onClick={loadMore}
 									className="text-primary text-sm text-center block w-full mt-4 py-2 hover:text-primary/70 transition"
@@ -116,7 +127,7 @@ const NotificationPopover = () => {
 										? "loading more..."
 										: "Show more"}
 								</button>
-							)}
+							)} */}
 						</div>
 					</div>
 				</div>

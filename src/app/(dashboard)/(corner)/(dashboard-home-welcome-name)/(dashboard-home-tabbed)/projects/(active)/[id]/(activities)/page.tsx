@@ -51,7 +51,7 @@ const ActiveProjectPage = () => {
         <EscrowCard
           projectId={projectData?.data?.data?.id}
           milestones={projectMilestonesData?.data?.data || []}
-          paidOut={projectData?.data?.data?.amountFunded || 0}
+          // paidOut={projectData?.data?.data?.amountFunded || 0}
           currency={projectData?.data?.data?.currency}
           escrowBalance={projectData?.data?.data?.escrowBalance || 0}
           projectPrice={projectData?.data?.data?.approvedBudget || 0}

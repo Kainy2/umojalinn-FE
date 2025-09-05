@@ -25,7 +25,7 @@ const firebaseConfig: FirebaseOptions = JSON.parse(
   process.env.NEXT_PUBLIC_FIREBASE_CONFIG || "{}"
 )
 
-// Initialize Firebase
+// Initialize Firebase Realtime database and firebase analytics
 export const app = initializeApp(firebaseConfig);
 export const analytics = getAnalytics(app);
 export const database = getDatabase(app);

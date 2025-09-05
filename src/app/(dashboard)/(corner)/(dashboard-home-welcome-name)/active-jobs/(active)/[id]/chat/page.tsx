@@ -17,11 +17,11 @@ const ActiveProjectChatPage = () => {
   return (
     <div className="flex flex-col md:flex-row gap-12">
       <ChatWindow projectId={id} />
-      <aside className="hidden md:block md:max-w-80 flex-1 w-full shrink-0">
+      <aside className="md:max-w-80 flex-1 w-full shrink-0">
         <EscrowCard
           projectId={projectData?.data?.data?.id}
           milestones={projectMilestonesData?.data?.data || []}
-          paidOut={projectData?.data?.data?.amountFunded || 0}
+          // paidOut={projectData?.data?.data?.amountFunded || 0}
           currency={projectData?.data?.data?.currency}
           escrowBalance={projectData?.data?.data?.escrowBalance || 0}
           projectPrice={projectData?.data?.data?.approvedBudget || 0}
