@@ -57,8 +57,8 @@ const AdsProjectPage = () => {
       <VerifyDialog
         onOpenChange={setVerifyDelete}
         open={verifyDelete}
-        title="Delete Draft Project"
-        description="Are you sure you want to delete your project? This action cannot be undone"
+        title="Delete Job ad"
+        description="Are you sure you want to delete your Ad? This action cannot be undone"
         destructive
         confirmText="Yes"
         cancelText="No"

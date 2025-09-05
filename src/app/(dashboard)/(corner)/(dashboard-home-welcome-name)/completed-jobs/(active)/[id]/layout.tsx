@@ -1,5 +1,5 @@
 "use client";
-import EscrowCard from '@/section/dashboard/project/active/EscrowCard';
+import EscrowCardReviews from '@/section/dashboard/project/active/EscrowCardReviews';
 import ActiveProjectSummary from "@/section/dashboard/project/active/Summary";
 import ActiveProjectTab from "@/section/dashboard/project/active/Tab";
 import { useGetProjectById, useGetProjectMilestones } from "@/tanstack/hooks/useProject";
@@ -20,14 +20,9 @@ const Layout = ({ children }: LayoutProps) => {
 
 			<div className='md:hidden'>
 				{!isLoadingProject && (
-					<EscrowCard
+					<EscrowCardReviews
 						projectId={projectData?.data?.data?.id}
 						milestones={projectMilestonesData?.data?.data || []}
-						paidOut={projectData?.data?.data?.amountFunded || 0}
-						currency={projectData?.data?.data?.currency}
-						escrowBalance={projectData?.data?.data?.escrowBalance || 0}
-						projectPrice={projectData?.data?.data?.approvedBudget || 0}
-						reviews={projectData?.data?.data?.reviews || []}
 						project={projectData?.data?.data}
 					/>
 				)}
