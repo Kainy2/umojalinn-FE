@@ -1,6 +1,6 @@
 "use server";
 import { createProject, getAllBuyerProjects } from "@/actions/project";
-import { handleAPIError } from "@/lib/axios";
+// import { handleAPIError } from "@/lib/axios";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { PageProps } from "@/types/util";
 import { redirect } from "next/navigation";
@@ -31,7 +31,7 @@ const CreateProjectPage = async (
       url = `/project/${uuidToBase62Safe(res?.data?.data?.id)}`;
     }
   } catch (error) {
-    handleAPIError(error);
+    console.error("CreateProjectPage error:", error);
   } finally {
     redirect(url);
   }
