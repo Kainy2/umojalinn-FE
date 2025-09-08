@@ -1,9 +1,9 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import TextField from "../input/TextField";
 import FileUploadPicker from "../picker/FileUpload";
 import { MilestoneStatus, MilestoneTimelineItem } from "./Timeline";
-import { useImagePreviewUrls } from "@/hooks/useImagePreviewUrls";
+// import { useImagePreviewUrls } from "@/hooks/useImagePreviewUrls";
 import Image from "next/image";
 import { Link2, Locate, PlusCircle, Trash2 } from "lucide-react";
 import {
@@ -14,8 +14,11 @@ import TextAreaField from "../input/TextAreaField";
 import CustomSelectCountry from "../SelectCountry";
 import { useGetMilestoneSubmissions } from "@/tanstack/hooks/useProject";
 import { Textarea } from "@/components/ui/textarea";
-import { mergeFiles, removeFileFromFileList } from "@/lib/utils";
-import useFilePicker from "@/hooks/useFilePicker";
+import { 
+  // fileToPreviewUrl, 
+  mergeFiles, removeFileFromFileList } from "@/lib/utils";
+import useFilePicker, { useFileSizeError } from "@/hooks/useFilePicker";
+import { MAX_FILE_SIZE_FOR_FILE_UPLOAD } from "@/constant";
 
 type MilestoneInputSectionProps = {
   id?: string;
@@ -42,14 +45,24 @@ const MilestoneInputSectionImageUpload = (
     disabled?: boolean;
   }
 ) => {
-  const { previewUrls, getPreview } = useImagePreviewUrls();
+  
+  const [previewMedia, setPreviewMedia] = useState<{type: string, url: string}[]>([]);
+  
+  const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD);
+  // const { previewUrls, getPreview } = useImagePreviewUrls();
   const { Input, onClick } = useFilePicker({
     onSelect: (files) => {
       if (!files) return;
+      if (!isFileSizeValid(files)) return;
       const combinedFiles = mergeFiles(props?.files, files);
 
       props?.onFilesChange?.(combinedFiles);
-      getPreview(combinedFiles);
+      setPreviewMedia(
+        Array.from(combinedFiles).map((file) => ({
+          type: file.type,
+          url: URL.createObjectURL(file),
+        }))
+      );
     },
     accept: 'image/*,video/*',
     multiple: true,
@@ -58,33 +71,49 @@ const MilestoneInputSectionImageUpload = (
   if (props?.files?.length) {
     return (
       <div className="flex flex-wrap gap-4 relative items-start ">
-        {previewUrls?.map((url, index) => (
-				<div 
-        key={url}
-        className="relative  border border-gray-100"
-        >
-					<button
-						className="bg-error text-white [&>svg]:size-4 p-1.5 rounded-full absolute -left-2 -top-2"
-						onClick={() => {
-							if (!props?.files) return;
-							const updatedFiles = removeFileFromFileList(props.files, index);
-              
-							props?.onFilesChange?.(updatedFiles);
-              getPreview(updatedFiles);
-						}}
-					>
-						<Trash2 />
-					</button>
+        {previewMedia?.map(({type, url}, index) => (
+          <div
+            key={url}
+            className="relative  border border-gray-100"
+          >
+            <button
+              className="bg-error text-white [&>svg]:size-4 p-1.5 rounded-full absolute -left-2 -top-2"
+              onClick={() => {
+                if (!props?.files) return;
+                const updatedFiles = removeFileFromFileList(props.files, index);
 
-					<Image
-						alt=""
-						src={url}
-						height={150}
-						width={150}
-						className="object-contain rounded-md"
-					/>
-				</div>
-			))}
+                props?.onFilesChange?.(updatedFiles);
+                setPreviewMedia(
+                  Array.from(updatedFiles).map((file) => ({
+                    type: file.type,
+                    url: URL.createObjectURL(file),
+                  }))
+                );
+              } }
+            >
+              <Trash2 />
+            </button>
+
+            {type.includes("video") ? (
+              <video
+                // autoPlay
+                // muted
+                height={50}
+                width={50}
+                src={url}
+                className="size-14 object-cover rounded"
+              />
+            ) : (
+              <Image
+                alt=""
+                src={url}
+                height={150}
+                width={150}
+                className="object-contain rounded-md"
+              />
+            )}
+          </div>
+        ))}
       <button 
        onClick={onClick}
        className="h-20 w-20 rounded-full self-center flex items-center justify-center">
@@ -104,7 +133,12 @@ const MilestoneInputSectionImageUpload = (
       onSelect={(files) => {
         if (files && files instanceof FileList) {
           props?.onFilesChange?.(files);
-          getPreview(files);
+          setPreviewMedia(
+            Array.from(files).map((file) => ({
+              type: file.type,
+              url: URL.createObjectURL(file),
+            }))
+          );
         }
       }}
     />

@@ -8,13 +8,13 @@ import { jsonToFormData } from '@/lib/utils';
 import useHandleError from './useHandleError';
 import {  base62ToUuidSafe } from '@/lib/uuid';
 
-const useChat = (
+ export const useChat = (
 	projectId: string
 ) => {
 	const [data, setData] = useState<UmojaLinnChat[]>([]);
 	const [loading, setLoading] = useState<boolean>(false);
 	const [message, setMessage] = useState<string>("");
-	const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+	const [previewMedia, setPreviewMedia] = useState<{type: string, url: string}[]>([]);
 	const [images, setImages] = useState<File[]>([]);
 
 	const { handleError } = useHandleError("Send Chat");
@@ -44,7 +44,7 @@ const useChat = (
 			await sendChatInProject(projectId, jsonToFormData({ message, images }));
 			setMessage("");
 			setImages([]);
-			setPreviewUrls([]);
+			setPreviewMedia([]);
 		} catch (error) {
 			handleError(error);
 		} finally {
@@ -58,11 +58,10 @@ const useChat = (
 		loading,
 		message,
 		setMessage,
-		previewUrls,
-		setPreviewUrls,
+		previewMedia,
+		setPreviewMedia,
 		images,
 		setImages,
 	}
 }
 
-export default useChat

@@ -4,7 +4,7 @@ import { UmojaLinnUser } from "@/types/user";
 import Image from "next/image";
 import React from "react";
 import { MilestoneStatus, MilestoneTimelineItem } from "./Timeline";
-import { cn, normaliseLink } from "@/lib/utils";
+import { cn, isVideoLink, normaliseLink } from "@/lib/utils";
 import { Link2, Locate, MapPin, Truck } from "lucide-react";
 // import {
 //   Dialog,
@@ -163,6 +163,7 @@ const MilestoneSubmissionsPreview = (
                   images={submission.images?.map?.((image, i) => ({
                     imageUrl: image.url,
                     // title: image.meta.fileName,
+                    type: isVideoLink(image.url) ? "video" : "image",
                     id: `Review-${i}`,
                   }))}
                 />

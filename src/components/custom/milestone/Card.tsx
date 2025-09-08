@@ -162,7 +162,7 @@ const MileStoneCard = (props: MileStoneCardProps) => {
       price={view ? price : editedValues.price}
       onPriceChange={handleEdit("price")}
       view={view}
-      label="Payment"
+      label="Milestone Payment"
     />
   );
 

@@ -26,6 +26,7 @@ type GalleryImagesProps = {
     imageUrl: string;
     title: string;
     isCoverImage: boolean;
+    type?: "image" | "video";
 } & UmojaLinnTimestamp)>[]
 };
 
@@ -91,13 +92,20 @@ const GalleryImages = (props: GalleryImagesProps) => {
               onClick={() => setActiveImage(i)}
               className={cn("relative my-2 border border-gray-200", wrapperClassName)}
             >
-              <Image
-                alt={gallery.title || ""}
-                src={gallery.imageUrl || fallback || "/img/svg/null.svg"}
-                className="shrink-0 object-cover absolute"
-                fill
-              />
-             {gallery.title && ( 
+              {gallery.type === "video" ?
+                <video
+                  height={height}
+                  src={gallery.imageUrl || fallback || "/img/svg/null.svg"}
+                  className="shrink-0 object-cover w-full h-full"
+                />
+                : <Image
+                  alt={gallery.title || ""}
+                  src={gallery.imageUrl || fallback || "/img/svg/null.svg"}
+                  className="shrink-0 object-cover absolute"
+                  fill
+                />
+              }
+              {gallery.title && ( 
                 <p
                   className={cn(
                     "absolute bottom-0 px-4 py-2 max-h-full overflow-scroll text-foreground w-full backdrop-blur-md bg-white/30 border-t-1 border-white/50 truncate",
@@ -122,17 +130,26 @@ const GalleryImages = (props: GalleryImagesProps) => {
               {images?.map((gallery, i) => (
                 <div key={(gallery.id||'')+i} className="relative h-[65vh] md:h-[76vh]">
                   <div className="relative h-[50vh] md:h-[68vh] translate-y-[6vh] md:translate-y-0">
-                    <Image
-                      src={
-                        gallery.imageUrl ||
-                        fallback ||
-                        "/img/svg/null.svg"
-                      }
-                      className="object-contain"
-                      fill
-                      objectFit="contain"
-                      alt={gallery.title || `Image ${gallery.id}`}
-                    />
+
+                    {gallery.type === "video" ?
+                      <video
+                        controls
+                        autoPlay
+                        src={gallery.imageUrl || fallback || "/img/svg/null.svg"}
+                        className="shrink-0 object-cover w-full h-full"
+                      />
+                      : <Image
+                          src={
+                            gallery.imageUrl ||
+                            fallback ||
+                            "/img/svg/null.svg"
+                          }
+                          className="object-contain"
+                          fill
+                          objectFit="contain"
+                          alt={gallery.title || `Image ${gallery.id}`}
+                        />
+                    }
                   </div>
                   {gallery.title && (
                     <div 

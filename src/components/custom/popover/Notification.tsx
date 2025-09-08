@@ -95,8 +95,8 @@ const NotificationPopover = () => {
 								</div>
 							)}
 						<div className="flex flex-col max-h-[70vh] overflow-scroll">
-							{allNotifications?.map((notification) => (
-								<React.Fragment key={notification?.id}>
+							{allNotifications?.map((notification, i) => (
+								<React.Fragment key={notification?.id + i}>
 									<PopoverClose
 										asChild
 										onClick={() => setOpen(false)}
