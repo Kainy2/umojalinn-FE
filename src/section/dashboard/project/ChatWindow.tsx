@@ -11,7 +11,7 @@ import { ImageIcon, X } from "lucide-react";
 import useFilePicker, { useFileSizeError } from "@/hooks/useFilePicker";
 import Image from "next/image";
 import { MAX_FILE_SIZE_FOR_FILE_UPLOAD } from "@/constant";
-import useChat from "@/hooks/use-chat";
+import { useChat } from "@/hooks/use-chat";
 
 type ChatWindowProps = {
   projectId: string;
@@ -31,10 +31,13 @@ const ChatWindow = (props: ChatWindowProps) => {
       } else if (file instanceof File) {
         files = [...files, file];
       }
-      setPreviewUrls(
+      setPreviewMedia(
         files
-          .map((file) => fileToPreviewUrl(file))
-          .filter((url): url is string => url !== null),
+          .map((file) => ({
+            type: file.type,
+            url: fileToPreviewUrl(file) ?? ''
+          }))
+          .filter((media) => media.url !== null),
       );
       setImages(files);
     },
@@ -49,8 +52,8 @@ const ChatWindow = (props: ChatWindowProps) => {
 		loading,
 		message,
 		setMessage,
-		previewUrls,
-		setPreviewUrls,
+		previewMedia,
+		setPreviewMedia,
 		images,
 		setImages,
   } = useChat(props.projectId);
@@ -111,28 +114,39 @@ const ChatWindow = (props: ChatWindowProps) => {
           }}
         />
         <div className="flex flex-wrap gap-4">
-          {previewUrls.map((previewUrl, i) => (
-            <span className="relative" key={previewUrl + i}>
-              <Image
-                height={50}
-                width={50}
-                src={previewUrl}
-                alt=""
-                className="size-14 object-cover rounded"
-              />
-              <button
-                onClick={() => {
-                  setPreviewUrls((prev) =>
-                    prev.filter((_, index) => index !== i),
-                  );
-                  setImages((prev) => prev.filter((_, index) => index !== i));
-                }}
-                className="flex items-center justify-center size-5 [&>svg]:size-3 text-white bg-error absolute -top-2.5 -right-2.5 rounded-full"
-              >
-                <X />
-              </button>
-            </span>
-          ))}
+          {previewMedia.map(({type, url:previewUrl}, i) => {
+            if (!previewUrl) return null
+            return (
+              <span className="relative" key={previewUrl + i}>
+                {type.includes("video") ? (
+                  <video
+                    // autoPlay
+                    // muted
+                    height={50}
+                    width={50}
+                    src={previewUrl}
+                    className="size-14 object-cover rounded" />
+                ) : (
+                  <Image
+                    height={50}
+                    width={50}
+                    src={previewUrl}
+                    alt="upload preview"
+                    className="size-14 object-cover rounded" />
+                )}
+                <button
+                  onClick={() => {
+                    setPreviewMedia((prev) => prev.filter((_, index) => index !== i)
+                    );
+                    setImages((prev) => prev.filter((_, index) => index !== i));
+                  } }
+                  className="flex items-center justify-center size-5 [&>svg]:size-3 text-white bg-error absolute -top-2.5 -right-2.5 rounded-full"
+                >
+                  <X />
+                </button>
+              </span>
+            );
+          })}
         </div>
 
         <div className="flex gap-4 justify-end items-center">

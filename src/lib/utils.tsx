@@ -5,6 +5,32 @@ import { PhoneNumberUtil } from "google-libphonenumber";
 import { ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
 
+const allVideoTypes = [
+  "mp4",
+  "m4v",
+  "mov",
+  "wmv",
+  "avi",
+  "flv",
+  "f4v",
+  "webm",
+  "mkv",
+  "3gp",
+  "3g2",
+  "ogv",
+  "mpg",
+  "mpeg",
+  "ts",
+  "m2ts",
+  "vob",
+  "rm",
+  "rmvb",
+  "divx",
+  "asf",
+  "mxf"
+];
+
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -256,6 +282,12 @@ export const isLinks = (message: string) => {
 export const normaliseLink = (url: string) => {
   if (!url) return "#";
   return url.startsWith("http://") || url.startsWith("https://") ? url : `https://${url}`
+}
+
+export const isVideoLink = (url: string) => {
+  const urlArr = url.split(".");
+  const lastInUrlArr = urlArr[urlArr.length - 1];
+  return allVideoTypes.includes(lastInUrlArr)
 }
 
 export const formatMessageWithLinks = (rawMessage: string) => {

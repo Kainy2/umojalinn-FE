@@ -1,7 +1,7 @@
 "use client";
 
 import { categorizeDate } from "@/lib/date";
-import { cn, formatMessageWithLinks, normaliseLink } from "@/lib/utils";
+import { cn, formatMessageWithLinks, isVideoLink, normaliseLink } from "@/lib/utils";
 import { UmojaLinnChat } from "@/types/project";
 import { formatDate } from "date-fns";
 import {  User, X, Check, Link2 } from "lucide-react";
@@ -18,7 +18,7 @@ const ChatBubble = (props: UmojaLinnChat) => {
   const {message, urlCount} = formatMessageWithLinks(rawMessage ?? ""); 
   const isOnlyUrl = urlCount === 1 && rawMessage?.split(" ").length === 1;
   
-
+  const isVideo = isVideoLink(imageUrl || "");
   if (!session?.user?.id) return;
 
   if (type === "NOTIFICATION") {
@@ -45,11 +45,11 @@ const ChatBubble = (props: UmojaLinnChat) => {
 
   if (isMe) {
     return imageUrl || !isOnlyUrl  ? (
-      <div className="flex justify-end">
-        <div className="max-w-[70%] min-w-12">
-          <div className="flex justify-between gap-4  text-foreground-body mb-1">
+      <div className="flex justify-end ">
+        <div className=" max-w-[70%] min-w-12">
+          <div className="flex justify-between gap-4 items-end text-foreground-body mb-1">
             <p className="font-semibold">You</p>
-            <p>
+            <p className="text-xs font-medium italic mb-0.5 text-end">
               {categorizeDate(createdAt) === "Today"
                 ? ""
                 : formatDate(createdAt, "dd/MM/yy, ")}
@@ -75,18 +75,25 @@ const ChatBubble = (props: UmojaLinnChat) => {
               className="w-full text-foreground-body border border-gray-200 rounded-md py-2.5 pr-4 rounded-tr-none flex gap-4 items"
             >
               <span className="icon-wrapper primary ">
-                <Image
-                  src={imageUrl}
-                  alt=""
-                  height={100}
-                  width={100}
-                  className="rounded-lg shrink-0 object-cover size-8"
-                />
+              {isVideo ? (
+								<video
+									src={imageUrl}
+									className="rounded-lg shrink-0 object-cover size-8"
+								/>
+							) : (
+								<Image
+									src={imageUrl}
+									alt=""
+									height={100}
+									width={100}
+									className="rounded-lg shrink-0 object-cover size-8"
+								/>
+							)}
               </span>
               <span>
                 <span className="font-semibold block">
                   {/* {imageMeta?.fileName || "No filename"} */}
-                  Image
+                  {isVideo ? "Video" : "Image"}
                 </span>
                 <span>{imageMeta?.fileSize || "Unknown size"}</span>
               </span>
@@ -96,9 +103,9 @@ const ChatBubble = (props: UmojaLinnChat) => {
       </div>
     ): (
       <a target='_blank' rel="noopener noreferrer" href={normaliseLink(rawMessage)} className="text-foreground-body rounded-md gap-4 my-2 self-end max-w-[70%] min-w-12">
-         <div className="flex justify-between gap-4  text-foreground-body mb-1">
+         <div className="flex justify-between gap-4 items-end text-foreground-body mb-1">
             <p className="font-semibold">You</p>
-            <p>
+            <p className="text-xs font-medium italic mb-0.5 text-end">
               {categorizeDate(createdAt) === "Today"
                 ? ""
                 : formatDate(createdAt, "dd/MM/yy, ")}
@@ -117,8 +124,10 @@ const ChatBubble = (props: UmojaLinnChat) => {
     )
   }
 
+
+  // Received message
   return imageUrl || !isOnlyUrl ? (
-    <div className="flex gap-4 items-start max-w-[70%]">
+    <div className="flex gap-4 items-start w-fit min-w-12 max-w-[70%]">
       {user?.profilePhotoUri ? (
         <Image
           src={user?.profilePhotoUri}
@@ -133,11 +142,11 @@ const ChatBubble = (props: UmojaLinnChat) => {
         </div>
       )}
       <div className="w-full flex-1">
-        <div className="flex justify-between gap-4 text-foreground-body mb-1">
+        <div className="flex justify-between gap-4 items-end text-foreground-body mb-1">
           <p className="font-semibold">
             {user?.firstName} {user?.lastName}
           </p>
-          <p>
+          <p className="text-xs font-medium italic mb-0.5 text-end">
             {categorizeDate(createdAt) === "Today"
               ? ""
               : formatDate(createdAt, "dd/MM/yy, ")}
@@ -163,18 +172,25 @@ const ChatBubble = (props: UmojaLinnChat) => {
             className="w-full text-foreground-body border border-gray-200 rounded-md py-2.5 px-4 rounded-tl-none flex gap-4 items"
           >
             <span className="icon-wrapper primary ">
-              <Image
-                src={imageUrl}
-                alt=""
-                height={100}
-                width={100}
-                className="rounded-lg shrink-0 object-cover size-8"
-              />
+             {isVideo ? (
+								<video
+									src={imageUrl}
+									className="rounded-lg shrink-0 object-cover size-8"
+								/>
+							) : (
+								<Image
+									src={imageUrl}
+									alt=""
+									height={100}
+									width={100}
+									className="rounded-lg shrink-0 object-cover size-8"
+								/>
+							)}
             </span>
             <span>
               <span className="font-semibold block">
                 {/* {imageMeta?.fileName || "No filename"} */}
-                Image
+                {isVideo ? "Video" : "Image"}
               </span>
               <span>{imageMeta?.fileSize || "Unknown size"}</span>
             </span>
@@ -201,7 +217,7 @@ const ChatBubble = (props: UmojaLinnChat) => {
         <a target='_blank' rel="noopener noreferrer" href={normaliseLink(rawMessage)} className="flex-1 w-full rounded-md text-foreground-body gap-4 my-2 self-start justify-end ">
           <div className="flex justify-between gap-4  text-foreground-body mb-1">
             <p className="font-semibold">{user?.firstName} {user?.lastName}</p>
-            <p>
+            <p className="text-xs font-medium italic mb-0.5 text-end">
               {categorizeDate(createdAt) === "Today"
                 ? ""
                 : formatDate(createdAt, "dd/MM/yy, ")}

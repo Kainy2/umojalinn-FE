@@ -1,7 +1,7 @@
 "use client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { categorizeDate } from "@/lib/date";
-import { cn } from "@/lib/utils";
+import { cn, isVideoLink } from "@/lib/utils";
 import { useGetProjectMediaAndlinks } from "@/tanstack/hooks/useProject";
 import { Link2 } from "lucide-react";
 import Image from "next/image";
@@ -32,40 +32,48 @@ const ActiveProjectMediaAndLinksPage = () => {
 
   return (
     <div className="flex flex-col text-foreground-body gap-4">
-      {mediaAndLinks?.map((value, index) => (
-        <div key={index}>
-          {index === 0 ||
-            (categorizeDate(value?.createdAt) !==
-              categorizeDate(mediaAndLinks?.[index - 1]?.createdAt) && (
-              <p className="font-semibold mb-2">
-                {categorizeDate(value?.createdAt)}
-              </p>
-            ))}
-          <a
-            href={value?.url}
-            download={value?.type === "media"}
-            target="_blank"
-            className={cn(
-              "flex gap-2 items-center border border-border/20 bg-gray-50",
-              value?.type === "media" && "bg-slate-50"
-            )}
-          >
-            <span className="icon-wrapper warning">
-              {value?.type === "media" && (
-                  <Image
-                    src={value.url}
-                    alt=""
-                    height={100}
-                    width={100}
-                    className="rounded-lg shrink-0 object-cover size-8"
-                  />
-                )}              
-              {value?.type === "link" && <Link2 />}
-            </span>
-            <p>{value?.type === "media" ? value.meta.fileName : value.url}</p>
-          </a>
-        </div>
-      ))}
+      {mediaAndLinks?.map((value, index) => {
+        const isVideo = isVideoLink(value?.url);
+        
+        return (
+          <div key={index}>
+            {index === 0 ||
+              (categorizeDate(value?.createdAt) !==
+                categorizeDate(mediaAndLinks?.[index - 1]?.createdAt) && (
+                  <p className="font-semibold mb-2">
+                    {categorizeDate(value?.createdAt)}
+                  </p>
+                ))}
+            <a
+              href={value?.url}
+              download={value?.type === "media"}
+              target="_blank"
+              className={cn(
+                "flex gap-2 items-center border border-border/20 bg-gray-50",
+                value?.type === "media" && "bg-slate-50"
+              )}
+            >
+              <span className="icon-wrapper warning">
+                {value?.type === "media" &&
+                  (isVideo ? (
+                    <video
+                      src={value.url}
+                      className="rounded-lg shrink-0 object-cover size-8" />
+                  ) : (
+                    <Image
+                      src={value.url}
+                      alt=""
+                      height={100}
+                      width={100}
+                      className="rounded-lg shrink-0 object-cover size-8" />
+                  ))}
+                {value?.type === "link" && <Link2 />}
+              </span>
+              <p>{value?.type === "media" ? value.meta.fileName : value.url}</p>
+            </a>
+          </div>
+        );
+      })}
     </div>
   );
 };
