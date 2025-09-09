@@ -136,7 +136,7 @@ const GalleryImages = (props: GalleryImagesProps) => {
                         controls
                         autoPlay
                         src={gallery.imageUrl || fallback || "/img/svg/null.svg"}
-                        className="shrink-0 object-cover w-full h-full"
+                        className="shrink-0 object-contain w-full h-full"
                       />
                       : <Image
                           src={
