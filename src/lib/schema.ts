@@ -158,7 +158,22 @@ export const updateProfileSchema = z.object({
   //     }),
   //   )
   //   .optional(),
-  phoneNumber: z.string().min(10, "Invalid phone number").optional(),
+  phoneNumber: z.string()
+    .transform(val => (val.trim().length < 5 ? undefined : val)) // <5 → undefined
+    .optional()
+    .refine(
+      val => val === undefined || val.length >= 12,
+      "Invalid phone number"
+    )
+    // .superRefine((val, ctx) => {
+    //   if (val !== undefined && val.length < 12) {
+    //     ctx.addIssue({
+    //       code: z.ZodIssueCode.custom,
+    //       message: "Invalid phone number", // your message
+    //     });
+    //   }
+    // })
+    ,
   country: z.string().min(1, "Country is required").optional(),
   state: z.string().min(1, "State is required").optional(),
   city: z.string().min(1, "City is required").optional(),
