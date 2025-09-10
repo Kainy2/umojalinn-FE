@@ -1,18 +1,16 @@
 "use client";
-import React from "react";
 import VerifyDialog, { VerifyDialogProps } from "./Verify";
 import Alert, { AlertProps } from "../Alert";
 import FileUploadPicker from "../picker/FileUpload";
 import TextAreaField from "../input/TextAreaField";
 import RatingStar from "@/icons/RatingStar";
-import useFilePicker, { useFileSizeError } from "@/hooks/useFilePicker";
-import { useImagePreviewUrls } from "@/hooks/useImagePreviewUrls";
 import Image from "next/image";
 import { PlusCircle, Trash2 } from "lucide-react";
 import { useAddProjectReview } from "@/tanstack/hooks/useProject";
-import { cn, jsonToFormData, mergeFiles, removeFileFromFileList } from "@/lib/utils";
+import { cn, jsonToFormData, removeFileFromFileList } from "@/lib/utils";
 import { useSession } from "next-auth/react";
-import { MAX_FILE_SIZE_FOR_FILE_UPLOAD } from "@/constant";
+import useNewFilePicker from "@/hooks/useNewFilePicker";
+import { useState } from "react";
 
 type CustomReviewDialogProps = Partial<VerifyDialogProps> & {
   alert?: AlertProps;
@@ -76,24 +74,33 @@ const ReviewDialog = (props: CustomReviewDialogProps) => {
     ...verifyDialogProps
   } = props;
 
-  const [rating, setRating] = React.useState<number>(1);
-  const [message, setMessage] = React.useState<string>("");
-  const [images, setImages] = React.useState<FileList | null>(null);
-
+  const [rating, setRating] = useState<number>(1);
+  const [message, setMessage] = useState<string>("");
   const hasFile = reviewType === "CLOTHING_QUALITY";
-  const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD);
-  const { previewUrls, getPreview } = useImagePreviewUrls();
-    const { Input, onClick } = useFilePicker({
-    onSelect: (files) => {
-      if (!files) return;
-      const combinedFiles = mergeFiles(images, files);
+  
+  // const [images, setImages] = React.useState<FileList | null>(null);
+  // const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD);
+  // const { previewUrls, getPreview } = useImagePreviewUrls();
+  //   const { Input, onClick } = useFilePicker({
+  //   onSelect: (files) => {
+  //     if (!files) return;
+  //     const combinedFiles = mergeFiles(images, files);
 
-      setImages(combinedFiles);
-      getPreview(combinedFiles);
-    },
-    accept: 'image/*,video/*',
-    multiple: true,
-  });
+  //     setImages(combinedFiles);
+  //     getPreview(combinedFiles);
+  //   },
+  //   accept: 'image/*,video/*',
+  //   multiple: true,
+  // });
+  const { 
+    Input, 
+    onClick, 
+    images, 
+    setImages, 
+    previewMedia,
+    setPreviewMedia,
+    isFileSizeValid
+  } = useNewFilePicker()
 
   const { data: session } = useSession();
 
@@ -144,25 +151,40 @@ const ReviewDialog = (props: CustomReviewDialogProps) => {
 
   const fileComponent =
     hasFile &&
-    (images && previewUrls?.length ? (
+    (images && previewMedia?.length ? (
       <div className="flex flex-wrap gap-4">
-        {previewUrls.map((url, index) => (
+        {previewMedia.map(({ url, type}, index) => (
           <div key={url} className="relative">
-            <Image
-              alt=""
-              key={url}
-              src={url}
-              height={150}
-              width={150}
-              className="object-cover rounded-md"
-            />
+            {type?.includes("video") ? (
+                <video
+                  controls
+                  src={url}
+                  height={150}
+                  width={150}
+                  className="object-cover rounded-md"
+                />
+              ) : (
+                <Image
+                  alt=""
+                  key={url}
+                  src={url}
+                  height={150}
+                  width={150}
+                  className="object-cover rounded-md"
+                />
+              )}
             <button
               onClick={() => {
                 setImages(prev => {
                   if (!prev?.length) return null;
                   const updatedFiles = removeFileFromFileList(prev, index);
 
-                  getPreview(updatedFiles);
+                  setPreviewMedia(
+                  Array.from(updatedFiles).map((file) => ({
+                    type: file.type,
+                    url: URL.createObjectURL(file),
+                  }))
+                );
                   return updatedFiles;
                 });
               }}
@@ -189,7 +211,12 @@ const ReviewDialog = (props: CustomReviewDialogProps) => {
           const typedFile = files as FileList;
           if (isFileSizeValid(typedFile)) {
             setImages(typedFile);
-            getPreview(typedFile);
+            setPreviewMedia(
+            Array.from(typedFile).map((file) => ({
+              type: file.type,
+              url: URL.createObjectURL(file),
+            }))
+          );
           }
         }}
       />

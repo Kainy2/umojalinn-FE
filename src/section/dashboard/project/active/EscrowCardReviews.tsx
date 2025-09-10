@@ -9,6 +9,7 @@ import { UmojaLinnMilestone, UmojaLinnProject } from "@/types/project";
 import { CircleAlert } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import { isVideoLink } from '@/lib/utils';
 
 
 type EscrowReviewProps = {
@@ -142,6 +143,7 @@ const EscrowCardReviews = (props: EscrowReviewProps) => {
 									images={review.images?.map?.((image, i) => ({
 										imageUrl: image,
 										// title: `Review-${i}`,
+										type: isVideoLink(image) ? "video" : "image",
 										id: `Review-${i}`,
 									}))}
 								/>

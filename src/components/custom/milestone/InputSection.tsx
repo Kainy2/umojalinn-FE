@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import TextField from "../input/TextField";
 import FileUploadPicker from "../picker/FileUpload";
 import { MilestoneStatus, MilestoneTimelineItem } from "./Timeline";
@@ -14,11 +14,8 @@ import TextAreaField from "../input/TextAreaField";
 import CustomSelectCountry from "../SelectCountry";
 import { useGetMilestoneSubmissions } from "@/tanstack/hooks/useProject";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  // fileToPreviewUrl, 
-  mergeFiles, removeFileFromFileList } from "@/lib/utils";
-import useFilePicker, { useFileSizeError } from "@/hooks/useFilePicker";
-import { MAX_FILE_SIZE_FOR_FILE_UPLOAD } from "@/constant";
+import {  removeFileFromFileList } from "@/lib/utils";
+import useNewFilePicker from "@/hooks/useNewFilePicker";
 
 type MilestoneInputSectionProps = {
   id?: string;
@@ -46,27 +43,39 @@ const MilestoneInputSectionImageUpload = (
   }
 ) => {
   
-  const [previewMedia, setPreviewMedia] = useState<{type: string, url: string}[]>([]);
+  // const [previewMedia, setPreviewMedia] = useState<{type: string, url: string}[]>([]);
   
-  const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD);
-  // const { previewUrls, getPreview } = useImagePreviewUrls();
-  const { Input, onClick } = useFilePicker({
-    onSelect: (files) => {
-      if (!files) return;
-      if (!isFileSizeValid(files)) return;
-      const combinedFiles = mergeFiles(props?.files, files);
+  // const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD);
+  // // const { previewUrls, getPreview } = useImagePreviewUrls();
+  // const { Input, onClick } = useFilePicker({
+  //   onSelect: (files) => {
+  //     if (!files) return;
+  //     if (!isFileSizeValid(files)) return;
+  //     const combinedFiles = mergeFiles(props?.files, files);
 
+  //     props?.onFilesChange?.(combinedFiles);
+  //     setPreviewMedia(
+  //       Array.from(combinedFiles).map((file) => ({
+  //         type: file.type,
+  //         url: URL.createObjectURL(file),
+  //       }))
+  //     );
+  //   },
+  //   accept: 'image/*,video/*',
+  //   multiple: true,
+  // });
+
+    const { 
+    Input, 
+    onClick, 
+    previewMedia,
+    setPreviewMedia,
+    isFileSizeValid
+  } = useNewFilePicker({
+    onSelect:(combinedFiles) => {
       props?.onFilesChange?.(combinedFiles);
-      setPreviewMedia(
-        Array.from(combinedFiles).map((file) => ({
-          type: file.type,
-          url: URL.createObjectURL(file),
-        }))
-      );
     },
-    accept: 'image/*,video/*',
-    multiple: true,
-  });
+  })
 
   if (props?.files?.length) {
     return (
@@ -96,8 +105,6 @@ const MilestoneInputSectionImageUpload = (
 
             {type.includes("video") ? (
               <video
-                // autoPlay
-                // muted
                 height={50}
                 width={50}
                 src={url}
@@ -132,6 +139,8 @@ const MilestoneInputSectionImageUpload = (
       multiple
       onSelect={(files) => {
         if (files && files instanceof FileList) {
+          if (!isFileSizeValid(files)) return;
+
           props?.onFilesChange?.(files);
           setPreviewMedia(
             Array.from(files).map((file) => ({
