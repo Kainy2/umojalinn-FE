@@ -20,7 +20,7 @@ const Layout = ({ children }: LayoutProps) => {
 		<>
 			<ActiveProjectSummary isDesigner />
 
-			<div className='md:hidden'>
+      <div className='md:hidden -mt-8'>
 				{!isLoadingProject && (
 					<EscrowCardReviews
 						projectId={projectData?.data?.data?.id}

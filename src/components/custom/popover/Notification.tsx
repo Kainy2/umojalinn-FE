@@ -48,15 +48,9 @@ const NotificationPopover = () => {
 
 	const unreadNotifications = useMemo(() => {
 		return allNotifications?.filter?.(
-			(notification) => (!notification?.isRead || !notification.id)
+			(notification) => (!notification?.isRead && notification.id)
 		);
 	}, [allNotifications]);
-
-	// useEffect(() => {
-	// 	if (unreadNotifications?.length) {
-	// 		setOpen(true);
-	// 	}
-	// }, [unreadNotifications]);
 
 	useEffect(() => {
 		if (open && unreadNotifications?.length) {			
@@ -74,7 +68,7 @@ const NotificationPopover = () => {
 					<span className="relative">
 						<Bell className="icon-base" />
 						{!!unreadNotifications?.length && (
-							<span className="size-3 bg-success animate-ping absolute top-0 right-0 border border-white rounded-full" />
+							<span className="size-2.5 bg-success animate-ping absolute top-0 right-0 border border-white rounded-full" />
 						)}
 					</span>
 				</Button>

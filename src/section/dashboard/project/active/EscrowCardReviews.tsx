@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import Alert from "@/components/custom/Alert";
 import ReviewDialog, {
   ReviewRatingStars,
@@ -9,7 +9,7 @@ import { UmojaLinnMilestone, UmojaLinnProject } from "@/types/project";
 import { CircleAlert } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { isVideoLink } from '@/lib/utils';
+import { cn, isVideoLink } from '@/lib/utils';
 
 
 type EscrowReviewProps = {
@@ -42,10 +42,20 @@ const EscrowCardReviews = (props: EscrowReviewProps) => {
 		);
 	
 		const hasAllMilestoneCompleted = !isIncompleteMilestone;
-		
+		const allReviews = useMemo(() => props.reviews?.filter(review=>{
+			const isDesigner = session?.user?.profileRole === "DESIGNER";
+			if (isDesigner && review?.buyerId && !props?.project?.showDesignerReviews) return false;
+			if (!isDesigner && review?.designerId && !props?.project?.showBuyerReviews) return false;
+		}),[props.reviews, session?.user?.profileRole, props?.project?.showDesignerReviews, props?.project?.showBuyerReviews]);
+
+
+
 	return (
-			<div className="flex flex-col gap-8 text-sm mt-8 md:mt-0">
-				{props.reviews?.map?.((review) => {
+			<div className={cn(
+				"flex flex-col gap-8 text-sm md:mt-0",
+				allReviews?.length && "mt-8"
+			)}>
+				{allReviews?.map?.((review) => {
 					const isDesigner = session?.user?.profileRole === "DESIGNER";
 
 					if (isDesigner && review?.buyerId && !props?.project?.showDesignerReviews) return null;
