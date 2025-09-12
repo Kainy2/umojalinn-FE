@@ -48,15 +48,9 @@ const NotificationPopover = () => {
 
 	const unreadNotifications = useMemo(() => {
 		return allNotifications?.filter?.(
-			(notification) => (!notification?.isRead || !notification.id)
+			(notification) => (!notification?.isRead && notification.id)
 		);
 	}, [allNotifications]);
-
-	// useEffect(() => {
-	// 	if (unreadNotifications?.length) {
-	// 		setOpen(true);
-	// 	}
-	// }, [unreadNotifications]);
 
 	useEffect(() => {
 		if (open && unreadNotifications?.length) {			
