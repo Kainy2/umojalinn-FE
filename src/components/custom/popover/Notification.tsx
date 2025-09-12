@@ -74,7 +74,7 @@ const NotificationPopover = () => {
 					<span className="relative">
 						<Bell className="icon-base" />
 						{!!unreadNotifications?.length && (
-							<span className="size-3 bg-success animate-ping absolute top-0 right-0 border border-white rounded-full" />
+							<span className="size-2.5 bg-success animate-ping absolute top-0 right-0 border border-white rounded-full" />
 						)}
 					</span>
 				</Button>
