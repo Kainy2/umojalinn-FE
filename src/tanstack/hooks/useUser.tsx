@@ -19,7 +19,7 @@ import axios from "axios";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { ME, NOTIFICATION, USER } from "../keys";
-import { getNotifications, markNotificationAsRead } from "@/actions/project";
+import { getNotifications, markAllNotificationsAsRead, markNotificationAsRead } from "@/actions/project";
 import useHandleError from "@/hooks/useHandleError";
 import { NotificationSettingsProps, PasswordUpdateProps } from "@/types/form";
 import { logOut } from "@/lib/auth";
@@ -74,6 +74,19 @@ export const useMarkNotificationAsRead = (
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: [NOTIFICATION] });
       options?.onSuccess?.(data, variables, context);
+    },
+  });
+};
+
+export const useMarkAllNotificationsAsRead = (
+  // options?: GenericUseMutationProps<SingleApiResponse, { ids: string[]; }>,
+) => {
+  return useMutation({
+    // ...options,
+    mutationFn: markAllNotificationsAsRead,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [NOTIFICATION] });
+      // options?.onSuccess?.(data, variables, context);
     },
   });
 };

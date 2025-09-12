@@ -452,6 +452,21 @@ export const markNotificationAsRead = async (
   );
 };
 
+export const markAllNotificationsAsRead = async (
+  body: { ids: string[]; },
+  options?: ServerActionOption
+) => {
+  const axios = await getAxiosToBeUsed({
+    body,
+    isServerAction: options?.isServerAction
+  })
+
+  return axios.put<unknown, AxiosResponse<SingleApiResponse>>(
+    `/notification/mark-as-read`,
+    body
+  );
+};
+
 export const getNotifications = async (lastId?: string, options?: ServerActionOption) => {
   let axios = clientAxios;
   if (options?.isServerAction) {

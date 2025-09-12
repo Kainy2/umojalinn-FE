@@ -10,12 +10,14 @@ import {
 import { PopoverClose } from "@radix-ui/react-popover";
 import { Bell, X } from "lucide-react";
 import React, { 
+	useEffect,
 	// useEffect,
 	 useMemo, useState } from "react";
 import NotificationCard from "../card/Notification";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { useGetFirebaseNotifications } from "@/hooks/use-get-firebase-notification";
+import { useMarkAllNotificationsAsRead } from "@/tanstack/hooks/useUser";
 
 const NotificationPopover = () => {
 	const [open, setOpen] = useState(false);
@@ -40,21 +42,30 @@ const NotificationPopover = () => {
 		data: allNotifications,
 		// handleRead
 	} = useGetFirebaseNotifications();
+		const { mutate: markAllNotificationsRead } = useMarkAllNotificationsAsRead();
 	
 	const loadingNotification = false
 
 	const unreadNotifications = useMemo(() => {
 		return allNotifications?.filter?.(
-			(notification) => !notification?.isRead
+			(notification) => (!notification?.isRead || !notification.id)
 		);
 	}, [allNotifications]);
 
 	// useEffect(() => {
 	// 	if (unreadNotifications?.length) {
-	// 		handleRead();
 	// 		setOpen(true);
 	// 	}
-	// }, [unreadNotifications, handleRead]);
+	// }, [unreadNotifications]);
+
+	useEffect(() => {
+		if (open && unreadNotifications?.length) {			
+			markAllNotificationsRead({
+				ids: unreadNotifications
+				.map((notification) => notification.id)
+			});
+		}
+	}, [open, unreadNotifications, markAllNotificationsRead]);
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
@@ -63,7 +74,7 @@ const NotificationPopover = () => {
 					<span className="relative">
 						<Bell className="icon-base" />
 						{!!unreadNotifications?.length && (
-							<span className="size-2.5 bg-success absolute top-0 right-0 border border-white rounded-full" />
+							<span className="size-3 bg-success animate-ping absolute top-0 right-0 border border-white rounded-full" />
 						)}
 					</span>
 				</Button>
