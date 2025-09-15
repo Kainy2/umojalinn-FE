@@ -49,118 +49,106 @@ const EscrowCardReviews = (props: EscrowReviewProps) => {
 		}),[props.reviews, session?.user?.profileRole, props?.project?.showDesignerReviews, props?.project?.showBuyerReviews]);
 
 
-
 	return (
 			<div className={cn(
 				"flex flex-col gap-8 text-sm md:mt-0",
 				allReviews?.length && "mt-8"
 			)}>
-				{allReviews?.map?.((review) => {
-					const isDesigner = session?.user?.profileRole === "DESIGNER";
-
-					if (isDesigner && review?.buyerId && !props?.project?.showDesignerReviews) return null;
-					if (!isDesigner && review?.designerId && !props?.project?.showBuyerReviews) return null;
-
-					return (
-						<div
-							key={review?.id}
-							className="text-foreground-body flex flex-col gap-2"
-						>
-							{review?.reviewType === "EXPERIENCE" &&
-								((review?.buyerId && session?.user?.profileRole === "BUYER") ||
+				{allReviews?.map?.((review) => (
+					<div
+						key={review?.id}
+						className="text-foreground-body flex flex-col gap-2"
+					>
+						{review?.reviewType === "EXPERIENCE" &&
+							((review?.buyerId && session?.user?.profileRole === "BUYER") ||
 								(review?.designerId &&
 									session?.user?.profileRole === "DESIGNER") ? (
-									<p>Your Experience Feedback</p>
-								) : (
-									<div className="">
-										<div className="flex items-center gap-2 mb-4">
-											<Image
-												src={
-													review?.buyer?.user?.profilePhotoUri ||
-													review?.designer?.user?.profilePhotoUri ||
-													"/img/webp/user.webp"
-												}
-												alt=""
-												height={100}
-												width={100}
-												className="object-cover rounded-full aspect-square shrink-0 size-12"
-											/>
-											<h4 className="text-subtitle-2 font-semibold truncate">
-												{(review?.buyer || review?.designer)?.user?.firstName}{" "}
-												{(review?.buyer || review?.designer)?.user?.lastName}
-											</h4>
-										</div>
-										<p>
-											{review?.buyerId && "Client's"}{" "}
-											{review?.designerId && "Designer's"} Experience feedback
-										</p>
+								<p>Your Experience Feedback</p>
+							) : (
+								<div className="">
+									<div className="flex items-center gap-2 mb-4">
+										<Image
+											src={review?.buyer?.user?.profilePhotoUri ||
+												review?.designer?.user?.profilePhotoUri ||
+												"/img/webp/user.webp"}
+											alt=""
+											height={100}
+											width={100}
+											className="object-cover rounded-full aspect-square shrink-0 size-12" />
+										<h4 className="text-subtitle-2 font-semibold truncate">
+											{(review?.buyer || review?.designer)?.user?.firstName}{" "}
+											{(review?.buyer || review?.designer)?.user?.lastName}
+										</h4>
 									</div>
-								))}
-							{review?.reviewType === "CLOTHING_QUALITY" && (
-								<p>Clothing Quality feedback</p>
-							)}
-							<p className="p-2 bg-white border border-input rounded-sm text-foreground-body">
-								{review.message}
-							</p>
-							<ReviewRatingStars small rating={review.rating || 0} disabled />
-							<div className="flex gap-4 overflow-scroll">
-								<>
+									<p>
+										{review?.buyerId && "Client's"}{" "}
+										{review?.designerId && "Designer's"} Experience feedback
+									</p>
+								</div>
+							))}
+						{review?.reviewType === "CLOTHING_QUALITY" && (
+							<p>Clothing Quality feedback</p>
+						)}
+						<p className="p-2 bg-white border border-input rounded-sm text-foreground-body">
+							{review.message}
+						</p>
+						<ReviewRatingStars small rating={review.rating || 0} disabled />
+						<div className="flex gap-4 overflow-scroll">
+							<>
 								{/* <Image
-									key={image}
-									src={image}
-									alt=""
-									height={100}
-									width={100}
-									className="object-cover"
-								/> */}
+            key={image}
+            src={image}
+            alt=""
+            height={100}
+            width={100}
+            className="object-cover"
+        /> */}
 								{/* {review.images?.map?.((image, i) => (
-									<Dialog key={image}>
-									<DialogTrigger asChild>
-										<button
-											className={cn(
-												"relative w-28 h-28 rounded-md overflow-hidden"
-											)}
-										>
-											<Image
-												alt={`Review-${i}`}
-												src={image}
-												className="shrink-0 object-cover absolute"
-												fill
-											/>
-										</button>
-									</DialogTrigger>
-									<DialogContent className="h-full w-full max-w-[80vw] max-h-[80vh] p-0 border-0 bg-black/50 [&>button>svg]:text-white overflow-hidden">
-										<div className="relative">
-											<DialogTitle className="hidden">
-												Image
-											</DialogTitle>
-											<Image
-												src={image}
-												className="shrink-0 object-contain absolute"
-												fill
-												alt={`Review-${i}`}
-											/>
-										</div>
-									</DialogContent>
-								</Dialog>
-								))} */}
-								</>
+            <Dialog key={image}>
+            <DialogTrigger asChild>
+                <button
+                    className={cn(
+                        "relative w-28 h-28 rounded-md overflow-hidden"
+                    )}
+                >
+                    <Image
+                        alt={`Review-${i}`}
+                        src={image}
+                        className="shrink-0 object-cover absolute"
+                        fill
+                    />
+                </button>
+            </DialogTrigger>
+            <DialogContent className="h-full w-full max-w-[80vw] max-h-[80vh] p-0 border-0 bg-black/50 [&>button>svg]:text-white overflow-hidden">
+                <div className="relative">
+                    <DialogTitle className="hidden">
+                        Image
+                    </DialogTitle>
+                    <Image
+                        src={image}
+                        className="shrink-0 object-contain absolute"
+                        fill
+                        alt={`Review-${i}`}
+                    />
+                </div>
+            </DialogContent>
+        </Dialog>
+        ))} */}
+							</>
 
 
-								<GalleryImages
-									height={100}
-									width={100}
-									images={review.images?.map?.((image, i) => ({
-										imageUrl: image,
-										// title: `Review-${i}`,
-										type: isVideoLink(image) ? "video" : "image",
-										id: `Review-${i}`,
-									}))}
-								/>
-							</div>
+							<GalleryImages
+								height={100}
+								width={100}
+								images={review.images?.map?.((image, i) => ({
+									imageUrl: image,
+									// title: `Review-${i}`,
+									type: isVideoLink(image) ? "video" : "image",
+									id: `Review-${i}`,
+								}))} />
 						</div>
-					);
-				})}
+					</div>
+				))}
 
 				{((isBuyer && !hasBuyerDoneExperience) ||
 					(isDesigner && !hasDesignerDoneExperience)) &&
