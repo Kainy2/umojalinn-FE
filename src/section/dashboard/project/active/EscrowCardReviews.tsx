@@ -13,7 +13,7 @@ import { cn, isVideoLink } from '@/lib/utils';
 
 
 type EscrowReviewProps = {
-  reviews?: UmojaLinnProject["reviews"];
+  reviews: UmojaLinnProject["reviews"];
   projectId?: string;
   project?: UmojaLinnProject;
 	milestones: UmojaLinnMilestone[];
@@ -60,7 +60,7 @@ console.log({allReviews});
 	return (
 			<div className={cn(
 				"flex flex-col gap-8 text-sm md:mt-0",
-				allReviews?.length && "mt-8"
+				(allReviews?.length || hasAllMilestoneCompleted) && "mt-16"
 			)}>
 				{allReviews?.map?.((review) => (
 					<div
@@ -161,7 +161,7 @@ console.log({allReviews});
 				{((isBuyer && !hasBuyerDoneExperience) ||
 					(isDesigner && !hasDesignerDoneExperience)) &&
 					hasAllMilestoneCompleted && (
-						<div className="flex flex-col gap-2  text-foreground-body">
+						<div className="flex flex-col gap-2 text-foreground-body">
 							<p>Your Experience Feedback</p>
 							<Alert
 								small
