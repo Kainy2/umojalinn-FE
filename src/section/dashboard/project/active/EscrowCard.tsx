@@ -103,7 +103,7 @@ const EscrowCard = (props: EscrowCardProps) => {
         {!!props?.reviews?.length && <Separator className="my-4" />}
 
         <EscrowCardReviews
-          reviews={props.reviews}
+          reviews={props.reviews || []}
           projectId={props.projectId}
           project={props.project}
           milestones={props.milestones}

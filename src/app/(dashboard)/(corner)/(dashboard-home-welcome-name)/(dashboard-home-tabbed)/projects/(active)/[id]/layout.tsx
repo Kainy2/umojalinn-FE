@@ -19,6 +19,7 @@ const Layout = ({ children }: LayoutProps) => {
       <div className='md:hidden -mt-8'>
 				{!isLoadingProject && (
 					<EscrowCardReviews
+            reviews={projectData?.data?.data?.reviews || []}
 						projectId={projectData?.data?.data?.id}
 						milestones={projectMilestonesData?.data?.data || []}
 						project={projectData?.data?.data}
