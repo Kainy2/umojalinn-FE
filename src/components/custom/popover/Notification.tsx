@@ -100,7 +100,8 @@ const NotificationPopover = () => {
 								</div>
 							)}
 						<div className="flex flex-col max-h-[70vh] overflow-scroll">
-							{allNotifications?.toReversed().map((notification, i) => (
+							{allNotifications?.toReversed()
+							.map((notification, i) => (
 								<React.Fragment key={notification?.id + i}>
 									<PopoverClose
 										asChild
