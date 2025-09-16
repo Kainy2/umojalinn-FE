@@ -42,12 +42,20 @@ const EscrowCardReviews = (props: EscrowReviewProps) => {
 		);
 	
 		const hasAllMilestoneCompleted = !isIncompleteMilestone;
-		const allReviews = useMemo(() => props.reviews?.filter(review=>{
+		const allReviews = useMemo(() => 
+			props.reviews?.filter(review=>{
 			const isDesigner = session?.user?.profileRole === "DESIGNER";
 			if (isDesigner && review?.buyerId && !props?.project?.showDesignerReviews) return false;
 			if (!isDesigner && review?.designerId && !props?.project?.showBuyerReviews) return false;
-		}),[props.reviews, session?.user?.profileRole, props?.project?.showDesignerReviews, props?.project?.showBuyerReviews]);
+			return true
+		}),[
+			props.reviews,
+			session?.user?.profileRole,
+			props?.project?.showDesignerReviews,
+			props?.project?.showBuyerReviews,
+		]);
 
+console.log({allReviews});
 
 	return (
 			<div className={cn(
