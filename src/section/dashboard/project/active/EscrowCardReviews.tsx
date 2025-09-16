@@ -13,7 +13,7 @@ import { cn, isVideoLink } from '@/lib/utils';
 
 
 type EscrowReviewProps = {
-  reviews?: UmojaLinnProject["reviews"];
+  reviews: UmojaLinnProject["reviews"];
   projectId?: string;
   project?: UmojaLinnProject;
 	milestones: UmojaLinnMilestone[];
