@@ -24,6 +24,7 @@ const Layout = ({ children }: LayoutProps) => {
 						projectId={projectData?.data?.data?.id}
 						milestones={projectMilestonesData?.data?.data || []}
 						project={projectData?.data?.data}
+            reviews={projectData?.data?.data?.reviews || []}
 					/>
 				)}
 			</div>
