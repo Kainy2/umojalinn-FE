@@ -55,8 +55,6 @@ const EscrowCardReviews = (props: EscrowReviewProps) => {
 			props?.project?.showBuyerReviews,
 		]);
 
-console.log({allReviews});
-
 	return (
 			<div className={cn(
 				"flex flex-col gap-8 text-sm md:mt-0",
