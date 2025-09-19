@@ -1,4 +1,5 @@
 "use client";
+import { useMediaQuery } from '@/hooks/use-media-query';
 import EscrowCardReviews from '@/section/dashboard/project/active/EscrowCardReviews';
 import ActiveProjectSummary from "@/section/dashboard/project/active/Summary";
 import ActiveProjectTab from "@/section/dashboard/project/active/Tab";
@@ -8,6 +9,7 @@ import React from "react";
 
 const Layout = ({ children }: LayoutProps) => {
     const { id } = useParams<{ id: string }>();
+    const isDesktop = useMediaQuery('md');
   
     const { data: projectMilestonesData } = useGetProjectMilestones(id);
     const { data: projectData, isPending: isLoadingProject } =
@@ -18,16 +20,16 @@ const Layout = ({ children }: LayoutProps) => {
     <>
       <ActiveProjectSummary isDesigner />
 
-      <div className='md:hidden -mt-8'>
-				{!isLoadingProject && (
+      {!isLoadingProject && !isDesktop && (
+				<div className="md:hidden -mt-8">
 					<EscrowCardReviews
+						reviews={projectData?.data?.data?.reviews || []}
 						projectId={projectData?.data?.data?.id}
 						milestones={projectMilestonesData?.data?.data || []}
 						project={projectData?.data?.data}
-            reviews={projectData?.data?.data?.reviews || []}
 					/>
-				)}
-			</div>
+				</div>
+			)}
 
       <ActiveProjectTab baseUrlSlug="completed-jobs" />
       {children}

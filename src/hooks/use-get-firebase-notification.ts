@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { database } from "@/lib/firebase";
 
 import { UmojaLinnNotification } from '@/types/user';
-import { ref, onValue } from "firebase/database";
+import { ref, onValue, orderByChild, query, limitToLast } from "firebase/database";
 import useHandleError from './useHandleError';
 import { useSession } from 'next-auth/react';
 
@@ -16,17 +16,22 @@ export const useGetFirebaseNotifications = () => {
 	useEffect(() => {
 		if (!userId) return;
 
-		// Reference to the specific collection in the database
-		const collectionRef = ref(database, `notifications/${userId}`);
+		// Query reference to the specific collection in the database to perform query filters
+		const collectionQuery = query(
+			ref(database, `notifications/${userId}`),
+			orderByChild("createdAt"),
+			limitToLast(50)
+		);
 
 		// Listen for changes in the collection
-		const unSubscribe = onValue(collectionRef, (snapshot) => {
-			const dataItem: Record<string, UmojaLinnNotification> | null = snapshot.val() ;
+		const unSubscribe = onValue(collectionQuery, (snapshot) => {
+			const notifications: UmojaLinnNotification[] = [];
 
-			if (dataItem) {
-				const displayItem = Object.values(dataItem);
-				setData(displayItem);
-			}
+			snapshot.forEach((child) => {
+				notifications.push(child.val());
+			});
+
+			setData(notifications.toReversed()); // DESC
 		});
 
 		return () => {

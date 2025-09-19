@@ -8,6 +8,7 @@ import { CircleAlert, MoreVertical } from "lucide-react";
 import React, { useMemo } from "react";
 import EscrowCardReviews from "./EscrowCardReviews";
 import { Separator } from "@radix-ui/react-select";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 type EscrowCardProps = {
   milestones: UmojaLinnMilestone[];
@@ -20,6 +21,7 @@ type EscrowCardProps = {
 };
 
 const EscrowCard = (props: EscrowCardProps) => {
+  const isDesktop = useMediaQuery('md');
   const totalReleased = useMemo(() => props?.milestones?.reduce?.(
     (acc, milestone) => {
       if (milestone?.transactionStatus !== "PAID") return acc;
@@ -99,16 +101,18 @@ const EscrowCard = (props: EscrowCardProps) => {
         </div>
       </div>
 
-      <div className="md:block hidden">
-        {!!props?.reviews?.length && <Separator className="my-4" />}
+      {isDesktop && (
+        <div className="md:block hidden">
+          {!!props?.reviews?.length && <Separator className="my-4" />}
 
-        <EscrowCardReviews
-          reviews={props.reviews || []}
-          projectId={props.projectId}
-          project={props.project}
-          milestones={props.milestones}
-        />
-      </div>
+          <EscrowCardReviews
+            reviews={props.reviews || []}
+            projectId={props.projectId}
+            project={props.project}
+            milestones={props.milestones}
+          />
+        </div>
+      )}
     </div>
   );
 };

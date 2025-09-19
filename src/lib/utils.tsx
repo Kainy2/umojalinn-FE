@@ -155,6 +155,7 @@ export const getProjectImageDetailUpdate = (
 
     // Only update title if it has changed
     inspoTitles: toUpdate
+      .filter(({ title, id }) => (id && title))
       // .filter(({ title, id }) => title !== existingMap.get(id))
       .map(({ title, id }) => ({ title, id })),
   };

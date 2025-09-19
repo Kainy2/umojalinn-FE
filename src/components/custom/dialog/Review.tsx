@@ -17,6 +17,7 @@ type CustomReviewDialogProps = Partial<VerifyDialogProps> & {
   reviewType?: "EXPERIENCE" | "CLOTHING_QUALITY";
   projectId: string;
   persist?: boolean;
+  noOfStars?: number;
 };
 
 type ReviewRatingStarsProps = {
@@ -50,7 +51,7 @@ export const ReviewRatingStars = (props: ReviewRatingStarsProps) => {
           </button>
         ))}
       </div>
-      {props.rating && (
+      {!!props.rating && (
         <p
           className={cn(
             "text-subtitle-1 font-semibold",
@@ -71,10 +72,11 @@ const ReviewDialog = (props: CustomReviewDialogProps) => {
     projectId,
     onOpenChange,
     persist,
+    noOfStars,
     ...verifyDialogProps
   } = props;
 
-  const [rating, setRating] = useState<number>(1);
+  const [rating, setRating] = useState<number>(noOfStars ?? 1);
   const [message, setMessage] = useState<string>("");
   const hasFile = reviewType === "CLOTHING_QUALITY";
   

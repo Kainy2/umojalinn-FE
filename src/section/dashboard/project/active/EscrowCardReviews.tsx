@@ -10,6 +10,7 @@ import { CircleAlert } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { cn, isVideoLink } from '@/lib/utils';
+import { useSearchParams } from 'next/navigation';
 
 
 type EscrowReviewProps = {
@@ -20,10 +21,23 @@ type EscrowReviewProps = {
 };
 
 const EscrowCardReviews = (props: EscrowReviewProps) => {
+		const searchParams = useSearchParams();
+		const shouldWriteReviews =
+			searchParams.get("shouldWriteReviews") === "true"; // boolean
+		const isExperienceFeedback =
+			searchParams.get("isExperienceFeedback") === "true"; // boolean
+		const noOfStars = searchParams.get("noOfStars")
+			? Number(searchParams.get("noOfStars"))
+			: undefined; // number or undefined
+
 		const { data: session } = useSession();
-		const [openExperience, setOpenExperience] = React.useState(false);
-		const [openClothingQuality, setOpenClothingQuality] = React.useState(false);
-	
+		const [openExperience, setOpenExperience] = React.useState(
+			(shouldWriteReviews && isExperienceFeedback)
+		);
+		const [openClothingQuality, setOpenClothingQuality] = React.useState(
+			(shouldWriteReviews && !isExperienceFeedback)
+		);
+
 		const isBuyer = session?.user?.profileRole === "BUYER";
 		const isDesigner = session?.user?.profileRole === "DESIGNER";
 		const hasDesignerDoneExperience = !!props?.reviews?.find?.(
@@ -54,8 +68,6 @@ const EscrowCardReviews = (props: EscrowReviewProps) => {
 			props?.project?.showDesignerReviews,
 			props?.project?.showBuyerReviews,
 		]);
-
-console.log({allReviews});
 
 	return (
 			<div className={cn(
@@ -180,6 +192,7 @@ console.log({allReviews});
 								fullWidthActions
 								hideCancel
 								confirmText="Submit"
+								noOfStars={(shouldWriteReviews && isExperienceFeedback) ? noOfStars : undefined}
 								open={openExperience}
 								onOpenChange={setOpenExperience}
 							>
@@ -206,6 +219,7 @@ console.log({allReviews});
 								fullWidthActions
 								hideCancel
 								confirmText="Submit"
+								noOfStars={(shouldWriteReviews && !isExperienceFeedback) ? noOfStars : undefined}
 								open={openClothingQuality}
 								onOpenChange={setOpenClothingQuality}
 								alert={{
