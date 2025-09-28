@@ -81,7 +81,7 @@ const ReviewDialog = (props: CustomReviewDialogProps) => {
   const hasFile = reviewType === "CLOTHING_QUALITY";
   
   // const [images, setImages] = React.useState<FileList | null>(null);
-  // const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD);
+  // const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES);
   // const { previewUrls, getPreview } = useImagePreviewUrls();
   //   const { Input, onClick } = useFilePicker({
   //   onSelect: (files) => {
@@ -159,7 +159,8 @@ const ReviewDialog = (props: CustomReviewDialogProps) => {
           <div key={url} className="relative">
             {type?.includes("video") ? (
                 <video
-                  controls
+                  autoPlay
+                  muted
                   src={url}
                   height={150}
                   width={150}

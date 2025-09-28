@@ -21,7 +21,7 @@ import { uuidToBase62Safe } from "@/lib/uuid";
 import { ProjectFormProps } from "./Description";
 import FileUploadPicker from "@/components/custom/picker/FileUpload";
 import { useFileSizeError } from "@/hooks/useFilePicker";
-import { MAX_FILE_SIZE_FOR_FILE_UPLOAD } from "@/constant";
+import { MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES } from "@/constant";
 import { useCreateProjectContext } from "@/hooks/create-project/useCreateProjectContext";
 
 const ProjectGalleryForm = (props: ProjectFormProps) => {
@@ -36,7 +36,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
   const { projectFormDetails, setProjectFormDetails } = useCreateProjectContext()
   const isAds = data?.data.data.status === 'ADS'
 
-  const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD);
+  const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES);
   const [values, setValues] = useState<
     {
       id: string | number;
@@ -79,7 +79,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
     (file: File | null) => {
       const fileObject = file as File;
 
-      if (fileObject.size < MAX_FILE_SIZE_FOR_FILE_UPLOAD) {
+      if (fileObject.size < MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES) {
         setValues((prev) => [
           ...prev,
           {
@@ -94,7 +94,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
       } else {
         toast({
           title: "File error",
-          description: `Maximum file size is ${MAX_FILE_SIZE_FOR_FILE_UPLOAD/(1024 * 1024)}MB, this file is ${(
+          description: `Maximum file size is ${MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES/(1024 * 1024)}MB, this file is ${(
             fileObject.size /
             (1024 * 1024)
           ).toFixed(2)}MB. . You can compress the image using an image editor and try uploading again.`,

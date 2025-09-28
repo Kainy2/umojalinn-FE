@@ -473,16 +473,17 @@ const SettingsProfilePage = () => {
               />
             </FormItemWrapper> */}
             </>
-            <FormItemWrapper title="Phone number">
-              <FormField
-                control={form.control}
-                name="phoneNumber"
-                disabled={disableForm && isDesigner}
-                render={({ field }) => <CustomPhonePicker {...field} />}
-              />
-            </FormItemWrapper>
           </>
         )}
+
+        <FormItemWrapper title="Phone number">
+          <FormField
+            control={form.control}
+            name="phoneNumber"
+            disabled={disableForm}
+            render={({ field }) => <CustomPhonePicker {...field} />}
+          />
+        </FormItemWrapper>
         <Separator className="bg-border/50" />
         <FormItemWrapper title="Country">
           <FormField

@@ -10,7 +10,7 @@ import ChatBubble from "@/components/custom/chat/Bubble";
 import { ImageIcon, X } from "lucide-react";
 import useFilePicker, { useFileSizeError } from "@/hooks/useFilePicker";
 import Image from "next/image";
-import { MAX_FILE_SIZE_FOR_FILE_UPLOAD } from "@/constant";
+import { MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES } from "@/constant";
 import { useChat } from "@/hooks/use-chat";
 
 type ChatWindowProps = {
@@ -19,7 +19,7 @@ type ChatWindowProps = {
 };
 
 const ChatWindow = (props: ChatWindowProps) => {
-  const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD);
+  const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES);
   const { Input, onClick: handleFilePick } = useFilePicker({
     onSelect: (file: File | FileList | null) => {
       let files = images;
