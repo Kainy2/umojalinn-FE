@@ -1,4 +1,4 @@
-import { MAX_FILE_SIZE_FOR_FILE_UPLOAD } from '@/constant';
+import { MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES } from '@/constant';
 import React, { useState } from 'react'
 import useFilePicker, { FilePickerOptions, useFileSizeError } from './useFilePicker';
 import { mergeFiles } from '@/lib/utils';
@@ -15,7 +15,7 @@ const useNewFilePicker = ({
  }: useNewFilePickerOptions = {}) => {
 	const [images, setImages] = React.useState<FileList | null>(null);
 	const [previewMedia, setPreviewMedia] = useState<{type: string, url: string}[]>([]);
-	const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD);
+	const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES);
 
 	const { Input, onClick } = useFilePicker({
 		onSelect: (files) => {

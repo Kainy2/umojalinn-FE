@@ -45,7 +45,7 @@ const MilestoneInputSectionImageUpload = (
   
   // const [previewMedia, setPreviewMedia] = useState<{type: string, url: string}[]>([]);
   
-  // const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD);
+  // const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES);
   // // const { previewUrls, getPreview } = useImagePreviewUrls();
   // const { Input, onClick } = useFilePicker({
   //   onSelect: (files) => {

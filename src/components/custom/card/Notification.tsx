@@ -113,7 +113,7 @@ const NotificationCard = (props: NotificationCardProps) => {
 				<div className="text-left text-sm">
 					<div className="flex gap-1 mb-1">
 						<p className="font-semibold">{senderName}</p>
-						<p>{timeAgo.format(new Date(createdAt))}</p>
+						<p title={new Date(createdAt).toString()}>{timeAgo.format(new Date(createdAt))}</p>
 					</div>
 					<p>
 						<NotificationMessage

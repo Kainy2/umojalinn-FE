@@ -94,7 +94,7 @@ const GalleryImages = (props: GalleryImagesProps) => {
             >
               {gallery.type === "video" ?
                 <video
-                  height={height}
+                  // height={height}
                   src={gallery.imageUrl || fallback || "/img/svg/null.svg"}
                   className="shrink-0 object-cover w-full h-full"
                 />
