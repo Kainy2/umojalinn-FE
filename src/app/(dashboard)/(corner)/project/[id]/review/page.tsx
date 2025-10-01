@@ -71,6 +71,7 @@ const ReviewPage = () => {
       zipCode: values?.zipCode,
       clothingTypes: values?.clothingTypes,
       submit: values?.submit,
+      willProvideMaterial: values?.willProvideMaterial,
 
       // // Gallery Details
       ...getProjectImageDetailUpdate(values?.gallery, data?.data?.data?.Gallery),

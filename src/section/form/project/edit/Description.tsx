@@ -111,11 +111,10 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
         return 
       }      
       
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { firstName, lastName, designerId, ...otherValues } = values;
-      const val = jsonToFormData({
-        ...otherValues,
-      });
+      void firstName; void lastName; void designerId;
+
+      const val = jsonToFormData(otherValues);
 
 
       updateProject(val, {
@@ -131,9 +130,11 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
     },
     [props?.id, props.isOnboarding, router, updateProject, setProjectFormDetails, isAds ]
   );
-
-// http://localhost:3000/project/67GVLHjOlYJVaign9DZK9T
-// http://localhost:3000/project/hoXw3ODhKDFm8LkfGAmLN
+    
+  useEffect(() => {
+    if (form.watch("sizingTemplateId")) setUseSizingTemplate(true);
+    else setUseSizingTemplate(false);
+  }, [form.watch("sizingTemplateId")]);
 
 
   if (loadingProject) {
@@ -436,12 +437,25 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
           </FormItemWrapper>
         )}
 
-        {/* <ProjectEditFooter
-          handleSave={form.handleSubmit(onSubmit("SAVE"))}
-          handleDraft={form.handleSubmit(onSubmit("DRAFT"))}
-          loading={isUpdating}
-          hideBack={props.isOnboarding}
-        /> */}
+        <FormItemWrapper
+            title="Will you be providing your own material?"
+            description="Select yes if you are providing your own material for the project."
+          >
+            <FormField
+              control={form.control}
+              name="willProvideMaterial"
+              render={({ field: { onChange, value } }) => (
+                <div className="flex gap-4">
+                  <p>No</p>
+                  <Switch
+                    onCheckedChange={onChange}
+                    checked={value}
+                  />
+                  <p>Yes</p>
+                </div>
+              )}
+            />
+          </FormItemWrapper>
 
         <ProjectEditFooter
           leftButtonProps={{ hidden: true }}
