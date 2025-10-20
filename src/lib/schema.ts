@@ -112,7 +112,7 @@ const projectFormDetailsSchemaBase = z.object({
   clothingTypes: z.array(z.string()).max(8, "Maximum 8 categories can be selected").optional(),
   submit: z.string().optional(),
   sizingTemplateId: z.string().optional(),
-  willProvideMaterial: z.boolean().optional(),
+  willProvideMaterials: z.boolean().optional(),
 })
 
 export const projectFormDetailsSchema = projectFormDetailsSchemaBase.superRefine((data, ctx) => {

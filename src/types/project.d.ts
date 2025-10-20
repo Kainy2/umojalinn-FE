@@ -1,3 +1,4 @@
+import { EDeliveryMileStoneType } from "./enum";
 import { UmojaLinnUser, UmojaLinnUserRoleProfile } from "./user";
 import { UmojaLinnTimestamp } from "./util";
 
@@ -94,6 +95,14 @@ export type UmojaLinnDeliveryMilestoneReviewProps = {
   trackingId?: string; // only required for TRACKED
 };
 
+export type VariableDeliveryMileStoneSubmissions = {
+  id: string;
+  deliveryMileStoneId: string;
+  amount: number;
+  status: UmojaLinnMilestoneSubmissionStatus;
+  deliveryMethod: UmojaLinnDeliveryMethod; // optional relation
+} & UmojaLinnTimestamp;
+
 export type UmojaLinnMilestone = {
   id: string;
   title?: string;
@@ -104,6 +113,8 @@ export type UmojaLinnMilestone = {
   city?: string;
   country?: string;
   deliveryMethod?: UmojaLinnDeliveryMethod;
+  variableSubmissions?: VariableDeliveryMileStoneSubmissions[];
+  deliveryMileStoneType: EDeliveryMileStoneType;
   lastMilestoneApprovedAt: string | null;
   status:
     | "IN_ACTIVE"
@@ -237,6 +248,8 @@ export type UmojaLinnSizingTemplate = {
 > &
   UmojaLinnTimestamp;
 
+export type UmojaLinnMilestoneSubmissionStatus = "PENDING" | "APPROVED" | "REJECTED";
+  
 export type UmojaLinnMilestoneSubmission = {
   id: string;
   milestoneId: string;
@@ -255,10 +268,10 @@ export type UmojaLinnMilestoneSubmission = {
   country: null | string;
   street: null | string;
   zipCode: null | string;
-  courierService: strinng | null;
+  courierService: string | null;
   courierServiceLink: string | null;
   trackingId: string | null;
-  status: "APPROVED" | "REJECTED" | "PENDING";
+  status: UmojaLinnMilestoneSubmissionStatus;
   rejectionReason?: null | string;
   milestone: {
     project: {

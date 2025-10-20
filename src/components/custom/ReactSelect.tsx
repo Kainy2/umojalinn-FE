@@ -11,6 +11,7 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
+import { FieldError } from "react-hook-form";
 
 export type CustomReactSelectProps = Props &
   Partial<{
@@ -18,6 +19,7 @@ export type CustomReactSelectProps = Props &
     fullWidth: boolean;
     startAdornment: React.ReactNode;
     wrapperClassName: string;
+    error: FieldError;
   }>;
 
 export type CustomReactSelectFieldProps = CustomReactSelectProps & FieldProps;
@@ -108,6 +110,7 @@ export const CustomReactSelectField: React.FC<CustomReactSelectFieldProps> = ({
   label,
   hint,
   wrapperClassName,
+  // error,  
   ...selectProps
 }) => {
   return (

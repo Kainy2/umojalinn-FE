@@ -16,6 +16,7 @@ import { Separator } from "@radix-ui/react-separator";
 import { Plus } from "lucide-react";
 import { formatCurrencyValue } from "@/lib/number";
 import { useBidEdit } from "@/hooks/use-bid-edit";
+import { VariableDeliverySelect } from "@/components/custom/bids/VariableDeliverySelect";
 
 const SERVICE_FEE = 0;
 
@@ -53,6 +54,8 @@ const BidPage = () => {
     isPendingDelete,
     isPendingUpdateBid,
     isPendingCreateBid,
+    selectedDeliveryMethodType,
+    setSelectedDeliveryMethodType
   } = useBidEdit();
   
   if (isPending) {
@@ -72,14 +75,6 @@ const BidPage = () => {
       </p>
     );
   }
-
-  // if (bid?.designerId !== meData?.data?.data?.designerProfile?.id) {
-  //   return (
-  //     <p className="h-60 flex items-center justify-center text-gray-400">
-  //       No edit access
-  //     </p>
-  //   );
-  // }
 
   return (
     <div className="flex flex-col gap-8">
@@ -107,6 +102,17 @@ const BidPage = () => {
 					currency={project?.currency || null}
 				/>
       ))}
+
+      {editMode && !editing && (
+        <button
+          className="text-left w-fit flex text-sm text-primary  [&>svg]:size-5 gap-2"
+          onClick={handleAdd}
+        >
+          <Plus />
+          Add another milestone
+        </button>
+      )}
+
       <div className="card p-8">
         <div className="text-gray-400">
           <h3 className="mb-2 font-semibold  text-subtitle-1">
@@ -120,6 +126,11 @@ const BidPage = () => {
             The complete location information of the client will be made
             available at the commencement of the project.
           </p>
+
+          <VariableDeliverySelect
+            selectedDeliveryType={selectedDeliveryMethodType}
+            onChangeDeliveryType={setSelectedDeliveryMethodType}
+          />
         </div>
         <DeliveryMethodPicker
           disabled={!!editing || !editMode}
@@ -136,15 +147,7 @@ const BidPage = () => {
           onPriceChange={setDeliveryMilestonePrice}
         />
       </div>
-      {editMode && !editing && (
-        <button
-          className="text-left w-fit flex text-sm text-primary  [&>svg]:size-5 gap-2"
-          onClick={handleAdd}
-        >
-          <Plus />
-          Add another milestone
-        </button>
-      )}
+
       <div className="font-semibold">
         <div className="bg-slate-200/30 text-sm p-4 flex flex-col gap-4">
           <p className="flex justify-between ">

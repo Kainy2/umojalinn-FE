@@ -5,17 +5,17 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (
   req: NextRequest,
-  { params }: { params: Promise<{ bidId: string }> }
+  { params }: { params: Promise<{ milestoneId: string }> }
 ) => {
   try {
     await setBearerToken(req);
     const body = await req.json();
 
-    const bidId = (await params).bidId;
+    const milestoneId = (await params).milestoneId;
     const response = await customAxios.post<
       unknown,
       AxiosResponse<SingleApiResponse, unknown>
-    >(`/project/add-milestone-to-bid/${bidId}`, body);
+    >(`/project/add-milestone-to-bid/${milestoneId}`, body);
 
     return NextResponse.json(response.data);
   } catch (error) {

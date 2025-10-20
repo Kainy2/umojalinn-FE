@@ -1,6 +1,7 @@
 import { clientAxios, getServerAxiosWithToken } from "@/lib/axios";
 import { convertApiParams } from "@/lib/request";
 import { base62ToUuidSafe } from "@/lib/uuid";
+import { EDeliveryMileStoneType } from "@/types/enum";
 import {
   UmojaLinnBid,
   UmojaLinnDeliveryMethod,
@@ -142,6 +143,7 @@ export const updateBid = async (
     additionalNote: string;
     deliveryMethod: UmojaLinnDeliveryMethod;
     deliveryAmount: number;
+    deliveryMileStoneType: EDeliveryMileStoneType;
   }>,
   options?: ServerActionOption
 ) => {
@@ -151,6 +153,44 @@ export const updateBid = async (
   }
   return axios.put<unknown, AxiosResponse<SingleApiResponse>>(
     `/project/update-bid/${base62ToUuidSafe(id)}`,
+    body
+  );
+};
+
+export const approveOrRejectVariableDeliveryMilestone = async (
+  id: string,
+  body: Partial<{
+    status: "APPROVED" | "REJECTED";
+    rejectionReason?: string;
+  }>,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/project/approve-or-reject-variable-delivery-mile-stone/${base62ToUuidSafe(id)}`,
+    body
+  );
+};
+
+export const addVariableDeliveryMilestone = async (
+  milestoneId: string,
+  body: {
+    amount: number;
+    deliveryMethod: UmojaLinnDeliveryMethod;
+  },
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/project/add-variable-delivery-mile-stone/${base62ToUuidSafe(milestoneId)}`,
     body
   );
 };

@@ -49,7 +49,6 @@ export const MileStoneCardFooter = (
   const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value.length > 27) return
     const value = commaStringToNumber(e.target.value)
-    // const value = parseStringToNumber(e?.target?.value)?.value || 0;
     setContent(value);
     onPriceChange(value);
   };
