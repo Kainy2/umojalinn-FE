@@ -184,6 +184,9 @@ const MilestoneInputSection = (props: MilestoneInputSectionProps) => {
       (isDeliveryMilestoneEditable ? editedDeliveryDetails : lastSubmission) ||
       {};
 
+    console.log(props?.deliveryMethod, "<<< DELIVERY METHOD");
+
+
     const handleChange =
       (prop: keyof UmojaLinnDeliveryMilestoneReviewProps) =>
       (

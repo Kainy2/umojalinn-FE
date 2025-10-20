@@ -25,6 +25,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { FieldError } from "react-hook-form";
 
 type CustomDateRangeProp = { from: Date; to: Date };
 
@@ -49,6 +50,7 @@ type CustomDatePickerProps =
       calendar?: CalendarProps;
       placeholder?: string;
       disabled?: boolean;
+      error?: FieldError;
     };
 
 type CustomDatePickerFieldProps = CustomDatePickerProps & FieldProps;
@@ -125,8 +127,9 @@ export const CustomDatePicker = React.forwardRef<
           ref={ref as React.Ref<HTMLButtonElement & HTMLAnchorElement>}
           variant={"outline"}
           className={cn(
-            "w-full justify-between text-left font-normal disabled:bg-gray-100 disabled:cursor-not-allowed",
-            !date && "text-muted-foreground"
+            "w-full justify-between text-left font-normal disabled:bg-gray-100 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ",
+            !date && "text-muted-foreground",
+            props.error && "focus:ring-red-500 border-red-200"
           )}
           disabled={props.disabled}
         >

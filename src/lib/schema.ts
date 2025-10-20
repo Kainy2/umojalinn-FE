@@ -95,7 +95,7 @@ export const onboardingAddressFormSchema = z.object({
   zipCode: z.string().optional(),
 });
 
-export const projectFormDetailsSchema = z.object({
+const projectFormDetailsSchemaBase = z.object({
   firstName: z.string().optional(),
   lastName: z.string().optional(),
   designerId: z.string().optional(),
@@ -112,9 +112,29 @@ export const projectFormDetailsSchema = z.object({
   clothingTypes: z.array(z.string()).max(8, "Maximum 8 categories can be selected").optional(),
   submit: z.string().optional(),
   sizingTemplateId: z.string().optional(),
+  willProvideMaterials: z.boolean().optional(),
+})
+
+export const projectFormDetailsSchema = projectFormDetailsSchemaBase.superRefine((data, ctx) => {
+  const fields = ["city", "address", "state", "zipCode"] as const;
+  const values = fields.map((f) => data[f]);
+  const anyFilled = values.some((v) => v && v.trim() !== "");
+  const allFilled = values.every((v) => v && v.trim() !== "");
+
+  if (anyFilled && !allFilled) {
+    fields.forEach((field) => {
+      if (!data[field] || data[field]?.trim() === "") {
+        ctx.addIssue({
+          path: [field],
+          code: z.ZodIssueCode.custom,
+          message: "This field is required when any address field is filled.",
+        });
+      }
+    });
+  }
 });
 
-export const projectFormDetailsKeys = projectFormDetailsSchema?.keyof().options;
+export const projectFormDetailsKeys = projectFormDetailsSchemaBase?.keyof().options;
 
 export const requirementsAndBugetSchema = z.object({
   currency: z.string().optional(),

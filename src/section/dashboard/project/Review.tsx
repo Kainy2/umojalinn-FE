@@ -67,7 +67,7 @@ const allClothingTypes = data?.data?.data
         <h3 className="text-md font-semibold text-foreground-body mb-1">
           {projectFormDetails?.title || props?.project?.title || "No title"}
         </h3>
-        <p className="text-muted-foreground text-sm mb-8">
+        <p className="text-muted-foreground text-sm mb-8 whitespace-pre-wrap">
           {projectFormDetails?.about || props?.project?.about || "No description"}
         </p>
         <div className="flex gap-4 flex-col lg:flex-row justify-between">

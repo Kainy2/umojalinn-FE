@@ -10,10 +10,13 @@ import { formatCurrencyValue } from "@/lib/number";
 
 const MilestonePill: React.FC<
   MilestoneTimelineItem & Pick<MilestoneTimelineProps, "currency">
-> = ({ amount, currency, status }) => {
-  const label = getLabel(status);
-  const wrapperStyle = getPillWrapperStyle(status);
-  const valueStyle = getPillValueStyle(status);
+> = ({ amount, currency, status, variableSubmissions }) => {
+  const variableStatus = variableSubmissions?.[0]?.status === "PENDING" ? "IN_REVIEW" : status
+  const variableAmount = variableSubmissions?.[0]?.status === "PENDING" ? variableSubmissions?.[0]?.amount : amount
+
+  const label = getLabel(variableStatus);
+  const wrapperStyle = getPillWrapperStyle(variableStatus);
+  const valueStyle = getPillValueStyle(variableStatus);
   return (
     <span
       className={cn(
@@ -21,7 +24,7 @@ const MilestonePill: React.FC<
         wrapperStyle
       )}
     >
-      {label && <span className="ml-2">{label}</span>}
+      {(label) && <span className="ml-2">{label}</span>}
       <span
         className={cn(
           "bg-gray-400 text-gray-50 px-1.5 py-0.5 rounded-full",
@@ -29,7 +32,7 @@ const MilestonePill: React.FC<
         )}
       >
         {getCurrencySymbol(currency)}
-        {formatCurrencyValue(amount)}
+        {formatCurrencyValue(variableAmount)}
       </span>
     </span>
   );

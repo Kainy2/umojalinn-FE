@@ -5,6 +5,7 @@ import {
   UmojaLinnDeliveryMilestoneReviewProps,
   UmojaLinnMilestone,
   UmojaLinnProject,
+  VariableDeliveryMileStoneSubmissions,
 } from "@/types/project";
 
 import MilestoneIndicator from "./Indicator";
@@ -13,9 +14,10 @@ import MilestoneAction, { MilestoneActionType } from "./Action";
 import SelectFundingMethodDialog from "../dialog/SelectFundingMethod";
 import MilestoneInputSection from "./InputSection";
 import MilestoneSubmissionsPreview from "./SubmissionsPreview";
-import { capitalizeFirstLetter } from "@/lib/string";
 import FundMilestoneDialog from "../dialog/FundMilestoneDialog";
 import { UmojaLinnUser } from "@/types/user";
+import { VariableDeliveryForm } from "./VariableDeliveryForm";
+import { EDeliveryMileStoneType } from "@/types/enum";
 
 export enum MilestoneStatus {
   INACTIVE = "INACTIVE",
@@ -41,7 +43,9 @@ export type MilestoneTimelineItem = {
   onActionClick?: (action: MilestoneActionType) => void;
   onAcceptMilestoneSuccess?: () => void;
   isDelivery?: boolean;
+  isVariableDelivery?: boolean;
   deliverySubmission?: UmojaLinnDeliveryMilestoneReviewProps;
+  variableSubmissions?: VariableDeliveryMileStoneSubmissions[];
 };
 
 export type MilestoneTimelineProps = {
@@ -83,11 +87,18 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
   designer,
   buyer
 }) => {
+const deliveryMilestone = milestones[milestones.length - 1];
+
   const [openFundMilestoneModal, setOpenFundMilestoneModal] = useState(false);
   const [openPayForMilestoneModal, setOpenPayForMilestoneModal] = useState(false)
   const [selectedMilestoneId, setSelectedMilestoneId] = useState('')
   const [message, setMessage] = React.useState<string>('');
   const [files, setFiles] = React.useState<FileList | null>(null);
+  const [editedVariablePrice, setEditedVariablePrice] = 
+  useState(deliveryMilestone.amount ?? 0)
+	const [selectedVariableDeliveryMethod, setSelectedVariableDeliveryMethod] = 
+  useState(deliveryMilestone.deliveryMethod ?? "IN_PERSON_PICKUP")
+
   const [editableDeliverySubmission, setEditableDeliverySubmission] =
     useState<UmojaLinnDeliveryMilestoneReviewProps>({
       description: "",
@@ -138,13 +149,18 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
           date: item?.updatedAt,
           title: item?.title || (isDelivery && "Delivery Method") || "No title",
           description: item?.description,
+          variableSubmissions: item?.variableSubmissions,
           isCurrent: ["PENDING", "ACTIVE", "REJECTED", "IN_REVIEW"].includes(
             item?.status
           ),
         };
+
+        const isVariableDelivery = item.deliveryMileStoneType === EDeliveryMileStoneType.VARIABLE 
+
         const isCompletedOrCurrent =
           milestone?.status === MilestoneStatus.COMPLETED ||
           milestone?.isCurrent;
+        
         return (
           <li key={index} className="flex flex-col gap-1.5">
             <div className="flex flex-row gap-3">
@@ -180,7 +196,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                   )}
                 >
                   {milestone?.description}
-                  {isDelivery && (
+                  {/* {isDelivery && (
                     <>
                       Delivery method{" "}
                       <span className="text-xs py-1 px-2 border rounded-sm">
@@ -189,12 +205,28 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                         ).replaceAll("_", " ")}
                       </span>
                     </>
-                  )}
+                  )} */}
                 </p>
                 {milestone?.additionalContent}
+
+                <VariableDeliveryForm
+                  isVariableDelivery={isVariableDelivery}
+                  isDesigner={!!isDesigner}
+                  isDeliveryMilestone={isDelivery}
+                  variableSubmissions={item?.variableSubmissions}
+                  currency={currency ?? 'NAIRA'}
+                  isCurrentMilestone={!!milestone?.isCurrent}
+                  editedVariablePrice={editedVariablePrice}
+                  setEditedVariablePrice={setEditedVariablePrice}
+                  selectedVariableDeliveryMethod={selectedVariableDeliveryMethod}
+                  setSelectedVariableDeliveryMethod={setSelectedVariableDeliveryMethod}
+                />
+
                 <MilestoneSubmissionsPreview
                   status={milestone?.status}
                   milestoneId={item?.id}
+                  deliveryMethod={item?.deliveryMethod}
+                  isDeliveryMilestone={isDelivery}
                   {...{
                     // isBuyer,
                     isDesigner,
@@ -203,25 +235,27 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                   }}
                 />
                 {/* Input */}
-                <MilestoneInputSection
-                  {...{
-                    isDesigner,
-                    // isBuyer,
-                    message,
-                    files,
-                    status: milestone?.status,
-                    onFilesChange: setFiles,
-                    onMessageChange: setMessage,
-                    isDeliveryMilestone: isDelivery,
-                    deliveryMethod: item?.deliveryMethod,
-                    editedDeliveryDetails: editableDeliverySubmission,
-                    onChangeDeliveryDetails: (value) =>
-                      setEditableDeliverySubmission((prev) => ({
-                        ...prev,
-                        ...value,
-                      })),
-                  }}
-                />
+                {isDesigner && ( 
+                  <MilestoneInputSection
+                    {...{
+                      isDesigner,
+                      // isBuyer,
+                      message,
+                      files,
+                      status: milestone?.status,
+                      onFilesChange: setFiles,
+                      onMessageChange: setMessage,
+                      isDeliveryMilestone: isDelivery,
+                      deliveryMethod: item?.deliveryMethod,
+                      editedDeliveryDetails: editableDeliverySubmission,
+                      onChangeDeliveryDetails: (value) =>
+                        setEditableDeliverySubmission((prev) => ({
+                          ...prev,
+                          ...value,
+                        })),
+                    }}
+                  />
+                )}
                 <div
                   className={cn(
                     "flex gap-2 flex-wrap items-center text-sm",
@@ -253,7 +287,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                         </button>
                       </SelectFundingMethodDialog>
                     )}
-                  {(milestone?.retries?.length || 0) > 1 && (
+                  {(milestone?.retries?.length ?? 0) > 1 && (
                     <>
                       <span
                         className={cn(
@@ -290,11 +324,17 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                     setFiles(null);
                   }}
                   deliverySubmission={editableDeliverySubmission}
-                  {...{ isDesigner, isDelivery, projectId }}
-                  onActionClick={(action) => {
-                    console.log(action);
-                  }}
+                  variableSubmissions={item?.variableSubmissions}
+                  onActionClick={(action) => console.log(action)}
                   onAcceptMilestoneSuccess={()=> onAcceptMilestoneSuccess(isDelivery, index)}
+                  {...{
+                      isDesigner,
+                      isDelivery,
+                      projectId,
+                      isVariableDelivery,
+                      editedVariablePrice,
+                      selectedVariableDeliveryMethod,
+                  }}
                 />
               </div>
             </div>

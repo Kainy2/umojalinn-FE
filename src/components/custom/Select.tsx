@@ -22,6 +22,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { FieldError } from "react-hook-form";
 
 export type CustomGroupedOptionsProps = {
   type?: "label" | "option";
@@ -39,6 +40,7 @@ export type CustomSelectProps = SelectProps &
     trigger: SelectTriggerProps;
     options: Array<CustomOptionsProps>;
     adornment?: boolean;
+    error: FieldError;
     // renderValue?: (val?: unknown) => React.ReactNode;
     startAdornment?: React.ReactNode;
     value?: string | null;
@@ -76,12 +78,14 @@ const CustomSelect = React.forwardRef<HTMLButtonElement, CustomSelectProps>(
       options,
       adornment,
       startAdornment,
+      error,
       ...selectProps
     } = props;
     return (
       <Select {...selectProps}>
         <SelectTrigger
           {...trigger}
+          error={error}
           ref={ref}
           className={cn(
             "[&>span]:overflow-visible  [&>span]:h-full [&>span]:flex [&>span]:items-center rounded-none h-12",

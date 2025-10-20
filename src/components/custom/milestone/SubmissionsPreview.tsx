@@ -4,8 +4,8 @@ import { UmojaLinnUser } from "@/types/user";
 import Image from "next/image";
 import React from "react";
 import { MilestoneStatus, MilestoneTimelineItem } from "./Timeline";
-import { cn, isVideoLink, normaliseLink } from "@/lib/utils";
-import { Link2, Locate, MapPin, Truck } from "lucide-react";
+import { cn, isVideoLink } from "@/lib/utils";
+// import { Link2, Locate, MapPin, Truck } from "lucide-react";
 // import {
 //   Dialog,
 //   DialogContent,
@@ -13,10 +13,14 @@ import { Link2, Locate, MapPin, Truck } from "lucide-react";
 //   DialogTrigger,
 // } from "@/components/ui/dialog";
 import GalleryImages from "../GalleryImages";
+import { DeliveryDetails } from "./DeliveryDetails";
+import { UmojaLinnMilestone } from "@/types/project";
 
 type MilestoneSubmissionsPreviewProps = {
   milestoneId: string;
   // isBuyer?: boolean;
+  deliveryMethod?: UmojaLinnMilestone["deliveryMethod"];
+  isDeliveryMilestone?: boolean;
   isDesigner?: boolean;
   status?: MilestoneTimelineItem["status"];
   designer: UmojaLinnUser | null | undefined;
@@ -49,6 +53,7 @@ const MilestoneSubmissionsPreviewUser = (
   );
 };
 
+
 const MilestoneSubmissionsPreview = (
   props: MilestoneSubmissionsPreviewProps,
 ) => {
@@ -57,6 +62,7 @@ const MilestoneSubmissionsPreview = (
     useGetMilestoneSubmissions(milestoneId);
 
   const milestoneSubmissions = milestoneSubmissionsData?.data?.data;
+  // const isVariableDelivery = true
   return (
     <div
       className={cn(
@@ -67,112 +73,91 @@ const MilestoneSubmissionsPreview = (
       )}
     >
       {milestoneSubmissions?.map((submission) => {
-        const {
-          street,
-          state,
-          city,
-          country,
-          courierService,
-          courierServiceLink,
-          trackingId,
-          zipCode
-        } = submission;
-        const address = [street, state, city, country]
-          .filter((place) => place)
-          .join(" ,");
+        // const {
+        //   street,
+        //   state,
+        //   city,
+        //   country,
+        //   courierService,
+        //   courierServiceLink,
+        //   trackingId,
+        //   zipCode
+        // } = submission;
+        // const address = [street, state, city, country]
+        //   .filter((place) => place)
+        //   .join(" ,");
         return (
           <div key={submission?.id} className="flex flex-col gap-2">
             <MilestoneSubmissionsPreviewUser
-              user={props?.designer}
-              isMe={props?.isDesigner}
+              user={props.designer}
+              isMe={props.isDesigner}
             />
             <p className=" text-sm">{submission.description}</p>
-            <div className="flex flex-wrap gap-2">
-              {[
-                {
-                  icon: <MapPin />,
-                  value: address,
-                },
-                {
-                  icon: <MapPin />,
-                  value: zipCode,
-                },
-                {
-                  icon: <Truck />,
-                  value: courierService,
-                },
-                {
-                  icon: <Link2 />,
-                  value: courierServiceLink,
-                  link: true,
-                },
-                {
-                  icon: <Locate />,
-                  value: trackingId,
-                },
-              ]
-                .filter(({ value }) => value)
-                .map(({ value, icon, link }) => {
-                  const Comp: React.ElementType = link ? "a" : "span";
-                  return (
-                    <Comp
-                      href={normaliseLink(value)}
-                      target="_blank"
-                      className="flex gap-2 border border-gray-300  rounded-full [&>svg]:size-5 text-sm px-2 py-1 items-center leading-none text-foreground-body"
-                      key={value}
-                    >
-                      {icon} {value}
-                    </Comp>
-                  );
-                })}
-            </div>
-            <div className="flex gap-2">
-              {/* {submission.images?.map(({url, meta}) => (
-                <Dialog key={url}>
-                  <DialogTrigger asChild>
-                    <button
-                      className={cn(
-                        "relative w-28 h-28 rounded-md overflow-hidden"
-                      )}
-                    >
-                      <Image
-                        alt={meta.fileName}
-                        src={url}
-                        className="shrink-0 object-cover absolute"
-                        fill
-                        />
-                    </button>
-                  </DialogTrigger>
-                  <DialogContent className="h-full w-full max-w-[80vw] max-h-[80vh] p-0 border-0 bg-black/50 [&>button>svg]:text-white overflow-hidden">
-                    <div className="relative">
-                      <DialogTitle className="hidden">Image</DialogTitle>
-                      <Image
-                        src={url}
-                        className="shrink-0 object-contain absolute"
-                        fill
-                        alt={meta.fileName}
-                         />
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              ))} */}
 
-                <GalleryImages
-                  height={100}
-                  width={100}
-                  images={submission.images?.map?.((image, i) => ({
-                    imageUrl: image.url,
-                    // title: image.meta.fileName,
-                    type: isVideoLink(image.url) ? "video" : "image",
-                    id: `Review-${i}`,
-                  }))}
-                />
+            {props.isDeliveryMilestone && (
+              <DeliveryDetails
+                deliveryMethod={props.deliveryMethod}
+                submission={submission}
+              />
+            )}
+            <>
+              {/* <div className="flex flex-wrap gap-2">
+                {[
+                  {
+                    icon: <MapPin />,
+                    value: address,
+                  },
+                  {
+                    icon: <MapPin />,
+                    value: zipCode,
+                  },
+                  {
+                    icon: <Truck />,
+                    value: courierService,
+                  },
+                  {
+                    icon: <Link2 />,
+                    value: courierServiceLink,
+                    link: true,
+                  },
+                  {
+                    icon: <Locate />,
+                    value: trackingId,
+                  },
+                ]
+                  .filter(({ value }) => value)
+                  .map(({ value, icon, link }) => {
+                    const Comp: React.ElementType = link ? "a" : "span";
+                    return (
+                      <Comp
+                        href={normaliseLink(value)}
+                        target="_blank"
+                        className="flex gap-2 border border-gray-300  rounded-full [&>svg]:size-5 text-sm px-2 py-1 items-center leading-none text-foreground-body"
+                        key={value}
+                      >
+                        {icon} {value}
+                      </Comp>
+                    );
+                  })}
+              </div> */}
+            </>
+            <div className="flex gap-2">
+              <GalleryImages
+                height={100}
+                width={100}
+                images={submission.images?.map?.((image, i) => ({
+                  imageUrl: image.url,
+                  // title: image.meta.fileName,
+                  type: isVideoLink(image.url) ? "video" : "image",
+                  id: `Review-${i}`,
+                }))}
+              />
             </div>
             {!!submission.rejectionReason && (
               <>
                 <MilestoneSubmissionsPreviewUser
-                  user={props?.buyer}
-                  isMe={!props?.isDesigner}
+                  user={props.buyer}
+                  isMe={!props.isDesigner}
                 />
                 <p className="text-sm">{submission.rejectionReason}</p>
               </>

@@ -12,6 +12,7 @@ import {
   useUpdateMilestone,
 } from "@/tanstack/hooks/useBid";
 import { UmojaLinnDeliveryMethod } from "@/types/project";
+import { EDeliveryMileStoneType } from "@/types/enum";
 
 
 const MILESTONE_TEMPLATE = {
@@ -36,6 +37,8 @@ const { id } = useParams<{ id: string }>();
   const [deliveryMilestonePrice, setDeliveryMilestonePrice] = useState(0);
   const [deliveryMethod, setDeliveryMethod] =
     useState<UmojaLinnDeliveryMethod | null>(null);
+  const [selectedDeliveryMethodType, setSelectedDeliveryMethodType] = 
+  useState<EDeliveryMileStoneType>(EDeliveryMileStoneType.FIXED);
 
   // const { data: meData } = useGetMe();
 
@@ -150,6 +153,7 @@ const { id } = useParams<{ id: string }>();
           additionalNote: addNote ? note : undefined,
           deliveryAmount: deliveryMilestonePrice,
           deliveryMethod: deliveryMethod || undefined,
+          deliveryMileStoneType: selectedDeliveryMethodType
         });
         break;
       case "LIVE":
@@ -157,6 +161,7 @@ const { id } = useParams<{ id: string }>();
           additionalNote: addNote ? note : undefined,
           deliveryAmount: deliveryMilestonePrice,
           deliveryMethod: deliveryMethod || undefined,
+          deliveryMileStoneType: selectedDeliveryMethodType
         });
         break;
       default:
@@ -280,5 +285,7 @@ const { id } = useParams<{ id: string }>();
     isPendingDelete,
     isPendingUpdateBid,
     isPendingCreateBid,
+    selectedDeliveryMethodType, 
+    setSelectedDeliveryMethodType
 	}
 }

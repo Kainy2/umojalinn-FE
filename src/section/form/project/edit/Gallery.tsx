@@ -206,6 +206,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
       </FormItemWrapper>
     );
   }
+console.log(preview, "preview");
 
   return (
     <>

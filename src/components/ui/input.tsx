@@ -1,17 +1,19 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
+import { FieldError } from "react-hook-form";
 
 export type InputProps = React.ComponentProps<"input"> &
   Partial<{
     startAdornment: React.ReactNode;
     endAdornment: React.ReactNode;
     divider: boolean;
+    error: FieldError;
   }>;
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   (
-    { className, type, startAdornment, endAdornment, divider, ...props },
+    { className, type, error, startAdornment, endAdornment, divider, ...props },
     ref
   ) => {
     // Ensure startAdornment and endAdornment are valid React nodes
@@ -32,6 +34,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             "flex h-16 w-full border border-gray-300 border-input bg-background px-4 py-3 text-md ring-offset-background file:border-0 file:bg-transparent file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-100 transition-all duration-100",
             startAdornment && "pl-10",
             endAdornment && "pr-10",
+            error && "focus-visible:ring-red-500 border-red-200",
             className
           )}
           ref={ref}

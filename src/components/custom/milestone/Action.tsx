@@ -13,6 +13,8 @@ import {
 import { jsonToFormData } from "@/lib/utils";
 import RejectMilestoneDialog from "../dialog/RejectMilestone";
 import ReviewDialog from "../dialog/Review";
+import { useAddVariableDeliveryMilestone, useApproveOrRejectVariableDeliveryMilestone } from "@/tanstack/hooks/useBid";
+import { UmojaLinnDeliveryMethod } from "@/types/project";
 
 export enum MilestoneActionType {
   SUBMIT = "SUBMIT",
@@ -25,6 +27,9 @@ const MilestoneAction: React.FC<
       message: string;
       files: FileList | null;
       clear: () => void;
+      editedVariablePrice: number, 
+    selectedVariableDeliveryMethod: UmojaLinnDeliveryMethod, 
+
     }
 > = ({
   isCurrent,
@@ -39,7 +44,18 @@ const MilestoneAction: React.FC<
   deliverySubmission,
   projectId,
   onAcceptMilestoneSuccess,
+  variableSubmissions,
+  isVariableDelivery,
+  editedVariablePrice,
+  selectedVariableDeliveryMethod
 }) => {
+
+  const currentVariableSubmission = variableSubmissions?.[0]
+  const isNoSubmission = !variableSubmissions?.length || currentVariableSubmission?.status === "REJECTED"
+
+  const isAcceptingVariableDelivery = isVariableDelivery && currentVariableSubmission?.status === "PENDING"
+  const isSubmittingVariableType = isVariableDelivery && isNoSubmission
+
   const { mutate: submitMilestone, isPending: isSubmittingMilestone } =
     useSubmitMilestone(id, {
       onSuccess: () => {
@@ -56,14 +72,34 @@ const MilestoneAction: React.FC<
       },
     });
 
-  if (status === MilestoneStatus.IN_REVIEW && isCurrent && !isDesigner)
+  const {
+    mutate: decideVariableDeliveryMilestone,
+    isPending: isPendingDecideVariableDelivery
+  } = useApproveOrRejectVariableDeliveryMilestone(id)
+
+  const { 
+    mutate: addVariableDeliveryMilestone,
+    isPending: isPendingAddVariableDelivery
+  } = useAddVariableDeliveryMilestone(id)
+
+  if (
+    (status === MilestoneStatus.IN_REVIEW || isAcceptingVariableDelivery) && isCurrent && !isDesigner
+  )
     return (
       <>
         <Separator className="my-3" />
         <div className="flex gap-4 flex-col md:flex-row">
-          <RejectMilestoneDialog id={id}>
+          <RejectMilestoneDialog 
+            isAcceptingVariableDelivery={isAcceptingVariableDelivery}
+            id={id}
+          >
             <Button
-              disabled={isReviewingMilestone}
+              disabled={isReviewingMilestone || isPendingDecideVariableDelivery}
+              loading={isPendingDecideVariableDelivery}
+              onClick={() => 
+                isAcceptingVariableDelivery &&
+                decideVariableDeliveryMilestone({ status: "REJECTED" })
+              }
               size="sm"
               variant="outline"
               fullWidth
@@ -73,13 +109,18 @@ const MilestoneAction: React.FC<
           </RejectMilestoneDialog>
           <Button
             size="sm"
-            onClick={() =>
-              approveOrRejectMilestone({
-                status: "APPROVED",
-              },{onSuccess: onAcceptMilestoneSuccess})
-            }
+            onClick={() =>{
+              if (isAcceptingVariableDelivery) {
+                decideVariableDeliveryMilestone({ status: "APPROVED" })
+              } else {
+                approveOrRejectMilestone(
+                  { status: "APPROVED" },
+                  {onSuccess: onAcceptMilestoneSuccess}
+                )
+              }
+            }}
             variant="success"
-            loading={isReviewingMilestone}
+            loading={isReviewingMilestone || isPendingDecideVariableDelivery}
             fullWidth
           >
             Accept
@@ -88,29 +129,36 @@ const MilestoneAction: React.FC<
       </>
     );
 
-  if (status === MilestoneStatus.ACTIVE && isCurrent && isDesigner)
+  if ((status === MilestoneStatus.ACTIVE || isSubmittingVariableType) && isCurrent && isDesigner)
     return (
       <>
         <Separator className="my-3" />
         <div className="flex gap-4 flex-col md:flex-row">
           <Button
             size="sm"
-            onClick={() =>
-              submitMilestone(
-                isDelivery
-                  ? jsonToFormData(deliverySubmission || {})
-                  : jsonToFormData({ description: message, media: files })
-                  // ...(files ? { media: files } : {}),
-              )
-            }
+            onClick={() =>{
+              if (isSubmittingVariableType) {
+                addVariableDeliveryMilestone({
+                  amount: editedVariablePrice,
+                  deliveryMethod: selectedVariableDeliveryMethod
+                })
+              } else {
+                submitMilestone(
+                  isDelivery
+                    ? jsonToFormData(deliverySubmission || {})
+                    : jsonToFormData({ description: message, media: files })
+                    // ...(files ? { media: files } : {}),
+                )
+              }
+            }}
             variant="success"
             fullWidth
             disabled={
               (!isDelivery && !message)
             }
-            loading={isSubmittingMilestone}
+            loading={isSubmittingMilestone || isPendingAddVariableDelivery}
           >
-            Submit
+            Submit {isSubmittingVariableType && 'Delivery Method'}
           </Button>
         </div>
       </>

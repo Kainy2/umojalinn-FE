@@ -59,6 +59,7 @@ const ReviewPage = () => {
 
 		const val = jsonToFormData({
       // Description Details
+      
       gender: values?.gender,
       address: values?.address,
       title: values?.title,
@@ -71,6 +72,7 @@ const ReviewPage = () => {
       zipCode: values?.zipCode,
       clothingTypes: values?.clothingTypes,
       submit: values?.submit,
+      willProvideMaterials: values?.willProvideMaterials,
 
       // // Gallery Details
       ...getProjectImageDetailUpdate(values?.gallery, data?.data?.data?.Gallery),

@@ -1,6 +1,6 @@
 "use client";
 import { ProjectFormDetailsProps, ProjectFormRequirementsAndBugetProps } from '@/types/form';
-import React, { createContext, useState, ReactNode } from 'react';
+import React, { createContext, useState, ReactNode, useMemo } from 'react';
 
 export type StateType = ProjectFormDetailsProps & ProjectFormRequirementsAndBugetProps & {
 	gallery?: {
@@ -31,8 +31,10 @@ type Props = {
 export const CreateProjectProvider = ({ children }: Props) => {
   const [projectFormDetails, setProjectFormDetails] = useState<StateType>(initialState);
 
+  const value = useMemo(() => ({ projectFormDetails, setProjectFormDetails }), [projectFormDetails]);
+  
   return (
-    <CreateProjectContext.Provider value={{ projectFormDetails, setProjectFormDetails }}>
+    <CreateProjectContext.Provider value={value}>
       {children}
     </CreateProjectContext.Provider>
   );

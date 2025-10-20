@@ -13,7 +13,7 @@ import React, { useState } from "react";
 import TextAreaField from "../input/TextAreaField";
 import { useApproveOrRejectMilestone } from "@/tanstack/hooks/useProject";
 
-const RejectMilestoneDialog = (props: DialogProps & { id: string }) => {
+const RejectMilestoneDialog = (props: DialogProps & { id: string, isAcceptingVariableDelivery?: boolean }) => {
   const [open, setOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
 
@@ -24,7 +24,7 @@ const RejectMilestoneDialog = (props: DialogProps & { id: string }) => {
   });
 
   return (
-    <Dialog open={open} onOpenChange={setOpen} {...props}>
+    <Dialog open={!props?.isAcceptingVariableDelivery && open} onOpenChange={setOpen} {...props}>
       <DialogTrigger asChild onClick={() => setOpen(true)}>
         {props.children}
       </DialogTrigger>
