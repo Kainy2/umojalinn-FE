@@ -170,7 +170,7 @@ export const approveOrRejectVariableDeliveryMilestone = async (
     axios = await getServerAxiosWithToken();
   }
 
-  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+  return axios.post<unknown, AxiosResponse<SingleApiResponse<UmojaLinnMilestone>>>(
     `/project/approve-or-reject-variable-delivery-mile-stone/${base62ToUuidSafe(id)}`,
     body
   );

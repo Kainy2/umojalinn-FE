@@ -71,6 +71,9 @@ const { id } = useParams<{ id: string }>();
       setNote(bid?.additionalNotesToClient);
       setAddNote(true);
     }
+    if (bid?.deliveryMilestone.deliveryMileStoneType){
+      setSelectedDeliveryMethodType(bid.deliveryMilestone.deliveryMileStoneType);
+    }
   }, [bid]);
 
   const { mutate: createMilestone, isPending: isPendingCreateBid } = useCreateMilestone(id, {

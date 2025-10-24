@@ -1,5 +1,6 @@
 "use client";
 import Alert from "@/components/custom/Alert";
+import { VariableDeliverySelect } from "@/components/custom/bids/VariableDeliverySelect";
 import AcceptBidSizingTemplateInterrupt, {
   AcceptBidSizingTemplateInterruptConfirm,
 } from "@/components/custom/dialog/AcceptBidSizingTemplateInterrupt";
@@ -16,6 +17,7 @@ import RejectButton from "@/section/dashboard/project/bid/button/Reject";
 import { useAcceptOrRejectBid, useGetBidById } from "@/tanstack/hooks/useBid";
 import { useAddSizingTemplateToProject } from "@/tanstack/hooks/useSizingTemplates";
 import { useGetMe } from "@/tanstack/hooks/useUser";
+import { EDeliveryMileStoneType } from "@/types/enum";
 import { useSession } from "next-auth/react";
 
 import { useParams, useRouter } from "next/navigation";
@@ -117,6 +119,12 @@ const IndividualBidPage = () => {
             The complete location information of the client will be made
             available at the commencement of the project.
           </p>
+
+          <VariableDeliverySelect
+            selectedDeliveryType={
+              bid?.deliveryMilestone.deliveryMileStoneType || EDeliveryMileStoneType.FIXED
+            }
+          />
         </div>
         <DeliveryMethodPicker
           value={bid?.deliveryMilestone?.deliveryMethod || ""}
