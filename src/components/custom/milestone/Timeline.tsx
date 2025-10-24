@@ -123,12 +123,10 @@ const deliveryMilestone = milestones[milestones.length - 1];
     }
 
     const onAcceptVariableMilestoneSuccess = (isDelivery: boolean, deliveryMilestone: UmojaLinnMilestone) => {
-      if (!isDelivery) return
-      
-      if (deliveryMilestone.project.fundStatus === MilestoneStatus.AWAITING_FUND) {       
-        setOpenFundMilestoneModal(true);
-        setSelectedMilestoneId(deliveryMilestone.id);
-      }
+      if (!isDelivery || deliveryMilestone.project.fundStatus !== MilestoneStatus.AWAITING_FUND) return
+
+      setOpenFundMilestoneModal(true);
+      setSelectedMilestoneId(deliveryMilestone.id);
     }
 
   return (
