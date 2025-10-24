@@ -225,7 +225,7 @@ export const useUpdateBid = (
 export const useApproveOrRejectVariableDeliveryMilestone = (
   id: string,
   options?: GenericUseMutationProps<
-    SingleApiResponse,
+    SingleApiResponse<UmojaLinnMilestone>,
     Partial<{
       status: "APPROVED" | "REJECTED";
       rejectionReason?: string;

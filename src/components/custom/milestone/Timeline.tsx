@@ -122,6 +122,15 @@ const deliveryMilestone = milestones[milestones.length - 1];
       }
     }
 
+    const onAcceptVariableMilestoneSuccess = (isDelivery: boolean, deliveryMilestone: UmojaLinnMilestone) => {
+      if (!isDelivery) return
+      
+      if (deliveryMilestone.project.fundStatus === MilestoneStatus.AWAITING_FUND) {       
+        setOpenFundMilestoneModal(true);
+        setSelectedMilestoneId(deliveryMilestone.id);
+      }
+    }
+
   return (
   <>
     <SelectFundingMethodDialog
@@ -327,6 +336,9 @@ const deliveryMilestone = milestones[milestones.length - 1];
                   variableSubmissions={item?.variableSubmissions}
                   onActionClick={(action) => console.log(action)}
                   onAcceptMilestoneSuccess={()=> onAcceptMilestoneSuccess(isDelivery, index)}
+                  onAcceptVariableMilestoneSuccess={(deliveryMilestone) => 
+                    onAcceptVariableMilestoneSuccess(isDelivery, deliveryMilestone)
+                  }
                   {...{
                       isDesigner,
                       isDelivery,

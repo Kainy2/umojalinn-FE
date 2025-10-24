@@ -31,7 +31,7 @@ const deliveryMethodsTypes = [
 
 type VariableDeliverySelectProps = {
 	selectedDeliveryType: EDeliveryMileStoneType;
-	onChangeDeliveryType: (value: EDeliveryMileStoneType) => void;
+	onChangeDeliveryType?: (value: EDeliveryMileStoneType) => void;
 }
 
 export const VariableDeliverySelect = ({
@@ -43,38 +43,44 @@ export const VariableDeliverySelect = ({
 
 	return (
 		<div className='flex flex-col border rounded-md gap-2 text-xs py-2.5 px-4'>
-			<Popover>
-				<PopoverTrigger tabIndex={-1}>
-					<div className="flex gap-2 text-sm py- rounded-sm justify-between items-center cursor-pointer">
-						<h5 className='font-semibold text-gray-600'>
-							{selectedTypeObject?.label}
-						</h5>
-						<span><ChevronDown size={20} /></span>
-					</div>
-				</PopoverTrigger>
-				<PopoverContent className="w-[60vw] md:w-[50vw] border flex flex-col rounded-lg p-0">
-						{deliveryMethodsTypes.map((method) => (
-							<PopoverClose key={method.value} className='focus:!outline-none focus-visible:!outline-none'>
-								<button
-									className={cn("relative flex gap-2 w-full select-none items-center rounded-sm p-4 text-sm capitalize text-left outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-									selectedDeliveryType === method.value && "bg-gray-100"
-									)}
-									onClick={() => onChangeDeliveryType(method.value)}
-								>
-									<div className='flex items-center gap-2'>
-										<div className='w-8 h-8 rounded-full flex items-center justify-center bg-gray-100'>
-											{method.icon}
+			{onChangeDeliveryType ? ( 
+				<Popover>
+					<PopoverTrigger tabIndex={-1}>
+						<div className="flex gap-2 text-sm py- rounded-sm justify-between items-center cursor-pointer">
+							<h5 className='font-semibold text-gray-600'>
+								{selectedTypeObject?.label}
+							</h5>
+							<span><ChevronDown size={20} /></span>
+						</div>
+					</PopoverTrigger>
+					<PopoverContent className="w-[60vw] md:w-[50vw] border flex flex-col rounded-lg p-0">
+							{deliveryMethodsTypes.map((method) => (
+								<PopoverClose key={method.value} className='focus:!outline-none focus-visible:!outline-none'>
+									<button
+										className={cn("relative flex gap-2 w-full select-none items-center rounded-sm p-4 text-sm capitalize text-left outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+										selectedDeliveryType === method.value && "bg-gray-100"
+										)}
+										onClick={() => onChangeDeliveryType(method.value)}
+									>
+										<div className='flex items-center gap-2'>
+											<div className='w-8 h-8 rounded-full flex items-center justify-center bg-gray-100'>
+												{method.icon}
+											</div>
+											<div className='flex-1 text-gray-700 space-y-1'>
+												<h6 className='font-medium text-sm'>{method.label}</h6>
+												<p className=' text-xs'>{method.listDescription}</p>
+											</div>
 										</div>
-										<div className='flex-1 text-gray-700 space-y-1'>
-											<h6 className='font-medium text-sm'>{method.label}</h6>
-											<p className=' text-xs'>{method.listDescription}</p>
-										</div>
-									</div>
-								</button>
-							</PopoverClose>
-						))}
-				</PopoverContent>
-			</Popover>
+									</button>
+								</PopoverClose>
+							))}
+					</PopoverContent>
+				</Popover>
+			):(
+				<h5 className='font-semibold text-gray-600'>
+					{selectedTypeObject?.label}
+				</h5>
+			)}
 
 			<p>
 				{selectedTypeObject?.description}

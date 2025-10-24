@@ -474,14 +474,10 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
               control={form.control}
               name="willProvideMaterials"
               render={({ field: { onChange, value } }) => (
-                <div className="flex gap-4">
-                  <p>No</p>
-                  <Switch
-                    key={String(value)}
-                    onCheckedChange={onChange}
-                    checked={value} />
-                  <p>Yes</p>
-                </div>
+                <Switch
+                  key={String(value)}
+                  onCheckedChange={onChange}
+                  checked={value} />
               )}
             />
           </FormItemWrapper>

@@ -167,6 +167,7 @@ export type UmojaLinnBid = {
     country: string;
     amount: null | number;
     deliveryMethod: null | UmojaLinnDeliveryMethod;
+    deliveryMileStoneType: EDeliveryMileStoneType;
   } & UmojaLinnTimestamp;
 };
 
