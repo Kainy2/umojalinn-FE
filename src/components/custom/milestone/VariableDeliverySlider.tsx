@@ -27,8 +27,8 @@ export const VariableDeliverySlider = ({
 	
 
 	return (
-		<div className="my-2 p-4 rounded-md border border-gray-300 flex flex-col gap-1 text-gray-500 text-sm">
-			<Slider {...slickSettings} ref={sliderRef} className="h-full max-w-[55vw] w-full items-center"> 
+		<div className="my-2 p-4 rounded-md border border-gray-300 flex flex-col gap-1 text-gray-500 text-sm  md:max-w-prose 2xl:max-w-[90ch]">
+			<Slider {...slickSettings} ref={sliderRef} className=""> 
 				{/* page 1 */}
 				<div className="space-y-3">
 					<button 

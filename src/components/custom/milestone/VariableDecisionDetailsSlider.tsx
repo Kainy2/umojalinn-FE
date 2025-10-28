@@ -31,8 +31,8 @@ export const VariableDecisionDetailsSlider = ({
 	
 
 	return (
-		<div className="my-2 py-4 rounded-md  flex flex-col gap-1 text-gray-500 text-sm">
-			<Slider {...slickSettings} ref={sliderRef} className="h-full max-w-[55vw] w-full items-center"> 
+		<div className="my-2 py-4 rounded-md w-full overflow-hidden text-gray-500 text-sm md:max-w-prose 2xl:max-w-[90ch]">
+			<Slider {...slickSettings} ref={sliderRef} className=""> 
 				{/* page 1 */}
 				<div className='px-0.5'>
 					<div className="p-2 flex flex-col md:flex-row gap-3 rounded-md border border-gray-300 justify-evenly">
