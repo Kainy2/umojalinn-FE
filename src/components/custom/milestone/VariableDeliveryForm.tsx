@@ -147,8 +147,10 @@ export const VariableDeliveryForm = ({
         >
           <h6 className="font-semibold">Variable delivery</h6>
           <p>
-            Variable delivery allows for adjustments in pricing and delivery methods at a later
-            stage. This method is ideal when you&apos;re uncertain about delivery costs.
+            {isDesigner
+              ? "Variable Delivery means you can make adjustments to the delivery price and method at a later stage once you have the final delivery price and method. You will need to submit the final delivery price and method to your client for review and approval."
+              : "Variable Delivery means adjustments will be made to the delivery price and method at a later stage. You will need to approve the final delivery price and method once the designer submits it for your review"
+            }
           </p>
         </div>
       )}

@@ -96,7 +96,7 @@ export const VariableDecisionDetailsSlider = ({
 							<p> Back </p>
 						</button>
 						<p className='text-sm text-grey-500'>
-							Necessary information required for <b>{deliveryMethodText}</b> after delivery method is approved
+							Designer will fill in the necessary information required for <b>{deliveryMethodText}</b> after delivery method is approved
 						</p>
 						<div className='pt-4 flex flex-row items-center'>
 							<span className="border-t flex-1" />

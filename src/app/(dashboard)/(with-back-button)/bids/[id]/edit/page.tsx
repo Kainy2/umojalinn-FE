@@ -123,8 +123,7 @@ const BidPage = () => {
             {project?.deliveryAddress?.country}
           </h3>
           <p className="text-sm mb-4">
-            The complete location information of the client will be made
-            available at the commencement of the project.
+            The Client&apos;s full address will be shown once the project is Active
           </p>
 
           <VariableDeliverySelect
