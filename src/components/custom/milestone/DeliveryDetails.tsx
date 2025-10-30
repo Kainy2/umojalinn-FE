@@ -23,7 +23,7 @@ export const DeliveryDetails = ({ deliveryMethod, submission }: DeliveryDetailsP
 	} = submission;
 
 	return (
-		<div className="py-2.5 px-5 md:py-5 rounded-md border border-gray-300 flex flex-col gap-3">
+		<div className="py-2.5 px-5 md:py-5 rounded-md border border-gray-300 flex flex-col gap-3 bg-gray-50">
 			{[
 				{
 					title: "Delivery Method",

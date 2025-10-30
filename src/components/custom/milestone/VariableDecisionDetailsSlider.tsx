@@ -1,9 +1,10 @@
-import { capitalizeFirstLetter } from '@/lib/string';
+import { capitalizeFirstLetter, getCurrencySymbol } from '@/lib/string';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import React, { ReactNode, useRef } from 'react'
 import Slider, { Settings } from 'react-slick';
 import { EmptyDeliveryDetails } from './DeliveryDetails';
-import { UmojaLinnDeliveryMethod } from '@/types/project';
+import { UmojaLinnCurrency, UmojaLinnDeliveryMethod } from '@/types/project';
+import { formatCurrencyValue } from '@/lib/number';
 
 
 const slickSettings:Settings = {
@@ -21,17 +22,19 @@ const slickSettings:Settings = {
 
 export const VariableDecisionDetailsSlider = ({
 	deliveryMethod,
-	price
+	price,
+	currency = "EURO",
 }: {
 	deliveryMethod: UmojaLinnDeliveryMethod;
-	price: number
+	price: number;
+	currency: UmojaLinnCurrency;
 }) => {
 	const deliveryMethodText = capitalizeFirstLetter(deliveryMethod).replaceAll("_", " ")
 	const sliderRef = useRef<Slider | null>(null);
 	
 
 	return (
-		<div className="my-2 py-4 rounded-md w-full overflow-hidden text-gray-500 text-sm md:max-w-prose 2xl:max-w-[90ch]">
+		<div className="my-2 py-4 rounded-md w-full overflow-hidden text-gray-500 text-sm md:max-w-prose max-w-[80vw] 2xl:max-w-[90ch]">
 			<Slider {...slickSettings} ref={sliderRef} className=""> 
 				{/* page 1 */}
 				<div className='px-0.5'>
@@ -46,7 +49,7 @@ export const VariableDecisionDetailsSlider = ({
 						
 						<VariableDeliveryInfo
 							title="Price"
-							value={price} 
+							value={getCurrencySymbol(currency) + formatCurrencyValue(price)} 
 						/>
 
 						<div aria-label="separator" className='border-l border-gray-200 md:block hidden' />
@@ -93,7 +96,7 @@ export const VariableDecisionDetailsSlider = ({
 							<p> Back </p>
 						</button>
 						<p className='text-sm text-grey-500'>
-							Necessary information required for <b>{deliveryMethodText}</b> after delivery method is approved
+							Designer will fill in the necessary information required for <b>{deliveryMethodText}</b> after delivery method is approved
 						</p>
 						<div className='pt-4 flex flex-row items-center'>
 							<span className="border-t flex-1" />
