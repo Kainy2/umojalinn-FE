@@ -421,7 +421,7 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
         {!props.isOnboarding && (
           <FormItemWrapper
             title="Sizing Template"
-            description="Choose appropriate sizing templates."
+            description="Choose available sizing template."
           >
             <FormField
               control={form.control}
@@ -468,7 +468,7 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
 
         <FormItemWrapper
             title="Will you be providing your own material?"
-            description="Select yes if you are providing your own material for the project."
+            description="Toggle yes if you are providing your own material"
           >
             <FormField
               control={form.control}
@@ -477,7 +477,11 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
                 <Switch
                   key={String(value)}
                   onCheckedChange={onChange}
-                  checked={value} />
+                  checked={value} 
+                  showHelpText
+                  checkedHelpText="Yes"
+                  uncheckedHelpText="No"
+                />
               )}
             />
           </FormItemWrapper>

@@ -52,7 +52,7 @@ export type MilestoneTimelineProps = {
   milestones: UmojaLinnMilestone[];
   className?: string;
   isDesigner?: boolean;
-  // isBuyer?: boolean;
+  escrowBalance?: number;
   currency: UmojaLinnProject["currency"];
   projectId?: string;
   designer: UmojaLinnUser | null | undefined;
@@ -80,7 +80,7 @@ const getMilestoneStatus = (
 const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
   milestones,
   className,
-  // isBuyer,
+  escrowBalance,
   isDesigner,
   currency,
   projectId,
@@ -216,18 +216,20 @@ const deliveryMilestone = milestones[milestones.length - 1];
                 </p>
                 {milestone?.additionalContent}
 
-                <VariableDeliveryForm
-                  isVariableDelivery={isVariableDelivery}
-                  isDesigner={!!isDesigner}
-                  isDeliveryMilestone={isDelivery}
-                  variableSubmissions={item?.variableSubmissions}
-                  currency={currency ?? 'NAIRA'}
-                  isCurrentMilestone={!!milestone?.isCurrent}
-                  editedVariablePrice={editedVariablePrice}
-                  setEditedVariablePrice={setEditedVariablePrice}
-                  selectedVariableDeliveryMethod={selectedVariableDeliveryMethod}
-                  setSelectedVariableDeliveryMethod={setSelectedVariableDeliveryMethod}
-                />
+                 {item?.status === MilestoneStatus.ACTIVE && (
+                    <VariableDeliveryForm
+                      isVariableDelivery={isVariableDelivery}
+                      isDesigner={!!isDesigner}
+                      isDeliveryMilestone={isDelivery}
+                      variableSubmissions={item?.variableSubmissions}
+                      currency={currency ?? 'NAIRA'}
+                      isCurrentMilestone={!!milestone?.isCurrent}
+                      editedVariablePrice={editedVariablePrice}
+                      setEditedVariablePrice={setEditedVariablePrice}
+                      selectedVariableDeliveryMethod={selectedVariableDeliveryMethod}
+                      setSelectedVariableDeliveryMethod={setSelectedVariableDeliveryMethod}
+                    />
+                  )}
 
                 <MilestoneSubmissionsPreview
                   status={milestone?.status}
@@ -282,7 +284,7 @@ const deliveryMilestone = milestones[milestones.length - 1];
                       )}
                     </time>
                   )}
-                  <MilestonePill currency={currency} {...milestone} />
+                  <MilestonePill currency={currency} escrowBalance={escrowBalance} {...milestone} />
                   {milestone?.status === MilestoneStatus.AWAITING_FUND &&
                     !isDesigner && (
                       <SelectFundingMethodDialog

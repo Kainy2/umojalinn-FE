@@ -40,6 +40,7 @@ const ActiveProjectPage = () => {
         designer={projectData?.data?.data?.designer.user}
         projectId={projectData?.data?.data?.id}
         currency={projectData?.data?.data?.currency || null}
+        escrowBalance={projectData?.data?.data?.escrowBalance || 0}
         isDesigner={
           projectData?.data?.data?.buyerId ===
           meData?.data?.data?.designerProfile?.id

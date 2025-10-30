@@ -41,7 +41,7 @@ export const VariableDeliverySlider = ({
 					<div>
 						<h6 className="font-semibold text-gray-600">Variable delivery</h6>
 						<p>
-							You can now adjust the price and delivery method for this milestone. Once accepted, the delivery method form will become active, allowing you to enter the required details. This step ensures that China agrees with both the delivery method and the price.
+							You can now adjust the price and delivery method for this milestone. Once accepted, the delivery method form will become active, allowing you to enter the required details. This step ensures that the client agrees with both the delivery method and the price.
 						</p>
 					</div>
 				</div>

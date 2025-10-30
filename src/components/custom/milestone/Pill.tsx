@@ -5,14 +5,16 @@ import {
 } from "@/components/util/milestone";
 import { getCurrencySymbol } from "@/lib/string";
 import { cn } from "@/lib/utils";
-import { MilestoneTimelineItem, MilestoneTimelineProps } from "./Timeline";
+import { MilestoneStatus, MilestoneTimelineItem, MilestoneTimelineProps } from "./Timeline";
 import { formatCurrencyValue } from "@/lib/number";
 
 const MilestonePill: React.FC<
-  MilestoneTimelineItem & Pick<MilestoneTimelineProps, "currency">
-> = ({ amount, currency, status, variableSubmissions }) => {
-  const variableStatus = variableSubmissions?.[0]?.status === "PENDING" ? "IN_REVIEW" : status
-  const variableAmount = variableSubmissions?.[0]?.status === "PENDING" ? variableSubmissions?.[0]?.amount : amount
+  MilestoneTimelineItem & Pick<MilestoneTimelineProps, "currency" | "escrowBalance">
+  > = ({ amount, currency, escrowBalance=0, status, variableSubmissions }) => {
+    const variableStatus = variableSubmissions?.[0]?.status === "PENDING" ? "IN_REVIEW" : status
+    const nonVariableAmount = variableStatus === MilestoneStatus.AWAITING_FUND ? amount-escrowBalance : amount
+    const variableAmount = variableSubmissions?.[0]?.status === "PENDING" ? variableSubmissions?.[0]?.amount : nonVariableAmount
+console.log({nonVariableAmount, variableAmount, variableStatus, escrowBalance});
 
   const label = getLabel(variableStatus);
   const wrapperStyle = getPillWrapperStyle(variableStatus);
