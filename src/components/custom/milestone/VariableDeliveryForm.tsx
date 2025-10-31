@@ -48,11 +48,11 @@ export const VariableDeliveryForm = ({
   selectedVariableDeliveryMethod,
   setSelectedVariableDeliveryMethod,
 }: VariableDeliveryFormProps) => {
-  const { data: milestoneSubmissionsData } =
+  const { data: milestoneSubmissionsData, isLoading: isLoadingSubmissions } =
   useGetMilestoneSubmissions(milestoneId);
   
   const milestoneSubmissions = milestoneSubmissionsData?.data?.data;
-  if (!isVariableDelivery || !!milestoneSubmissions?.length) return null;
+  if (!isVariableDelivery || !!milestoneSubmissions?.length || isLoadingSubmissions) return null;
   // --- Core state ---
   const firstSubmission = variableSubmissions?.[0];
   const hasSubmission = !!firstSubmission && firstSubmission.status !== "REJECTED";
