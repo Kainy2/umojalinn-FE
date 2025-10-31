@@ -13,6 +13,7 @@ import { AddSubtractInput } from "../input/AddSubtractInput";
 import { VariableDeliverySlider } from "./VariableDeliverySlider";
 import { VariableDecisionDetailsSlider } from "./VariableDecisionDetailsSlider";
 import { EmptyDeliveryDetails } from "./DeliveryDetails";
+import { useGetMilestoneSubmissions } from "@/tanstack/hooks/useProject";
 
 const DELIVERY_METHODS: { label: string; value: UmojaLinnDeliveryMethod }[] = [
   { label: "In person pickup", value: "IN_PERSON_PICKUP" },
@@ -21,6 +22,7 @@ const DELIVERY_METHODS: { label: string; value: UmojaLinnDeliveryMethod }[] = [
 ];
 
 type VariableDeliveryFormProps = {
+  milestoneId: string;
   isVariableDelivery: boolean;
   isDesigner: boolean;
   isDeliveryMilestone: boolean;
@@ -34,6 +36,7 @@ type VariableDeliveryFormProps = {
 };
 
 export const VariableDeliveryForm = ({
+  milestoneId,
   isVariableDelivery,
   isDesigner,
   isDeliveryMilestone,
@@ -45,8 +48,11 @@ export const VariableDeliveryForm = ({
   selectedVariableDeliveryMethod,
   setSelectedVariableDeliveryMethod,
 }: VariableDeliveryFormProps) => {
-  if (!isVariableDelivery) return null;
-
+  const { data: milestoneSubmissionsData } =
+  useGetMilestoneSubmissions(milestoneId);
+  
+  const milestoneSubmissions = milestoneSubmissionsData?.data?.data;
+  if (!isVariableDelivery || !!milestoneSubmissions?.length) return null;
   // --- Core state ---
   const firstSubmission = variableSubmissions?.[0];
   const hasSubmission = !!firstSubmission && firstSubmission.status !== "REJECTED";

@@ -216,20 +216,19 @@ const deliveryMilestone = milestones[milestones.length - 1];
                 </p>
                 {milestone?.additionalContent}
 
-                 {item?.status === MilestoneStatus.ACTIVE && (
-                    <VariableDeliveryForm
-                      isVariableDelivery={isVariableDelivery}
-                      isDesigner={!!isDesigner}
-                      isDeliveryMilestone={isDelivery}
-                      variableSubmissions={item?.variableSubmissions}
-                      currency={currency ?? 'NAIRA'}
-                      isCurrentMilestone={!!milestone?.isCurrent}
-                      editedVariablePrice={editedVariablePrice}
-                      setEditedVariablePrice={setEditedVariablePrice}
-                      selectedVariableDeliveryMethod={selectedVariableDeliveryMethod}
-                      setSelectedVariableDeliveryMethod={setSelectedVariableDeliveryMethod}
-                    />
-                  )}
+                <VariableDeliveryForm
+                  milestoneId={item?.id}
+                  isVariableDelivery={isVariableDelivery}
+                  isDesigner={!!isDesigner}
+                  isDeliveryMilestone={isDelivery}
+                  variableSubmissions={item?.variableSubmissions}
+                  currency={currency ?? 'NAIRA'}
+                  isCurrentMilestone={!!milestone?.isCurrent}
+                  editedVariablePrice={editedVariablePrice}
+                  setEditedVariablePrice={setEditedVariablePrice}
+                  selectedVariableDeliveryMethod={selectedVariableDeliveryMethod}
+                  setSelectedVariableDeliveryMethod={setSelectedVariableDeliveryMethod}
+                />
 
                 <MilestoneSubmissionsPreview
                   status={milestone?.status}
