@@ -17,54 +17,62 @@ const NOTIFICATION_SETTINGS: Array<{
     prop: keyof NotificationSettingsProps;
   }>;
 }> = [
-  // {
-  //   title: "Tag",
-  //   description:
-  //     "These are notifications for when someone tags you in a project",
-  //   inputs: [
-  //     {
-  //       label: "Push",
-  //       prop: "tagPushNotifications",
-  //     },
-  //     {
-  //       label: "Email",
-  //       prop: "tagEmailNotifications",
-  //     },
-  //   ],
-  // },
+  {
+    title: "Tag",
+    description:
+      "These are notifications for when someone tags you in a project",
+    inputs: [
+      // {
+      //   label: "Push",
+      //   prop: "tagPushNotifications",
+      // },
+      // {
+      //   label: "Email",
+      //   prop: "tagEmailNotifications",
+      // },
+      {
+        label: "Whatsapp",
+        prop: "tagWhatsAppNotifications",
+      },
+    ],
+  },
   {
     title: "Reminders",
     description:
       "These are notifications to remind you of updates you might have missed.",
     inputs: [
-      {
-        label: "Push",
-        prop: "reminderPushNotifications",
-      },
-      {
-        label: "Email",
-        prop: "reminderEmailNotifications",
-      },
+      // {
+      //   label: "Push",
+      //   prop: "reminderPushNotifications",
+      // },
+      // {
+      //   label: "Email",
+      //   prop: "reminderEmailNotifications",
+      // },
       {
         label: "Whatsapp",
-        prop: "reminderEmailNotifications",
+        prop: "reminderWhatsAppNotifications",
       },
     ],
   },
-  // {
-  //   title: "Product Updates",
-  //   description: "These are notifications for Umoja linn products updates",
-  //   inputs: [
-  //     {
-  //       label: "Push",
-  //       prop: "productUpdates",
-  //     },
-  //     {
-  //       label: "Email",
-  //       prop: "productUpdatesEmail",
-  //     },
-  //   ],
-  // },
+  {
+    title: "Product Updates",
+    description: "These are notifications for Umoja linn products updates",
+    inputs: [
+      // {
+      //   label: "Push",
+      //   prop: "productUpdates",
+      // },
+      // {
+      //   label: "Email",
+      //   prop: "productUpdatesEmail",
+      // },
+      {
+        label: "Whatsapp",
+        prop: "productUpdatesWhatsApp",
+      },
+    ],
+  },
 ] as const;
 
 const SettingsNotificationPage = () => {
