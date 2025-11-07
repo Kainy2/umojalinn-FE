@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import React from "react";
 import { format } from "date-fns";
 import { getCurrencySymbol } from "@/lib/string";
-import { CircleAlert, EyeOff } from "lucide-react";
+import { CircleAlert, CircleX, EyeOff } from "lucide-react";
 import { useGetBidById } from "@/tanstack/hooks/useBid";
 import { Skeleton } from "@/components/ui/skeleton";
 import GalleryImages from "@/components/custom/GalleryImages";
@@ -93,6 +93,18 @@ const BidTabProjectDetailsSection = () => {
         label="Additional note"
         value={project?.additionalNotes || "None"}
       />
+
+      <div className=" items-center gap-2">
+        <p className="text-foreground-body text-sm mb-2">
+          Will buyer provide materials?
+        </p>
+        <div className="text-sm mb-2 font-semibold text-subtitle-2">
+          {bid.project.willProvideMaterials 
+          ? <CheckCircle className="text-success" />
+          : <CircleX className="text-white" fill="red" color="currentColor" />
+          }
+        </div>
+      </div>
       <span>
         {project?.sizingTemplateId ? (
           <SizingTemplateDialog id={project?.sizingTemplateId}>

@@ -17,21 +17,21 @@ const NOTIFICATION_SETTINGS: Array<{
     prop: keyof NotificationSettingsProps;
   }>;
 }> = [
-  {
-    title: "Tag",
-    description:
-      "These are notifications for when someone tags you in a project",
-    inputs: [
-      {
-        label: "Push",
-        prop: "tagPushNotifications",
-      },
-      {
-        label: "Email",
-        prop: "tagEmailNotifications",
-      },
-    ],
-  },
+  // {
+  //   title: "Tag",
+  //   description:
+  //     "These are notifications for when someone tags you in a project",
+  //   inputs: [
+  //     {
+  //       label: "Push",
+  //       prop: "tagPushNotifications",
+  //     },
+  //     {
+  //       label: "Email",
+  //       prop: "tagEmailNotifications",
+  //     },
+  //   ],
+  // },
   {
     title: "Reminders",
     description:
@@ -45,22 +45,26 @@ const NOTIFICATION_SETTINGS: Array<{
         label: "Email",
         prop: "reminderEmailNotifications",
       },
-    ],
-  },
-  {
-    title: "Product Updates",
-    description: "These are notifications for Umoja linn products updates",
-    inputs: [
       {
-        label: "Push",
-        prop: "productUpdates",
-      },
-      {
-        label: "Email",
-        prop: "productUpdatesEmail",
+        label: "Whatsapp",
+        prop: "reminderEmailNotifications",
       },
     ],
   },
+  // {
+  //   title: "Product Updates",
+  //   description: "These are notifications for Umoja linn products updates",
+  //   inputs: [
+  //     {
+  //       label: "Push",
+  //       prop: "productUpdates",
+  //     },
+  //     {
+  //       label: "Email",
+  //       prop: "productUpdatesEmail",
+  //     },
+  //   ],
+  // },
 ] as const;
 
 const SettingsNotificationPage = () => {
