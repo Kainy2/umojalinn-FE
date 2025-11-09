@@ -219,10 +219,13 @@ export const passwordUpdateSchema = z
 export const notificationSettingsSchema = z.object({
   tagPushNotifications: z.boolean(),
   tagEmailNotifications: z.boolean(),
+  tagWhatsAppNotifications: z.boolean(),
   reminderPushNotifications: z.boolean(),
   reminderEmailNotifications: z.boolean(),
+  reminderWhatsAppNotifications: z.boolean(),
   productUpdates: z.boolean(),
   productUpdatesEmail: z.boolean(),
+  productUpdatesWhatsApp: z.boolean(),
 });
 
 export const notificationSettingsKey =
