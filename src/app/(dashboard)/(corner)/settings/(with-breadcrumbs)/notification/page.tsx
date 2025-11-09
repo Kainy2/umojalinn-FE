@@ -22,13 +22,17 @@ const NOTIFICATION_SETTINGS: Array<{
     description:
       "These are notifications for when someone tags you in a project",
     inputs: [
+      // {
+      //   label: "Push",
+      //   prop: "tagPushNotifications",
+      // },
+      // {
+      //   label: "Email",
+      //   prop: "tagEmailNotifications",
+      // },
       {
-        label: "Push",
-        prop: "tagPushNotifications",
-      },
-      {
-        label: "Email",
-        prop: "tagEmailNotifications",
+        label: "Whatsapp",
+        prop: "tagWhatsAppNotifications",
       },
     ],
   },
@@ -37,13 +41,17 @@ const NOTIFICATION_SETTINGS: Array<{
     description:
       "These are notifications to remind you of updates you might have missed.",
     inputs: [
+      // {
+      //   label: "Push",
+      //   prop: "reminderPushNotifications",
+      // },
+      // {
+      //   label: "Email",
+      //   prop: "reminderEmailNotifications",
+      // },
       {
-        label: "Push",
-        prop: "reminderPushNotifications",
-      },
-      {
-        label: "Email",
-        prop: "reminderEmailNotifications",
+        label: "Whatsapp",
+        prop: "reminderWhatsAppNotifications",
       },
     ],
   },
@@ -51,13 +59,17 @@ const NOTIFICATION_SETTINGS: Array<{
     title: "Product Updates",
     description: "These are notifications for Umoja linn products updates",
     inputs: [
+      // {
+      //   label: "Push",
+      //   prop: "productUpdates",
+      // },
+      // {
+      //   label: "Email",
+      //   prop: "productUpdatesEmail",
+      // },
       {
-        label: "Push",
-        prop: "productUpdates",
-      },
-      {
-        label: "Email",
-        prop: "productUpdatesEmail",
+        label: "Whatsapp",
+        prop: "productUpdatesWhatsApp",
       },
     ],
   },

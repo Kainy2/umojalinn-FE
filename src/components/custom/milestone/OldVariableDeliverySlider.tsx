@@ -1,21 +1,21 @@
 import { capitalizeFirstLetter } from '@/lib/string';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import React, { useState } from 'react'
-// import Slider from 'react-slick';
+import React, { useRef } from 'react'
+import Slider from 'react-slick';
 
 
-// const slickSettings = {
-// 	dots: false,
-// 	dotsClass: "slick-dots -translate-y-[9vh] md:-translate-y-[8vh]",
-// 	// fade: true,
-// 	draggable: false,
-// 	infinite: false,
-// 	// speed: 500,
-// 	// slidesToShow: 1,
-// 	// slidesToScroll: 1,
-// 	swipeToSlide: false,
-// 	swipe: false,
-// };
+const slickSettings = {
+	dots: false,
+	dotsClass: "slick-dots -translate-y-[9vh] md:-translate-y-[8vh]",
+	// fade: true,
+	draggable: false,
+	infinite: false,
+	// speed: 500,
+	// slidesToShow: 1,
+	// slidesToScroll: 1,
+	swipeToSlide: false,
+	swipe: false,
+};
 
 export const VariableDeliverySlider = ({
 	selectedDeliveryMethod,
@@ -23,19 +23,17 @@ export const VariableDeliverySlider = ({
 	selectedDeliveryMethod: string;
 }) => {
 	const selectedDeliveryMethodText = capitalizeFirstLetter(selectedDeliveryMethod).replaceAll("_", " ")
-	const [currentPage, setCurrentPage] = useState(1);
+	const sliderRef = useRef<Slider | null>(null);
 	
 
 	return (
-		<div className="my-2 p-4 rounded-md border border-gray-300 text-gray-500 text-sm ">
-{/* <div className="my-2 py-4 rounded-md w-full overflow-hidden text-gray-500 text-sm"> */}
-
-			{/* page 1 */}
-			{currentPage === 1 && (
+		<div className="my-2 p-4 rounded-md border border-gray-300 flex flex-col gap-1 text-gray-500 text-sm  md:max-w-prose 2xl:max-w-[90ch]">
+			<Slider {...slickSettings} ref={sliderRef} className=""> 
+				{/* page 1 */}
 				<div className="space-y-3">
 					<button 
 						className='bg-gray-100 border-l border-gray-600 px-4 py-2 flex w-full items-center justify-between'
-						onClick={() => setCurrentPage(2)}
+						onClick={() => sliderRef.current?.slickNext()}
 					>
 						<p> Input field Required for {selectedDeliveryMethodText} </p>
 						<ChevronRight size={20} />
@@ -47,14 +45,12 @@ export const VariableDeliverySlider = ({
 						</p>
 					</div>
 				</div>
-			)}
 
-			{/* page 2 */}
-			{currentPage === 2 && (
+				{/* page 2 */}
 				<div className="space-y-4">
 					<button 
 						className='gap-2 py-2 flex items-center justify-between font-semibold'
-						onClick={() => setCurrentPage(1)}
+						onClick={() => sliderRef.current?.slickPrev()}
 					>
 						<ChevronLeft size={20} />
 						<p> Back </p>
@@ -125,7 +121,7 @@ export const VariableDeliverySlider = ({
 							))}
 					</div>
 				</div>
-			)}
+			</Slider>
 		</div>
 	)
 }

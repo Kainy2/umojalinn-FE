@@ -1,24 +1,24 @@
 import { capitalizeFirstLetter, getCurrencySymbol } from '@/lib/string';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import React, { ReactNode, useState } from 'react'
-// import { Settings } from 'react-slick';
+import React, { ReactNode, useRef } from 'react'
+import Slider, { Settings } from 'react-slick';
 import { EmptyDeliveryDetails } from './DeliveryDetails';
 import { UmojaLinnCurrency, UmojaLinnDeliveryMethod } from '@/types/project';
 import { formatCurrencyValue } from '@/lib/number';
 
 
-// const slickSettings:Settings = {
-// 	dots: false,
-// 	dotsClass: "slick-dots -translate-y-[9vh] md:-translate-y-[8vh]",
-// 	// fade: true,
-// 	draggable: false,
-// 	infinite: false,
-// 	// speed: 500,
-// 	// slidesToShow: 1,
-// 	// slidesToScroll: 1,
-// 	swipeToSlide: false,
-// 	swipe: false,
-// };
+const slickSettings:Settings = {
+	dots: false,
+	dotsClass: "slick-dots -translate-y-[9vh] md:-translate-y-[8vh]",
+	// fade: true,
+	draggable: false,
+	infinite: false,
+	// speed: 500,
+	// slidesToShow: 1,
+	// slidesToScroll: 1,
+	swipeToSlide: false,
+	swipe: false,
+};
 
 export const VariableDecisionDetailsSlider = ({
 	deliveryMethod,
@@ -30,13 +30,15 @@ export const VariableDecisionDetailsSlider = ({
 	currency: UmojaLinnCurrency;
 }) => {
 	const deliveryMethodText = capitalizeFirstLetter(deliveryMethod).replaceAll("_", " ")
-	const [currentPage, setCurrentPage] = useState(1);
+	const sliderRef = useRef<Slider | null>(null);
 	
 
 	return (
-		<div className="my-2 py-4 rounded-md w-full  text-gray-500 text-sm">
+	<div className='flex max-w-[50vw]'>
+
+		<div className="my-2 py-4 rounded-md w-full overflow-hidden text-gray-500 text-sm flex-1 ">
+			<Slider {...slickSettings} ref={sliderRef} className=""> 
 				{/* page 1 */}
-			{currentPage === 1 && (
 				<div className='px-0.5'>
 					<div className="p-2 flex flex-col md:flex-row gap-3 rounded-md border border-gray-300 justify-evenly">
 						<VariableDeliveryInfo
@@ -60,7 +62,7 @@ export const VariableDecisionDetailsSlider = ({
 							value={
 									<button
 										className="text-primary flex items-center justify-between"
-										onClick={() => setCurrentPage(2)}
+										onClick={() => sliderRef.current?.slickNext()}
 									>
 										<p>View details</p>
 										<ChevronRight size={20} />
@@ -84,15 +86,13 @@ export const VariableDecisionDetailsSlider = ({
 					</div>
 
 				</div>
-				)}
 
 				{/* page 2 */}
-			{currentPage === 2 && (
 				<div className='px-0.5'>
 					<div className="space-y-4 rounded-md border border-gray-300 p-2">
 						<button 
 							className='gap-2 py-2 flex items-center justify-between font-semibold'
-							onClick={() => setCurrentPage(1)}
+							onClick={() => sliderRef.current?.slickPrev()}
 						>
 							<ChevronLeft size={20} />
 							<p> Back </p>
@@ -111,8 +111,9 @@ export const VariableDecisionDetailsSlider = ({
 						</div>
 					</div>
 				</div>
-			)}
+			</Slider>
 		</div>
+	</div>
 	)
 }
 

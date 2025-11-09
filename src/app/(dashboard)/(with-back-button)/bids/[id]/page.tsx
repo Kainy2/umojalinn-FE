@@ -31,6 +31,7 @@ const IndividualBidPage = () => {
   const router = useRouter();
   const { data: session } = useSession();
 
+  const isDesigner = session?.user.profileRole === "DESIGNER";
   const note = session?.user?.profileRole === "BUYER" 
   ? bid?.additionalNotesToClient
   : bid?.rejectionReason
@@ -38,7 +39,7 @@ const IndividualBidPage = () => {
   const myNote = session?.user?.profileRole === "BUYER" 
   ? bid?.rejectionReason
   : bid?.additionalNotesToClient
-  console.log("myNote", myNote);
+
   
 
   const { mutate: acceptOrReject, isPending } = useAcceptOrRejectBid(id, {
@@ -116,7 +117,10 @@ const IndividualBidPage = () => {
               ?.join(", ")}
           </h3>
           <p className="text-sm mb-4">
-            The Client&apos;s full address will be shown once the project is Active
+            {isDesigner 
+            ? "The Client's full address will be shown once the project is Active"
+            : "Your full address will be shown to your designer once the project is active"
+          }
           </p>
 
           <VariableDeliverySelect
