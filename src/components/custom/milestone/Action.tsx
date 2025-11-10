@@ -28,12 +28,13 @@ const MilestoneAction: React.FC<
       files: FileList | null;
       clear: () => void;
       editedVariablePrice: number, 
-      selectedVariableDeliveryMethod: UmojaLinnDeliveryMethod, 
+      selectedVariableDeliveryMethod: UmojaLinnDeliveryMethod,
+      isAwaitingFunding: boolean;
       onAcceptVariableMilestoneSuccess: (deliveryMilestone: UmojaLinnMilestone) => void
     }
 > = ({
   isCurrent,
-  // isBuyer,
+  isAwaitingFunding,
   isDesigner,
   status,
   id,
@@ -55,7 +56,7 @@ const MilestoneAction: React.FC<
   const isNoSubmission = !variableSubmissions?.length || currentVariableSubmission?.status === "REJECTED"
 
   const isAcceptingVariableDelivery = isVariableDelivery && currentVariableSubmission?.status === "PENDING"
-  const isSubmittingVariableType = isVariableDelivery && isNoSubmission
+  const isSubmittingVariableType = isVariableDelivery && isNoSubmission && !isAwaitingFunding
 
   const { mutate: submitMilestone, isPending: isSubmittingMilestone } =
     useSubmitMilestone(id, {
