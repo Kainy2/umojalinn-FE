@@ -334,6 +334,7 @@ const deliveryMilestone = milestones[milestones.length - 1];
                   }}
                   deliverySubmission={editableDeliverySubmission}
                   variableSubmissions={item?.variableSubmissions}
+                  isAwaitingFunding={isAwaitingFunding}
                   onActionClick={(action) => console.log(action)}
                   onAcceptMilestoneSuccess={()=> onAcceptMilestoneSuccess(isDelivery, index)}
                   onAcceptVariableMilestoneSuccess={(deliveryMilestone) => 
