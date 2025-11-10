@@ -84,15 +84,6 @@ const BidTabProjectDetailsSection = () => {
           project?.dueDate ? format(project?.dueDate, "dd MMM, yyyy") : "None"
         }
       />
-      {/* <LabelValue label="Yeas of Experience" value={"2 - 3 years"} /> */}
-      <LabelValue
-        label="Clothing types"
-        value={project?.clothingTypes?.map((type) => type?.name) || "None"}
-      />
-      <LabelValue
-        label="Additional note"
-        value={project?.additionalNotes || "None"}
-      />
 
       <div className=" items-center gap-2">
         <p className="text-foreground-body text-sm mb-2">
@@ -105,6 +96,17 @@ const BidTabProjectDetailsSection = () => {
           }
         </div>
       </div>
+
+      {/* <LabelValue label="Yeas of Experience" value={"2 - 3 years"} /> */}
+      <LabelValue
+        label="Clothing types"
+        value={project?.clothingTypes?.map((type) => type?.name) || "None"}
+      />
+      <LabelValue
+        label="Additional note"
+        value={project?.additionalNotes || "None"}
+      />
+
       <span>
         {project?.sizingTemplateId ? (
           <SizingTemplateDialog id={project?.sizingTemplateId}>

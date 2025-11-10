@@ -22,6 +22,7 @@ const DELIVERY_METHODS: { label: string; value: UmojaLinnDeliveryMethod }[] = [
 ];
 
 type VariableDeliveryFormProps = {
+  isAwaitingFunding: boolean
   milestoneId: string;
   isVariableDelivery: boolean;
   isDesigner: boolean;
@@ -36,6 +37,7 @@ type VariableDeliveryFormProps = {
 };
 
 export const VariableDeliveryForm = ({
+  isAwaitingFunding,
   milestoneId,
   isVariableDelivery,
   isDesigner,
@@ -52,14 +54,14 @@ export const VariableDeliveryForm = ({
   useGetMilestoneSubmissions(milestoneId);
   
   const milestoneSubmissions = milestoneSubmissionsData?.data?.data;
-  if (!isVariableDelivery || !!milestoneSubmissions?.length || isLoadingSubmissions) return null;
+  if (!isVariableDelivery || !milestoneSubmissions?.length || isLoadingSubmissions) return null;
   // --- Core state ---
   const firstSubmission = variableSubmissions?.[0];
   const hasSubmission = !!firstSubmission && firstSubmission.status !== "REJECTED";
   const currentSubmission = hasSubmission ? firstSubmission : undefined;
 
 	// --- Derived state ---
-  const isEditable = isDesigner && isCurrentMilestone && !hasSubmission;
+  const isEditable = isDesigner && isCurrentMilestone && !hasSubmission && !isAwaitingFunding
   const isDisabled = isDeliveryMilestone && !isCurrentMilestone;
   const isExpectingResponse = !isDesigner && isCurrentMilestone && isDeliveryMilestone && !hasSubmission;
   const isDecisionStage = !isDesigner && isCurrentMilestone && isDeliveryMilestone && hasSubmission;

@@ -163,7 +163,7 @@ const deliveryMilestone = milestones[milestones.length - 1];
         };
 
         const isVariableDelivery = item.deliveryMileStoneType === EDeliveryMileStoneType.VARIABLE 
-
+        const isAwaitingFunding = milestone?.status === MilestoneStatus.AWAITING_FUND 
         const isCompletedOrCurrent =
           milestone?.status === MilestoneStatus.COMPLETED ||
           milestone?.isCurrent;
@@ -217,6 +217,7 @@ const deliveryMilestone = milestones[milestones.length - 1];
                 {milestone?.additionalContent}
 
                 <VariableDeliveryForm
+                  isAwaitingFunding={isAwaitingFunding}
                   milestoneId={item?.id}
                   isVariableDelivery={isVariableDelivery}
                   isDesigner={!!isDesigner}
@@ -284,7 +285,7 @@ const deliveryMilestone = milestones[milestones.length - 1];
                     </time>
                   )}
                   <MilestonePill currency={currency} escrowBalance={escrowBalance} {...milestone} />
-                  {milestone?.status === MilestoneStatus.AWAITING_FUND &&
+                  {isAwaitingFunding &&
                     !isDesigner && (
                       <SelectFundingMethodDialog
                         id={milestone?.id}
