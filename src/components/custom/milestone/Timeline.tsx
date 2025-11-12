@@ -217,7 +217,7 @@ const deliveryMilestone = milestones[milestones.length - 1];
                 {milestone?.additionalContent}
 
                 <VariableDeliveryForm
-                  isAwaitingFunding={isAwaitingFunding}
+                  isAwaitingFunding={false}
                   milestoneId={item?.id}
                   isVariableDelivery={isVariableDelivery}
                   isDesigner={!!isDesigner}
@@ -334,7 +334,7 @@ const deliveryMilestone = milestones[milestones.length - 1];
                   }}
                   deliverySubmission={editableDeliverySubmission}
                   variableSubmissions={item?.variableSubmissions}
-                  isAwaitingFunding={isAwaitingFunding}
+                  isAwaitingFunding={false}
                   onActionClick={(action) => console.log(action)}
                   onAcceptMilestoneSuccess={()=> onAcceptMilestoneSuccess(isDelivery, index)}
                   onAcceptVariableMilestoneSuccess={(deliveryMilestone) => 
