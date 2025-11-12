@@ -54,21 +54,25 @@ export const VariableDeliveryForm = ({
   useGetMilestoneSubmissions(milestoneId);
   
   const milestoneSubmissions = milestoneSubmissionsData?.data?.data;
-  if (!isVariableDelivery || !milestoneSubmissions?.length || isLoadingSubmissions) return null;
+  
+  if (!isVariableDelivery || isLoadingSubmissions) return null;
   // --- Core state ---
   const firstSubmission = variableSubmissions?.[0];
   const hasSubmission = !!firstSubmission && firstSubmission.status !== "REJECTED";
   const currentSubmission = hasSubmission ? firstSubmission : undefined;
+  const hasFinalisedVariableSubmission = firstSubmission?.status === 'APPROVED'
 
 	// --- Derived state ---
-  const isEditable = isDesigner && isCurrentMilestone && !hasSubmission && !isAwaitingFunding
+  const isEditable = isDesigner && isCurrentMilestone && !hasSubmission && hasFinalisedVariableSubmission && !isAwaitingFunding
   const isDisabled = isDeliveryMilestone && !isCurrentMilestone;
   const isExpectingResponse = !isDesigner && isCurrentMilestone && isDeliveryMilestone && !hasSubmission;
-  const isDecisionStage = !isDesigner && isCurrentMilestone && isDeliveryMilestone && hasSubmission;
+  const isDecisionStage = !isDesigner && isCurrentMilestone && isDeliveryMilestone && hasSubmission
 
   const deliveryMethodText = capitalizeFirstLetter(
     currentSubmission?.deliveryMethod ?? selectedVariableDeliveryMethod
   ).replaceAll("_", " ");
+
+  console.log(milestoneSubmissions);
 
   // --- Render ---
   return (
@@ -135,7 +139,7 @@ export const VariableDeliveryForm = ({
       )}
 
       {/* Pending Designer Response */}
-      {currentSubmission?.status === "PENDING" && !isEditable && isDesigner && (
+      {currentSubmission?.status === "PENDING" && !isEditable && isDesigner && !hasFinalisedVariableSubmission && (
         <div className="py-2.5 px-5 md:py-5 rounded-md border border-gray-300 bg-gray-50 text-gray-500">
           <EmptyDeliveryDetails
             currentDeliveryMethod={currentSubmission?.deliveryMethod ?? "IN_PERSON_PICKUP"}
@@ -144,7 +148,7 @@ export const VariableDeliveryForm = ({
       )}
 
       {/* Info Box */}
-      {(isDisabled || isExpectingResponse) && (
+      {(isDisabled || isExpectingResponse) && !hasFinalisedVariableSubmission && (
         <div
           className={cn(
             "my-2 p-4 rounded-md border flex flex-col gap-1 text-sm transition-all",
@@ -164,10 +168,10 @@ export const VariableDeliveryForm = ({
       )}
 
       {/* Editable Slider */}
-      {isEditable && <VariableDeliverySlider selectedDeliveryMethod={selectedVariableDeliveryMethod} />}
+      {isEditable && !hasFinalisedVariableSubmission && <VariableDeliverySlider selectedDeliveryMethod={selectedVariableDeliveryMethod} />}
 
       {/* Decision Stage */}
-      {isDecisionStage && currentSubmission && (
+      {isDecisionStage && currentSubmission && !hasFinalisedVariableSubmission && (
         <VariableDecisionDetailsSlider
           currency={currency}
           deliveryMethod={currentSubmission.deliveryMethod}
