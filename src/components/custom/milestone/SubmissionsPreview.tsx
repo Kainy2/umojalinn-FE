@@ -13,12 +13,12 @@ import { cn, isVideoLink } from "@/lib/utils";
 //   DialogTrigger,
 // } from "@/components/ui/dialog";
 import GalleryImages from "../GalleryImages";
-import { DeliveryDetails } from "./DeliveryDetails";
+import { DeliveryDetails, EmptyDeliveryDetails } from "./DeliveryDetails";
 import { UmojaLinnMilestone } from "@/types/project";
 
 type MilestoneSubmissionsPreviewProps = {
   milestoneId: string;
-  // isBuyer?: boolean;
+  isFixedDelivery: boolean;
   deliveryMethod?: UmojaLinnMilestone["deliveryMethod"];
   isDeliveryMilestone?: boolean;
   isDesigner?: boolean;
@@ -57,12 +57,40 @@ const MilestoneSubmissionsPreviewUser = (
 const MilestoneSubmissionsPreview = (
   props: MilestoneSubmissionsPreviewProps,
 ) => {
-  const { milestoneId } = props;
+  const { 
+    milestoneId, 
+    isFixedDelivery,
+    isDeliveryMilestone,
+    isDesigner,
+    status,
+    deliveryMethod,
+   } = props;
+
   const { data: milestoneSubmissionsData } =
     useGetMilestoneSubmissions(milestoneId);
 
   const milestoneSubmissions = milestoneSubmissionsData?.data?.data;
-  // const isVariableDelivery = true
+  const isAwaitingFunding = status === MilestoneStatus.AWAITING_FUND
+  const isMilestoneActive = status === MilestoneStatus.ACTIVE
+  const isMilestoneInactive = status === MilestoneStatus.INACTIVE 
+
+  // Show empty delivery details section to designer when designer is not yet in filling form stage
+  if (isFixedDelivery && isDeliveryMilestone && isDesigner && (isMilestoneInactive || isAwaitingFunding))
+    return (
+    <div className={cn("rounded-md border border-gray-300 bg-gray-50 py-2.5 px-5 md:py-5",
+      isMilestoneInactive && "opacity-50"
+    )}>
+      <EmptyDeliveryDetails currentDeliveryMethod={deliveryMethod} />
+    </div>
+  )
+
+  // Show awaiting delivery to buyer when designer is in filling form stage
+  if (isFixedDelivery && isDeliveryMilestone && !isDesigner && isMilestoneActive && !milestoneSubmissions?.length ) return (
+    <div className="rounded-md border border-gray-300 bg-gray-50 py-2.5 px-5 md:py-5">
+      <DeliveryDetails deliveryMethod={deliveryMethod} />
+    </div>
+  )
+
   return (
     <div
       className={cn(
@@ -97,8 +125,8 @@ const MilestoneSubmissionsPreview = (
             {props.isDeliveryMilestone && (
               <div className="rounded-md border border-gray-300 bg-gray-50 py-2.5 px-5 md:py-5">
                 <DeliveryDetails
-                deliveryMethod={props.deliveryMethod}
-                submission={submission}
+                  deliveryMethod={props.deliveryMethod}
+                  submission={submission}
                 />
               </div>
             )}

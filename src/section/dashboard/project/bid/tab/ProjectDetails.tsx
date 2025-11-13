@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import React from "react";
 import { format } from "date-fns";
 import { getCurrencySymbol } from "@/lib/string";
-import { CircleAlert, CircleX, EyeOff } from "lucide-react";
+import { CircleAlert, EyeOff } from "lucide-react";
 import { useGetBidById } from "@/tanstack/hooks/useBid";
 import { Skeleton } from "@/components/ui/skeleton";
 import GalleryImages from "@/components/custom/GalleryImages";
@@ -13,6 +13,7 @@ import SizingTemplateDialog from "@/components/custom/dialog/SizingTemplate";
 import AvatarIconTag from "@/components/custom/tag/AvatarIcon";
 import CheckCircle from "@/icons/CheckCircle";
 import { formatCurrencyValue } from "@/lib/number";
+import { cn } from "@/lib/utils";
 
 const BidTabProjectDetailsSection = () => {
   const { id } = useParams<{ id: string }>();
@@ -89,11 +90,15 @@ const BidTabProjectDetailsSection = () => {
         <p className="text-foreground-body text-sm mb-2">
           Will buyer provide materials?
         </p>
-        <div className="text-sm mb-2 font-semibold text-subtitle-2">
-          {bid.project.willProvideMaterials 
+        <div className={cn(
+          "mb-2 font-semibold text-subtitle-2",
+          bid.project.willProvideMaterials ? "text-green-500" : "text-red-600"
+        )}>
+          {/* {bid.project.willProvideMaterials 
           ? <CheckCircle className="text-success" />
           : <CircleX className="text-white" fill="red" color="currentColor" />
-          }
+          } */}
+          {bid.project.willProvideMaterials ? "Yes" : "No"}
         </div>
       </div>
 

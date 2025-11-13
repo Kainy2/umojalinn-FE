@@ -237,6 +237,7 @@ const deliveryMilestone = milestones[milestones.length - 1];
                   milestoneId={item?.id}
                   deliveryMethod={item?.deliveryMethod}
                   isDeliveryMilestone={isDelivery}
+                  isFixedDelivery={!isVariableDelivery}
                   {...{
                     // isBuyer,
                     isDesigner,
