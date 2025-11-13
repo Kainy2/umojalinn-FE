@@ -72,6 +72,7 @@ export const VariableDeliveryForm = ({
     currentSubmission?.deliveryMethod ?? selectedVariableDeliveryMethod
   ).replaceAll("_", " ");
 
+console.log({isEditable, milestoneSubmissions, hasFinalisedVariableSubmission, isAwaitingFunding});
 
   // --- Render ---
   return (
