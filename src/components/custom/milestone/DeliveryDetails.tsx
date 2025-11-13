@@ -1,5 +1,5 @@
 import { capitalizeFirstLetter } from "@/lib/string";
-import { normaliseLink } from "@/lib/utils";
+import { cn, normaliseLink } from "@/lib/utils";
 import { UmojaLinnDeliveryMethod, UmojaLinnMilestone, UmojaLinnMilestoneSubmission } from "@/types/project";
 import { Clock } from "lucide-react";
 
@@ -23,7 +23,7 @@ export const DeliveryDetails = ({ deliveryMethod, submission }: DeliveryDetailsP
 	} = submission;
 
 	return (
-		<div className="py-2.5 px-5 md:py-5 rounded-md border border-gray-300 flex flex-col gap-3 bg-gray-50">
+		<div className="py-2.5 px-5 md:py-5 rounded-md border border-gray-300 flex flex-col gap-5 bg-gray-50">
 			{[
 				{
 					title: "Delivery Method",
@@ -86,7 +86,7 @@ export const DeliveryDetails = ({ deliveryMethod, submission }: DeliveryDetailsP
 					return (
 						<div
 							key={value}
-							className="flex text-sm md:flex-row flex-col gap-2 justify-between md:items-center"
+							className="flex text-sm flex-col gap-2 justify-between"
 						>
 							<p>{title}</p>
 
@@ -94,7 +94,10 @@ export const DeliveryDetails = ({ deliveryMethod, submission }: DeliveryDetailsP
 								<Comp
 									href={normaliseLink(value)}
 									target="_blank"
-									className="flex gap-2 text-sm font-semibold leading-none text-foreground-body"
+									className={cn(
+										"flex gap-2 text-sm font-semibold leading-none text-foreground-body",
+										link && "underline hover:no-underline"
+									)}
 								>
 									{value}
 								</Comp>
@@ -171,9 +174,9 @@ export const EmptyDeliveryDetails = ({
 						]
 							.filter(({ allowedDeliveryMethods }) => allowedDeliveryMethods.includes(currentDeliveryMethod))
 							.map(({ value, title }) => (
-								<div key={title} className='flex gap-3 justify-between items-center'>
+								<div key={title} className='flex flex-col justify-between'>
 									<p className="">{title}</p>
-									<p>{value}</p>
+									<p className="text-foreground-body">{value}</p>
 								</div>
 							))}
 					</div>

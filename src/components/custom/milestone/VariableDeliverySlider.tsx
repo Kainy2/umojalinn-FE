@@ -67,7 +67,7 @@ export const VariableDeliverySlider = ({
 						<p className='text-sm text-grey-500 capitalize'>{selectedDeliveryMethodText} Information</p>
 						<span className="border-t flex-1" />
 					</div>
-					<div className='flex flex-col gap-3'>
+					<div className='flex flex-col gap-5'>
 						{[
 							{
 								title: "Country",
@@ -118,9 +118,9 @@ export const VariableDeliverySlider = ({
 						]
 							.filter(({ allowedDeliveryMethods }) => allowedDeliveryMethods.includes(selectedDeliveryMethod))
 							.map(({ value, title }) => (
-								<div key={title} className='flex gap-3 justify-between items-center'>
+								<div key={title} className='flex flex-col gap-2 justify-between'>
 									<p className="font-semibold">{title}</p>
-									<p>{value}</p>
+									<p className='text-foreground-body'>{value}</p>
 								</div>
 							))}
 					</div>

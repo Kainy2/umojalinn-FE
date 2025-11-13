@@ -92,7 +92,7 @@ const MilestoneSubmissionsPreview = (
               user={props.designer}
               isMe={props.isDesigner}
             />
-            <p className=" text-sm">{submission.description}</p>
+            {!props.isDeliveryMilestone && <p className=" text-sm">{submission.description}</p>}
 
             {props.isDeliveryMilestone && (
               <DeliveryDetails
