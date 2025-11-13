@@ -55,7 +55,7 @@ export const VariableDeliveryForm = ({
   
   const milestoneSubmissions = milestoneSubmissionsData?.data?.data;
   
-  if (!isVariableDelivery || isLoadingSubmissions) return null;
+  if (!isDeliveryMilestone || isLoadingSubmissions) return null;
   // --- Core state ---
   const firstSubmission = variableSubmissions?.[0];
   const hasSubmission = !!firstSubmission && firstSubmission.status !== "REJECTED";
@@ -63,21 +63,21 @@ export const VariableDeliveryForm = ({
   const hasFinalisedVariableSubmission = firstSubmission?.status === 'APPROVED'
 
 	// --- Derived state ---
-  const isEditable = isDesigner && isCurrentMilestone && !hasSubmission
-  const isDisabled = isDeliveryMilestone && !isCurrentMilestone;
-  const isExpectingResponse = !isDesigner && isCurrentMilestone && isDeliveryMilestone && !hasSubmission;
-  const isDecisionStage = !isDesigner && isCurrentMilestone && isDeliveryMilestone && hasSubmission
+  const isEditable = isDesigner && isCurrentMilestone && !hasSubmission && isVariableDelivery
+  const isDisabled = isDeliveryMilestone && !isCurrentMilestone && isVariableDelivery;
+  const isExpectingResponse = !isDesigner && isCurrentMilestone && isDeliveryMilestone && !hasSubmission && isVariableDelivery;
+  const isDecisionStage = !isDesigner && isCurrentMilestone && isDeliveryMilestone && hasSubmission && isVariableDelivery
 
   const deliveryMethodText = capitalizeFirstLetter(
     currentSubmission?.deliveryMethod ?? selectedVariableDeliveryMethod
   ).replaceAll("_", " ");
 
-console.log({isEditable, milestoneSubmissions, hasFinalisedVariableSubmission, isAwaitingFunding});
+console.log({isEditable, milestoneSubmissions, hasFinalisedVariableSubmission, isAwaitingFunding, isDecisionStage , currentSubmission });
 
   // --- Render ---
   return (
     <div className="space-y-4">
-      {isDeliveryMilestone && (
+      {isDeliveryMilestone && (!isVariableDelivery || !milestoneSubmissions?.length) && (
         <div className="flex flex-col md:flex-row justify-between md:items-center gap-3">
           {/* Delivery Method Selector */}
           <div className="flex gap-2 items-center">
@@ -175,7 +175,7 @@ console.log({isEditable, milestoneSubmissions, hasFinalisedVariableSubmission, i
         />
       )}
 
-      {/* Decision Stage */}
+      {/* Decision Stage for Buyer */}
       {isDecisionStage && currentSubmission && !milestoneSubmissions?.length && (
         <VariableDecisionDetailsSlider
           currency={currency}
