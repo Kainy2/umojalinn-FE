@@ -1,5 +1,5 @@
 import { capitalizeFirstLetter, getCurrencySymbol } from '@/lib/string';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 import React, { ReactNode, useState } from 'react'
 // import { Settings } from 'react-slick';
 import { DeliveryDetails, EmptyDeliveryDetails } from './DeliveryDetails';
@@ -64,7 +64,14 @@ export const VariableDecisionDetailsSlider = ({
 										className="text-primary flex items-center justify-between"
 										onClick={() => setCurrentPage(2)}
 									>
-										<p>View details</p>
+										{hasFinalisedVariableSubmission ? (
+											<div className='flex items-center gap-1'>
+												<Clock size={16} />
+												<p>Awaiting response</p>
+											</div>
+										):(
+											<p>View details</p>
+										)}
 										<ChevronRight size={20} />
 									</button>
 							}

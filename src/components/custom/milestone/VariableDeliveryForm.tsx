@@ -170,7 +170,7 @@ export const VariableDeliveryForm = ({
       {isEditable && !milestoneSubmissions?.length && (
         <VariableDeliverySlider
           selectedDeliveryMethod={selectedVariableDeliveryMethod}
-          hasFinalisedVariableSubmission={hasFinalisedVariableSubmission} 
+          hasFinalisedVariableSubmission={hasFinalisedVariableSubmission && !isAwaitingFunding} 
         />
       )}
 
@@ -180,7 +180,7 @@ export const VariableDeliveryForm = ({
           currency={currency}
           deliveryMethod={currentSubmission.deliveryMethod}
           price={currentSubmission.amount}
-          hasFinalisedVariableSubmission={hasFinalisedVariableSubmission}
+          hasFinalisedVariableSubmission={hasFinalisedVariableSubmission && !isAwaitingFunding}
         />
       )}
     </div>
