@@ -95,10 +95,12 @@ const MilestoneSubmissionsPreview = (
             {!props.isDeliveryMilestone && <p className=" text-sm">{submission.description}</p>}
 
             {props.isDeliveryMilestone && (
-              <DeliveryDetails
+              <div className="rounded-md border border-gray-300 bg-gray-50 py-2.5 px-5 md:py-5">
+                <DeliveryDetails
                 deliveryMethod={props.deliveryMethod}
                 submission={submission}
-              />
+                />
+              </div>
             )}
             <>
               {/* <div className="flex flex-wrap gap-2">
