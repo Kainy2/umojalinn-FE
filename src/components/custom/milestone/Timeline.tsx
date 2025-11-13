@@ -218,7 +218,7 @@ const deliveryMilestone = milestones[milestones.length - 1];
                 {milestone?.additionalContent}
 
                 <VariableDeliveryForm
-                  isAwaitingFunding={false}
+                  isAwaitingFunding={isAwaitingFunding}
                   milestoneId={item?.id}
                   isVariableDelivery={isVariableDelivery}
                   isDesigner={!!isDesigner}
@@ -237,6 +237,7 @@ const deliveryMilestone = milestones[milestones.length - 1];
                   milestoneId={item?.id}
                   deliveryMethod={item?.deliveryMethod}
                   isDeliveryMilestone={isDelivery}
+                  isFixedDelivery={!isVariableDelivery}
                   {...{
                     // isBuyer,
                     isDesigner,

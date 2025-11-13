@@ -41,7 +41,7 @@ export const DeliveryDetails = ({ deliveryMethod, submission }: DeliveryDetailsP
 				},
 				{
 					title: "State and Province",
-					value: `${state}, ${city}`,
+					value: `${state??''}${state&&city ?' ,':''}${city??''}`,
 					allowedDeliveryMethods: ["IN_PERSON_PICKUP"],
 				},
 				{
@@ -120,8 +120,9 @@ export const DeliveryDetails = ({ deliveryMethod, submission }: DeliveryDetailsP
 export const EmptyDeliveryDetails = ({
 	currentDeliveryMethod,
 }: {
-	currentDeliveryMethod: UmojaLinnDeliveryMethod;
+	currentDeliveryMethod?: UmojaLinnDeliveryMethod;
 }) => {
+	if (!currentDeliveryMethod) return
 	return (
 		<div className='flex flex-col gap-5'>
 						{[
