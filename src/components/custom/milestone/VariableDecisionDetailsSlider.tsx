@@ -48,7 +48,7 @@ export const VariableDecisionDetailsSlider = ({
 						<hr aria-label="separator" className='border-gray-200 md:hidden block w-full'/>
 						
 						<VariableDeliveryInfo
-							title="Price"
+							title="New Price"
 							value={getCurrencySymbol(currency) + formatCurrencyValue(price)} 
 						/>
 

@@ -72,7 +72,6 @@ export const VariableDeliveryForm = ({
     currentSubmission?.deliveryMethod ?? selectedVariableDeliveryMethod
   ).replaceAll("_", " ");
 
-  console.log(milestoneSubmissions);
 
   // --- Render ---
   return (
@@ -171,7 +170,7 @@ export const VariableDeliveryForm = ({
       {isEditable && !hasFinalisedVariableSubmission && <VariableDeliverySlider selectedDeliveryMethod={selectedVariableDeliveryMethod} />}
 
       {/* Decision Stage */}
-      {isDecisionStage && currentSubmission && !hasFinalisedVariableSubmission && (
+      {isDecisionStage && currentSubmission && !milestoneSubmissions?.length && (
         <VariableDecisionDetailsSlider
           currency={currency}
           deliveryMethod={currentSubmission.deliveryMethod}
