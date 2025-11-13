@@ -13,8 +13,11 @@ const MilestonePill: React.FC<
   > = ({ amount, currency, escrowBalance=0, status, variableSubmissions }) => {
     const variableStatus = variableSubmissions?.[0]?.status === "PENDING" ? "IN_REVIEW" : status
     const nonVariableAmount = variableStatus === MilestoneStatus.AWAITING_FUND ? amount-escrowBalance : amount
-    const variableAmount = variableSubmissions?.[0]?.status === "PENDING" ? variableSubmissions?.[0]?.amount : nonVariableAmount
-console.log({nonVariableAmount, variableAmount, variableStatus, escrowBalance});
+    const variableAmount = nonVariableAmount
+    //  If you want buyer to see the variable amount in the pill
+    // while he's reviewing variable amount submission, use this below.
+    // else, he will see only the accepted prices in the pill
+    //  variableAmount = variableSubmissions?.[0]?.status === "PENDING" ? variableSubmissions?.[0]?.amount : nonVariableAmount
 
   const label = getLabel(variableStatus);
   const wrapperStyle = getPillWrapperStyle(variableStatus);
