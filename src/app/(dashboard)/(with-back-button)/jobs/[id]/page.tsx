@@ -151,22 +151,27 @@ const JobPage = () => {
         />
         <LabelValue label="Years of experience" value={"None"} />
 
- 
+        <div>
+          <p className="text-foreground-body text-sm mb-2">
+            Will buyer provide materials?
+          </p>
+          <p className={cn("font-semibold",
+            project?.willProvideMaterials ? "text-green-500" : "text-red-600"
+          )}>
+            {project?.willProvideMaterials ? "Yes" : "No"}
+            {/* {bid.project.willProvideMaterials 
+            ? <CheckCircle className="text-success" />
+            : <CircleX className="text-white" fill="red" color="currentColor" />
+            } */}
+          </p>
+        </div>
+
         <div className=" items-center gap-2">
           <p className="text-foreground-body text-sm mb-2">
             Will buyer provide materials?
           </p>
 
-          <div className={cn(
-            "mb-2 font-semibold text-subtitle-2",
-            project?.willProvideMaterials ? "text-green-500" : "text-red-600"
-          )}>
-            {/* {bid.project.willProvideMaterials 
-            ? <CheckCircle className="text-success" />
-            : <CircleX className="text-white" fill="red" color="currentColor" />
-            } */}
-            {project?.willProvideMaterials ? "Yes" : "No"}
-          </div>
+       
         </div>
 
         <LabelValue
