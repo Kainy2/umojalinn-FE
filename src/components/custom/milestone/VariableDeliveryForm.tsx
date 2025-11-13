@@ -63,7 +63,7 @@ export const VariableDeliveryForm = ({
   const hasFinalisedVariableSubmission = firstSubmission?.status === 'APPROVED'
 
 	// --- Derived state ---
-  const isEditable = isDesigner && isCurrentMilestone && !hasSubmission && !hasFinalisedVariableSubmission && !isAwaitingFunding
+  const isEditable = isDesigner && isCurrentMilestone && !hasSubmission && !isAwaitingFunding
   const isDisabled = isDeliveryMilestone && !isCurrentMilestone;
   const isExpectingResponse = !isDesigner && isCurrentMilestone && isDeliveryMilestone && !hasSubmission;
   const isDecisionStage = !isDesigner && isCurrentMilestone && isDeliveryMilestone && hasSubmission
@@ -170,7 +170,7 @@ export const VariableDeliveryForm = ({
       {isEditable && !milestoneSubmissions?.length && (
         <VariableDeliverySlider
           selectedDeliveryMethod={selectedVariableDeliveryMethod}
-          hasFinalisedVariableSubmission={hasFinalisedVariableSubmission} 
+          hasFinalisedVariableSubmission={hasFinalisedVariableSubmission && !isAwaitingFunding} 
         />
       )}
 
@@ -180,7 +180,7 @@ export const VariableDeliveryForm = ({
           currency={currency}
           deliveryMethod={currentSubmission.deliveryMethod}
           price={currentSubmission.amount}
-          hasFinalisedVariableSubmission={hasFinalisedVariableSubmission}
+          hasFinalisedVariableSubmission={hasFinalisedVariableSubmission && !isAwaitingFunding}
         />
       )}
     </div>
