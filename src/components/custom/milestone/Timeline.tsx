@@ -164,6 +164,7 @@ const deliveryMilestone = milestones[milestones.length - 1];
 
         const isVariableDelivery = item.deliveryMileStoneType === EDeliveryMileStoneType.VARIABLE 
         const isAwaitingFunding = milestone?.status === MilestoneStatus.AWAITING_FUND 
+        const latestSubmission = milestone.variableSubmissions?.[0]
         const isCompletedOrCurrent =
           milestone?.status === MilestoneStatus.COMPLETED ||
           milestone?.isCurrent;
@@ -285,7 +286,7 @@ const deliveryMilestone = milestones[milestones.length - 1];
                     </time>
                   )}
                   <MilestonePill currency={currency} escrowBalance={escrowBalance} {...milestone} />
-                  {isAwaitingFunding &&
+                  {isAwaitingFunding && latestSubmission?.status !== "PENDING" &&
                     !isDesigner && (
                       <SelectFundingMethodDialog
                         id={milestone?.id}
