@@ -166,14 +166,6 @@ const JobPage = () => {
           </p>
         </div>
 
-        <div className=" items-center gap-2">
-          <p className="text-foreground-body text-sm mb-2">
-            Will buyer provide materials?
-          </p>
-
-       
-        </div>
-
         <LabelValue
           className="col-span-2"
           label="Categories"
