@@ -1,6 +1,8 @@
 import { capitalizeFirstLetter } from '@/lib/string';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import React, { useState } from 'react'
+import { DeliveryDetails, EmptyDeliveryDetails } from './DeliveryDetails';
+import { UmojaLinnDeliveryMethod } from '@/types/project';
 // import Slider from 'react-slick';
 
 
@@ -19,12 +21,13 @@ import React, { useState } from 'react'
 
 export const VariableDeliverySlider = ({
 	selectedDeliveryMethod,
+	hasFinalisedVariableSubmission
 }: {
-	selectedDeliveryMethod: string;
+	selectedDeliveryMethod: UmojaLinnDeliveryMethod;
+	hasFinalisedVariableSubmission: boolean;
 }) => {
 	const selectedDeliveryMethodText = capitalizeFirstLetter(selectedDeliveryMethod).replaceAll("_", " ")
 	const [currentPage, setCurrentPage] = useState(1);
-	
 
 	return (
 		<div className="my-2 p-4 rounded-md border border-gray-300 text-gray-500 text-sm ">
@@ -67,7 +70,13 @@ export const VariableDeliverySlider = ({
 						<p className='text-sm text-grey-500 capitalize'>{selectedDeliveryMethodText} Information</p>
 						<span className="border-t flex-1" />
 					</div>
-					<div className='flex flex-col gap-5'>
+
+					{hasFinalisedVariableSubmission ? (
+						<DeliveryDetails deliveryMethod={selectedDeliveryMethod} />
+					) : (
+						<EmptyDeliveryDetails currentDeliveryMethod={selectedDeliveryMethod} />
+					)}
+					{/* <div className='flex flex-col gap-5'>
 						{[
 							{
 								title: "Country",
@@ -123,7 +132,7 @@ export const VariableDeliverySlider = ({
 									<p className='text-foreground-body'>{value}</p>
 								</div>
 							))}
-					</div>
+					</div> */}
 				</div>
 			)}
 		</div>

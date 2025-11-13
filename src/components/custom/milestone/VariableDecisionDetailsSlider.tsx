@@ -2,7 +2,7 @@ import { capitalizeFirstLetter, getCurrencySymbol } from '@/lib/string';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import React, { ReactNode, useState } from 'react'
 // import { Settings } from 'react-slick';
-import { EmptyDeliveryDetails } from './DeliveryDetails';
+import { DeliveryDetails, EmptyDeliveryDetails } from './DeliveryDetails';
 import { UmojaLinnCurrency, UmojaLinnDeliveryMethod } from '@/types/project';
 import { formatCurrencyValue } from '@/lib/number';
 
@@ -24,10 +24,12 @@ export const VariableDecisionDetailsSlider = ({
 	deliveryMethod,
 	price,
 	currency = "EURO",
+	hasFinalisedVariableSubmission,
 }: {
 	deliveryMethod: UmojaLinnDeliveryMethod;
 	price: number;
 	currency: UmojaLinnCurrency;
+	hasFinalisedVariableSubmission: boolean;
 }) => {
 	const deliveryMethodText = capitalizeFirstLetter(deliveryMethod).replaceAll("_", " ")
 	const [currentPage, setCurrentPage] = useState(1);
@@ -107,7 +109,11 @@ export const VariableDecisionDetailsSlider = ({
 						</div>
 
 						<div className='md:px-2'>
+						{hasFinalisedVariableSubmission ? (
+							<DeliveryDetails deliveryMethod={deliveryMethod} />
+						) : (
 							<EmptyDeliveryDetails currentDeliveryMethod={deliveryMethod} />
+						)}
 						</div>
 					</div>
 				</div>
