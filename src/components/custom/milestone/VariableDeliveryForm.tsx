@@ -167,7 +167,12 @@ export const VariableDeliveryForm = ({
       )}
 
       {/* Editable Slider */}
-      {isEditable && !hasFinalisedVariableSubmission && <VariableDeliverySlider selectedDeliveryMethod={selectedVariableDeliveryMethod} />}
+      {isEditable && !milestoneSubmissions?.length && (
+        <VariableDeliverySlider
+          selectedDeliveryMethod={selectedVariableDeliveryMethod}
+          hasFinalisedVariableSubmission={hasFinalisedVariableSubmission} 
+        />
+      )}
 
       {/* Decision Stage */}
       {isDecisionStage && currentSubmission && !milestoneSubmissions?.length && (
@@ -175,6 +180,7 @@ export const VariableDeliveryForm = ({
           currency={currency}
           deliveryMethod={currentSubmission.deliveryMethod}
           price={currentSubmission.amount}
+          hasFinalisedVariableSubmission={hasFinalisedVariableSubmission}
         />
       )}
     </div>

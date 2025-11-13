@@ -6,7 +6,7 @@ import { Clock } from "lucide-react";
 
 type DeliveryDetailsProps = {
 	deliveryMethod: UmojaLinnMilestone["deliveryMethod"];
-	submission: UmojaLinnMilestoneSubmission
+	submission?: UmojaLinnMilestoneSubmission
 };
 
 export const DeliveryDetails = ({ deliveryMethod, submission }: DeliveryDetailsProps) => {
@@ -20,10 +20,10 @@ export const DeliveryDetails = ({ deliveryMethod, submission }: DeliveryDetailsP
 		trackingId,
 		zipCode,
 		description
-	} = submission;
+	} = submission ?? {};
 
 	return (
-		<div className="py-2.5 px-5 md:py-5 rounded-md border border-gray-300 flex flex-col gap-5 bg-gray-50">
+		<div className="py-2.5 px-5 md:py-5 rounded-md border border-gray-300 bg-gray-50 flex flex-col gap-5 ">
 			{[
 				{
 					title: "Delivery Method",
@@ -123,7 +123,7 @@ export const EmptyDeliveryDetails = ({
 	currentDeliveryMethod: UmojaLinnDeliveryMethod;
 }) => {
 	return (
-		<div className='flex flex-col gap-3'>
+		<div className='flex flex-col gap-5'>
 						{[
 							{
 								title: "Country",
@@ -174,7 +174,7 @@ export const EmptyDeliveryDetails = ({
 						]
 							.filter(({ allowedDeliveryMethods }) => allowedDeliveryMethods.includes(currentDeliveryMethod))
 							.map(({ value, title }) => (
-								<div key={title} className='flex flex-col justify-between'>
+								<div key={title} className='flex flex-col gap2 justify-between'>
 									<p className="">{title}</p>
 									<p className="text-foreground-body">{value}</p>
 								</div>
