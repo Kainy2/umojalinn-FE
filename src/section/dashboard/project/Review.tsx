@@ -10,6 +10,7 @@ import GalleryImages from "@/components/custom/GalleryImages";
 import { formatCurrencyValue } from "@/lib/number";
 import { StateType } from "@/layout/create-project/CreateProjectProvider";
 import { useGetClothingTypes } from "@/tanstack/hooks/useProject";
+import { cn } from "@/lib/utils";
 
 const ProjectReviewView = (props: {
   project?: UmojaLinnProject;
@@ -153,6 +154,21 @@ const allClothingTypes = data?.data?.data
             title="Additional notes"
             value={projectFormDetails?.additionalNotes || props?.project?.additionalNotes}
           />
+
+        <div className="flex items-center justify-between">
+          <p className="text-foreground-body text-sm">
+            Will buyer provide materials?
+          </p>
+          <p className={cn("font-semibold",
+            projectFormDetails?.willProvideMaterials ? "text-green-500" : "text-red-600"
+          )}>
+            {projectFormDetails?.willProvideMaterials ? "Yes" : "No"}
+            {/* {bid.project.willProvideMaterials 
+            ? <CheckCircle className="text-success" />
+            : <CircleX className="text-white" fill="red" color="currentColor" />
+            } */}
+          </p>
+        </div>
 
         <LabelBadge
           title="Clothing type"
