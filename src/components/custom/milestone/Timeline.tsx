@@ -87,7 +87,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
   designer,
   buyer
 }) => {
-const deliveryMilestone = milestones[milestones.length - 1];
+const deliveryMilestone = !!milestones.length ? milestones[milestones.length - 1]:undefined;
 
   const [openFundMilestoneModal, setOpenFundMilestoneModal] = useState(false);
   const [openPayForMilestoneModal, setOpenPayForMilestoneModal] = useState(false)
@@ -95,9 +95,9 @@ const deliveryMilestone = milestones[milestones.length - 1];
   const [message, setMessage] = React.useState<string>('');
   const [files, setFiles] = React.useState<FileList | null>(null);
   const [editedVariablePrice, setEditedVariablePrice] = 
-  useState(deliveryMilestone.amount ?? 0)
+  useState(deliveryMilestone?.amount ?? 0)
 	const [selectedVariableDeliveryMethod, setSelectedVariableDeliveryMethod] = 
-  useState(deliveryMilestone.deliveryMethod ?? "IN_PERSON_PICKUP")
+  useState(deliveryMilestone?.deliveryMethod ?? "IN_PERSON_PICKUP")
 
   const [editableDeliverySubmission, setEditableDeliverySubmission] =
     useState<UmojaLinnDeliveryMilestoneReviewProps>({
