@@ -107,6 +107,7 @@ export const VariableDeliverySlider = ({
 								title: "Other Information",
 								value: "-",
 								allowedDeliveryMethods: [
+									"IN_PERSON_PICKUP",
 									"TRACKED",
 									"NON_TRACKED",
 								],

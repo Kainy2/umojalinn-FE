@@ -73,7 +73,7 @@ export const DeliveryDetails = ({ deliveryMethod, submission }: DeliveryDetailsP
 				{
 					title: "Other Information",
 					value: description,
-					allowedDeliveryMethods: description ? ["TRACKED", "NON_TRACKED"] : [],
+					allowedDeliveryMethods: description ? ["IN_PERSON_PICKUP", "TRACKED", "NON_TRACKED"] : [],
 				},
 			]
 				.filter(
@@ -168,6 +168,7 @@ export const EmptyDeliveryDetails = ({
 								title: "Other Information",
 								value: "-",
 								allowedDeliveryMethods: [
+									"IN_PERSON_PICKUP",
 									"TRACKED",
 									"NON_TRACKED",
 								],

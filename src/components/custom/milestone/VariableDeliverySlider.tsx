@@ -76,63 +76,6 @@ export const VariableDeliverySlider = ({
 					) : (
 						<EmptyDeliveryDetails currentDeliveryMethod={selectedDeliveryMethod} />
 					)}
-					{/* <div className='flex flex-col gap-5'>
-						{[
-							{
-								title: "Country",
-								value: "-",
-								allowedDeliveryMethods: ["IN_PERSON_PICKUP"],
-							},
-							{
-								title: "State and Province",
-								value: "-",
-								allowedDeliveryMethods: ["IN_PERSON_PICKUP"],
-							},
-							{
-								title: "Zip Code / Postal Code",
-								value: "-",
-								allowedDeliveryMethods: ["IN_PERSON_PICKUP"],
-							},
-							{
-								title: "Street/Apartment/suits",
-								value: "-",
-								allowedDeliveryMethods: ["IN_PERSON_PICKUP"],
-							},
-							{
-								title: "Courier Service",
-								value: "-",
-								allowedDeliveryMethods: [
-									"TRACKED",
-									"NON_TRACKED",
-								],
-							},
-							{
-								title: "Tracking Link",
-								value: "-",
-								allowedDeliveryMethods: ["TRACKED"],
-							},
-							{
-								title: "Tracking ID",
-								value: "-",
-								allowedDeliveryMethods: ["TRACKED"],
-							},
-							{
-								title: "Other Information",
-								value: "-",
-								allowedDeliveryMethods: [
-									"TRACKED",
-									"NON_TRACKED",
-								],
-							},
-						]
-							.filter(({ allowedDeliveryMethods }) => allowedDeliveryMethods.includes(selectedDeliveryMethod))
-							.map(({ value, title }) => (
-								<div key={title} className='flex flex-col gap-2 justify-between'>
-									<p className="font-semibold">{title}</p>
-									<p className='text-foreground-body'>{value}</p>
-								</div>
-							))}
-					</div> */}
 				</div>
 			)}
 		</div>
