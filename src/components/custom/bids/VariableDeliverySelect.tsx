@@ -52,7 +52,7 @@ export const VariableDeliverySelect = ({
 							<h5 className='font-semibold text-gray-600'>
 								{selectedTypeObject?.label}
 							</h5>
-							<span><ChevronDown size={20} /></span>
+							<button className='border bg-gray-50 active:opacity-50 transition p-0.5 rounded-md'><ChevronDown size={20} className='text-primary' /></button>
 						</div>
 					</PopoverTrigger>
 					<PopoverContent className="w-[60vw] md:w-[50vw] border flex flex-col rounded-lg p-0">

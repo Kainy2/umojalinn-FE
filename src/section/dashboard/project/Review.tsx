@@ -160,9 +160,9 @@ const allClothingTypes = data?.data?.data
             Will buyer provide materials?
           </p>
           <p className={cn("font-semibold",
-            projectFormDetails?.willProvideMaterials ? "text-green-500" : "text-red-600"
+            (projectFormDetails?.willProvideMaterials || props.project?.willProvideMaterials) ? "text-green-500" : "text-red-600"
           )}>
-            {projectFormDetails?.willProvideMaterials ? "Yes" : "No"}
+            {(projectFormDetails?.willProvideMaterials || props.project?.willProvideMaterials) ? "Yes" : "No"}
             {/* {bid.project.willProvideMaterials 
             ? <CheckCircle className="text-success" />
             : <CircleX className="text-white" fill="red" color="currentColor" />
