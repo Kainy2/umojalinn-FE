@@ -111,11 +111,16 @@ const SettingsProfilePage = () => {
         specialistType,
         email,
         tag,
+        phoneNumber,
         ...others
       } = values;
+
+      const phoneNumberObject = meData?.data?.data.phoneNumber !== phoneNumber && { phoneNumber }
+
       updateMe(
         jsonToFormData({
           ...others,
+          ...phoneNumberObject,
           designerProfile: {
             about,
             brandName,
@@ -134,7 +139,7 @@ const SettingsProfilePage = () => {
         }),
       );
     },
-    [updateMe],
+    [updateMe, meData?.data?.data.phoneNumber],
   );
 
   return (
