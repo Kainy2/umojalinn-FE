@@ -49,7 +49,7 @@ Umoja is a marketplace platform connecting fashion designers with buyers, featur
 
 ### Deployment & Infrastructure
 
-- **AWS Amplify** - Hosting and deployment
+- **Vercel** - Hosting and deployment
 - **Vercel Analytics** - Performance monitoring
 - **Google Analytics** - User tracking
 
@@ -265,7 +265,6 @@ Client Component → Server Action/API Route → External Backend → Database
 
 ### Storage Integration
 
-- AWS S3 integration for file storage
 - Cloudinary for image optimization
 - Firebase Storage for chat media
 
@@ -329,7 +328,7 @@ Client Component → Server Action/API Route → External Backend → Database
 
 ### Deployment Pipeline
 
-- AWS Amplify for hosting
+- Vercel for hosting
 - Automated deployments from Git
 - Environment variable injection
 - Build optimization
