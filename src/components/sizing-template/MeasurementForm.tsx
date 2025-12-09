@@ -62,6 +62,7 @@ type MeasurementFormProps = {
     )
   ) => void;
   onKeyPress: (index: number, e: React.KeyboardEvent<HTMLInputElement>) => void;
+  onHeightAndSizeChange?: (height: number, ukSize: string) => void;
   inputRefs: React.MutableRefObject<(HTMLInputElement | null)[]>;
   className?: string;
 };
@@ -81,6 +82,7 @@ const MeasurementForm = ({
   onValueChange,
   onMeasurementClick,
   onKeyPress,
+  onHeightAndSizeChange,
   inputRefs,
   className,
 }: MeasurementFormProps) => {
@@ -121,8 +123,9 @@ const MeasurementForm = ({
         <BasicInfoFields
           gender={gender}
           unit={unit}
-          height={value?.height}
-          ukStandardSize={undefined} // TODO: Get from API if available
+          height={value?.height||50}
+          ukStandardSize={"37ft"} // TODO: Get from API if available
+          onHeightAndSizeChange={onHeightAndSizeChange}
           disabled={!isEditable}
         />
 

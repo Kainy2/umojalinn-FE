@@ -101,6 +101,17 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     });
   };
 
+  const handleHeightAndSizeChange = (height: number, ukSize: string) => {
+    // Update height value in the form
+    const heightEvent = {
+      target: { value: height.toString() }
+    } as React.ChangeEvent<HTMLInputElement>;
+    handleChange("height" as BothGenderSizingTemplateProps)(heightEvent);
+    
+    // TODO: Update UK size when backend supports it
+    console.log("UK Size selected:", ukSize);
+  };
+
   // Check if there are saved measurement points (for success message)
   const hasSavedMeasurements = sizingTemplateResult?.metadata?.reviews
     ? Object.values(sizingTemplateResult.metadata.reviews).some(Boolean)
@@ -136,6 +147,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                   handleChange(prop as BothGenderSizingTemplateProps)}
                 onMeasurementClick={(img, prop) => handleMeasurementClick(img, prop as BothGenderSizingTemplateProps)}
                 onKeyPress={handleKeyPress}
+                onHeightAndSizeChange={handleHeightAndSizeChange}
                 inputRefs={inputRefs}
               />
 
