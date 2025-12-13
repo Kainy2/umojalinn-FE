@@ -2,15 +2,14 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { UmojaLinnSizingTemplate } from "@/types/project";
+import HeightAndSizeModal from "./HeightAndSizeModal";
 
 type BasicInfoFieldsProps = {
   gender: UmojaLinnSizingTemplate["gender"];
   unit: UmojaLinnSizingTemplate["unit"];
   height?: number | null;
   ukStandardSize?: string;
-  onGenderChange?: (gender: UmojaLinnSizingTemplate["gender"]) => void;
-  onHeightChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onUkStandardSizeChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onHeightAndSizeChange?: (height: number, ukSize: string) => void;
   disabled?: boolean;
   className?: string;
 };
@@ -20,27 +19,56 @@ const BasicInfoFields = ({
   unit,
   height,
   ukStandardSize,
+  onHeightAndSizeChange,
   disabled = false,
   className,
 }: BasicInfoFieldsProps) => {
+  const handleSubmit = (newHeight: number, newUkSize: string) => {
+    onHeightAndSizeChange?.(newHeight, newUkSize);
+  };
+
   return (
     <div className={cn("flex flex-col gap-3", className)}>
-      <MeasurementItem
-        label={gender}
+      <HeightAndSizeModal
+        height={height}
+        ukSize={ukStandardSize}
+        unit={unit}
+        onSubmit={handleSubmit}
         disabled={disabled}
-      />
+      >
+        <MeasurementItem
+          label={gender}
+          disabled={disabled}
+        />
+      </HeightAndSizeModal>
 
-      <MeasurementItem
-        label={"UK Standard Size"}
-        value={ukStandardSize}
+      <HeightAndSizeModal
+        height={height}
+        ukSize={ukStandardSize}
+        unit={unit}
+        onSubmit={handleSubmit}
         disabled={disabled}
-      />
+      >
+        <MeasurementItem
+          label={"UK Standard Size"}
+          value={ukStandardSize}
+          disabled={disabled}
+        />
+      </HeightAndSizeModal>
 
-      <MeasurementItem
-        label="Height"
-        value={(height??'-')+" "+unit}
+      <HeightAndSizeModal
+        height={height}
+        ukSize={ukStandardSize}
+        unit={unit}
+        onSubmit={handleSubmit}
         disabled={disabled}
-      />
+      >
+        <MeasurementItem
+          label="Height"
+          value={(height ?? "-") + " " + unit}
+          disabled={disabled}
+        />
+      </HeightAndSizeModal>
     </div>
   );
 };
