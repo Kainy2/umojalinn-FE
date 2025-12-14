@@ -7,8 +7,8 @@ import HeightAndSizeModal from "./HeightAndSizeModal";
 type BasicInfoFieldsProps = {
   gender: UmojaLinnSizingTemplate["gender"];
   unit: UmojaLinnSizingTemplate["unit"];
-  height?: number | null;
-  ukStandardSize?: string;
+  height: number;
+  ukStandardSize: number;
   onHeightAndSizeChange?: (height: number, ukSize: string) => void;
   disabled?: boolean;
   className?: string;
@@ -30,8 +30,8 @@ const BasicInfoFields = ({
   return (
     <div className={cn("flex flex-col gap-3", className)}>
       <HeightAndSizeModal
-        height={height}
-        ukSize={ukStandardSize}
+        height={height ?? 0}
+        ukSize={ukStandardSize?.toString()}
         unit={unit}
         onSubmit={handleSubmit}
         disabled={disabled}
@@ -43,22 +43,22 @@ const BasicInfoFields = ({
       </HeightAndSizeModal>
 
       <HeightAndSizeModal
-        height={height}
-        ukSize={ukStandardSize}
+        height={height ?? 0}
+        ukSize={ukStandardSize?.toString()}
         unit={unit}
         onSubmit={handleSubmit}
         disabled={disabled}
       >
         <MeasurementItem
           label={"UK Standard Size"}
-          value={ukStandardSize}
+          value={ukStandardSize?.toString()}
           disabled={disabled}
         />
       </HeightAndSizeModal>
 
       <HeightAndSizeModal
-        height={height}
-        ukSize={ukStandardSize}
+        height={height ?? 0}
+        ukSize={ukStandardSize?.toString()}
         unit={unit}
         onSubmit={handleSubmit}
         disabled={disabled}
