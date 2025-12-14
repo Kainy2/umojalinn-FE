@@ -194,6 +194,7 @@ export type UmojaLinnMaleSizingTemplateProps = {
   waistToKneePoint: number | null;
   desiredTrouserOrSkirtLength: number | null;
   shoulderToFloor: number | null;
+  ukStandardSize: number | null;
   height: number | null;
   headCircumference: number | null;
 };
@@ -227,6 +228,7 @@ export type UmojaLinnFemaleSizingTemplateProps = {
   shoulderToFloor: number | null;
   height: number | null;
   headCircumference: number | null;
+  ukStandardSize: number | null;
 };
 
 export type UmojaLinnSizingTemplate = {

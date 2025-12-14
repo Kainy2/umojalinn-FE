@@ -123,8 +123,8 @@ const MeasurementForm = ({
         <BasicInfoFields
           gender={gender}
           unit={unit}
-          height={value?.height||50}
-          ukStandardSize={"37ft"} // TODO: Get from API if available
+          height={value?.height ?? 0}
+          ukStandardSize={value?.ukStandardSize ?? 0}
           onHeightAndSizeChange={onHeightAndSizeChange}
           disabled={!isEditable}
         />

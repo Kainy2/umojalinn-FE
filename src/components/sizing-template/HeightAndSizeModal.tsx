@@ -54,17 +54,12 @@ const HeightAndSizeModal = ({
   if (disabled) {
     return <>{children}</>;
   }
-	console.log({
-open,
-selectedSize,
-
-
-
-	});
-
+  
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogTrigger>
+          {children}
+      </DialogTrigger>
       <DialogContent className="sm:max-w-[570px]">
         <DialogHeader>
           <DialogTitle>Add your Height and Standard size</DialogTitle>
@@ -120,7 +115,7 @@ selectedSize,
               </button>
               <div className="flex items-baseline gap-1">
                 <span className="text-4xl font-semibold">{heightValue}</span>
-                <span className="text-2xl text-gray-500">{selectedUnit}</span>
+                <span className="text-lg text-gray-500">{selectedUnit}</span>
               </div>
               <button
                 type="button"
@@ -161,9 +156,9 @@ selectedSize,
             <UKSizeChartModal>
               <button
                 type="button"
-                className="text-sm text-primary hover:underline flex items-center gap-1"
+                className="text-sm text-primary flex items-center gap-1"
               >
-                Unsure about your UK size?
+                <span className=" hover:underline">Unsure about your UK size?</span>
                 <span className="text-lg">→</span>
               </button>
             </UKSizeChartModal>
