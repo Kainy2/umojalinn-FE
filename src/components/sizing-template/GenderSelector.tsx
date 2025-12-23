@@ -5,7 +5,7 @@ import { UmojaLinnSizingTemplate } from "@/types/project";
 
 type GenderSelectorProps = {
   gender: UmojaLinnSizingTemplate["gender"];
-  onChange: (gender: UmojaLinnSizingTemplate["gender"]) => void;
+  onChange?: (gender: UmojaLinnSizingTemplate["gender"]) => void;
   disabled?: boolean;
   className?: string;
 };
@@ -26,7 +26,7 @@ const GenderSelector = ({
       <button
         type="button"
         disabled={disabled}
-        onClick={() => onChange("MALE")}
+        onClick={() => onChange?.("MALE")}
         className={cn(
           "px-4 py-2 rounded-md text-sm font-medium transition-colors",
           gender === "MALE"
@@ -40,7 +40,7 @@ const GenderSelector = ({
       <button
         type="button"
         disabled={disabled}
-        onClick={() => onChange("FEMALE")}
+        onClick={() => onChange?.("FEMALE")}
         className={cn(
           "px-4 py-2 rounded-md text-sm font-medium transition-colors",
           gender === "FEMALE"

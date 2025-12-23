@@ -54,7 +54,7 @@ const ActiveProjectTab = (props: ActiveProjectTabProps) => {
       active={active}
       tabs={tabs}
       mobileSelector
-      className="mb-4 lg:mb-8"
+      className=""
     />
   );
 };
