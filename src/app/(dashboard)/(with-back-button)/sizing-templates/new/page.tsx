@@ -5,11 +5,11 @@ import { Suspense } from "react";
 const NewSizingTemplatePage = () => {
   return (
   <Suspense
-    fallback={
+    fallback={(
       <div className="h-full w-full flex items-center justify-center">
         <Skeleton className="h-full w-full" />
       </div>
-    }
+    )}
   >
     <SizingTemplatePage />
   </Suspense>
