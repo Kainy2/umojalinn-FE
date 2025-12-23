@@ -9,6 +9,11 @@ import {
   postSizingTemplateLive,
   requestChangeOnSizingTemplate,
   updateSizingTemplate,
+  requestMeasurementPoints,
+  getRequestedMeasurementPoints,
+  submitMeasurementPoints,
+  saveMeasurementPoints,
+  sendSizingTemplateReminder,
 } from "@/actions/sizing-templates";
 import { queryClient } from "@/components/provider/TanstackQueryClient";
 import useHandleError from "@/hooks/useHandleError";
@@ -202,6 +207,118 @@ export const useAddSizingTemplateToProject = (
       ),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: [PROJECT] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useRequestMeasurementPoints = (
+  options?: GenericUseMutationProps<
+    SingleApiResponse,
+    { projectId: string; requestedMeasurementPoints: string[] }
+  >
+) => {
+  const { handleError } = useHandleError("Request Measurement Points");
+  return useMutation({
+    ...options,
+    mutationFn: (variables) =>
+      requestMeasurementPoints(
+        variables.projectId,
+        variables.requestedMeasurementPoints
+      ),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [PROJECT] });
+      queryClient.invalidateQueries({ queryKey: [SIZING_TEMPLATE] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useGetRequestedMeasurementPoints = (
+  projectId?: string,
+  options?: GenericUseQueryProps<SingleApiResponse<string[]>>
+) => {
+  return useQuery({
+    ...options,
+    enabled: !!projectId && options?.enabled !== false,
+    queryKey: [SIZING_TEMPLATE, "requested-points", projectId],
+    queryFn: () => getRequestedMeasurementPoints(projectId || ""),
+  });
+};
+
+export const useSubmitMeasurementPoints = (
+  templateId: string,
+  options?: GenericUseMutationProps<
+    SingleApiResponse,
+    { projectId: string; measurements: Partial<UmojaLinnMaleSizingTemplateProps & UmojaLinnFemaleSizingTemplateProps> }
+  >
+) => {
+  const { handleError } = useHandleError("Submit Measurement Points");
+  return useMutation({
+    ...options,
+    mutationFn: (variables) =>
+      submitMeasurementPoints(templateId, variables.projectId, variables.measurements),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [SIZING_TEMPLATE] });
+      queryClient.invalidateQueries({ queryKey: [PROJECT] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useSaveMeasurementPoints = (
+  templateId: string,
+  options?: GenericUseMutationProps<
+    SingleApiResponse,
+    Partial<UmojaLinnMaleSizingTemplateProps & UmojaLinnFemaleSizingTemplateProps>
+  >
+) => {
+  const { handleError } = useHandleError("Save Measurement Points");
+  return useMutation({
+    ...options,
+    mutationFn: (measurements) =>
+      saveMeasurementPoints(templateId, measurements),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [SIZING_TEMPLATE] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useSendSizingTemplateReminder = (
+  templateId: string,
+  options?: GenericUseMutationProps<
+    SingleApiResponse,
+    { projectId: string; reminderType: import("@/types/constants").SizingTemplateReminderType }
+  >
+) => {
+  const { handleError } = useHandleError("Send Reminder");
+  return useMutation({
+    ...options,
+    mutationFn: (variables) =>
+      sendSizingTemplateReminder(
+        templateId,
+        variables.projectId,
+        variables.reminderType
+      ),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [SIZING_TEMPLATE] });
       options?.onSuccess?.(data, variables, context);
     },
     onError: (error, variables, context) => {

@@ -171,3 +171,88 @@ export const addSizingTemplateToProject = async (
     }
   );
 };
+
+export const requestMeasurementPoints = async (
+  projectId: string,
+  requestedMeasurementPoints: string[],
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/sizing-template/request-measurement-points`,
+    {
+      projectId: base62ToUuidSafe(projectId),
+      requestedMeasurementPoints,
+    }
+  );
+};
+
+export const getRequestedMeasurementPoints = async (
+  projectId: string,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.get<unknown, AxiosResponse<SingleApiResponse<string[]>>>(
+    `/sizing-template/project/${base62ToUuidSafe(projectId)}/requested-points`
+  );
+};
+
+export const submitMeasurementPoints = async (
+  templateId: string,
+  projectId: string,
+  measurements: Partial<
+    UmojaLinnMaleSizingTemplateProps & UmojaLinnFemaleSizingTemplateProps
+  >,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/sizing-template/${base62ToUuidSafe(templateId)}/submit-measurement-points?projectId=${base62ToUuidSafe(projectId)}`,
+    measurements
+  );
+};
+
+export const saveMeasurementPoints = async (
+  templateId: string,
+  measurements: Partial<
+    UmojaLinnMaleSizingTemplateProps & UmojaLinnFemaleSizingTemplateProps
+  >,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/sizing-template/${base62ToUuidSafe(templateId)}/save-measurement-points`,
+    measurements
+  );
+};
+
+export const sendSizingTemplateReminder = async (
+  templateId: string,
+  projectId: string,
+  reminderType: import("@/types/constants").SizingTemplateReminderType,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/sizing-template/${base62ToUuidSafe(templateId)}/send-reminder`,
+    {
+      projectId: base62ToUuidSafe(projectId),
+      reminderType,
+    }
+  );
+};

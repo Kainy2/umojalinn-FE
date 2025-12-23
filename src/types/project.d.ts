@@ -3,6 +3,9 @@ import { UmojaLinnUser, UmojaLinnUserRoleProfile } from "./user";
 import { UmojaLinnTimestamp } from "./util";
 
 export type UmojaLinnCurrency = "EURO" | "NAIRA";
+export type UmojalinnStandardSize = "XXS" | "XS" | "S" | "S-M" | "M-L" | "L" | "XL" | "XXL" | "3XL" | "4XL" | "5XL" | "6XL";
+
+export type UmojaLinnSizingTemplateUnit = "CM" | "INCH";
 
 export type UmojaLinnProject = {
   id: string;
@@ -194,7 +197,7 @@ export type UmojaLinnMaleSizingTemplateProps = {
   waistToKneePoint: number | null;
   desiredTrouserOrSkirtLength: number | null;
   shoulderToFloor: number | null;
-  ukStandardSize: number | null;
+  ukStandardSize: UmojalinnStandardSize | null;
   height: number | null;
   headCircumference: number | null;
 };
@@ -228,18 +231,23 @@ export type UmojaLinnFemaleSizingTemplateProps = {
   shoulderToFloor: number | null;
   height: number | null;
   headCircumference: number | null;
-  ukStandardSize: number | null;
+  ukStandardSize: UmojalinnStandardSize | null;
 };
 
 export type UmojaLinnSizingTemplate = {
   id: string;
   buyerId: string;
   name: string;
-  unit: "CM" | "INCH";
+  unit: UmojaLinnSizingTemplateUnit;
   gender: "MALE" | "FEMALE";
   status: "DRAFT" | "LIVE" | "IN_USE";
   buyer?: UmojaLinnUserRoleProfile;
   projects: UmojaLinnProject[];
+  defaultFieldsLocked?: boolean;
+  requestedMeasurementPoints?: string[];
+  submittedMeasurementPoints?: string[];
+  lastReminderSentAt?: string;
+  lastReminderSentBy?: string;
   metadata?: {
     reviews?: Record<
       keyof (UmojaLinnMaleSizingTemplateProps &

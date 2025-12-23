@@ -27,9 +27,10 @@ const Layout = ({ children }: LayoutProps) => {
 					/>
 				</div>
 			)}
-      
-      <ActiveProjectTab />
-      {children}
+      <div>
+        <ActiveProjectTab />
+        {children}
+      </div>
     </>
   );
 };

@@ -16,6 +16,7 @@ import {
   UmojaLinnMaleSizingTemplateProps,
   UmojaLinnSizingTemplate,
 } from "@/types/project";
+import { TEMPLATE_MODE, TemplateMode } from "@/types/constants";
 import { parseStringToNumber } from "@/lib/utils";
 import {
   useCreateSizingTemplate,
@@ -108,8 +109,65 @@ export const useSizingTemplateDialog = (
     ];
   }, [sizingTemplateResult]);
 
+  // Derived state for measurement points
+  const requestedMeasurementPoints = sizingTemplateResult?.requestedMeasurementPoints || [];
+  const submittedMeasurementPoints = sizingTemplateResult?.submittedMeasurementPoints || [];
+  const hasRequestedPoints = requestedMeasurementPoints.length > 0;
+  const hasSubmittedPoints = submittedMeasurementPoints.length > 0;
+  const hasReviews = sizingTemplateResult?.metadata?.reviews && 
+    Object.values(sizingTemplateResult.metadata.reviews).some(Boolean);
+  const isInUse = sizingTemplateResult?.status === "IN_USE";
 
-  
+  // New templateMode with proper priority logic
+  const templateMode: TemplateMode = useMemo(() => {
+    // Designer modes (priority order)
+    if (isDesigner) {
+      // SELECT: Designer needs to select measurement points (first priority for designers)
+      if (isInUse && !hasRequestedPoints) {
+        return TEMPLATE_MODE.SELECT;
+      }
+      // RECOMMEND: Designer wants to add recommendations (toggle via recommendationMode state)
+      if (hasRequestedPoints && recommendationMode) {
+        return TEMPLATE_MODE.RECOMMEND;
+      }
+      // VIEW: Designer views the template (read-only)
+      return TEMPLATE_MODE.VIEW;
+    }
+
+    // Buyer modes (priority order)
+    // No template ID = creating new template
+    if (!props?.id) {
+      return TEMPLATE_MODE.EDIT;
+    }
+
+    // UPDATE: Buyer has recommendations to address (highest priority for in-use templates)
+    if (isInUse && hasReviews) {
+      return TEMPLATE_MODE.UPDATE;
+    }
+
+    // FILL: Buyer needs to fill requested measurement points
+    if (isInUse && hasRequestedPoints && !hasSubmittedPoints) {
+      return TEMPLATE_MODE.FILL;
+    }
+
+    // VIEW_ONLY: Template is in use, all submitted, no pending reviews
+    if (isInUse && hasSubmittedPoints && !hasReviews) {
+      return TEMPLATE_MODE.VIEW_ONLY;
+    }
+
+    // EDIT: Default for draft/live templates not in use
+    return TEMPLATE_MODE.EDIT;
+  }, [
+    isDesigner,
+    isInUse,
+    hasRequestedPoints,
+    hasSubmittedPoints,
+    hasReviews,
+    recommendationMode,
+    props?.id,
+  ]);
+
+  // Legacy modalType for backward compatibility
 	const modalType: TemplateModalType = useMemo(() => {
 		if (isDesigner) {
 			return "RECOMMEND";
@@ -119,11 +177,6 @@ export const useSizingTemplateDialog = (
 			return "EDIT";
 		}
 	},[isDesigner, props?.id, sizingTemplateResult?.status, isTemplateHaveLiveProject]);
-
-  console.log(
-    sizingTemplateResult?.name, isDesigner, !props?.id, 
-    sizingTemplateResult?.status === "IN_USE", isTemplateHaveLiveProject, modalType
-  );
 
   const highlightedSizingName = useMemo(
     () =>
@@ -155,21 +208,28 @@ export const useSizingTemplateDialog = (
   ) => {
     if (prevUnit !== finalUnit) {
       const conversionFactor = prevUnit === "CM" ? 0.393701 : 2.54;
-      setValue((prev) =>
-        Object.keys(prev).reduce((acc, key) => {
+      setValue((prev) => {
+        const newValue: Partial<UmojaLinnFemaleSizingTemplateProps & UmojaLinnMaleSizingTemplateProps> = {};
+        Object.keys(prev).forEach((key) => {
           const typedKey = key as keyof Partial<
             UmojaLinnFemaleSizingTemplateProps &
               UmojaLinnMaleSizingTemplateProps
           >;
-          const currentValue = prev[typedKey] || 0;
+          const currentValue = prev[typedKey];
+          // Skip non-numeric values (e.g., ukStandardSize is a string)
+          if (typeof currentValue !== "number") {
+            // @ts-expect-error - ukStandardSize is string but other values are numbers
+            newValue[typedKey] = currentValue;
+            return;
+          }
           const convertedValue = currentValue * conversionFactor;
-          // Convert each value
-          acc[typedKey] = Number.isInteger(convertedValue)
+          // @ts-expect-error - Type inference limitation with dynamic keys
+          newValue[typedKey] = Number.isInteger(convertedValue)
             ? convertedValue
             : parseFloat(convertedValue.toFixed(2));
-          return acc;
-        }, {} as Partial<UmojaLinnFemaleSizingTemplateProps & UmojaLinnMaleSizingTemplateProps>),
-      );
+        });
+        return newValue;
+      });
     }
   };
 
@@ -317,6 +377,14 @@ export const useSizingTemplateDialog = (
     inputRefs,
 		modalType,
     editMode, 
-    setEditMode
+    setEditMode,
+    // New mode-related exports
+    templateMode,
+    requestedMeasurementPoints,
+    submittedMeasurementPoints,
+    hasRequestedPoints,
+    hasSubmittedPoints,
+    hasReviews,
+    isInUse,
 	}
 };

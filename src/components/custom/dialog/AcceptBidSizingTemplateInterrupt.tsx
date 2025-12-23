@@ -17,10 +17,12 @@ import { CircleHelp, Tag } from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
 import DialogListPickerItem from "./ListPickerItem";
-// import Link from "next/link";
 import SizingTemplateDialog from "./SizingTemplate";
+import { cn } from "@/lib/utils";
 
 type ButtonOnClickProp = React.ComponentProps<"button">["onClick"];
+
+const MAX_TEMPLATES = 3;
 
 const AcceptBidSizingTemplateInterrupt = (
   props: DialogProps & {
@@ -73,6 +75,11 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
     useGetAllSizingTemplates({
       sizingTemplateStatus: "LIVE",
     });
+
+  // Get total template count to check limit
+  const { data: allTemplatesData } = useGetAllSizingTemplates();
+  const totalTemplateCount = allTemplatesData?.data?.data?.length ?? 0;
+  const canCreateNewTemplate = totalTemplateCount < MAX_TEMPLATES;
 
   const [sizingTemplateId, selectSizingTemplateId] = useState<null | string>(
     null
@@ -180,9 +187,11 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
           <Button
             onClick={(e) => {
               if (!liveSizingTemplates?.data?.data?.length) {
-                props?.handleCreateNewSizingTemplate?.(e);
-                props?.onOpenChange?.(false);
-                setOpen(false);
+                if (canCreateNewTemplate) {
+                  props?.handleCreateNewSizingTemplate?.(e);
+                  props?.onOpenChange?.(false);
+                  setOpen(false);
+                }
               } else {
                 setStage("CONFIRM");
               }
@@ -191,23 +200,32 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
             loading={props.loadingCreate}
             disabled={
               loadingLivesizingTemplates ||
-              (!sizingTemplateId && !!liveSizingTemplates?.data?.data?.length)
+              (!sizingTemplateId && !!liveSizingTemplates?.data?.data?.length) ||
+              (!liveSizingTemplates?.data?.data?.length && !canCreateNewTemplate)
             }
           >
             {liveSizingTemplates?.data?.data?.length ||
             loadingLivesizingTemplates
               ? "Confirm"
-              : "Create New Sizing Template"}
+              : canCreateNewTemplate
+                ? "Create New Sizing Template"
+                : `Max ${MAX_TEMPLATES} Templates Reached`}
           </Button>
         </DialogFooter>
         <div className="flex -mt-4">
-         {!!liveSizingTemplates?.data?.data?.length && (
-						<SizingTemplateDialog>
-							<button className="text-primary font-semibold cursor-pointer flex-1">
-								Create a new sizing template
-							</button>
-						</SizingTemplateDialog>
-					)}
+          {!!liveSizingTemplates?.data?.data?.length && (
+            canCreateNewTemplate ? (
+              <SizingTemplateDialog>
+                <button className="text-primary font-semibold cursor-pointer flex-1">
+                  Create a new sizing template
+                </button>
+              </SizingTemplateDialog>
+            ) : (
+              <span className={cn("text-muted-foreground text-sm flex-1 text-center")}>
+                Maximum {MAX_TEMPLATES} templates reached
+              </span>
+            )
+          )}
         </div>
       </DialogContent>
     </Dialog>

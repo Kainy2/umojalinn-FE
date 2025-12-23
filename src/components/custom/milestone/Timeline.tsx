@@ -57,6 +57,8 @@ export type MilestoneTimelineProps = {
   projectId?: string;
   designer: UmojaLinnUser | null | undefined;
   buyer: UmojaLinnUser | null | undefined;
+  /** When true, timeline is greyed out and non-interactive */
+  disabled?: boolean;
 };
 
 const getMilestoneStatus = (
@@ -85,7 +87,8 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
   currency,
   projectId,
   designer,
-  buyer
+  buyer,
+  disabled = false,
 }) => {
 const deliveryMilestone = !!milestones.length ? milestones[milestones.length - 1]:undefined;
 
@@ -146,7 +149,11 @@ const deliveryMilestone = !!milestones.length ? milestones[milestones.length - 1
       }}
     />        
 
-    <ol className={cn("flex flex-col gap-1.5", className)}>
+    <ol className={cn(
+      "flex flex-col gap-1.5",
+      disabled && "opacity-50 pointer-events-none select-none",
+      className
+    )}>
       {milestones.map((item, index) => {
         const isDelivery = !!item?.deliveryMethod;
         const milestone: MilestoneTimelineItem = {

@@ -33,8 +33,10 @@ const Layout = ({ children }: LayoutProps) => {
 				</div>
 			)}
 
-			<ActiveProjectTab baseUrlSlug="active-jobs" />
-			{children}
+			<div>
+				<ActiveProjectTab baseUrlSlug="active-jobs" />
+				{children}
+			</div>
 		</>
 	) : null;
 };
