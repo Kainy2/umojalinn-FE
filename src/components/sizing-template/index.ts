@@ -32,4 +32,11 @@ export { default as AddToJobDropdown } from "./AddToJobDropdown";
 export { default as AcceptSizingTemplateDropdown } from "./AcceptSizingTemplateDropdown";
 export { default as UnitSelector } from "./UnitSelector";
 export { default as GenderSelector } from "./GenderSelector";
+export { default as GenderTabs } from "./GenderTabs";
 export { default as FullBodyTab } from "./FullBodyTab";
+
+// UK Size components
+export { default as UKSizeDropdown } from "./UKSizeDropdown";
+export { default as UKSizeChartDrawer } from "./UKSizeChartDrawer";
+export { default as UKSizeChartTable } from "./UKSizeChartTable";
+export { default as UKStandardSizeRow } from "./UKStandardSizeRow";

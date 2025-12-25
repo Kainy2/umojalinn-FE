@@ -3,7 +3,15 @@ import { UmojaLinnUser, UmojaLinnUserRoleProfile } from "./user";
 import { UmojaLinnTimestamp } from "./util";
 
 export type UmojaLinnCurrency = "EURO" | "NAIRA";
-export type UmojalinnStandardSize = "XXS" | "XS" | "S" | "S-M" | "M-L" | "L" | "XL" | "XXL" | "3XL" | "4XL" | "5XL" | "6XL";
+
+// Male standard sizes (letter-based)
+export type UmojalinnMaleStandardSize = "XXS" | "XS" | "S" | "M" | "L" | "XL" | "XXL" | "3XL" | "4XL" | "5XL" | "6XL";
+
+// Female standard sizes (UK number-based)
+export type UmojalinnFemaleStandardSize = "6" | "8" | "10" | "12" | "14" | "16" | "18" | "20" | "22" | "24";
+
+// Combined type for backward compatibility
+export type UmojalinnStandardSize = UmojalinnMaleStandardSize | UmojalinnFemaleStandardSize;
 
 export type UmojaLinnSizingTemplateUnit = "CM" | "INCH";
 
