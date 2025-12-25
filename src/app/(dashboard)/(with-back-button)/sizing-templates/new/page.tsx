@@ -17,4 +17,3 @@ const NewSizingTemplatePage = () => {
 };
 
 export default NewSizingTemplatePage;
-

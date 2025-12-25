@@ -80,13 +80,13 @@ const SelectModeView = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Column */}
-          <div className="lg:col-span-3">
+          <div>
             <div className="flex flex-col gap-6">
               {/* Header */}
               <div className="animate-in fade-in duration-300">
-                <h1 className="text-2xl font-bold text-foreground-body mb-2">
+                <h1 className="text-lg font-bold text-foreground-body mb-2">
                   Request Sizing template
                 </h1>
                 <p className="text-sm text-muted-foreground">
@@ -197,7 +197,7 @@ const SelectModeView = ({
           </div>
 
           {/* Right Column - Preview */}
-          <div className="lg:col-span-2">
+          <div>
             <div className="sticky top-6 flex flex-col gap-4">
               {previewName && (
                 <h3 className="text-lg font-semibold text-foreground-body animate-in fade-in duration-200">

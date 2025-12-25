@@ -23,7 +23,7 @@ const MeasurementGuide = ({
 }: MeasurementGuideProps) => {
   if (!previewImage) {
     return (
-      <div className={cn("hidden lg:flex flex-col gap-4 bg-gray-50 rounded-lg p-6 transition-all duration-300", className)}>
+      <div className={cn("hidden lg:flex flex-col gap-4 bg-gray- rounded-lg p-6 transition-all duration-300", className)}>
         <div className="flex-1 flex items-center justify-center text-muted-foreground min-h-[300px]">
           <p className="text-sm animate-pulse">Select a measurement point to see the guide</p>
         </div>
@@ -32,8 +32,8 @@ const MeasurementGuide = ({
   }
 
   return (
-    <div className={cn("hidden lg:flex flex-col gap-4 bg-gray-50 rounded-lg p-6 transition-all duration-300", className)}>
-      <div className="flex-1 relative min-h-[400px] bg-white rounded-lg overflow-hidden">
+    <div className={cn("hidden lg:flex flex-col gap-4 bg-gray- rounded-lg p-6 transition-all duration-300", className)}>
+      <div className="flex-1 relative min-h-[500px] bg-white rounded-lg overflow-hidden">
         {previewImage && (
           <Image src={previewImage} fill alt={`Guide for ${highlightedMeasurementName || "measurement"}`} className="object-contain animate-in fade-in duration-300" priority />
         )}

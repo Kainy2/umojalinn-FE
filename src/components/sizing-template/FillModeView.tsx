@@ -116,13 +116,13 @@ const FillModeView = ({
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Column */}
-          <div className="lg:col-span-3">
+          <div>
             <div className="flex flex-col gap-6">
               {/* Header */}
               <div className="animate-in fade-in duration-300">
-                <h1 className="text-2xl font-bold text-foreground-body mb-2">{templateName}</h1>
+                <h1 className="text-lg font-bold text-foreground-body mb-2">{templateName}</h1>
                 <p className="text-sm text-muted-foreground">
                   Fill in the measurement points requested by your designer
                 </p>
@@ -246,7 +246,7 @@ const FillModeView = ({
           </div>
 
           {/* Right Column - Preview */}
-          <div className="lg:col-span-2">
+          <div>
             <div className="sticky top-6">
               <MeasurementGuide
                 previewImage={previewImage}

@@ -1,30 +1,17 @@
 "use client";
-/**
- * SizingTemplatePage - Main page for viewing/editing sizing templates.
- * Routes to different views based on templateMode:
- * - SELECT: Designer selects measurement points (IN_USE, no requested points)
- * - VIEW: Designer views template (read-only)
- * - RECOMMEND: Designer adds recommendations
- * - FILL: Buyer fills requested points
- * - UPDATE: Buyer updates from recommendations
- * - EDIT: Buyer full edit (draft/live)
- * - VIEW_ONLY: Read-only (in use, all submitted)
- */
 
-import React from "react";
+import React, { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { SizingTemplateDialogProps, useSizingTemplateDialog } from "@/hooks/use-sizing-template";
 import { TEMPLATE_MODE } from "@/types/constants";
-import MeasurementForm from "./MeasurementForm";
 import MeasurementGuide from "./MeasurementGuide";
 import SuccessMessage from "./SuccessMessage";
 import ActionButtons from "./ActionButtons";
 import RequestSizingTemplateViewCard from "@/components/custom/card/RequestSIzingTemplateView";
-import GenderSelector from "./GenderSelector";
+import GenderTabs from "./GenderTabs";
 import UnitSelector from "./UnitSelector";
-import FullBodyTab from "./FullBodyTab";
 import MeasurementPointRow from "./MeasurementPointRow";
 import SavedMeasurementsNotice from "./SavedMeasurementsNotice";
 import AddToJobDropdown from "./AddToJobDropdown";
@@ -32,11 +19,14 @@ import ReminderBanner from "./ReminderBanner";
 import SelectModeView from "./SelectModeView";
 import FillModeView from "./FillModeView";
 import UpdateModeView from "./UpdateModeView";
-import { UmojaLinnSizingTemplate } from "@/types/project";
+import UKStandardSizeRow from "./UKStandardSizeRow";
+import UKSizeChartTable from "./UKSizeChartTable";
+import { UmojaLinnSizingTemplate, UmojalinnStandardSize } from "@/types/project";
 import { UmojaLinnFemaleSizingTemplateProps, UmojaLinnMaleSizingTemplateProps } from "@/types/project";
 import { canSendReminder, getRemainingReminderTime } from "@/lib/sizing-template-utils";
 import { useSendSizingTemplateReminder } from "@/tanstack/hooks/useSizingTemplates";
-import { useGetProjectById } from "@/tanstack/hooks/useProject";
+import { useGetProjectById, useGetAllBuyerProject } from "@/tanstack/hooks/useProject";
+import TextField from "../custom/input/TextField";
 
 type BothGenderSizingTemplateProps = keyof (UmojaLinnFemaleSizingTemplateProps | UmojaLinnMaleSizingTemplateProps);
 
@@ -48,12 +38,23 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const urlProjectId = searchParams.get("projectId");
-  const effectiveProjectId = props.projectId || urlProjectId || undefined;
+  const effectiveProjectId = props.projectId || props.id || urlProjectId || undefined;
 
   // Fetch project data if we have a project ID
   const { data: projectData } = useGetProjectById(effectiveProjectId);
   const project = projectData?.data?.data;
-  
+
+  // Fetch available projects for "Add to Job" dropdown (LIVE projects without a sizing template)
+  const { data: buyerProjectsData, isLoading: isLoadingProjects } = useGetAllBuyerProject({
+    projectStatus: "LIVE",
+  });
+  const availableProjects = (buyerProjectsData?.data?.data || []).filter(
+    (proj) => !proj.sizingTemplate?.id
+  );
+
+  // State for showing UK size chart in preview panel
+  const [showUKSizeChart, setShowUKSizeChart] = useState(false);
+
   const {
     loading,
     highlightedSizingName,
@@ -63,6 +64,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     isDraft,
     TEMPLATE,
     name,
+    setName,
     gender,
     unit,
     value,
@@ -84,7 +86,8 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     templateMode,
     requestedMeasurementPoints,
     hasRequestedPoints,
-    hasReviews,
+    hasSubmittedPoints,
+    isInUse,
   } = useSizingTemplateDialog({
     ...props,
     handleSuccess: (template) => {
@@ -104,6 +107,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   const handleSubmit = (shouldGoLive?: true) => originalHandleSubmit(shouldGoLive);
 
   const handleMeasurementClick = (img: string, prop: keyof (UmojaLinnFemaleSizingTemplateProps | UmojaLinnMaleSizingTemplateProps)) => {
+    setShowUKSizeChart(false);
     setPreviewImage(img);
     setHighlighted(prop);
   };
@@ -115,10 +119,14 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     });
   };
 
-  const handleHeightAndSizeChange = (height: number, ukSize: string) => {
-    const heightEvent = { target: { value: height.toString() } } as React.ChangeEvent<HTMLInputElement>;
-    handleChange("height" as BothGenderSizingTemplateProps)(heightEvent);
-    console.log("UK Size selected:", ukSize);
+  const handleUKSizeChange = (ukSize: UmojalinnStandardSize) => {
+    const event = { target: { value: ukSize } } as React.ChangeEvent<HTMLInputElement>;
+    handleChange("ukStandardSize" as BothGenderSizingTemplateProps)(event);
+  };
+
+  const handleShowUKSizeChart = () => {
+    setShowUKSizeChart(true);
+    setHighlighted(null);
   };
 
   const handleSendReminder = () => {
@@ -140,7 +148,25 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   const hasSavedMeasurements = sizingTemplateResult?.metadata?.reviews ? Object.values(sizingTemplateResult.metadata.reviews).some(Boolean) : false;
   const canSendReminderNow = canSendReminder(sizingTemplateResult?.lastReminderSentAt);
   const remainingReminderTime = getRemainingReminderTime(sizingTemplateResult?.lastReminderSentAt);
-  const hasRequiredFields = !!(value?.height && value?.ukStandardSize);
+  const hasRequiredFields = !!(value?.height && value?.ukStandardSize && unit);
+  const isCreatingNew = !props.id;
+  const isEditable = !isInUse && (templateMode === TEMPLATE_MODE.EDIT || isCreatingNew);
+  const canEditGender = isEditable && !isInUse;
+
+  // Page title and description based on mode
+  const getPageTitle = () => {
+    if (isCreatingNew) return "Create a New Template";
+    if (isDraft) return "Edit Template";
+    if (isInUse) return name || "View Template";
+    return name || "Sizing Template";
+  };
+
+  const getPageDescription = () => {
+    if (isCreatingNew) return "Add your measurements and save for later use";
+    if (isDraft) return "Update your measurements and save changes";
+    if (isInUse) return "This template is currently in use with a project";
+    return "View and manage your sizing template";
+  };
 
   // Loading state
   if (props?.id && (isLoadingSizingTemplate || loadingMe || !sizingTemplateResult)) {
@@ -173,6 +199,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
 
   // FILL MODE - Buyer fills in requested measurement points
   if (templateMode === TEMPLATE_MODE.FILL && sizingTemplateResult?.id && effectiveProjectId) {
+
     return (
       <FillModeView
         templateId={sizingTemplateResult.id}
@@ -223,20 +250,21 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-            <div className="lg:col-span-3">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
               <div className="flex flex-col gap-6">
                 <div className="animate-in fade-in duration-300">
                   <h1 className="text-lg font-bold text-foreground-body mb-6">{name}</h1>
-                  <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center mb-6">
-                    <GenderSelector gender={gender} disabled />
-                    <FullBodyTab />
-                    <UnitSelector unit={unit} onChange={handleUnitChange} />
+                  <div className="space-y-10 items-start sm:items-center mb-6">
+                    <GenderTabs gender={gender} onChange={() => {}} disabled />
+                      <div className="flex justify-end items-center">
+                        {/* <h3 className="text-md font-semibold text-foreground-body">Units</h3>  */}
+                        <UnitSelector unit={unit} onChange={handleUnitChange} />
+                      </div>
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  {/* Show only requested/submitted points or all if none requested */}
                   {(!recommendationMode ? (hasRequestedPoints ? TEMPLATE.filter(item => requestedMeasurementPoints.includes(item.prop)) : TEMPLATE) : TEMPLATE).map((item, index) => {
                     const itemValue = value?.[item.prop];
                     return (
@@ -267,13 +295,13 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                 </div>
               </div>
 
-              {/* Mobile Actions */}
+              {/* Mobile Actions - Recommend Changes only shows after buyer submits */}
               {recommendationMode ? (
                 <div className="lg:hidden mt-6 flex gap-3">
                   <Button variant="outline" onClick={() => setRecommendationMode(false)} className="flex-1">Cancel</Button>
                   <Button onClick={handleSubmitRecommendations} disabled={loading || Object.keys(measurementComments).length === 0} className="flex-1">Submit Changes</Button>
                 </div>
-              ) : hasRequestedPoints && (
+              ) : hasSubmittedPoints && (
                 <div className="lg:hidden mt-6">
                   <Button fullWidth disabled={loading} onClick={() => setRecommendationMode(true)}>Recommend Changes</Button>
                 </div>
@@ -281,30 +309,33 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
             </div>
 
             {/* Right Column */}
-            <div className="lg:col-span-2">
-              <MeasurementGuide
-                previewImage={previewImage}
-                highlightedMeasurementName={highlightedSizingName}
-                review={highlighted && (measurementComments[highlighted] || sizingTemplateResult?.metadata?.reviews?.[highlighted]) ? measurementComments[highlighted] || sizingTemplateResult?.metadata?.reviews?.[highlighted] || "" : undefined}
-                className="sticky top-6"
-              />
+            <div>
+              <div className="sticky top-20">
+                <MeasurementGuide
+                  previewImage={previewImage}
+                  highlightedMeasurementName={highlightedSizingName}
+                  review={highlighted && (measurementComments[highlighted] || sizingTemplateResult?.metadata?.reviews?.[highlighted]) ? measurementComments[highlighted] || sizingTemplateResult?.metadata?.reviews?.[highlighted] || "" : undefined}
+                  className=""
+                />
 
-              {recommendationMode ? (
-                <div className="hidden lg:flex flex-col gap-3 mt-6">
-                  <Button variant="outline" onClick={() => setRecommendationMode(false)}>Cancel</Button>
-                  <Button onClick={handleSubmitRecommendations} disabled={loading || Object.keys(measurementComments).length === 0} className="w-full">Submit Changes</Button>
-                </div>
-              ) : hasRequestedPoints && (
-                <div className="hidden lg:block mt-6">
-                  <Button disabled={loading} onClick={() => setRecommendationMode(true)} className="w-full">Recommend Changes</Button>
-                </div>
-              )}
+                {/* Desktop Actions - Recommend Changes only shows after buyer submits */}
+                {recommendationMode ? (
+                  <div className="hidden lg:flex flex-col gap-3 mt-6">
+                    <Button variant="outline" onClick={() => setRecommendationMode(false)}>Cancel</Button>
+                    <Button onClick={handleSubmitRecommendations} disabled={loading || Object.keys(measurementComments).length === 0} className="w-full">Submit Changes</Button>
+                  </div>
+                ) : hasSubmittedPoints && (
+                  <div className="hidden lg:block mt-6">
+                    <Button disabled={loading} onClick={() => setRecommendationMode(true)} className="w-full">Recommend Changes</Button>
+                  </div>
+                )}
 
-              {highlighted && (measurementComments[highlighted] || sizingTemplateResult?.metadata?.reviews?.[highlighted]) && (
-                <div className="hidden lg:block mt-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                  <RequestSizingTemplateViewCard title={highlightedSizingName} review={measurementComments[highlighted] || sizingTemplateResult?.metadata?.reviews?.[highlighted] || ""} />
-                </div>
-              )}
+                {highlighted && (measurementComments[highlighted] || sizingTemplateResult?.metadata?.reviews?.[highlighted]) && (
+                  <div className="hidden lg:block mt-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <RequestSizingTemplateViewCard title={highlightedSizingName} review={measurementComments[highlighted] || sizingTemplateResult?.metadata?.reviews?.[highlighted] || ""} />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -327,66 +358,150 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
             className="mb-6"
           />
         )}
-        
+
         {hasSavedMeasurements && templateMode === TEMPLATE_MODE.VIEW_ONLY && (
           <SavedMeasurementsNotice variant="saved" onSubmit={() => handleSubmit()} className="mb-6" />
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Column */}
-          <div className="lg:col-span-3">
-            <MeasurementForm
-              name={name}
+          <div className="flex flex-col gap-6">
+            {/* Header Section */}
+            <div className="animate-in fade-in duration-300">
+              <h1 className="text-lg font-bold text-foreground-body">{getPageTitle()}</h1>
+              <p className="text-sm text-gray-500 mt-1">{getPageDescription()}</p>
+            </div>
+
+            {/* Gender Tabs */}
+            <div className="animate-in fade-in duration-300 delay-75">
+              <GenderTabs
+                gender={gender}
+                onChange={(newGender) => setGender(newGender)}
+                disabled={!canEditGender}
+              />
+            </div>
+
+            {/* Template Name Input - only when not in use */}
+            {!isInUse && (
+                <TextField 
+                  placeholder="Template Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)} 
+                  className="rounded-md h-16"
+                />
+            )}
+
+            {/* Units Row */}
+            <div className="flex justify-between items-center animate-in fade-in duration-300 delay-125">
+              <h3 className="text-md font-semibold text-foreground-body">Units</h3>
+              <UnitSelector
+                unit={unit}
+                onChange={handleUnitChange}
+                disabled={!isEditable}
+              />
+            </div>
+
+            {/* Table Headers */}
+            <div className="flex justify-between items-center text-sm text-gray-500 border-b border-gray-200 pb-2 animate-in fade-in duration-300 delay-150">
+              <span className="font-medium">Measurement Point</span>
+              <span className="font-medium">Measurement</span>
+            </div>
+
+            {/* UK Standard Size Row */}
+            <UKStandardSizeRow
               gender={gender}
-              unit={unit}
-              template={TEMPLATE}
-              value={value}
-              highlighted={highlighted}
-              sizingTemplateResult={sizingTemplateResult as { metadata: { reviews?: Partial<Record<string, string>> } | undefined; submittedMeasurementPoints?: string[]; requestedMeasurementPoints?: string[]; defaultFieldsLocked?: boolean }}
-              modalType={modalType}
-              onGenderChange={(value) => setGender(value as UmojaLinnSizingTemplate["gender"])}
-              onUnitChange={handleUnitChange}
-              onValueChange={(prop) => handleChange(prop as BothGenderSizingTemplateProps)}
-              onMeasurementClick={(img, prop) => handleMeasurementClick(img, prop as BothGenderSizingTemplateProps)}
-              onKeyPress={handleKeyPress}
-              onHeightAndSizeChange={handleHeightAndSizeChange}
-              inputRefs={inputRefs}
+              value={value?.ukStandardSize ?? null}
+              onChange={handleUKSizeChange}
+              onShowChart={handleShowUKSizeChart}
+              highlighted={showUKSizeChart}
+              disabled={!isEditable}
             />
 
+            {/* Measurement Points (including Height as first item from TEMPLATE) */}
+            <div className="flex flex-col gap-2">
+              {TEMPLATE.map((templateItem, index) => {
+                const isDisabled = !isEditable;
+                const itemValue = value?.[templateItem.prop as keyof typeof value];
+                const reviews = sizingTemplateResult?.metadata?.reviews as Record<string, string> | undefined;
+                const reviewValue = reviews?.[templateItem.prop];
+                const isSubmitted = (sizingTemplateResult?.submittedMeasurementPoints ?? []).includes(templateItem.prop);
+
+                return (
+                  <MeasurementPointRow
+                    key={templateItem.prop}
+                    disabled={isDisabled}
+                    onValueChange={handleChange(templateItem.prop as BothGenderSizingTemplateProps)}
+                    value={typeof itemValue === "number" ? itemValue : 0}
+                    unit={unit}
+                    label={templateItem.name}
+                    onFocus={() => handleMeasurementClick(templateItem.img, templateItem.prop as BothGenderSizingTemplateProps)}
+                    highlighted={highlighted === templateItem.prop}
+                    hasLiveProject={false}
+                    metadata={{ review: reviewValue, img: templateItem?.img }}
+                    onClick={() => handleMeasurementClick(templateItem.img, templateItem.prop as BothGenderSizingTemplateProps)}
+                    onKeyDown={(e) => handleKeyPress(index, e)}
+                    isSubmitted={isSubmitted}
+                    ref={(el) => { inputRefs.current[index] = el; }}
+                  />
+                );
+              })}
+            </div>
+
             {/* Mobile Actions */}
-            <div className="lg:hidden mt-6 flex flex-col gap-3">
-              {templateMode === TEMPLATE_MODE.EDIT && isDraft && (
-                <AddToJobDropdown templateId={props.id} disabled={!hasRequiredFields} onSuccess={() => router.push("/sizing-templates")} className="w-full" />
+            <div className="lg:hidden mt-6 flex justify-end gap-3">
+              {isEditable && !isInUse && (
+                <AddToJobDropdown
+                  templateId={props.id}
+                  disabled={!hasRequiredFields}
+                  onSuccess={() => router.push("/sizing-templates")}
+                  availableProjects={availableProjects}
+                  isLoadingProjects={isLoadingProjects}
+                  className="w-full"
+                />
               )}
               <ActionButtons
                 onSave={() => handleSubmit()}
                 onSubmit={() => handleSubmit(true)}
                 loading={loading}
-                showSave={!!(templateMode === TEMPLATE_MODE.EDIT || hasReviews) && !props.disableSaving}
-                showSubmit={!!(isDraft || !props.id)}
+                showSave={isEditable && !props.disableSaving}
+                showSubmit={!!(isDraft || isCreatingNew)}
               />
             </div>
           </div>
 
-          {/* Right Column */}
-          <div className="lg:col-span-2">
+          {/* Right Column - Preview Panel */}
+          <div>
             {hasSavedMeasurements && <SuccessMessage className="mb-4" />}
             <div className="sticky top-16">
-              <MeasurementGuide
-                previewImage={previewImage}
-                highlightedMeasurementName={highlightedSizingName}
-                review={highlighted && sizingTemplateResult?.metadata?.reviews?.[highlighted] ? sizingTemplateResult.metadata.reviews[highlighted] : undefined}
-              />
-              <div className="hidden lg:flex flex-col gap-3 mt-6">
-                {templateMode === TEMPLATE_MODE.EDIT && isDraft && (
-                  <AddToJobDropdown templateId={props.id} disabled={!hasRequiredFields} onSuccess={() => router.push("/sizing-templates")} />
+              {showUKSizeChart ? (
+                <div className="bg-white border border-gray-200 rounded-lg p-6 min-h-[400px]">
+                  <UKSizeChartTable gender={gender} />
+                </div>
+              ) : (
+                <MeasurementGuide
+                  previewImage={previewImage}
+                  highlightedMeasurementName={highlightedSizingName}
+                  review={highlighted && sizingTemplateResult?.metadata?.reviews?.[highlighted] ? sizingTemplateResult.metadata.reviews[highlighted] : undefined}
+                />
+              )}
+              
+              {/* Desktop Actions */}
+              <div className="hidden lg:flex justify-end gap-3 mt-6">
+                {isEditable && !isInUse && (
+                  <AddToJobDropdown
+                    templateId={props.id}
+                    disabled={!hasRequiredFields}
+                    onSuccess={() => router.push("/sizing-templates")}
+                    availableProjects={availableProjects}
+                    isLoadingProjects={isLoadingProjects}
+                  />
                 )}
                 <ActionButtons
                   onSave={() => handleSubmit()}
                   onSubmit={() => handleSubmit(true)}
                   loading={loading}
-                  showSave={!!(templateMode === TEMPLATE_MODE.EDIT || hasReviews) && !props.disableSaving}
-                  showSubmit={!!(isDraft || !props.id)}
+                  showSave={isEditable && !props.disableSaving}
+                  showSubmit={!!(isDraft || isCreatingNew)}
                 />
               </div>
             </div>

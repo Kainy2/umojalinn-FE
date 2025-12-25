@@ -42,14 +42,14 @@ export const useSizingTemplateDialog = (
   props: SizingTemplateDialogProps
 ) => {
 
- const [previewImage, setPreviewImage] = useState<string | null>(null);
+ const [previewImage, setPreviewImage] = useState<string | null>(ALL_SIZING_TEMPLATES.find((template) => template?.prop === 'height')?.img || null);
  const [editMode, setEditMode] = useState(false);
   const [open, setOpen] = useState(false);
   const [highlighted, setHighlighted] = useState<
     | keyof (UmojaLinnFemaleSizingTemplateProps &
         UmojaLinnMaleSizingTemplateProps)
     | null
-  >(null);
+  >('height');
   const [value, setValue] = useState<
     Partial<
       UmojaLinnFemaleSizingTemplateProps & UmojaLinnMaleSizingTemplateProps
@@ -120,6 +120,7 @@ export const useSizingTemplateDialog = (
 
   // New templateMode with proper priority logic
   const templateMode: TemplateMode = useMemo(() => {
+    
     // Designer modes (priority order)
     if (isDesigner) {
       // SELECT: Designer needs to select measurement points (first priority for designers)

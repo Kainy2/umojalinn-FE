@@ -19,8 +19,9 @@ import { cn } from "@/lib/utils";
 import { UmojaLinnSizingTemplate, UmojalinnStandardSize } from "@/types/project";
 import { Minus, Plus } from "lucide-react";
 import UKSizeChartModal from "./UKSizeChartModal";
+import { MALE_STANDARD_SIZES } from "@/types/constants";
 
-const UK_SIZES: UmojalinnStandardSize[] = ["XXS", "XS", "S", "S-M", "M-L", "L", "XL", "XXL", "3XL", "4XL", "5XL", "6XL"];
+const UK_SIZES: UmojalinnStandardSize[] = MALE_STANDARD_SIZES;
 const VALUE_INCREMENT = 10;
 const VALUE_MIN = 0;
 

@@ -23,6 +23,11 @@ type AllSizingTemplateProp = {
 
 export const FEMALE_SIZING_TEMPLATE: FemaleSizingTemplateProp[] = [
   {
+    name: "Height",
+    prop: "height",
+    img: "/img/png/sizing-template/female/height.png",
+  },
+  {
     name: "Neck",
     prop: "neck",
     img: "/img/png/sizing-template/female/neck.png",
@@ -161,11 +166,6 @@ export const FEMALE_SIZING_TEMPLATE: FemaleSizingTemplateProp[] = [
     img: "/img/png/sizing-template/female/shoulderToFloor.png",
   },
   {
-    name: "Height",
-    prop: "height",
-    img: "/img/png/sizing-template/female/height.png",
-  },
-  {
     name: "Head circumference",
     prop: "headCircumference",
     img: "/img/png/sizing-template/female/headCircumference.png",
@@ -173,6 +173,11 @@ export const FEMALE_SIZING_TEMPLATE: FemaleSizingTemplateProp[] = [
 ];
 
 export const MALE_SIZING_TEMPLATE: MaleSizingTemplateProp[] = [
+  {
+    name: "Height",
+    prop: "height",
+    img: "/img/png/sizing-template/male/Height.png",
+  },
   {
     name: "Neck",
     prop: "neck",
@@ -286,12 +291,6 @@ export const MALE_SIZING_TEMPLATE: MaleSizingTemplateProp[] = [
     name: "Shoulder to Floor",
     prop: "shoulderToFloor",
     img: "/img/png/sizing-template/male/shouldertoFloor.png",
-  },
-
-  {
-    name: "Height",
-    prop: "height",
-    img: "/img/png/sizing-template/male/Height.png",
   },
   {
     name: "Head circumference",
