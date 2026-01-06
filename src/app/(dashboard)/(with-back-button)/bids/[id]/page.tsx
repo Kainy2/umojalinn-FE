@@ -49,13 +49,6 @@ const IndividualBidPage = () => {
   // Get all templates to find full template data when selecting
   const { data: liveSizingTemplates } = useGetAllSizingTemplates({ sizingTemplateStatus: "LIVE" });
 
-  // Accept/Reject mutation
-  const { mutate: acceptOrReject, isPending } = useAcceptOrRejectBid(id, {
-    onSuccess() {
-      router.push(`/projects/${uuidToBase62Safe(bid?.projectId || "")}`);
-      setShouldSubmitNavigate(false);
-    },
-  });
 
   // Modal states
   const [interruptOpen, setInterruptOpen] = useState<"INTERRUPT" | "SELECT" | null>(null);
@@ -63,6 +56,14 @@ const IndividualBidPage = () => {
   const [selectedTemplateForAccept, setSelectedTemplateForAccept] = useState<UmojaLinnSizingTemplate | null>(null);
   const [isCreatingNewForAccept, setIsCreatingNewForAccept] = useState(false);
   const [shouldSubmitNavigate, setShouldSubmitNavigate] = useState(false);
+
+  // Accept/Reject mutation
+  const { mutate: acceptOrReject, isPending } = useAcceptOrRejectBid(id, {
+    onSuccess() {
+      setShouldSubmitNavigate(false);
+      router.push(`/projects/${uuidToBase62Safe(bid?.projectId || "")}`);
+    },
+  });
 
   // Add template to project - closes modal and accepts bid on success
   const { mutate: addSizingTemplateToProject, isPending: isAddingSizingTemplateToProject } = useAddSizingTemplateToProject({
@@ -72,7 +73,7 @@ const IndividualBidPage = () => {
       setSelectedTemplateForAccept(null);
       setIsCreatingNewForAccept(false);
       if (shouldSubmitNavigate) {
-        acceptOrReject({ status: "ACCEPTED" });
+        // acceptOrReject({ status: "ACCEPTED" });
       }
     },
   });
