@@ -53,7 +53,7 @@ const HeightAndSizeModal = ({
 }: HeightAndSizeModalProps) => {
   const [open, setOpen] = useState(false);
   const [selectedUnit, setSelectedUnit] = useState<"Inch" | "Cm">(unit === "INCH" ? "Inch" : "Cm");
-  const [heightValue, setHeightValue] = useState(height ?? 0);
+  const [heightValue, setHeightValue] = useState(height ?? VALUE_MIN);
   const [selectedSize, setSelectedSize] = useState(ukSize || "XXS");
 
   // Sync with external trigger
@@ -104,6 +104,7 @@ const HeightAndSizeModal = ({
   if (disabled && children) {
     return <>{children}</>;
   }
+  console.log({heightValue});
   
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>

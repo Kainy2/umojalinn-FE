@@ -81,3 +81,4 @@ export const DEFAULT_UK_SIZE_MALE: UmojalinnMaleStandardSize = "M";
 export const DEFAULT_UK_SIZE_FEMALE: UmojalinnFemaleStandardSize = "12";
 export const DEFAULT_UK_SIZE: UmojalinnStandardSize = "M"; // Legacy, use gender-specific
 export const DEFAULT_UNIT: UmojaLinnSizingTemplate["unit"] = "CM";
+export const MAX_IN_USE_TEMPLATES = 3;
