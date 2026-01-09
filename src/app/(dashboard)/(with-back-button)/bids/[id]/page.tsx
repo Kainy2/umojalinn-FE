@@ -123,6 +123,7 @@ const IndividualBidPage = () => {
     setSelectedTemplateForAccept(null);
     setIsCreatingNewForAccept(true);
     setInterruptOpen(null);
+    setShowHeightModal(true);
   };
 
   // Handle height/size submission

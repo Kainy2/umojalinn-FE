@@ -33,8 +33,8 @@ const SizingTemplateTag = (props: SizingTemplateTagProps) => {
       sizingTemplateStatus: "LIVE",
     });
   const { data: inUseSizingTemplates } = useGetAllSizingTemplates({ sizingTemplateStatus: "IN_USE" });
-  const canCreateTemplate = !!inUseSizingTemplates?.data?.data?.length && inUseSizingTemplates?.data?.data?.length < MAX_IN_USE_TEMPLATES;
-
+  const canCreateTemplate = !!inUseSizingTemplates?.data?.data && inUseSizingTemplates?.data?.data?.length < MAX_IN_USE_TEMPLATES;
+console.log({canCreateTemplate, inUseSizingTemplates: inUseSizingTemplates?.data?.data});
   const [openSizingTemplate, setOpenSizingTemplate] = useState(false);
 
   // Add template to project - closes modal and accepts bid on success
