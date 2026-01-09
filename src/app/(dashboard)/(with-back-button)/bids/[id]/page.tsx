@@ -54,13 +54,14 @@ const IndividualBidPage = () => {
   const [interruptOpen, setInterruptOpen] = useState<"INTERRUPT" | "SELECT" | null>(null);
   const [showHeightModal, setShowHeightModal] = useState(false);
   const [selectedTemplateForAccept, setSelectedTemplateForAccept] = useState<UmojaLinnSizingTemplate | null>(null);
-  const [isCreatingNewForAccept, setIsCreatingNewForAccept] = useState(false);
-  const [shouldSubmitNavigate, setShouldSubmitNavigate] = useState(false);
+  const [shouldCreateNewTemplateAfterAcceptBid, setShouldCreateNewTemplateAfterAcceptBid] = useState(false);
+  // whether to trigger accepting bid after height/size submission/add to project
+  const [shouldSubmitSizeNavigate, setShouldSubmitSizeNavigate] = useState(false);
 
   // Accept/Reject mutation
   const { mutate: acceptOrReject, isPending } = useAcceptOrRejectBid(id, {
     onSuccess() {
-      setShouldSubmitNavigate(false);
+      setShouldSubmitSizeNavigate(false);
       router.push(`/projects/${uuidToBase62Safe(bid?.projectId || "")}`);
     },
   });
@@ -71,9 +72,11 @@ const IndividualBidPage = () => {
       setInterruptOpen(null);
       setShowHeightModal(false);
       setSelectedTemplateForAccept(null);
-      setIsCreatingNewForAccept(false);
-      if (shouldSubmitNavigate) {
-        // acceptOrReject({ status: "ACCEPTED" });
+      setShouldCreateNewTemplateAfterAcceptBid(false);
+      acceptOrReject({ status: "ACCEPTED" });
+      
+      // TODO: remove this after testing
+      if (shouldSubmitSizeNavigate) {
       }
     },
   });
@@ -112,24 +115,23 @@ const IndividualBidPage = () => {
   const handleSelectTemplateForAccept = (templateId: string) => {
     const fullTemplate = liveSizingTemplates?.data?.data?.find(t => t.id === templateId);
     setSelectedTemplateForAccept(fullTemplate || { id: templateId } as UmojaLinnSizingTemplate);
-    setIsCreatingNewForAccept(false);
+    setShouldCreateNewTemplateAfterAcceptBid(false);
     setInterruptOpen(null);
     setShowHeightModal(true);
-    setShouldSubmitNavigate(true);
   };
 
   // Handle create new template from modal - use defaults
   const handleCreateNewForAccept = () => {
     setSelectedTemplateForAccept(null);
-    setIsCreatingNewForAccept(true);
     setInterruptOpen(null);
+    setShowHeightModal(true);
   };
 
   // Handle height/size submission
   // For existing templates: First update with height/ukSize, then add to project
   // For new templates: Create with all values, then add to project
   const handleHeightSubmit = (height: number, ukStandardSize: UmojalinnStandardSize, unit: UmojaLinnSizingTemplate["unit"]) => {
-    if (isCreatingNewForAccept) {
+    if (shouldCreateNewTemplateAfterAcceptBid) {
       createTemplate({
         name: bid?.project?.title || "Project",
         gender: bid?.project?.gender || "MALE",
@@ -153,8 +155,8 @@ const IndividualBidPage = () => {
       setShowHeightModal(open);
       if (!open) {
         setSelectedTemplateForAccept(null);
-        setIsCreatingNewForAccept(false);
-        setShouldSubmitNavigate(false);
+        setShouldCreateNewTemplateAfterAcceptBid(false);
+        setShouldSubmitSizeNavigate(false);
       }
     }
   };
@@ -164,14 +166,14 @@ const IndividualBidPage = () => {
     if (bid?.project?.sizingTemplateId) {
       acceptOrReject({ status: "ACCEPTED" });
     } else {
-      setShouldSubmitNavigate(true);
+      setShouldSubmitSizeNavigate(true);
       setInterruptOpen("INTERRUPT");
     }
   };
 
   // Get modal values based on selection mode
   const getModalValues = () => {
-    if (isCreatingNewForAccept) {
+    if (shouldCreateNewTemplateAfterAcceptBid) {
       return { height: DEFAULT_HEIGHT, ukSize: DEFAULT_UK_SIZE, unit: DEFAULT_UNIT };
     }
     return {
@@ -274,8 +276,11 @@ const IndividualBidPage = () => {
       <AcceptBidSizingTemplateInterrupt
         pendingConfirm={false}
         open={interruptOpen === "INTERRUPT"}
-        onConfirm={() => setInterruptOpen("SELECT")}
         onOpenChange={(value) => setInterruptOpen(value ? "INTERRUPT" : null)}
+        onConfirm={() => {   
+          setShouldCreateNewTemplateAfterAcceptBid(true);  
+          setInterruptOpen("SELECT");
+        }}
       />
 
       {/* Select Sizing Template Modal */}

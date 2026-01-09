@@ -104,7 +104,6 @@ const HeightAndSizeModal = ({
   if (disabled && children) {
     return <>{children}</>;
   }
-  console.log({heightValue});
   
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -172,7 +171,7 @@ const HeightAndSizeModal = ({
               <div className="flex items-baseline gap-1 relative">
                 <input
                   type="number"
-                  value={heightValue}
+                  value={heightValue.toString()}
                   onChange={handleHeightInputChange}
                   disabled={isLoading}
                   step="0.1"

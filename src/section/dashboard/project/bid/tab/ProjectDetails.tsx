@@ -9,7 +9,7 @@
 
 import LabelValue from "@/components/custom/LabelValue";
 import Image from "next/image";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import React, { useState } from "react";
 import { format } from "date-fns";
 import { getCurrencySymbol } from "@/lib/string";
@@ -34,12 +34,10 @@ import {
 } from "@/tanstack/hooks/useSizingTemplates";
 import HeightAndSizeModal from "@/components/sizing-template/HeightAndSizeModal";
 import { UmojaLinnSizingTemplate, UmojalinnStandardSize } from "@/types/project";
-import { uuidToBase62Safe } from "@/lib/uuid";
 import { DEFAULT_HEIGHT, DEFAULT_UK_SIZE, DEFAULT_UNIT } from "@/types/constants";
 
 const BidTabProjectDetailsSection = () => {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
   const { data: bidData, isPending, refetch: refetchBid } = useGetBidById(id);
   const { data: me } = useGetMe();
   const bid = bidData?.data?.data;
@@ -65,9 +63,6 @@ const BidTabProjectDetailsSection = () => {
       setSelectedTemplate(null);
       setIsCreatingNew(false);
       refetchBid();
-      if (project?.id) {
-        router.push(`/projects/${uuidToBase62Safe(project.id)}`);
-      }
     },
   });
 
