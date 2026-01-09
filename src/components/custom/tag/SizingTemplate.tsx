@@ -77,7 +77,7 @@ const SizingTemplateTag = (props: SizingTemplateTagProps) => {
            >
             <div className="group-[.popover-trigger]:opacity-50">
               <AvatarIconTag
-                label={ "No sizing template"}
+                label={"No sizing template"}
                 icon={canCreateTemplate && (
                   <span className="bg-background border-dotted border border-primary text-primary h-6 w-6 flex items-center justify-center rounded-full">
                     <Plus className="h-4 w-4" />
