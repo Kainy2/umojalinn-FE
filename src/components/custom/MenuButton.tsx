@@ -8,6 +8,7 @@ export type MenuButtonProps = {
   href?: string;
   className?: string;
   icon?: React.ReactNode;
+  disabled?: boolean;
 };
 
 type MenuButtonWrapperProps = Pick<
@@ -15,6 +16,7 @@ type MenuButtonWrapperProps = Pick<
   "className" | "onClick" | "href"
 > & {
   children: React.ReactNode;
+  disabled?: boolean;
 };
 
 const MenuButtonWrapper = (props: MenuButtonWrapperProps) => {
@@ -45,6 +47,7 @@ const MenuButton = (props: MenuButtonProps) => {
         "flex w-full text-foreground-body items-center gap-2 overflow-hidden text-left outline-none ring-sidebar-ring focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sm rounded-none p-3 h-10",
         props.className
       )}
+      disabled={props.disabled ?? false}
     >
       {props.icon}
       <span>{props.children}</span>
