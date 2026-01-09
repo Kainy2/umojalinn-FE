@@ -17,7 +17,7 @@ import {
   useUpdateSizingTemplate,
 } from "@/tanstack/hooks/useSizingTemplates";
 import { useGetMe } from "@/tanstack/hooks/useUser";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import React, { useState } from "react";
 import {
   DropdownMenu,
@@ -28,14 +28,12 @@ import {
 import { ChevronDown, Loader2 } from "lucide-react";
 import HeightAndSizeModal from "@/components/sizing-template/HeightAndSizeModal";
 import { UmojaLinnSizingTemplate, UmojaLinnSizingTemplateUnit, UmojalinnStandardSize } from "@/types/project";
-import { uuidToBase62Safe } from "@/lib/uuid";
 import { DEFAULT_HEIGHT, DEFAULT_UK_SIZE, DEFAULT_UNIT } from "@/types/constants";
 
 const MAX_TEMPLATES = 3;
 
 const RequestSizingTemplateAlert = () => {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
   const { data: bidData, refetch: refetchBid } = useGetBidById(id);
   const { data: me } = useGetMe();
 
@@ -75,9 +73,6 @@ const RequestSizingTemplateAlert = () => {
       setSelectedTemplate(null);
       setIsCreatingNew(false);
       refetchBid();
-      if (project?.id) {
-        router.push(`/projects/${uuidToBase62Safe(project.id)}`);
-      }
     },
   });
 
