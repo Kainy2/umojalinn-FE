@@ -2,7 +2,7 @@
 import VerifyDialog from "@/components/custom/dialog/Verify";
 import PopoverMenu from "@/components/custom/PopoverMenu";
 import SectionTitle from "@/components/custom/SectionTitle";
-import SizingTemplateTag from "@/components/custom/tag/SizingTemplate";
+import { SizingTemplatePill } from "@/components/sizing-template";
 import { Button } from "@/components/ui/button";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import ProjectReviewView from "@/section/dashboard/project/Review";
@@ -75,7 +75,7 @@ const AdsProjectPage = () => {
 
       <div className="grid grid-cols-2 gap-4 max-w-screen-sm items-center justify-start">
         <span className="text-sm text-foreground-body">Sizing Template</span>
-        <SizingTemplateTag projectId={params?.id} />
+        <SizingTemplatePill projectId={params?.id} />
       </div>
 
       <ProjectReviewView loading={isPending} project={data?.data?.data} />

@@ -1,164 +1,28 @@
 "use client";
 /**
  * BidTabProjectDetailsSection - Displays project details in bid sidebar.
- * Includes the sizing template pill with different states:
- * - View sizing template (green checkmark) - when template is attached
- * - Add sizing template (yellow alert) - when requested but not attached (clickable)
- * - No sizing template (red alert) - when not requested
+ * Uses the reusable SizingTemplatePill component for sizing template states.
  */
 
 import LabelValue from "@/components/custom/LabelValue";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import React, { useState } from "react";
+import React from "react";
 import { format } from "date-fns";
 import { getCurrencySymbol } from "@/lib/string";
-import { CircleAlert, EyeOff, Plus } from "lucide-react";
+import { EyeOff } from "lucide-react";
 import { useGetBidById } from "@/tanstack/hooks/useBid";
 import { Skeleton } from "@/components/ui/skeleton";
 import GalleryImages from "@/components/custom/GalleryImages";
-import AvatarIconTag from "@/components/custom/tag/AvatarIcon";
-import CheckCircle from "@/icons/CheckCircle";
 import { formatCurrencyValue } from "@/lib/number";
 import { cn } from "@/lib/utils";
-import { useGetMe } from "@/tanstack/hooks/useUser";
-import {
-  AcceptBidSizingTemplateInterruptConfirm,
-} from "@/components/custom/dialog/AcceptBidSizingTemplateInterrupt";
-import {
-  useAddSizingTemplateToProject,
-  useCreateSizingTemplate,
-  useGetAllSizingTemplates,
-  useUpdateSizingTemplate,
-} from "@/tanstack/hooks/useSizingTemplates";
-import HeightAndSizeModal from "@/components/sizing-template/HeightAndSizeModal";
-import { UmojaLinnSizingTemplate, UmojalinnStandardSize } from "@/types/project";
-import { DEFAULT_HEIGHT, DEFAULT_UNIT } from "@/types/constants";
+import { SizingTemplatePill } from "@/components/sizing-template";
 
 const BidTabProjectDetailsSection = () => {
   const { id } = useParams<{ id: string }>();
-  const { data: bidData, isPending, refetch: refetchBid } = useGetBidById(id);
-  const { data: me } = useGetMe();
+  const { data: bidData, isPending } = useGetBidById(id);
   const bid = bidData?.data?.data;
   const project = bid?.project;
-
-  // Get all templates to find full template data when selecting
-  const { data: liveSizingTemplates } = useGetAllSizingTemplates({ sizingTemplateStatus: "LIVE" });
-  const { data: allSizingTemplates } = useGetAllSizingTemplates();
-
-  // Check if user is buyer
-  const isBuyer = me?.data?.data?.buyerProfile?.id === project?.buyerId;
-
-  // Modal states
-  const [selectModalOpen, setSelectModalOpen] = useState(false);
-  const [showHeightModal, setShowHeightModal] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<UmojaLinnSizingTemplate | null>(null);
-  const [isCreatingNew, setIsCreatingNew] = useState(false);
-
-  // Add template to project - closes modal on success
-  const { mutate: addTemplateToProject, isPending: isAddingTemplate } = useAddSizingTemplateToProject({
-    onSuccess: () => {
-      setShowHeightModal(false);
-      setSelectModalOpen(false);
-      setSelectedTemplate(null);
-      setIsCreatingNew(false);
-      refetchBid();
-    },
-  });
-
-  // Update template with height/ukStandardSize - then add to project
-  const { mutate: updateTemplate, isPending: isUpdatingTemplate } = useUpdateSizingTemplate(
-    selectedTemplate?.id,
-    {
-      onSuccess: () => {
-        if (selectedTemplate && project?.id) {
-          addTemplateToProject({
-            projectId: project.id,
-            sizingTemplateId: selectedTemplate.id,
-          });
-        }
-      },
-    }
-  );
-
-  // Create new template - then add to project
-  const { mutate: createTemplate, isPending: isCreatingTemplate } = useCreateSizingTemplate({
-    onSuccess: (data) => {
-      const newTemplateId = data?.data?.data?.id;
-      if (newTemplateId && project?.id) {
-        addTemplateToProject({
-          projectId: project.id,
-          sizingTemplateId: newTemplateId,
-        });
-      }
-    },
-  });
-
-  const isHeightModalLoading = isAddingTemplate || isCreatingTemplate || isUpdatingTemplate;
-
-  // Handle template selection from modal - find full template data
-  const handleSelectTemplate = (templateId: string) => {
-    const fullTemplate = allSizingTemplates?.data?.data?.find(t => t.id === templateId);
-    setSelectedTemplate(fullTemplate || { id: templateId } as UmojaLinnSizingTemplate);
-    setIsCreatingNew(false);
-    setSelectModalOpen(false);
-    setShowHeightModal(true);
-  };
-
-  // Handle create new template - use defaults
-  const handleCreateNew = () => {
-    setSelectedTemplate(null);
-    setIsCreatingNew(true);
-    setSelectModalOpen(false);
-    setShowHeightModal(true);
-  };
-
-  // Handle height/size submission
-  // For existing templates: First update with height/ukSize, then add to project
-  // For new templates: Create with all values, then add to project
-  const handleHeightSubmit = (height: number, ukSize: UmojalinnStandardSize) => {
-    if (isCreatingNew && project?.gender) {
-      createTemplate({
-        name: `${project?.title || "Project"}`,
-        gender: project?.gender,
-        unit: "CM",
-        height: height,
-        ukStandardSize: ukSize,
-      });
-    } else if (selectedTemplate && project?.id) {
-      // First update the template with height and ukStandardSize
-      updateTemplate({
-        height: height,
-        ukStandardSize: ukSize,
-      });
-    }
-  };
-
-  // Handle modal close - only allow if not loading
-  const handleHeightModalChange = (open: boolean) => {
-    if (!isHeightModalLoading) {
-      setShowHeightModal(open);
-      if (!open) {
-        setSelectedTemplate(null);
-        setIsCreatingNew(false);
-      }
-    }
-  };
-
-  // Get modal values based on selection mode
-  const getModalValues = () => {
-    if (isCreatingNew) {
-      return { height: DEFAULT_HEIGHT, unit: DEFAULT_UNIT, gender: project?.gender };
-    }
-    return {
-      height: selectedTemplate?.height ?? DEFAULT_HEIGHT,
-      ukSize: selectedTemplate?.ukStandardSize,
-      unit: selectedTemplate?.unit ?? DEFAULT_UNIT,
-      gender: selectedTemplate?.gender ?? project?.gender,
-    };
-  };
-
-  const modalValues = getModalValues();
 
   if (isPending) {
     return (
@@ -192,71 +56,6 @@ const BidTabProjectDetailsSection = () => {
       </p>
     );
   }
-
-  // Render sizing template pill
-  const renderSizingTemplatePill = () => {
-    // Template attached - View mode
-    if (project?.sizingTemplateId) {
-      return (
-        <AvatarIconTag
-          label="View sizing template"
-          icon={<CheckCircle className="text-success" />}
-          disabled={!project?.sizingTemplateId}
-          onClick={
-            () => 
-              project?.sizingTemplateId 
-              && handleSelectTemplate(project?.sizingTemplateId)
-          }
-          />
-      );
-    }
-
-    // Template requested but not attached - Add mode (clickable for buyers)
-    if (bid?.sizingTemplateRequested) {
-      if (isBuyer) {
-        return (
-          <div
-            onClick={() => setSelectModalOpen(true)}
-            className="cursor-pointer transition-transform hover:scale-[1.02]"
-          >
-            <AvatarIconTag
-              label="Add sizing template"
-              icon={
-                <span className="text-white [&>svg]:size-4 size-7 rounded-full bg-primary flex items-center justify-center">
-                  <Plus />
-                </span>
-              }
-            />
-          </div>
-        );
-      }
-      // Designer view - just show requested status
-      return (
-        <AvatarIconTag
-          label="Sizing template requested"
-          icon={
-            <span className="text-white [&>svg]:size-5 size-7 rounded-full bg-primary flex items-center justify-center">
-              <CircleAlert />
-            </span>
-          }
-          disabled
-        />
-      );
-    }
-
-    // No template requested
-    return (
-      <AvatarIconTag
-        label="No sizing template"
-        icon={
-          <span className="text-white [&>svg]:size-5 size-7 rounded-full bg-error flex items-center justify-center">
-            <CircleAlert />
-          </span>
-        }
-        disabled
-      />
-    );
-  };
 
   return (
     <div className="flex flex-col gap-8">
@@ -311,30 +110,9 @@ const BidTabProjectDetailsSection = () => {
       />
 
       {/* Sizing Template Pill */}
-      <span>{renderSizingTemplatePill()}</span>
-
-      {/* Select Sizing Template Modal */}
-      <AcceptBidSizingTemplateInterruptConfirm
-        loadingCreate={isCreatingTemplate}
-        open={selectModalOpen}
-        loading={isAddingTemplate}
-        onOpenChange={setSelectModalOpen}
-        handleCreateNewSizingTemplate={handleCreateNew}
-        handleAddSizingTemplateToProject={handleSelectTemplate}
-      />
-
-      {/* Height and Size Modal */}
-      <HeightAndSizeModal
-        height={modalValues.height}
-        ukSize={modalValues.ukSize}
-        unit={modalValues.unit}
-        onSubmit={handleHeightSubmit}
-        disabled={false}
-        triggerOpen={showHeightModal}
-        onOpenChange={handleHeightModalChange}
-        isLoading={isHeightModalLoading}
-        gender={modalValues.gender}
-      />
+      <span>
+        <SizingTemplatePill projectId={project.id} bidId={bid.id} />
+      </span>
 
       <div>
         <h3 className="mb-2 font-semibold text-subtitle-2">
