@@ -17,18 +17,20 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { UmojaLinnSizingTemplate, UmojalinnStandardSize } from "@/types/project";
-import { Minus, Plus } from "lucide-react";
+import { ArrowRight, Minus, Plus } from "lucide-react";
 import UKSizeChartModal from "./UKSizeChartModal";
-import { MALE_STANDARD_SIZES } from "@/types/constants";
+import { MALE_STANDARD_SIZES, FEMALE_STANDARD_SIZES } from "@/types/constants";
 
-const UK_SIZES: UmojalinnStandardSize[] = MALE_STANDARD_SIZES;
+const getSizes = ( gender: UmojaLinnSizingTemplate["gender"] ) => 
+  gender === "MALE" ? MALE_STANDARD_SIZES : FEMALE_STANDARD_SIZES;
+
 const VALUE_INCREMENT = 10;
 const VALUE_MIN = 0;
 
 type HeightAndSizeModalProps = {
   children?: React.ReactNode;
   height?: number | null;
-  ukSize?: UmojalinnStandardSize;
+  ukSize?: UmojalinnStandardSize | null;
   unit: UmojaLinnSizingTemplate["unit"];
   onSubmit: (height: number, ukSize: UmojalinnStandardSize, unit: UmojaLinnSizingTemplate["unit"]) => void;
   disabled?: boolean;
@@ -38,23 +40,28 @@ type HeightAndSizeModalProps = {
   onOpenChange?: (open: boolean) => void;
   /** Loading state for submit button */
   isLoading?: boolean;
+  gender?: UmojaLinnSizingTemplate["gender"] | null;
 };
 
 const HeightAndSizeModal = ({
   children,
   height,
-  ukSize,
+  ukSize: ukSizeProp,
   unit,
   onSubmit,
   disabled = false,
   triggerOpen,
   onOpenChange,
   isLoading = false,
+  gender: genderProp,
 }: HeightAndSizeModalProps) => {
+  const gender = genderProp || "MALE";
+  const ukSize = ukSizeProp ?? getSizes(gender)[0];
+
   const [open, setOpen] = useState(false);
   const [selectedUnit, setSelectedUnit] = useState<"Inch" | "Cm">(unit === "INCH" ? "Inch" : "Cm");
   const [heightValue, setHeightValue] = useState(height ?? VALUE_MIN);
-  const [selectedSize, setSelectedSize] = useState(ukSize || "XXS");
+  const [selectedSize, setSelectedSize] = useState(ukSize);
 
   // Sync with external trigger
   useEffect(() => {
@@ -67,7 +74,7 @@ const HeightAndSizeModal = ({
   useEffect(() => {
     if (open) {
       setHeightValue(height ?? 0);
-      setSelectedSize(ukSize || "XXS");
+        setSelectedSize(ukSize);
       setSelectedUnit(unit === "INCH" ? "Inch" : "Cm");
     }
   }, [open, height, ukSize, unit]);
@@ -193,13 +200,26 @@ const HeightAndSizeModal = ({
 
           {/* UK Size Section */}
           <div>
-            <label className="text-sm font-medium text-foreground-body mb-3 block">
-              UK Size
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-foreground-body mb-3 block">
+                UK Size
+              </label>
+
+              {/* UK Size Chart Link */}
+              <UKSizeChartModal>
+                <button
+                  type="button"
+                  className="text-sm text-primary flex items-center gap-1"
+                >
+                  <span className="hover:underline">Unsure about your UK size?</span>
+                  <span className="text-md"><ArrowRight className="size-4" /></span>
+                </button>
+              </UKSizeChartModal>
+            </div>
 
             {/* Size Grid */}
             <div className="grid grid-cols-6 gap-2 mb-3">
-              {UK_SIZES.map((size) => (
+              {getSizes(gender).map((size) => (
                 <button
                   key={size}
                   type="button"
@@ -216,17 +236,6 @@ const HeightAndSizeModal = ({
                 </button>
               ))}
             </div>
-
-            {/* UK Size Chart Link */}
-            <UKSizeChartModal>
-              <button
-                type="button"
-                className="text-sm text-primary flex items-center gap-1"
-              >
-                <span className="hover:underline">Unsure about your UK size?</span>
-                <span className="text-md">→</span>
-              </button>
-            </UKSizeChartModal>
           </div>
         </div>
 

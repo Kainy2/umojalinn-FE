@@ -17,7 +17,6 @@ import { CircleAlert, EyeOff, Plus } from "lucide-react";
 import { useGetBidById } from "@/tanstack/hooks/useBid";
 import { Skeleton } from "@/components/ui/skeleton";
 import GalleryImages from "@/components/custom/GalleryImages";
-import SizingTemplateDialog from "@/components/custom/dialog/SizingTemplate";
 import AvatarIconTag from "@/components/custom/tag/AvatarIcon";
 import CheckCircle from "@/icons/CheckCircle";
 import { formatCurrencyValue } from "@/lib/number";
@@ -34,7 +33,7 @@ import {
 } from "@/tanstack/hooks/useSizingTemplates";
 import HeightAndSizeModal from "@/components/sizing-template/HeightAndSizeModal";
 import { UmojaLinnSizingTemplate, UmojalinnStandardSize } from "@/types/project";
-import { DEFAULT_HEIGHT, DEFAULT_UK_SIZE, DEFAULT_UNIT } from "@/types/constants";
+import { DEFAULT_HEIGHT, DEFAULT_UNIT } from "@/types/constants";
 
 const BidTabProjectDetailsSection = () => {
   const { id } = useParams<{ id: string }>();
@@ -45,6 +44,7 @@ const BidTabProjectDetailsSection = () => {
 
   // Get all templates to find full template data when selecting
   const { data: liveSizingTemplates } = useGetAllSizingTemplates({ sizingTemplateStatus: "LIVE" });
+  const { data: allSizingTemplates } = useGetAllSizingTemplates();
 
   // Check if user is buyer
   const isBuyer = me?.data?.data?.buyerProfile?.id === project?.buyerId;
@@ -98,7 +98,7 @@ const BidTabProjectDetailsSection = () => {
 
   // Handle template selection from modal - find full template data
   const handleSelectTemplate = (templateId: string) => {
-    const fullTemplate = liveSizingTemplates?.data?.data?.find(t => t.id === templateId);
+    const fullTemplate = allSizingTemplates?.data?.data?.find(t => t.id === templateId);
     setSelectedTemplate(fullTemplate || { id: templateId } as UmojaLinnSizingTemplate);
     setIsCreatingNew(false);
     setSelectModalOpen(false);
@@ -148,12 +148,13 @@ const BidTabProjectDetailsSection = () => {
   // Get modal values based on selection mode
   const getModalValues = () => {
     if (isCreatingNew) {
-      return { height: DEFAULT_HEIGHT, ukSize: DEFAULT_UK_SIZE, unit: DEFAULT_UNIT };
+      return { height: DEFAULT_HEIGHT, unit: DEFAULT_UNIT, gender: project?.gender };
     }
     return {
       height: selectedTemplate?.height ?? DEFAULT_HEIGHT,
-      ukSize: selectedTemplate?.ukStandardSize ?? DEFAULT_UK_SIZE,
+      ukSize: selectedTemplate?.ukStandardSize,
       unit: selectedTemplate?.unit ?? DEFAULT_UNIT,
+      gender: selectedTemplate?.gender ?? project?.gender,
     };
   };
 
@@ -197,12 +198,16 @@ const BidTabProjectDetailsSection = () => {
     // Template attached - View mode
     if (project?.sizingTemplateId) {
       return (
-        <SizingTemplateDialog id={project?.sizingTemplateId}>
-          <AvatarIconTag
-            label="View sizing template"
-            icon={<CheckCircle className="text-success" />}
+        <AvatarIconTag
+          label="View sizing template"
+          icon={<CheckCircle className="text-success" />}
+          disabled={!project?.sizingTemplateId}
+          onClick={
+            () => 
+              project?.sizingTemplateId 
+              && handleSelectTemplate(project?.sizingTemplateId)
+          }
           />
-        </SizingTemplateDialog>
       );
     }
 
@@ -328,6 +333,7 @@ const BidTabProjectDetailsSection = () => {
         triggerOpen={showHeightModal}
         onOpenChange={handleHeightModalChange}
         isLoading={isHeightModalLoading}
+        gender={modalValues.gender}
       />
 
       <div>
