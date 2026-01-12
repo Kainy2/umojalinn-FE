@@ -18,7 +18,7 @@ import {
 } from "@/tanstack/hooks/useSizingTemplates";
 import { useGetMe } from "@/tanstack/hooks/useUser";
 import { useParams } from "next/navigation";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,9 +49,9 @@ const RequestSizingTemplateAlert = () => {
   const { data: templatesData, isLoading: isLoadingTemplates } = useGetAllSizingTemplates({
     sizingTemplateStatus: "LIVE",
   });
-  const availableTemplates = templatesData?.data?.data?.filter(
-    (t: UmojaLinnSizingTemplate) => t.status === "LIVE"
-  ) ?? [];
+  const availableTemplates = useMemo(() => templatesData?.data?.data?.filter(
+      (t: UmojaLinnSizingTemplate) => t.status === "LIVE"
+  ) ?? [], [templatesData]);
 
   // Get total template count to check limit
   const { data: allTemplatesData } = useGetAllSizingTemplates();

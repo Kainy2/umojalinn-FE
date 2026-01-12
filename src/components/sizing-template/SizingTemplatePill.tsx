@@ -11,7 +11,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, CircleAlert, Loader2, Plus } from "lucide-react";
+import { Bell, CircleAlert, ImagesIcon, Loader2, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { canSendReminder } from "@/lib/sizing-template-utils";
@@ -49,13 +49,14 @@ type SizingTemplatePillProps = {
 
 type PillState =
   | "NO_TEMPLATE"
-  | "WAITING_FOR_BUYER"
+  | "AWAITING_SIZING_TEMPLATE"
   | "ADD_TEMPLATE"
-  | "REQUEST_MEASUREMENT_POINTS"
-  | "WAITING_FOR_DESIGNER"
-  | "AWAITING_BUYER_SUBMISSION"
-  | "FILL_MEASUREMENTS"
-  | "VIEW_TEMPLATE";
+  | "SELECT_MEASUREMENT_POINTS"
+  | "AWAITING_MEASUREMENT_FIELDS"
+  | "AWAITING_BUYER_MEASUREMENTS"
+  | "ADD_REQUESTED_MEASUREMENTS"
+  | "VIEW_TEMPLATE"
+  | "VIEW_SIZING_RECOMMENDATIONS";
 
 const SizingTemplatePill = ({
   projectId,
@@ -186,18 +187,19 @@ const SizingTemplatePill = ({
     if (isDesigner) {
       // Designer states
       if (!sizingTemplateId && !sizingTemplateRequested) return "NO_TEMPLATE";
-      if (sizingTemplateRequested && !sizingTemplateId) return "WAITING_FOR_BUYER";
-      if (sizingTemplateId && !requestedMeasurementPoints?.length) return "REQUEST_MEASUREMENT_POINTS";
+      if (sizingTemplateRequested && !sizingTemplateId) return "AWAITING_SIZING_TEMPLATE";
+      if (sizingTemplateId && !requestedMeasurementPoints?.length) return "SELECT_MEASUREMENT_POINTS";
       if (sizingTemplateId && requestedMeasurementPoints?.length && !submittedMeasurementPoints?.length)
-        return "AWAITING_BUYER_SUBMISSION";
+        return "AWAITING_BUYER_MEASUREMENTS";
       if (sizingTemplateId && submittedMeasurementPoints?.length) return "VIEW_TEMPLATE";
     } else {
       // Buyer states
       if (!sizingTemplateRequested) return "NO_TEMPLATE";
       if (sizingTemplateRequested && !sizingTemplateId) return "ADD_TEMPLATE";
-      if (sizingTemplateId && !requestedMeasurementPoints?.length) return "WAITING_FOR_DESIGNER";
+      if (sizingTemplateId && !requestedMeasurementPoints?.length) return "AWAITING_MEASUREMENT_FIELDS";
       if (sizingTemplateId && requestedMeasurementPoints?.length && !submittedMeasurementPoints?.length)
-        return "FILL_MEASUREMENTS";
+      if (sizingTemplateId && requestedMeasurementPoints?.length && submittedMeasurementPoints?.length && sizingTemplate?.metadata?.reviews && Object.values(sizingTemplate?.metadata?.reviews).some(Boolean))
+        return "VIEW_SIZING_RECOMMENDATIONS";
       if (sizingTemplateId && submittedMeasurementPoints?.length) return "VIEW_TEMPLATE";
     }
 
@@ -260,7 +262,12 @@ const SizingTemplatePill = ({
     setPendingFillNavigation(true);
     setIsCreatingNew(false);
     setSelectedTemplate(sizingTemplate || null);
-    setShowHeightModal(true);
+    // setShowHeightModal(true);
+			if (sizingTemplate && project?.id) {
+		  	router.push(
+					`/sizing-templates/${uuidToBase62Safe(sizingTemplate.id)}?projectId=${uuidToBase62Safe(project.id)}&mode=fill`
+				)
+			}
   };
 
   const handleFillHeightSubmit = (
@@ -303,10 +310,18 @@ const SizingTemplatePill = ({
     }
   };
 
-  const navigateToViewPage = () => {
+  // const navigateToViewPage = () => {
+  //   if (sizingTemplateId && project?.id) {
+  //     router.push(
+  //       `/sizing-templates/${uuidToBase62Safe(sizingTemplateId)}?projectId=${uuidToBase62Safe(project.id)}`
+  //     );
+  //   }
+  // };
+
+	const navigateToViewSizingRecommendationsPage = () => {
     if (sizingTemplateId && project?.id) {
       router.push(
-        `/sizing-templates/${uuidToBase62Safe(sizingTemplateId)}?projectId=${uuidToBase62Safe(project.id)}`
+        `/sizing-templates/${uuidToBase62Safe(sizingTemplateId)}?projectId=${uuidToBase62Safe(project.id)}&mode=recommendations`
       );
     }
   };
@@ -343,12 +358,12 @@ const SizingTemplatePill = ({
             onClick={handleSendReminder}
 						icon={<Bell className="size-4" />}
 						disabled={!canSend || isSendingReminder}
-						className="bg-gray-50 hover:bg-gray-100"
+						className={cn("bg-gray-50 hover:bg-gray-100", !canSend && "opacity-50 cursor-not-allowed")}
 					>
-						{isSendingReminder ? "Sending..." : "Send Reminder"}
+					{isSendingReminder ? "Sending..." : "Send Reminder"}
           {!canSend && (
             <p className="text-xs text-muted-foreground text-center">
-              Please wait before sending another reminder
+              Please wait a while before resending
             </p>
           )}
 					</MenuButton>
@@ -373,11 +388,11 @@ const SizingTemplatePill = ({
           />
         );
 
-      case "WAITING_FOR_BUYER":
+      case "AWAITING_SIZING_TEMPLATE":
         // Designer view - waiting for buyer to add template
         return (
           <AvatarIconTag
-            label="Sizing template requested"
+            label="Awaiting Template"
             icon={
               <span className="text-white [&>svg]:size-5 size-7 rounded-full bg-primary flex items-center justify-center">
                 <CircleAlert />
@@ -407,31 +422,31 @@ const SizingTemplatePill = ({
           </div>
         );
 
-      case "REQUEST_MEASUREMENT_POINTS":
-        // Designer view - need to request measurement points (pink/soft red with red + icon)
+      case "SELECT_MEASUREMENT_POINTS":
+        // Designer view - need to select measurement points and request them from buyer
         return (
           <div
             onClick={navigateToRequestPage}
             className="cursor-pointer transition-transform hover:scale-[1.02]"
           >
             <AvatarIconTag
-              label="Request sizing template"
+              label="Select measurement points"
               icon={
-                <span className="text-white [&>svg]:size-4 size-7 rounded-full bg-error flex items-center justify-center">
+                <span className="text-white [&>svg]:size-4 size-7 rounded-full bg-red-500 flex items-center justify-center">
                   <Plus />
                 </span>
               }
-              className={cn("bg-red-50", className)}
+              className={cn("bg-red-50 border border-red-500", className)}
             />
           </div>
         );
 
-      case "WAITING_FOR_DESIGNER":
+      case "AWAITING_MEASUREMENT_FIELDS":
         // Buyer view - waiting for designer to request measurement points
         return renderReminderPopover(
           <div className="cursor-pointer transition-transform hover:scale-[1.02]">
             <AvatarIconTag
-              label="Request Sizing Template"
+              label="Awaiting Measurement Fields"
               icon={
                 <span className="text-white [&>svg]:size-4 size-7 rounded-full bg-red-500 flex items-center justify-center">
                   <Bell />
@@ -442,12 +457,12 @@ const SizingTemplatePill = ({
           </div>
         );
 
-      case "AWAITING_BUYER_SUBMISSION":
+      case "AWAITING_BUYER_MEASUREMENTS":
         // Designer view - waiting for buyer to submit measurements
         return renderReminderPopover(
           <div className="cursor-pointer transition-transform hover:scale-[1.02]">
             <AvatarIconTag
-              label="Template Requested"
+              label="Awaiting Measurements"
               icon={
                 <span className="text-white [&>svg]:size-5 size-7 rounded-full bg-primary flex items-center justify-center">
                   <CircleAlert />
@@ -458,7 +473,7 @@ const SizingTemplatePill = ({
           </div>
         );
 
-      case "FILL_MEASUREMENTS":
+      case "ADD_REQUESTED_MEASUREMENTS":
         // Buyer view - need to fill measurement values
         return (
           <div
@@ -466,13 +481,33 @@ const SizingTemplatePill = ({
             className="cursor-pointer transition-transform hover:scale-[1.02]"
           >
             <AvatarIconTag
-              label="Add sizing template"
+              label="Fill Measurements"
               icon={
-                <span className="text-white [&>svg]:size-4 size-7 rounded-full bg-primary flex items-center justify-center">
-                  <Plus />
+                <span className="text-white [&>svg]:size-4 size-7 rounded-full bg-red-500 flex items-center justify-center">
+                  <Plus  />
                 </span>
               }
-              className={className}
+              className={cn("bg-red-50 border border-red-500", className)}
+            />
+          </div>
+        );
+
+
+      case "VIEW_SIZING_RECOMMENDATIONS":
+        // Buyer view - need to view sizing recommendations that designer sent after submitting measurements
+        return (
+          <div
+            onClick={navigateToViewSizingRecommendationsPage}
+            className="cursor-pointer transition-transform hover:scale-[1.02]"
+          >
+            <AvatarIconTag
+              label="View Sizing Recommendations"
+              icon={
+                <span className="text-white [&>svg]:size-4 size-7 rounded-full bg-primary flex items-center justify-center">
+                  <ImagesIcon />
+                </span>
+              }
+              className={cn("bg-primary-100 border border-primary", className)}
             />
           </div>
         );
@@ -482,18 +517,17 @@ const SizingTemplatePill = ({
 			if (project?.sizingTemplateId) {
 				return (
 					<div
-						onClick={navigateToViewPage}
 						className="cursor-pointer transition-transform hover:scale-[1.02]"
+						onClick={
+							() => 
+								project?.sizingTemplateId 
+							&& handleSelectTemplate(project?.sizingTemplateId)
+						}				
 					>
 						<AvatarIconTag
 							label="View sizing template"
 							icon={<CheckCircle className="text-success" />}
 							disabled={!project?.sizingTemplateId}
-							onClick={
-								() => 
-									project?.sizingTemplateId 
-								&& handleSelectTemplate(project?.sizingTemplateId)
-							}
 						/>
 					</div>
 				);
