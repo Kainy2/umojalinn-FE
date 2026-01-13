@@ -6,7 +6,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, removeNonDigits } from "@/lib/utils";
 import { UmojaLinnSizingTemplate, UmojaLinnFemaleSizingTemplateProps, UmojaLinnMaleSizingTemplateProps, UmojalinnStandardSize } from "@/types/project";
 import { useSubmitMeasurementPoints, useSaveMeasurementPoints } from "@/tanstack/hooks/useSizingTemplates";
 import GenderSelector from "./GenderSelector";
@@ -68,7 +68,8 @@ const FillModeView = ({
   });
 
   const handleChange = (prop: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    const numValue = parseFloat(event.target.value) || 0;
+    const numValue = parseFloat(removeNonDigits(event.target.value)) || 0;
+    console.log(numValue);
     setValues((prev) => ({ ...prev, [prop]: numValue }));
   };
 
@@ -129,7 +130,7 @@ const FillModeView = ({
               </div>
 
               {/* Controls */}
-              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center animate-in fade-in duration-300 delay-75">
+              <div className="flex justify-between gap-4 items-start sm:items-center animate-in fade-in duration-300 delay-75">
                 <GenderSelector gender={gender} disabled />
                 <UnitSelector
                   unit={unit}
@@ -197,7 +198,7 @@ const FillModeView = ({
                           min={0}
                           max={999}
                           value={numericValue || ""}
-                          onChange={handleChange(point.prop)}
+                          onChange={e=>{console.log("val", e.target.value); handleChange(point.prop)(e)}}
                           onKeyDown={(event) => handleKeyPress(index, event)}
                           onClick={(event) => event.stopPropagation()}
                           placeholder="0"

@@ -1,4 +1,4 @@
-import { UmojaLinnSizingTemplate, UmojalinnMaleStandardSize, UmojalinnFemaleStandardSize, UmojalinnStandardSize } from "./project";
+import { UmojaLinnSizingTemplate, UmojalinnMaleStandardSize, UmojalinnFemaleStandardSize } from "./project";
 
 // Male standard sizes array (letter-based)
 export const MALE_STANDARD_SIZES: UmojalinnMaleStandardSize[] = [
@@ -77,8 +77,5 @@ export type TemplateMode = typeof TEMPLATE_MODE[keyof typeof TEMPLATE_MODE];
 
 
 export const DEFAULT_HEIGHT = 0;
-export const DEFAULT_UK_SIZE_MALE: UmojalinnMaleStandardSize = "M";
-export const DEFAULT_UK_SIZE_FEMALE: UmojalinnFemaleStandardSize = "12";
-export const DEFAULT_UK_SIZE: UmojalinnStandardSize = "M"; // Legacy, use gender-specific
 export const DEFAULT_UNIT: UmojaLinnSizingTemplate["unit"] = "CM";
 export const MAX_IN_USE_TEMPLATES = 3;

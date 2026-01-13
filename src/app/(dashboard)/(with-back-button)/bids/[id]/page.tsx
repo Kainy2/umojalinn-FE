@@ -32,7 +32,7 @@ import { useParams, useRouter } from "next/navigation";
 import React, { useState } from "react";
 import HeightAndSizeModal from "@/components/sizing-template/HeightAndSizeModal";
 import { UmojaLinnSizingTemplate, UmojalinnStandardSize } from "@/types/project";
-import { DEFAULT_HEIGHT, DEFAULT_UK_SIZE, DEFAULT_UNIT } from "@/types/constants";
+import { DEFAULT_HEIGHT, DEFAULT_UNIT } from "@/types/constants";
 
 const IndividualBidPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -174,12 +174,13 @@ const IndividualBidPage = () => {
   // Get modal values based on selection mode
   const getModalValues = () => {
     if (shouldCreateNewTemplateAfterAcceptBid) {
-      return { height: DEFAULT_HEIGHT, ukSize: DEFAULT_UK_SIZE, unit: DEFAULT_UNIT };
+      return { height: DEFAULT_HEIGHT, unit: DEFAULT_UNIT, gender: bid?.project?.gender };
     }
     return {
       height: selectedTemplateForAccept?.height ?? DEFAULT_HEIGHT,
-      ukSize: selectedTemplateForAccept?.ukStandardSize ?? DEFAULT_UK_SIZE,
+      ukSize: selectedTemplateForAccept?.ukStandardSize,
       unit: selectedTemplateForAccept?.unit ?? DEFAULT_UNIT,
+      gender: selectedTemplateForAccept?.gender ?? bid?.project?.gender,
     };
   };
 
@@ -303,6 +304,7 @@ const IndividualBidPage = () => {
         triggerOpen={showHeightModal}
         onOpenChange={handleHeightModalChange}
         isLoading={isHeightModalLoading}
+        gender={modalValues.gender}
       />
     </div>
   );

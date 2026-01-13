@@ -44,12 +44,12 @@ const MeasurementGuide = ({
         )}
       </div>
       
-      {highlightedMeasurementName && (
+      {/* {highlightedMeasurementName && (
         <div className="bg-white rounded-lg p-4 border border-gray-200 animate-in fade-in slide-in-from-bottom-2 duration-300">
           <p className="text-sm font-semibold text-foreground-body mb-1">{highlightedMeasurementName}</p>
           <p className="text-xs text-muted-foreground">Measure around your body at this point, keeping the tape measure level and snug but not tight.</p>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

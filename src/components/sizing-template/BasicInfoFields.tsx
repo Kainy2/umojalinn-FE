@@ -9,7 +9,6 @@ import { cn } from "@/lib/utils";
 import { UmojaLinnSizingTemplate, UmojalinnStandardSize } from "@/types/project";
 import HeightAndSizeModal from "./HeightAndSizeModal";
 import { HelpCircle } from "lucide-react";
-import { DEFAULT_UK_SIZE } from "@/types/constants";
 
 type BasicInfoFieldsProps = {
   gender: UmojaLinnSizingTemplate["gender"];
@@ -36,15 +35,15 @@ const BasicInfoFields = ({
 
   return (
     <div className={cn("flex flex-col gap-2", className)}>
-      <HeightAndSizeModal height={height ?? 0} ukSize={ukStandardSize ?? DEFAULT_UK_SIZE} unit={unit} onSubmit={handleSubmit} disabled={disabled}>
+      <HeightAndSizeModal height={height ?? 0} ukSize={ukStandardSize} unit={unit} onSubmit={handleSubmit} disabled={disabled} gender={gender}>
         <MeasurementItem label={gender} disabled={disabled} index={0} />
       </HeightAndSizeModal>
 
-      <HeightAndSizeModal height={height ?? 0} ukSize={ukStandardSize ?? DEFAULT_UK_SIZE} unit={unit} onSubmit={handleSubmit} disabled={disabled}>
+      <HeightAndSizeModal height={height ?? 0} ukSize={ukStandardSize} unit={unit} onSubmit={handleSubmit} disabled={disabled} gender={gender}>
         <MeasurementItem label="UK Standard Size" value={ukStandardSize ? `${ukStandardSize} UK` : undefined} disabled={disabled} showHelp index={1} />
       </HeightAndSizeModal>
 
-      <HeightAndSizeModal height={height ?? 0} ukSize={ukStandardSize ?? DEFAULT_UK_SIZE} unit={unit} onSubmit={handleSubmit} disabled={disabled}>
+      <HeightAndSizeModal height={height ?? 0} ukSize={ukStandardSize} unit={unit} onSubmit={handleSubmit} disabled={disabled} gender={gender}>
         <MeasurementItem label="Height" value={height ? `${height} ${unit}` : undefined} disabled={disabled} index={2} />
       </HeightAndSizeModal>
     </div>

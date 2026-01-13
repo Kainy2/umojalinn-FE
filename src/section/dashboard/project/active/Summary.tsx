@@ -6,7 +6,7 @@ import { format } from "date-fns";
 import { CalendarPlus } from "lucide-react";
 import { useParams } from "next/navigation";
 import React from "react";
-import SizingTemplateTag from "@/components/custom/tag/SizingTemplate";
+import { SizingTemplatePill } from "@/components/sizing-template";
 
 type ActiveProjectSummaryProps = {
   isDesigner?: boolean;
@@ -50,7 +50,7 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
         </span>
         <span className="text-sm text-foreground-body">Sizing Template</span>
         <span className="relative">
-          <SizingTemplateTag projectId={params?.id} />
+          <SizingTemplatePill projectId={params?.id} />
         </span>
         <span className="text-sm text-foreground-body">Timeline</span>
         <span>

@@ -17,7 +17,6 @@ import { ChevronDown, FileText, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UmojaLinnSizingTemplate } from "@/types/project";
 import HeightAndSizeModal from "./HeightAndSizeModal";
-import { DEFAULT_UK_SIZE } from "@/types/constants";
 
 type AcceptSizingTemplateDropdownProps = {
   /** List of available templates (not in use) */
@@ -147,12 +146,13 @@ const AcceptSizingTemplateDropdown = ({
       {selectedTemplate && (
         <HeightAndSizeModal
           height={selectedTemplate.height ?? 0}
-          ukSize={selectedTemplate.ukStandardSize ?? DEFAULT_UK_SIZE}
+          ukSize={selectedTemplate.ukStandardSize}
           unit={selectedTemplate.unit}
           onSubmit={handleHeightSubmit}
           disabled={false}
           triggerOpen={showHeightModal}
           onOpenChange={setShowHeightModal}
+          gender={selectedTemplate.gender}
         />
       )}
     </>

@@ -18,7 +18,7 @@ import {
 } from "@/tanstack/hooks/useSizingTemplates";
 import { useGetMe } from "@/tanstack/hooks/useUser";
 import { useParams } from "next/navigation";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,9 +28,7 @@ import {
 import { ChevronDown, Loader2 } from "lucide-react";
 import HeightAndSizeModal from "@/components/sizing-template/HeightAndSizeModal";
 import { UmojaLinnSizingTemplate, UmojaLinnSizingTemplateUnit, UmojalinnStandardSize } from "@/types/project";
-import { DEFAULT_HEIGHT, DEFAULT_UK_SIZE, DEFAULT_UNIT } from "@/types/constants";
-
-const MAX_TEMPLATES = 3;
+import { DEFAULT_HEIGHT, DEFAULT_UNIT, MAX_IN_USE_TEMPLATES } from "@/types/constants";
 
 const RequestSizingTemplateAlert = () => {
   const { id } = useParams<{ id: string }>();
@@ -51,14 +49,14 @@ const RequestSizingTemplateAlert = () => {
   const { data: templatesData, isLoading: isLoadingTemplates } = useGetAllSizingTemplates({
     sizingTemplateStatus: "LIVE",
   });
-  const availableTemplates = templatesData?.data?.data?.filter(
-    (t: UmojaLinnSizingTemplate) => t.status === "LIVE"
-  ) ?? [];
+  const availableTemplates = useMemo(() => templatesData?.data?.data?.filter(
+      (t: UmojaLinnSizingTemplate) => t.status === "LIVE"
+  ) ?? [], [templatesData]);
 
   // Get total template count to check limit
   const { data: allTemplatesData } = useGetAllSizingTemplates();
   const totalTemplateCount = allTemplatesData?.data?.data?.length ?? 0;
-  const canCreateNewTemplate = totalTemplateCount < MAX_TEMPLATES;
+  const canCreateNewTemplate = totalTemplateCount < MAX_IN_USE_TEMPLATES;
 
   // State
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -161,12 +159,13 @@ const RequestSizingTemplateAlert = () => {
   // Get modal values based on selection mode
   const getModalValues = () => {
     if (isCreatingNew && project?.gender) {
-      return { height: DEFAULT_HEIGHT, ukSize: DEFAULT_UK_SIZE, unit: DEFAULT_UNIT };
+      return { height: DEFAULT_HEIGHT, unit: DEFAULT_UNIT, gender: project?.gender };
     }
     return {
       height: selectedTemplate?.height ?? DEFAULT_HEIGHT,
-      ukSize: selectedTemplate?.ukStandardSize ?? DEFAULT_UK_SIZE,
+      ukSize: selectedTemplate?.ukStandardSize,
       unit: selectedTemplate?.unit ?? DEFAULT_UNIT,
+      gender: selectedTemplate?.gender ?? project?.gender,
     };
   };
 
@@ -235,7 +234,7 @@ const RequestSizingTemplateAlert = () => {
 
               {!isLoadingTemplates && availableTemplates.length === 0 && !canCreateNewTemplate && (
                 <div className="py-3 px-2 text-center text-sm text-muted-foreground">
-                  Maximum {MAX_TEMPLATES} templates reached
+                  Maximum {MAX_IN_USE_TEMPLATES} templates reached
                 </div>
               )}
               
@@ -260,7 +259,7 @@ const RequestSizingTemplateAlert = () => {
                     )}
                   >
                     <span className={cn("font-medium text-sm", canCreateNewTemplate ? "text-primary" : "text-muted-foreground")}>
-                      + Create new template {!canCreateNewTemplate && `(${MAX_TEMPLATES} max)`}
+                      + Create new template {!canCreateNewTemplate && `(${MAX_IN_USE_TEMPLATES} max)`}
                     </span>
                   </DropdownMenuItem>
                 </>
@@ -279,6 +278,7 @@ const RequestSizingTemplateAlert = () => {
           triggerOpen={showHeightModal}
           onOpenChange={handleHeightModalChange}
           isLoading={isLoading}
+          gender={modalValues.gender}
         />
       </>
     );

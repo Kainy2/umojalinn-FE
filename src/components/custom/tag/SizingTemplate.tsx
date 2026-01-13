@@ -124,6 +124,7 @@ console.log({canCreateTemplate, inUseSizingTemplates: inUseSizingTemplates?.data
             unit={projectData?.data?.data?.sizingTemplate?.unit ?? 'CM'}
             onSubmit={handleHeightSubmit}
             isLoading={isCreatingTemplate || isAddingSizingTemplateToProject}
+            gender={projectData?.data?.data?.sizingTemplate?.gender}
           />
 
         { projectData?.data?.data?.status === "COMPLETED" && <div className="w-full h-full absolute top-0 left-0 cursor-not-allowed bg-gray-200 opacity-10" /> }
