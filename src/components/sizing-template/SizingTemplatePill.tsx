@@ -182,7 +182,7 @@ const SizingTemplatePill = ({
     const requestedMeasurementPoints = sizingTemplate?.requestedMeasurementPoints;
     const submittedMeasurementPoints = sizingTemplate?.submittedMeasurementPoints;
 
-		if (!sizingTemplate || isLoadingTemplate) return null;
+		if (sizingTemplateId && (!sizingTemplate || isLoadingTemplate)) return null;
 
     if (isDesigner) {
       // Designer states
