@@ -9,11 +9,21 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { Info, HelpCircle } from "lucide-react";
-import { UmojaLinnSizingTemplate, UmojalinnStandardSize } from "@/types/project";
+import { HelpCircle } from "lucide-react";
+import {
+  UmojaLinnSizingTemplate,
+  UmojalinnStandardSize,
+} from "@/types/project";
 import { useRequestMeasurementPoints } from "@/tanstack/hooks/useSizingTemplates";
-import GenderSelector from "./GenderSelector";
 import UnitSelector from "./UnitSelector";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+  DialogHeader,
+} from "../ui/dialog";
 
 type SelectModeViewProps = {
   projectId: string;
@@ -43,14 +53,16 @@ const SelectModeView = ({
   const [selectedPoints, setSelectedPoints] = useState<string[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [previewName, setPreviewName] = useState<string | null>(null);
-
+  const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
   const { mutate: requestPoints, isPending } = useRequestMeasurementPoints({
     onSuccess: () => onSuccess?.(),
   });
 
   const handleToggle = (prop: string) => {
     setSelectedPoints((prev) =>
-      prev.includes(prop) ? prev.filter((point) => point !== prop) : [...prev, prop]
+      prev.includes(prop)
+        ? prev.filter((point) => point !== prop)
+        : [...prev, prop]
     );
   };
 
@@ -69,7 +81,7 @@ const SelectModeView = ({
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl">
         {/* Info Banner */}
-        <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+        {/* <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
           <Info className="size-5 text-amber-600 shrink-0 mt-0.5" />
           <div>
             <p className="font-semibold text-foreground-body">Height and Standard Size!</p>
@@ -78,7 +90,7 @@ const SelectModeView = ({
               other measurements once the project is live.
             </p>
           </div>
-        </div>
+        </div> */}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Column */}
@@ -90,17 +102,23 @@ const SelectModeView = ({
                   Request Sizing template
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  Send measurements point to &quot;{buyerName}&quot;
-                  {projectName && <> for &quot;{projectName}&quot; Project</>}
+                  Send measurements point to <b>&quot;{buyerName}&quot;</b>
+                  {projectName && (
+                    <>
+                      {" "}
+                      for <b>&quot;{projectName}&quot;</b> Project
+                    </>
+                  )}
                 </p>
               </div>
 
               {/* Controls */}
-              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center animate-in fade-in duration-300 delay-75">
-                <GenderSelector gender={gender} disabled />
+              <div className="flex justify-between gap-4 items-start sm:items-center animate-in fade-in duration-300 delay-75">
+                {/* <GenderSelector gender={gender} disabled /> */}
                 <UnitSelector
                   unit={unit}
-                  onChange={(onChangeUnit) => onUnitChange?.(onChangeUnit)} />
+                  onChange={(onChangeUnit) => onUnitChange?.(onChangeUnit)}
+                />
               </div>
 
               {/* Default Fields (read-only) */}
@@ -114,7 +132,9 @@ const SelectModeView = ({
                     <HelpCircle className="size-4 text-gray-400" />
                   </div>
                   {ukStandardSize && (
-                    <span className="text-muted-foreground">{ukStandardSize} UK</span>
+                    <span className="text-muted-foreground">
+                      {ukStandardSize}
+                    </span>
                   )}
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg text-sm">
@@ -135,7 +155,9 @@ const SelectModeView = ({
                     <div
                       key={point.prop}
                       onClick={() => handleToggle(point.prop)}
-                      onMouseEnter={() => handlePointHover(point.img, point.name)}
+                      onMouseEnter={() =>
+                        handlePointHover(point.img, point.name)
+                      }
                       style={{ animationDelay: `${(index + 4) * 30}ms` }}
                       className={cn(
                         "flex items-center justify-between p-3 rounded-lg border transition-all duration-200 cursor-pointer group animate-in fade-in slide-in-from-left-2",
@@ -148,6 +170,7 @@ const SelectModeView = ({
                         <Checkbox
                           checked={isSelected}
                           onCheckedChange={() => handleToggle(point.prop)}
+                          onClick={() => handleToggle(point.prop)}
                           className={cn(
                             "transition-all duration-200",
                             isSelected &&
@@ -163,12 +186,20 @@ const SelectModeView = ({
                           {point.name}
                         </span>
                       </div>
-                      <HelpCircle
-                        className={cn(
-                          "size-4 transition-colors",
-                          isSelected ? "text-white/70" : "text-gray-400"
-                        )}
-                      />
+                      <div 
+                        className="md:hidden"
+                        onClick={(e) => { e.stopPropagation(); }} 
+                        onMouseEnter={e=>e.stopPropagation()} 
+                        onMouseLeave={e=>e.stopPropagation()}
+                      >
+                        <HelpCirclePreview
+                          previewImage={previewImage || ""}
+                          previewName={previewName || ""}
+                          isSelected={isSelected}
+                          open={mobilePreviewOpen && previewName === point.name}
+                          onOpenChange={setMobilePreviewOpen}
+                          />
+                      </div>
                     </div>
                   );
                 })}
@@ -180,7 +211,7 @@ const SelectModeView = ({
                   variant="outline"
                   onClick={handleReset}
                   disabled={isPending || selectedPoints.length === 0}
-                  className="flex-1"
+                  className="flex-1 rounded-lg"
                 >
                   Reset
                 </Button>
@@ -188,7 +219,7 @@ const SelectModeView = ({
                   onClick={handleSubmit}
                   disabled={isPending || selectedPoints.length === 0}
                   loading={isPending}
-                  className="flex-1"
+                  className="flex-1 rounded-lg"
                 >
                   Request Sizing template
                 </Button>
@@ -197,7 +228,7 @@ const SelectModeView = ({
           </div>
 
           {/* Right Column - Preview */}
-          <div>
+          <div className="md:block hidden">
             <div className="sticky top-6 flex flex-col gap-4">
               {previewName && (
                 <h3 className="text-lg font-semibold text-foreground-body animate-in fade-in duration-200">
@@ -225,20 +256,22 @@ const SelectModeView = ({
               </div>
 
               {/* Desktop Actions */}
-              <div className="hidden lg:flex gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="hidden lg:flex gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300 justify-end">
                 <Button
+                  size="sm"
                   variant="outline"
                   onClick={handleReset}
                   disabled={isPending || selectedPoints.length === 0}
-                  className="flex-1 hover:scale-[1.02] transition-transform"
+                  className=" hover:scale-[1.02] transition-transform rounded-lg"
                 >
                   Reset
                 </Button>
                 <Button
+                  size="sm"
                   onClick={handleSubmit}
                   disabled={isPending || selectedPoints.length === 0}
                   loading={isPending}
-                  className="flex-1 hover:scale-[1.02] transition-transform"
+                  className=" hover:scale-[1.02] transition-transform rounded-lg"
                 >
                   Request Sizing template
                 </Button>
@@ -253,3 +286,48 @@ const SelectModeView = ({
 
 export default SelectModeView;
 
+const HelpCirclePreview = ({
+  previewImage,
+  previewName,
+  isSelected,
+  open,
+  onOpenChange,
+}: {
+  previewImage: string;
+  previewName: string;
+  isSelected: boolean;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) => {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogTrigger asChild>
+        <HelpCircle
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+          className={cn(
+            "size-4 transition-colors md:hidden",
+            isSelected ? "text-white/70" : "text-gray-400"
+          )}
+        />
+      </DialogTrigger>
+
+      <DialogContent className="sm:max-w-[570px] max-h-[80vh] h-[80vh] animate-in fade-in-0 zoom-in-95 duration-200">
+        <DialogHeader>
+          <DialogTitle>Measurement Point Preview</DialogTitle>
+          <DialogDescription>
+            This is a preview of the measurement point.
+          </DialogDescription>
+          <Image
+            src={previewImage}
+            fill
+            alt={`Guide for ${previewName || "measurement"}`}
+            className="object-contain animate-in fade-in duration-300"
+            priority
+          />
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
+  );
+};

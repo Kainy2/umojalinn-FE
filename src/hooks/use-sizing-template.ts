@@ -310,10 +310,10 @@ export const useSizingTemplateDialog = (
       >,
     ) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      e.preventDefault();
+      e.preventDefault?.();
       setValue((prev) => ({
         ...prev,
-        [prop]: parseStringToNumber(e.target.value)?.value || 0,
+        [prop]: prop === "ukStandardSize" ? e.target.value : parseStringToNumber(e.target.value)?.value || 0,
       }));
     };
 

@@ -38,7 +38,8 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const urlProjectId = searchParams.get("projectId");
-  const effectiveProjectId = props.projectId || props.id || urlProjectId || undefined;
+  const sizingTemplateId = props.id;
+  const effectiveProjectId = props.projectId || urlProjectId || undefined;
 
   // Fetch project data if we have a project ID
   const { data: projectData } = useGetProjectById(effectiveProjectId);
@@ -149,7 +150,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   const canSendReminderNow = canSendReminder(sizingTemplateResult?.lastReminderSentAt);
   const remainingReminderTime = getRemainingReminderTime(sizingTemplateResult?.lastReminderSentAt);
   const hasRequiredFields = !!(value?.height && value?.ukStandardSize && unit);
-  const isCreatingNew = !props.id;
+  const isCreatingNew = !sizingTemplateId;
   const isEditable = !isInUse && (templateMode === TEMPLATE_MODE.EDIT || isCreatingNew);
   const canEditGender = isEditable && !isInUse;
 
@@ -185,7 +186,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
       <SelectModeView
         projectId={effectiveProjectId}
         projectName={project?.title ?? undefined}
-        buyerName={project?.buyer?.user?.firstName ?? undefined}
+        buyerName={project?.buyer?.user?.firstName}
         gender={gender}
         unit={unit}
         ukStandardSize={value?.ukStandardSize ?? undefined}
@@ -451,7 +452,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
             <div className="lg:hidden mt-6 flex justify-end gap-3">
               {isEditable && !isInUse && (
                 <AddToJobDropdown
-                  templateId={props.id}
+                  templateId={sizingTemplateId}
                   disabled={!hasRequiredFields}
                   onSuccess={() => router.push("/sizing-templates")}
                   availableProjects={availableProjects}
@@ -489,7 +490,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
               <div className="hidden lg:flex justify-end gap-3 mt-6">
                 {isEditable && !isInUse && (
                   <AddToJobDropdown
-                    templateId={props.id}
+                    templateId={sizingTemplateId}
                     disabled={!hasRequiredFields}
                     onSuccess={() => router.push("/sizing-templates")}
                     availableProjects={availableProjects}

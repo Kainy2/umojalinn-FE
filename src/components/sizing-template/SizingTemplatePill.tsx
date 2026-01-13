@@ -198,6 +198,7 @@ const SizingTemplatePill = ({
       if (sizingTemplateRequested && !sizingTemplateId) return "ADD_TEMPLATE";
       if (sizingTemplateId && !requestedMeasurementPoints?.length) return "AWAITING_MEASUREMENT_FIELDS";
       if (sizingTemplateId && requestedMeasurementPoints?.length && !submittedMeasurementPoints?.length)
+        return "ADD_REQUESTED_MEASUREMENTS";
       if (sizingTemplateId && requestedMeasurementPoints?.length && submittedMeasurementPoints?.length && sizingTemplate?.metadata?.reviews && Object.values(sizingTemplate?.metadata?.reviews).some(Boolean))
         return "VIEW_SIZING_RECOMMENDATIONS";
       if (sizingTemplateId && submittedMeasurementPoints?.length) return "VIEW_TEMPLATE";
