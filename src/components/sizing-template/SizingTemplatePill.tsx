@@ -9,13 +9,19 @@
  * - View template (both)
  */
 
-import React, { useState, useEffect } from "react";
+
+
+
+
+// view sizing template takes to height size modal only when project is not live
+
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, CircleAlert, ImagesIcon, Loader2, Plus } from "lucide-react";
+import { ImagesIcon, Loader2, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { uuidToBase62Safe } from "@/lib/uuid";
-import { canSendReminder } from "@/lib/sizing-template-utils";
-import { SIZING_TEMPLATE_REMINDER_TYPE, DEFAULT_HEIGHT, DEFAULT_UNIT } from "@/types/constants";
+// import { canSendReminder } from "@/lib/sizing-template-utils";
+import { DEFAULT_HEIGHT, DEFAULT_UNIT } from "@/types/constants";
 import { UmojaLinnSizingTemplate, UmojalinnStandardSize } from "@/types/project";
 
 import { useGetMe } from "@/tanstack/hooks/useUser";
@@ -26,7 +32,7 @@ import {
   useAddSizingTemplateToProject,
   useCreateSizingTemplate,
   useUpdateSizingTemplate,
-  useSendSizingTemplateReminder,
+  // useSendSizingTemplateReminder,
   useGetAllSizingTemplates,
 } from "@/tanstack/hooks/useSizingTemplates";
 
@@ -34,12 +40,12 @@ import AvatarIconTag from "@/components/custom/tag/AvatarIcon";
 import CheckCircle from "@/icons/CheckCircle";
 import HeightAndSizeModal from "./HeightAndSizeModal";
 import { AcceptBidSizingTemplateInterruptConfirm } from "@/components/custom/dialog/AcceptBidSizingTemplateInterrupt";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import MenuButton from "../custom/MenuButton";
+// import {
+//   Popover,
+//   PopoverContent,
+//   PopoverTrigger,
+// } from "@/components/ui/popover";
+// import MenuButton from "../custom/MenuButton";
 
 type SizingTemplatePillProps = {
   projectId: string;
@@ -97,18 +103,18 @@ const SizingTemplatePill = ({
   const [selectedTemplate, setSelectedTemplate] = useState<UmojaLinnSizingTemplate | null>(null);
   const [isCreatingNew, setIsCreatingNew] = useState(false);
   const [pendingFillNavigation, setPendingFillNavigation] = useState(false);
-  const [reminderPopoverOpen, setReminderPopoverOpen] = useState(false);
+  // const [reminderPopoverOpen, setReminderPopoverOpen] = useState(false);
 
   // Cooldown tracking for reminders (runs silently)
-  const [canSend, setCanSend] = useState(true);
+  // const [canSend, setCanSend] = useState(true);
 
-  useEffect(() => {
-    setCanSend(canSendReminder(sizingTemplate?.lastReminderSentAt));
-    const interval = setInterval(() => {
-      setCanSend(canSendReminder(sizingTemplate?.lastReminderSentAt));
-    }, 60000);
-    return () => clearInterval(interval);
-  }, [sizingTemplate?.lastReminderSentAt]);
+  // useEffect(() => {
+  //   setCanSend(canSendReminder(sizingTemplate?.lastReminderSentAt));
+  //   const interval = setInterval(() => {
+  //     setCanSend(canSendReminder(sizingTemplate?.lastReminderSentAt));
+  //   }, 60000);
+  //   return () => clearInterval(interval);
+  // }, [sizingTemplate?.lastReminderSentAt]);
 
   // Mutations
   const { mutate: addTemplateToProject, isPending: isAddingTemplate } = useAddSizingTemplateToProject({
@@ -164,16 +170,16 @@ const SizingTemplatePill = ({
     },
   });
 
-  const { mutate: sendReminder, isPending: isSendingReminder } = useSendSizingTemplateReminder(
-    sizingTemplateId || "",
-    {
-      onSuccess: () => {
-        setCanSend(false);
-        setReminderPopoverOpen(false);
-        refetchTemplate();
-      },
-    }
-  );
+  // const { mutate: sendReminder, isPending: isSendingReminder } = useSendSizingTemplateReminder(
+  //   sizingTemplateId || "",
+  //   {
+  //     onSuccess: () => {
+  //       setCanSend(false);
+  //       // setReminderPopoverOpen(false);
+  //       refetchTemplate();
+  //     },
+  //   }
+  // );
 
   const isHeightModalLoading = isAddingTemplate || isCreatingTemplate || isUpdatingTemplate;
 
@@ -194,8 +200,7 @@ const SizingTemplatePill = ({
       if (sizingTemplateId && submittedMeasurementPoints?.length) return "VIEW_TEMPLATE";
     } else {
       // Buyer states
-      if (!sizingTemplateRequested) return "NO_TEMPLATE";
-      if (sizingTemplateRequested && !sizingTemplateId) return "ADD_TEMPLATE";
+      if (!sizingTemplateRequested || !sizingTemplateId) return "ADD_TEMPLATE";
       if (sizingTemplateId && !requestedMeasurementPoints?.length) return "AWAITING_MEASUREMENT_FIELDS";
       if (sizingTemplateId && requestedMeasurementPoints?.length && !submittedMeasurementPoints?.length)
         return "ADD_REQUESTED_MEASUREMENTS";
@@ -293,15 +298,15 @@ const SizingTemplatePill = ({
     }
   };
 
-  const handleSendReminder = () => {
-    if (!sizingTemplateId || !project?.id) return;
-    sendReminder({
-      projectId: project.id,
-      reminderType: isBuyer
-        ? SIZING_TEMPLATE_REMINDER_TYPE.DESIGNER_REMINDER
-        : SIZING_TEMPLATE_REMINDER_TYPE.BUYER_REMINDER,
-    });
-  };
+  // const handleSendReminder = () => {
+  //   if (!sizingTemplateId || !project?.id) return;
+  //   sendReminder({
+  //     projectId: project.id,
+  //     reminderType: isBuyer
+  //       ? SIZING_TEMPLATE_REMINDER_TYPE.DESIGNER_REMINDER
+  //       : SIZING_TEMPLATE_REMINDER_TYPE.BUYER_REMINDER,
+  //   });
+  // };
 
   const navigateToRequestPage = () => {
     if (sizingTemplateId && project?.id) {
@@ -311,13 +316,13 @@ const SizingTemplatePill = ({
     }
   };
 
-  // const navigateToViewPage = () => {
-  //   if (sizingTemplateId && project?.id) {
-  //     router.push(
-  //       `/sizing-templates/${uuidToBase62Safe(sizingTemplateId)}?projectId=${uuidToBase62Safe(project.id)}`
-  //     );
-  //   }
-  // };
+  const navigateToViewPage = () => {
+    if (sizingTemplateId && project?.id) {
+      router.push(
+        `/sizing-templates/${uuidToBase62Safe(sizingTemplateId)}?projectId=${uuidToBase62Safe(project.id)}`
+      );
+    }
+  };
 
 	const navigateToViewSizingRecommendationsPage = () => {
     if (sizingTemplateId && project?.id) {
@@ -351,59 +356,57 @@ const SizingTemplatePill = ({
   const modalValues = getModalValues();
 
   // Render reminder popover
-  const renderReminderPopover = (children: React.ReactNode) => (
-    <Popover open={reminderPopoverOpen} onOpenChange={setReminderPopoverOpen}>
-      <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent align="center" className="w-64 p-0">
-					<MenuButton
-            onClick={handleSendReminder}
-						icon={<Bell className="size-4" />}
-						disabled={!canSend || isSendingReminder}
-						className={cn("bg-gray-50 hover:bg-gray-100", !canSend && "opacity-50 cursor-not-allowed")}
-					>
-					{isSendingReminder ? "Sending..." : "Send Reminder"}
-          {!canSend && (
-            <p className="text-xs text-muted-foreground text-center">
-              Please wait a while before resending
-            </p>
-          )}
-					</MenuButton>
-      </PopoverContent>
-    </Popover>
-  );
+  // const renderReminderPopover = (children: React.ReactNode) => (
+  //   <Popover open={reminderPopoverOpen} onOpenChange={setReminderPopoverOpen}>
+  //     <PopoverTrigger asChild>{children}</PopoverTrigger>
+  //     <PopoverContent align="center" className="w-64 p-0">
+	// 				<MenuButton
+  //           onClick={handleSendReminder}
+	// 					icon={<Bell className="size-4" />}
+	// 					disabled={!canSend || isSendingReminder}
+	// 					className={cn("bg-gray-50 hover:bg-gray-100", !canSend && "opacity-50 cursor-not-allowed")}
+	// 				>
+	// 				{isSendingReminder ? "Sending..." : "Send Reminder"}
+  //         {!canSend && (
+  //           <p className="text-xs text-muted-foreground text-center">
+  //             Please wait a while before resending
+  //           </p>
+  //         )}
+	// 				</MenuButton>
+  //     </PopoverContent>
+  //   </Popover>
+  // );
 
   // Render pill based on state
   const renderPill = () => {
     switch (pillState) {
       case "NO_TEMPLATE":
-        return (
-          <AvatarIconTag
-            label="No sizing template"
-            icon={
-              <span className="text-white [&>svg]:size-5 size-7 rounded-full bg-error flex items-center justify-center">
-                <CircleAlert />
-              </span>
-            }
-            disabled
-            className={className}
-          />
-        );
-
+        // return (
+        //   <AvatarIconTag
+        //     label="No sizing template"
+        //     icon={
+        //       <span className="text-white [&>svg]:size-5 size-7 rounded-full bg-error flex items-center justify-center">
+        //         <CircleAlert />
+        //       </span>
+        //     }
+        //     disabled
+        //     className={className}
+        //   />
+        // );
       case "AWAITING_SIZING_TEMPLATE":
-        // Designer view - waiting for buyer to add template
+        // // Designer view - waiting for buyer to add template
         return (
           <AvatarIconTag
-            label="Awaiting Template"
-            icon={
-              <span className="text-white [&>svg]:size-5 size-7 rounded-full bg-primary flex items-center justify-center">
-                <CircleAlert />
+          label="Request Sizing Template"
+          icon={
+              <span className="text-white [&>svg]:size-5 size-7 rounded-full bg-red-500 flex items-center justify-center">
+                <Plus />
               </span>
             }
-            disabled
-            className={className}
+            onClick={navigateToRequestPage}
+            className={cn("cursor-pointer transition-transform hover:scale-[1.02] border border-red-500 border-dashed", className)}
           />
         );
-
       case "ADD_TEMPLATE":
         // Buyer view - can add template
         return (
@@ -414,7 +417,7 @@ const SizingTemplatePill = ({
             <AvatarIconTag
               label="Add sizing template"
               icon={
-                <span className="text-white [&>svg]:size-4 size-7 rounded-full bg-primary flex items-center justify-center">
+                <span className="text-white [&>svg]:size-4 size-7 rounded-full bg-gray-500 flex items-center justify-center">
                   <Plus />
                 </span>
               }
@@ -431,7 +434,7 @@ const SizingTemplatePill = ({
             className="cursor-pointer transition-transform hover:scale-[1.02]"
           >
             <AvatarIconTag
-              label="Select measurement points"
+              label="Request measurement points"
               icon={
                 <span className="text-white [&>svg]:size-4 size-7 rounded-full bg-red-500 flex items-center justify-center">
                   <Plus />
@@ -442,34 +445,37 @@ const SizingTemplatePill = ({
           </div>
         );
 
-      case "AWAITING_MEASUREMENT_FIELDS":
-        // Buyer view - waiting for designer to request measurement points
-        return renderReminderPopover(
-          <div className="cursor-pointer transition-transform hover:scale-[1.02]">
-            <AvatarIconTag
-              label="Awaiting Measurement Fields"
-              icon={
-                <span className="text-white [&>svg]:size-4 size-7 rounded-full bg-red-500 flex items-center justify-center">
-                  <Bell />
-                </span>
-              }
-              className={cn("bg-red-50 border border-red-500", className)}
-            />
-          </div>
-        );
+      // case "AWAITING_MEASUREMENT_FIELDS":
+      //   // Buyer view - waiting for designer to request measurement points
+      //   return renderReminderPopover(
+      //     <div className="cursor-pointer transition-transform hover:scale-[1.02]">
+      //       <AvatarIconTag
+      //         label="Awaiting Measurement Fields"
+      //         icon={
+      //           <span className="text-white [&>svg]:size-4 size-7 rounded-full bg-red-500 flex items-center justify-center">
+      //             <Bell />
+      //           </span>
+      //         }
+      //         className={cn("bg-red-50 border border-red-500", className)}
+      //       />
+      //     </div>
+      //   );
 
       case "AWAITING_BUYER_MEASUREMENTS":
         // Designer view - waiting for buyer to submit measurements
-        return renderReminderPopover(
-          <div className="cursor-pointer transition-transform hover:scale-[1.02]">
+        return (
+          <div 
+            onClick={navigateToRequestPage}
+            className="transition-transform opacity-50"
+          >
             <AvatarIconTag
-              label="Awaiting Measurements"
+              label="Template Requested"
               icon={
-                <span className="text-white [&>svg]:size-5 size-7 rounded-full bg-primary flex items-center justify-center">
-                  <CircleAlert />
+                <span className="text-white [&>svg]:size-5 size-7 rounded-full bg-gray-500 flex items-center justify-center">
+                  <Plus />
                 </span>
               }
-              className={className}
+              className={cn("bg-gray-50 border border-gray-500 border-dashed", className)}
             />
           </div>
         );
@@ -482,7 +488,7 @@ const SizingTemplatePill = ({
             className="cursor-pointer transition-transform hover:scale-[1.02]"
           >
             <AvatarIconTag
-              label="Fill Measurements"
+              label="Add Requested Measurements"
               icon={
                 <span className="text-white [&>svg]:size-4 size-7 rounded-full bg-red-500 flex items-center justify-center">
                   <Plus  />
@@ -492,7 +498,6 @@ const SizingTemplatePill = ({
             />
           </div>
         );
-
 
       case "VIEW_SIZING_RECOMMENDATIONS":
         // Buyer view - need to view sizing recommendations that designer sent after submitting measurements
@@ -513,17 +518,25 @@ const SizingTemplatePill = ({
           </div>
         );
 
+      case "AWAITING_MEASUREMENT_FIELDS":
+      // Buyer view - waiting for designer to request measurement points
       case "VIEW_TEMPLATE":
 			// Template attached - View mode to open height and size modal
-			if (project?.sizingTemplateId) {
 				return (
 					<div
 						className="cursor-pointer transition-transform hover:scale-[1.02]"
-						onClick={
-							() => 
-								project?.sizingTemplateId 
-							&& handleSelectTemplate(project?.sizingTemplateId)
-						}				
+						onClick={() => {
+              if (!project?.sizingTemplateId) return;
+              if (project.status === "ADS") {
+                handleSelectTemplate(project?.sizingTemplateId)
+                return
+              }
+
+              if (project.status === "LIVE") {
+                navigateToViewPage()
+                return
+              }
+						}}
 					>
 						<AvatarIconTag
 							label="View sizing template"
@@ -532,7 +545,6 @@ const SizingTemplatePill = ({
 						/>
 					</div>
 				);
-			}
 
 			// Template attached - View mode to navigate to view page
 			// return (
