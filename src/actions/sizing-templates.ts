@@ -190,6 +190,23 @@ export const requestMeasurementPoints = async (
   );
 };
 
+export const requestMeasurementPointsOnBid = async (
+  bidId: string,
+  measurements: Partial<
+    UmojaLinnMaleSizingTemplateProps & UmojaLinnFemaleSizingTemplateProps
+  >,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/project/bid/${base62ToUuidSafe(bidId)}/request-measurement-points`,
+    measurements
+  );
+};
+
 export const getRequestedMeasurementPoints = async (
   projectId: string,
   options?: ServerActionOption

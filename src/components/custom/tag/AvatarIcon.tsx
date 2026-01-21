@@ -18,8 +18,8 @@ const AvatarIconTag = (props: AvatarIconTagProps) => {
     <button
       onClick={props.onClick}
       className={cn(
-        "p-1 text-sm inline-flex items-center gap-2 rounded-full shrink-0 bg-gray-100 text-foreground-body",
-        !props.icon && "pr-3",
+        "p-1 pr-2 text-sm inline-flex items-center gap-2 rounded-full shrink-0 bg-gray-100 text-foreground-body",
+        // !props.icon && "pr-3",
         !props.avatar && "pl-3",
         !!props.avatar && "font-semibold",
         props.className

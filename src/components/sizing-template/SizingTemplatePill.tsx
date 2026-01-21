@@ -17,7 +17,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ImagesIcon, Loader2, Plus } from "lucide-react";
+import { createLucideIcon, Loader2, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { uuidToBase62Safe } from "@/lib/uuid";
 // import { canSendReminder } from "@/lib/sizing-template-utils";
@@ -64,6 +64,21 @@ type PillState =
   | "VIEW_TEMPLATE"
   | "VIEW_SIZING_RECOMMENDATIONS";
 
+
+
+
+export const CustomFileQuestion = createLucideIcon("DocumentAlert", [
+  [
+    "path",
+    {
+      d: "M20 9.5V6.8C20 5.11984 20 4.27976 19.673 3.63803C19.3854 3.07354 18.9265 2.6146 18.362 2.32698C17.7202 2 16.8802 2 15.2 2H8.8C7.11984 2 6.27976 2 5.63803 2.32698C5.07354 2.6146 4.6146 3.07354 4.32698 3.63803C4 4.27976 4 5.11984 4 6.8V17.2C4 18.8802 4 19.7202 4.32698 20.362C4.6146 20.9265 5.07354 21.3854 5.63803 21.673C6.27976 22 7.11984 22 8.8 22H14M14 11H8M10 15H8M16 7H8M16.5 15.0022C16.6762 14.5014 17.024 14.079 17.4817 13.81C17.9395 13.5409 18.4777 13.4426 19.001 13.5324C19.5243 13.6221 19.999 13.8942 20.3409 14.3004C20.6829 14.7066 20.87 15.2207 20.8692 15.7517C20.8692 17.2506 18.6209 18 18.6209 18M18.6499 21H18.6599",
+      strokeWidth: "2",
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+    },
+  ],
+]);
+
 const SizingTemplatePill = ({
   projectId,
   bidId,
@@ -72,11 +87,11 @@ const SizingTemplatePill = ({
   const router = useRouter();
 
   // Data fetching
-  const { data: meData } = useGetMe();
-  const { data: bidData, refetch: refetchBid } = useGetBidById(bidId || "", {
+  const { data: meData, isLoading: isLoadingProfile } = useGetMe();
+  const { data: bidData, refetch: refetchBid, isLoading: isLoadingBid } = useGetBidById(bidId || "", {
     enabled: !!bidId,
   });
-  const { data: projectData, refetch: refetchProject } = useGetProjectById(projectId);
+  const { data: projectData, refetch: refetchProject, isLoading: isLoadingProject } = useGetProjectById(projectId);
 
   const project = projectData?.data?.data;
   const bid = bidData?.data?.data;
@@ -188,7 +203,7 @@ const SizingTemplatePill = ({
     const requestedMeasurementPoints = sizingTemplate?.requestedMeasurementPoints;
     const submittedMeasurementPoints = sizingTemplate?.submittedMeasurementPoints;
 
-		if (sizingTemplateId && (!sizingTemplate || isLoadingTemplate)) return null;
+		if (isLoadingTemplate || isLoadingBid || isLoadingProject || isLoadingProfile) return null;
 
     if (isDesigner) {
       // Designer states
@@ -376,7 +391,7 @@ const SizingTemplatePill = ({
   //     </PopoverContent>
   //   </Popover>
   // );
-
+  // pillState = "VIEW_TEMPLATE"
   // Render pill based on state
   const renderPill = () => {
     switch (pillState) {
@@ -407,6 +422,7 @@ const SizingTemplatePill = ({
             className={cn("cursor-pointer transition-transform hover:scale-[1.02] border border-red-500 border-dashed", className)}
           />
         );
+
       case "ADD_TEMPLATE":
         // Buyer view - can add template
         return (
@@ -415,9 +431,9 @@ const SizingTemplatePill = ({
             className="cursor-pointer transition-transform hover:scale-[1.02]"
           >
             <AvatarIconTag
-              label="Add sizing template"
+              label="Add Sizing Template"
               icon={
-                <span className="text-white [&>svg]:size-4 size-7 rounded-full bg-gray-500 flex items-center justify-center">
+                <span className="text-white [&>svg]:size-4 size-7 rounded-full bg-red-500 flex items-center justify-center">
                   <Plus />
                 </span>
               }
@@ -509,11 +525,11 @@ const SizingTemplatePill = ({
             <AvatarIconTag
               label="View Sizing Recommendations"
               icon={
-                <span className="text-white [&>svg]:size-4 size-7 rounded-full bg-primary flex items-center justify-center">
-                  <ImagesIcon />
+                <span className="text-primary [&>svg]:size-5 size-7 rounded-full flex items-center justify-center">
+                  <CustomFileQuestion />
                 </span>
               }
-              className={cn("bg-primary-100 border border-primary", className)}
+              className={cn("bg-primary-100 ", className)}
             />
           </div>
         );

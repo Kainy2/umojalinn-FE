@@ -6,7 +6,6 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { Eye, Loader2, Trash2 } from "lucide-react";
-import Link from "next/link";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { useDeleteSizingTemplate } from "@/tanstack/hooks/useSizingTemplates";
 import {
@@ -18,6 +17,7 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import TemplateStatusPill from "@/components/sizing-template/TemplateStatusPill";
 
 const SizingTemplateCard = (props: { template: UmojaLinnSizingTemplate }) => {
 	const { template } = props;
@@ -98,6 +98,16 @@ const SizingTemplateCard = (props: { template: UmojaLinnSizingTemplate }) => {
 						className="absolute object-center object-cover"
 						fill
 					/>
+
+					{/* Status Pill */}
+					<TemplateStatusPill
+            template={template}
+            isBuyer={isBuyer}
+            getProjectUrl={getProjectUrl}
+            inUse={inUse}
+						projectInUse={projectInUse}
+          />
+
 					<div
 						className={cn(
 							"absolute bottom-0 p-4 backdrop-blur-md bg-white/30 border-t-1 border-white/50 w-full",
@@ -121,7 +131,7 @@ const SizingTemplateCard = (props: { template: UmojaLinnSizingTemplate }) => {
 							<div className="flex gap-2 text-left items-center w-full justify-between">
 								<div className="w-fit">
 									<Image
-										alt=""
+										alt="Buyer profile"
 										src={
 											template?.buyer?.user?.profilePhotoUri ||
 											"/img/webp/user.webp"
@@ -163,7 +173,7 @@ const SizingTemplateCard = (props: { template: UmojaLinnSizingTemplate }) => {
 						</button>
 					)}
 
-					{inUse && !!projectInUse && (
+					{/* {inUse && !!projectInUse && (
 						<Link
 							onClick={(e) => e.stopPropagation()}
 							href={getProjectUrl()}
@@ -171,7 +181,7 @@ const SizingTemplateCard = (props: { template: UmojaLinnSizingTemplate }) => {
 						>
 							{projectInUse?.title}
 						</Link>
-					)}
+					)} */}
 				</button>
 			</SizingTemplateDialog>
 
