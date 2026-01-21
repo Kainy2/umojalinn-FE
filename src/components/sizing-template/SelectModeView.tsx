@@ -12,9 +12,16 @@ import { cn } from "@/lib/utils";
 import { HelpCircle } from "lucide-react";
 import {
   UmojaLinnSizingTemplate,
+  UmojaLinnFemaleSizingTemplateProps,
+  UmojaLinnMaleSizingTemplateProps,
   UmojalinnStandardSize,
 } from "@/types/project";
-import { useRequestMeasurementPoints } from "@/tanstack/hooks/useSizingTemplates";
+import {
+  useRequestMeasurementPoints,
+  useRequestMeasurementPointsOnBid,
+} from "@/tanstack/hooks/useSizingTemplates";
+import { useGetProjectById } from "@/tanstack/hooks/useProject";
+import { base62ToUuidSafe } from "@/lib/uuid";
 import UnitSelector from "./UnitSelector";
 import {
   Dialog,
@@ -27,6 +34,7 @@ import {
 
 type SelectModeViewProps = {
   projectId: string;
+  bidId?: string; // Optional bidId for bid-based API
   projectName?: string;
   buyerName?: string;
   gender: UmojaLinnSizingTemplate["gender"];
@@ -40,6 +48,7 @@ type SelectModeViewProps = {
 
 const SelectModeView = ({
   projectId,
+  bidId,
   projectName,
   buyerName = "the buyer",
   gender,
@@ -54,9 +63,28 @@ const SelectModeView = ({
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [previewName, setPreviewName] = useState<string | null>(null);
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
-  const { mutate: requestPoints, isPending } = useRequestMeasurementPoints({
-    onSuccess: () => onSuccess?.(),
-  });
+
+  // Fetch project to check if it has a template
+  const { data: projectData } = useGetProjectById(
+    projectId ? base62ToUuidSafe(projectId) : undefined,
+    { enabled: !!projectId }
+  );
+  const project = projectData?.data?.data;
+  const hasTemplate = !!project?.sizingTemplateId;
+
+  // Hook for template-based API (existing)
+  const { mutate: requestPointsOnTemplate, isPending: isPendingTemplate } =
+    useRequestMeasurementPoints({
+      onSuccess: () => onSuccess?.(),
+    });
+
+  // Hook for bid-based API (new)
+  const { mutate: requestPointsOnBid, isPending: isPendingBid } =
+    useRequestMeasurementPointsOnBid({
+      onSuccess: () => onSuccess?.(),
+    });
+
+  const isPending = isPendingTemplate || isPendingBid;
 
   const handleToggle = (prop: string) => {
     setSelectedPoints((prev) =>
@@ -69,7 +97,33 @@ const SelectModeView = ({
   const handleReset = () => setSelectedPoints([]);
 
   const handleSubmit = () => {
-    requestPoints({ projectId, requestedMeasurementPoints: selectedPoints });
+    // Check if template exists on project
+    if (hasTemplate) {
+      // Use template-based API (existing)
+      requestPointsOnTemplate({
+        projectId,
+        requestedMeasurementPoints: selectedPoints,
+      });
+    } else if (bidId) {
+      // Use bid-based API (new) - convert selectedPoints array to measurement object
+      const measurements: Partial<
+        UmojaLinnMaleSizingTemplateProps & UmojaLinnFemaleSizingTemplateProps
+      > = {};
+
+      // Convert selected point names to object with placeholder values
+      // The backend expects field names as keys, but we only need to send the keys
+      // The API will extract the field names from the keys that have values
+      selectedPoints.forEach((pointProp) => {
+        // Set a truthy value for each selected point
+        // The backend extracts field names from keys that have values
+        measurements[pointProp as keyof typeof measurements] = 1 as never;
+      });
+
+      requestPointsOnBid({
+        bidId,
+        measurements,
+      });
+    }
   };
 
   const handlePointHover = (img: string, name: string) => {
@@ -113,7 +167,7 @@ const SelectModeView = ({
               </div>
 
               {/* Controls */}
-              <div className="flex justify-between gap-4 items-start sm:items-center animate-in fade-in duration-300 delay-75">
+              <div className="flex gap-4 items-start sm:items-center animate-in fade-in duration-300 delay-75">
                 {/* <GenderSelector gender={gender} disabled /> */}
                 <UnitSelector
                   unit={unit}
@@ -149,7 +203,7 @@ const SelectModeView = ({
 
               {/* Measurement Points with Checkboxes */}
               <div className="flex flex-col gap-2">
-                {template.map((point, index) => {
+                {template.filter(point=> point.name !== 'height').map((point, index) => {
                   const isSelected = selectedPoints.includes(point.prop);
                   return (
                     <div

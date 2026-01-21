@@ -73,13 +73,13 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
 
   const { data: liveSizingTemplates, isPending: loadingLivesizingTemplates } =
     useGetAllSizingTemplates({
-      sizingTemplateStatus: "LIVE",
+      sizingTemplateStatus: ["LIVE", "DRAFT"],
     });
 
   // Get total template count to check limit
   const { data: allTemplatesData } = useGetAllSizingTemplates();
   const totalTemplateCount = allTemplatesData?.data?.data?.length ?? 0;
-  const canCreateNewTemplate = totalTemplateCount < MAX_TEMPLATES;
+  const canCreateNewTemplate = totalTemplateCount  < MAX_TEMPLATES;
 
   const [sizingTemplateId, selectSizingTemplateId] = useState<null | string>(
     null

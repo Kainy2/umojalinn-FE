@@ -42,7 +42,7 @@ export const useSizingTemplateDialog = (
   props: SizingTemplateDialogProps
 ) => {
 
- const [previewImage, setPreviewImage] = useState<string | null>(ALL_SIZING_TEMPLATES.find((template) => template?.prop === 'height')?.img || null);
+ const [previewImage, setPreviewImage] = useState<string | null>(MALE_SIZING_TEMPLATE.find((template) => template?.prop === 'height')?.img || null);
  const [editMode, setEditMode] = useState(false);
   const [open, setOpen] = useState(false);
   const [highlighted, setHighlighted] = useState<
@@ -340,6 +340,7 @@ export const useSizingTemplateDialog = (
     : isCreatingSizingTemplate;
 
 
+  console.log({templateMode, isDesigner});
 
   return{
 		loading,

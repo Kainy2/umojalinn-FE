@@ -265,6 +265,8 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                   </div>
                 </div>
 
+
+
                 <div className="flex flex-col gap-2">
                   {(!recommendationMode ? (hasRequestedPoints ? TEMPLATE.filter(item => requestedMeasurementPoints.includes(item.prop)) : TEMPLATE) : TEMPLATE).map((item, index) => {
                     const itemValue = value?.[item.prop];

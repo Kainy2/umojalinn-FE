@@ -8,6 +8,7 @@
 import { Button } from "@/components/ui/button";
 import NotificationBox from "@/icons/NotificationBox";
 import { cn } from "@/lib/utils";
+import { uuidToBase62Safe } from "@/lib/uuid";
 import { useGetBidById } from "@/tanstack/hooks/useBid";
 import {
   useRequestSizingTemplateInProject,
@@ -17,8 +18,8 @@ import {
   useUpdateSizingTemplate,
 } from "@/tanstack/hooks/useSizingTemplates";
 import { useGetMe } from "@/tanstack/hooks/useUser";
-import { useParams } from "next/navigation";
-import React, { useMemo, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import React, { useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,6 +33,7 @@ import { DEFAULT_HEIGHT, DEFAULT_UNIT, MAX_IN_USE_TEMPLATES } from "@/types/cons
 
 const RequestSizingTemplateAlert = () => {
   const { id } = useParams<{ id: string }>();
+  const router = useRouter();
   const { data: bidData, refetch: refetchBid } = useGetBidById(id);
   const { data: me } = useGetMe();
 
@@ -43,15 +45,23 @@ const RequestSizingTemplateAlert = () => {
     mutate: requestSizingTemplate,
     isPending: isRequestingTemplate,
     isSuccess: requestSuccess,
-  } = useRequestSizingTemplateInProject();
+  } = useRequestSizingTemplateInProject({
+    onSuccess: () => {
+      // Navigate to measurement points selection page after successful request
+      if (project?.id && id) {
+        router.push(`/active-jobs/${uuidToBase62Safe(id)}/request-measurements`);
+      }
+    },
+  });
 
   // Buyer: Get LIVE templates not in use
   const { data: templatesData, isLoading: isLoadingTemplates } = useGetAllSizingTemplates({
-    sizingTemplateStatus: "LIVE",
+    sizingTemplateStatus: ["LIVE", "DRAFT"],
   });
-  const availableTemplates = useMemo(() => templatesData?.data?.data?.filter(
-      (t: UmojaLinnSizingTemplate) => t.status === "LIVE"
-  ) ?? [], [templatesData]);
+  const availableTemplates = templatesData?.data.data ?? []
+  // useMemo(() => templatesData?.data?.data?.filter(
+  //     (t: UmojaLinnSizingTemplate) => t.status === "LIVE"
+  // ) ?? [], [templatesData]);
 
   // Get total template count to check limit
   const { data: allTemplatesData } = useGetAllSizingTemplates();

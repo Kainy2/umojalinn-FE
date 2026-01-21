@@ -10,6 +10,7 @@ import {
   requestChangeOnSizingTemplate,
   updateSizingTemplate,
   requestMeasurementPoints,
+  requestMeasurementPointsOnBid,
   getRequestedMeasurementPoints,
   submitMeasurementPoints,
   saveMeasurementPoints,
@@ -231,6 +232,30 @@ export const useRequestMeasurementPoints = (
         variables.requestedMeasurementPoints
       ),
     onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [PROJECT] });
+      queryClient.invalidateQueries({ queryKey: [SIZING_TEMPLATE] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useRequestMeasurementPointsOnBid = (
+  options?: GenericUseMutationProps<
+    SingleApiResponse,
+    { bidId: string; measurements: Partial<UmojaLinnMaleSizingTemplateProps & UmojaLinnFemaleSizingTemplateProps> }
+  >
+) => {
+  const { handleError } = useHandleError("Request Measurement Points on Bid");
+  return useMutation({
+    ...options,
+    mutationFn: (variables) =>
+      requestMeasurementPointsOnBid(variables.bidId, variables.measurements),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [BID] });
       queryClient.invalidateQueries({ queryKey: [PROJECT] });
       queryClient.invalidateQueries({ queryKey: [SIZING_TEMPLATE] });
       options?.onSuccess?.(data, variables, context);
