@@ -45,7 +45,7 @@ export function UKStandardSizeRow({
   return (
     <>
       <div
-        onClick={handleRowClick}
+        onClick={disabled ? undefined : handleRowClick}
         className={cn(
           "flex flex-1 font-medium justify-between items-center p-3 rounded-lg transition-all duration-200 cursor-pointer border text-sm",
           "animate-in fade-in slide-in-from-left-2",

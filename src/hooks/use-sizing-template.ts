@@ -39,10 +39,12 @@ type TemplateModalType = "EDIT" | "RECOMMEND" | "VIEW-ONLY"
 
 
 export const useSizingTemplateDialog = (
-  props: SizingTemplateDialogProps
+  props: SizingTemplateDialogProps & {
+    bidId?: string
+  }
 ) => {
 
- const [previewImage, setPreviewImage] = useState<string | null>(MALE_SIZING_TEMPLATE.find((template) => template?.prop === 'height')?.img || null);
+ const [previewImage, setPreviewImage] = useState<string | null>(null);
  const [editMode, setEditMode] = useState(false);
   const [open, setOpen] = useState(false);
   const [highlighted, setHighlighted] = useState<
@@ -120,10 +122,16 @@ export const useSizingTemplateDialog = (
 
   // New templateMode with proper priority logic
   const templateMode: TemplateMode = useMemo(() => {
-    
+
     // Designer modes (priority order)
     if (isDesigner) {
-      // SELECT: Designer needs to select measurement points (first priority for designers)
+      // SELECT: Designer requesting measurement points on bid without template yet
+      // This takes highest priority for designers when accessing via bidId with no template
+      if (props?.bidId && !props?.id) {
+        return TEMPLATE_MODE.SELECT;
+      }
+
+      // SELECT: Designer needs to select measurement points (when template exists)
       if (isInUse && !hasRequestedPoints) {
         return TEMPLATE_MODE.SELECT;
       }
@@ -166,6 +174,7 @@ export const useSizingTemplateDialog = (
     hasReviews,
     recommendationMode,
     props?.id,
+    props?.bidId,
   ]);
 
   // Legacy modalType for backward compatibility
@@ -277,6 +286,10 @@ export const useSizingTemplateDialog = (
       setValue(templateDetails);
       setName(name);
       setGender(gender);
+
+      const defaultTemplate = gender === "MALE" ? MALE_SIZING_TEMPLATE : FEMALE_SIZING_TEMPLATE
+      setPreviewImage(defaultTemplate[0].img)
+
       if (unit) setUnit(unit);
     }
   }, [sizingTemplateResult]);

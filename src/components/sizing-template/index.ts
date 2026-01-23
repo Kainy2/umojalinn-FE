@@ -40,6 +40,7 @@ export { default as UKSizeDropdown } from "./UKSizeDropdown";
 export { default as UKSizeChartDrawer } from "./UKSizeChartDrawer";
 export { default as UKSizeChartTable } from "./UKSizeChartTable";
 export { default as UKStandardSizeRow } from "./UKStandardSizeRow";
+export { default as DisabledTemplateItems } from "./DisabledTemplateItems";
 
 // Pill components
 export { default as SizingTemplatePill } from "./SizingTemplatePill";

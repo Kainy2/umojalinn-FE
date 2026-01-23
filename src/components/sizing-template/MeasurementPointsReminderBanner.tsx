@@ -156,7 +156,7 @@ const MeasurementPointsReminderBanner = ({
             Set up your Measurement Point to trigger milestones.
           </p>
           <Link
-            href={`/sizing-templates/${uuidToBase62Safe(templateId)}?projectId=${uuidToBase62Safe(projectId)}&mode=request`}
+            href={`/sizing-templates/${uuidToBase62Safe(templateId)}?projectId=${uuidToBase62Safe(projectId)}`}
             className="text-sm text-primary font-medium underline hover:no-underline transition-colors"
           >
             Request Sizing template

@@ -20,8 +20,6 @@ import {
   useRequestMeasurementPoints,
   useRequestMeasurementPointsOnBid,
 } from "@/tanstack/hooks/useSizingTemplates";
-import { useGetProjectById } from "@/tanstack/hooks/useProject";
-import { base62ToUuidSafe } from "@/lib/uuid";
 import UnitSelector from "./UnitSelector";
 import {
   Dialog,
@@ -31,6 +29,9 @@ import {
   DialogTrigger,
   DialogHeader,
 } from "../ui/dialog";
+import { FEMALE_SIZING_TEMPLATE, MALE_SIZING_TEMPLATE } from "@/constant/sizingTemplate";
+import UKStandardSizeRow from "./UKStandardSizeRow";
+import DisabledTemplateItems from "./DisabledTemplateItems";
 
 type SelectModeViewProps = {
   projectId: string;
@@ -42,6 +43,7 @@ type SelectModeViewProps = {
   ukStandardSize?: UmojalinnStandardSize | null;
   height?: number | null;
   template: Array<{ name: string; prop: string; img: string }>;
+  hasTemplate?: boolean; // Whether a sizing template exists for this project
   onSuccess?: () => void;
   onUnitChange?: (unit: UmojaLinnSizingTemplate["unit"]) => void;
 };
@@ -56,21 +58,15 @@ const SelectModeView = ({
   ukStandardSize,
   height,
   template,
+  hasTemplate = true,
   onSuccess,
   onUnitChange,
 }: SelectModeViewProps) => {
+  const defaultTemplate = gender === "MALE" ? MALE_SIZING_TEMPLATE : FEMALE_SIZING_TEMPLATE
   const [selectedPoints, setSelectedPoints] = useState<string[]>([]);
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [previewName, setPreviewName] = useState<string | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(defaultTemplate[1].img);
+  const [previewName, setPreviewName] = useState<string | null>(defaultTemplate[1].name);
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
-
-  // Fetch project to check if it has a template
-  const { data: projectData } = useGetProjectById(
-    projectId ? base62ToUuidSafe(projectId) : undefined,
-    { enabled: !!projectId }
-  );
-  const project = projectData?.data?.data;
-  const hasTemplate = !!project?.sizingTemplateId;
 
   // Hook for template-based API (existing)
   const { mutate: requestPointsOnTemplate, isPending: isPendingTemplate } =
@@ -166,44 +162,71 @@ const SelectModeView = ({
                 </p>
               </div>
 
-              {/* Controls */}
-              <div className="flex gap-4 items-start sm:items-center animate-in fade-in duration-300 delay-75">
-                {/* <GenderSelector gender={gender} disabled /> */}
-                <UnitSelector
-                  unit={unit}
-                  onChange={(onChangeUnit) => onUnitChange?.(onChangeUnit)}
-                />
-              </div>
-
-              {/* Default Fields (read-only) */}
-              <div className="flex flex-col gap-2 animate-in fade-in duration-300 delay-100">
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg text-sm">
-                  <span className="font-medium">{gender}</span>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg text-sm">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">UK Standard Size</span>
-                    <HelpCircle className="size-4 text-gray-400" />
+              {/* Controls - Only show when template exists */}
+              {hasTemplate && (
+                <>
+                  <div className="flex gap-4 items-start sm:items-center animate-in fade-in duration-300 delay-75">
+                    {/* <GenderSelector gender={gender} disabled /> */}
+                    <UnitSelector
+                      unit={unit}
+                      onChange={(onChangeUnit) => onUnitChange?.(onChangeUnit)}
+                    />
                   </div>
-                  {ukStandardSize && (
-                    <span className="text-muted-foreground">
-                      {ukStandardSize}
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg text-sm">
-                  <span className="font-medium">Height</span>
-                  {height !== null && height !== undefined && (
-                    <span className="text-muted-foreground">
-                      {height} {unit}
-                    </span>
-                  )}
-                </div>
+
+                  {/* Default Fields (read-only) */}
+                  <div className="flex flex-col gap-2 animate-in fade-in duration-300 delay-100">
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg text-sm">
+                      <span className="font-medium">{gender}</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg text-sm">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">UK Standard Size</span>
+                        <HelpCircle className="size-4 text-gray-400" />
+                      </div>
+                      {ukStandardSize && (
+                        <span className="text-muted-foreground">
+                          {ukStandardSize}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg text-sm">
+                      <span className="font-medium">Height</span>
+                      {height !== null && height !== undefined && (
+                        <span className="text-muted-foreground">
+                          {height} {unit}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              <div className="flex flex-col gap-2 ">
               </div>
 
               {/* Measurement Points with Checkboxes */}
               <div className="flex flex-col gap-2">
-                {template.filter(point=> point.name !== 'height').map((point, index) => {
+                <DisabledTemplateItems
+                  title={gender}
+                />
+                {/* <DisabledItems
+                  title="Uk Standard Size"
+                  value={ukStandardSize ?? "-"}
+                /> */}
+                <UKStandardSizeRow
+                  gender={gender}
+                  value={ukStandardSize ?? null}
+                  highlighted={false}
+                  disabled
+                  onChange={()=>{}}
+                  onShowChart={()=>{}}
+                />
+                <DisabledTemplateItems
+                  title="Height"
+                  value={height ?? "-"}
+                />
+
+                {template.filter(point => point.name !== 'Height').map((point, index) => {
                   const isSelected = selectedPoints.includes(point.prop);
                   return (
                     <div
@@ -385,3 +408,55 @@ const HelpCirclePreview = ({
     </Dialog>
   );
 };
+
+
+// const DisabledItems = ({
+//   title,
+//   isHelpCircle = false,
+//   value,
+// }: {
+//   title: string;
+//   isHelpCircle?: boolean;
+//   value?: string | number;
+// }) => {
+//   return (
+//     <div
+//       // style={{ animationDelay: `${(index + 4) * 30}ms` }}
+//       className={cn(
+//         "flex items-center justify-between p-3 rounded-lg border transition-all duration-200 cursor-not-allowed group animate-in fade-in slide-in-from-left-2",
+//         "bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm opacity-50"
+//       )}
+//     >
+//       <div className="flex items-center gap-3">
+//         <span
+//           className={cn(
+//             "text-sm font-medium transition-colors",
+//             "text-foreground-body"
+//           )}
+//         >
+//           {title}
+//         </span>
+//       </div>
+//       <div
+//         className="md:hidden"
+//         onClick={(e) => {
+//           e.stopPropagation();
+//         }}
+//         onMouseEnter={(e) => e.stopPropagation()}
+//         onMouseLeave={(e) => e.stopPropagation()}
+//       >
+//         {isHelpCircle &&
+//         (<HelpCirclePreview
+//           previewImage={""}
+//           previewName={""}
+//           isSelected={false}
+//           open={false}
+//           onOpenChange={()=>{}}
+//         />)}
+//       </div>
+//       <div>
+//         {value}
+//       </div>
+//     </div>
+//   );
+// };

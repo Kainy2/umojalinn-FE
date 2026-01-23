@@ -17,7 +17,6 @@ import { CircleHelp, Tag } from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
 import DialogListPickerItem from "./ListPickerItem";
-import SizingTemplateDialog from "./SizingTemplate";
 import { cn } from "@/lib/utils";
 
 type ButtonOnClickProp = React.ComponentProps<"button">["onClick"];
@@ -79,7 +78,7 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
   // Get total template count to check limit
   const { data: allTemplatesData } = useGetAllSizingTemplates();
   const totalTemplateCount = allTemplatesData?.data?.data?.length ?? 0;
-  const canCreateNewTemplate = totalTemplateCount  < MAX_TEMPLATES;
+  const canCreateNewTemplate = totalTemplateCount < MAX_TEMPLATES;
 
   const [sizingTemplateId, selectSizingTemplateId] = useState<null | string>(
     null
@@ -215,11 +214,11 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
         <div className="flex -mt-4">
           {!!liveSizingTemplates?.data?.data?.length && (
             canCreateNewTemplate ? (
-              <SizingTemplateDialog>
-                <button className="text-primary font-semibold cursor-pointer flex-1">
+              <button
+              onClick={props?.handleCreateNewSizingTemplate}
+            className="text-primary font-semibold cursor-pointer flex-1">
                   Create a new sizing template
                 </button>
-              </SizingTemplateDialog>
             ) : (
               <span className={cn("text-muted-foreground text-sm flex-1 text-center")}>
                 Maximum {MAX_TEMPLATES} templates reached

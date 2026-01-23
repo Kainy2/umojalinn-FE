@@ -55,6 +55,9 @@ const AddToJobDropdown = ({
             <><span>Add to Job</span><ChevronDown className={cn("size-4 transition-transform duration-200", isOpen && "rotate-180")} /></>
           )}
         </Button>
+        <small className="text-xs mt-2 text-red-400">
+          Standard Size and Height not available yet
+        </small>
       </DropdownMenuTrigger>
       
       <DropdownMenuContent align="end" className="w-[220px] animate-in fade-in-0 zoom-in-95 duration-200">
