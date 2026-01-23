@@ -12,6 +12,7 @@ import { useSubmitMeasurementPoints, useSaveMeasurementPoints } from "@/tanstack
 import GenderSelector from "./GenderSelector";
 import UnitSelector from "./UnitSelector";
 import MeasurementGuide from "./MeasurementGuide";
+import { FEMALE_SIZING_TEMPLATE, MALE_SIZING_TEMPLATE } from "@/constant/sizingTemplate";
 
 type MeasurementValues = Partial<UmojaLinnFemaleSizingTemplateProps & UmojaLinnMaleSizingTemplateProps>;
 
@@ -44,9 +45,11 @@ const FillModeView = ({
   onSuccess,
   onUnitChange,
 }: FillModeViewProps) => {
+  const defaultTemplate = gender === "MALE" ? MALE_SIZING_TEMPLATE : FEMALE_SIZING_TEMPLATE
+
   const [values, setValues] = useState<MeasurementValues>(currentValues);
-  const [highlighted, setHighlighted] = useState<string | null>(null);
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [highlighted, setHighlighted] = useState<string | null>(defaultTemplate[1].img);
+  const [previewImage, setPreviewImage] = useState<string | null>(defaultTemplate[1].img);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Filter template to only show requested points

@@ -369,6 +369,8 @@ export const useRequestSizingTemplateInProject = (
     },
     onSuccess:(...args) => {
       queryclient.invalidateQueries({ queryKey: [BID, { id, role: me?.user?.profileRole }]});
+      queryclient.invalidateQueries({queryKey: [PROJECT] });
+      queryclient.invalidateQueries({queryKey: [SIZING_TEMPLATE] });
       options?.onSuccess?.(...args);
     }
   });

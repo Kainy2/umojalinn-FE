@@ -22,7 +22,7 @@ type ActionButtonsProps = {
 };
 
 const ActionButtons = ({
-  onSave,
+  // onSave,
   onSubmit,
   loading,
   showSave = false,
@@ -30,21 +30,32 @@ const ActionButtons = ({
   className,
   saveDisabled = false,
   submitDisabled = false,
-  saveText = "Save",
+  // saveText = "Save",
   submitText = "Submit",
 }: ActionButtonsProps) => {
   if (!showSave && !showSubmit) return null;
 
   return (
-    <div className={cn("flex gap-3 justify-end animate-in fade-in slide-in-from-bottom-2 duration-300", "lg:justify-end", "md:justify-center", className)}>
-      {showSave && (
+    <div
+      className={cn(
+        "flex gap-3 justify-end animate-in fade-in slide-in-from-bottom-2 duration-300",
+        "lg:justify-end",
+        "md:justify-center",
+        className
+      )}
+    >
+      {/* {showSave && (
         <Button variant="outline" onClick={onSave} disabled={loading || saveDisabled} className="min-w-[120px] transition-all duration-200 hover:scale-[1.02]">
           {loading && <Loader2 className="size-4 animate-spin mr-2" />}
           {saveText}
         </Button>
-      )}
-      {showSubmit && (
-        <Button onClick={onSubmit} disabled={loading || submitDisabled} className="min-w-[120px] transition-all duration-200 hover:scale-[1.02]">
+      )} */}
+      {(showSave || showSubmit) && (
+        <Button
+          onClick={onSubmit}
+          disabled={loading || saveDisabled || submitDisabled}
+          className="min-w-[120px] transition-all duration-200 hover:scale-[1.02]"
+        >
           {loading && <Loader2 className="size-4 animate-spin mr-2" />}
           {submitText}
         </Button>

@@ -34,12 +34,16 @@ import {
   useUpdateSizingTemplate,
   // useSendSizingTemplateReminder,
   useGetAllSizingTemplates,
+  useRequestSizingTemplateInProject,
 } from "@/tanstack/hooks/useSizingTemplates";
 
 import AvatarIconTag from "@/components/custom/tag/AvatarIcon";
 import CheckCircle from "@/icons/CheckCircle";
 import HeightAndSizeModal from "./HeightAndSizeModal";
 import { AcceptBidSizingTemplateInterruptConfirm } from "@/components/custom/dialog/AcceptBidSizingTemplateInterrupt";
+import { useQueryClient } from "@tanstack/react-query";
+import { BID } from "@/tanstack/keys";
+import { useSession } from "next-auth/react";
 // import {
 //   Popover,
 //   PopoverContent,
@@ -88,10 +92,12 @@ const SizingTemplatePill = ({
 
   // Data fetching
   const { data: meData, isLoading: isLoadingProfile } = useGetMe();
+  const { data: session } = useSession();
   const { data: bidData, refetch: refetchBid, isLoading: isLoadingBid } = useGetBidById(bidId || "", {
     enabled: !!bidId,
   });
   const { data: projectData, refetch: refetchProject, isLoading: isLoadingProject } = useGetProjectById(projectId);
+  const queryclient = useQueryClient();
 
   const project = projectData?.data?.data;
   const bid = bidData?.data?.data;
@@ -102,7 +108,7 @@ const SizingTemplatePill = ({
   const sizingTemplateRequested = bid?.sizingTemplateRequested ?? 
     (project?.status === "LIVE" || !!sizingTemplateId);
 
-  const { data: templateData, refetch: refetchTemplate, isPending: isLoadingTemplate } = useGetSizingTemplateById(
+  const { data: templateData, refetch: refetchTemplate, isLoading: isLoadingTemplate } = useGetSizingTemplateById(
     sizingTemplateId || undefined,
     { enabled: !!sizingTemplateId }
   );
@@ -144,6 +150,19 @@ const SizingTemplatePill = ({
     },
   });
 
+    // Designer: Request sizing template mutation
+    const {
+      mutate: requestSizingTemplate,
+      // isPending: isRequestingTemplate,
+    } = useRequestSizingTemplateInProject({
+      onSuccess: () => {
+        queryclient.invalidateQueries({ queryKey: [BID, { id: bid?.id, role: session?.user.profileRole }]});  
+        
+        // Navigate to measurement points selection page after successful request
+        navigateToRequestPage()
+      },
+    });
+
   const { mutate: updateTemplate, isPending: isUpdatingTemplate } = useUpdateSizingTemplate(
     selectedTemplate?.id,
     {
@@ -170,7 +189,7 @@ const SizingTemplatePill = ({
               onSuccess: () => {
                 setPendingFillNavigation(false);
                 router.push(
-                  `/sizing-templates/${uuidToBase62Safe(newTemplateId)}?projectId=${uuidToBase62Safe(project.id)}&mode=fill`
+                  `/sizing-templates/${uuidToBase62Safe(newTemplateId)}?projectId=${uuidToBase62Safe(project.id)}`
                 );
               },
             }
@@ -215,7 +234,7 @@ const SizingTemplatePill = ({
       if (sizingTemplateId && submittedMeasurementPoints?.length) return "VIEW_TEMPLATE";
     } else {
       // Buyer states
-      if (!sizingTemplateRequested || !sizingTemplateId) return "ADD_TEMPLATE";
+      if (!sizingTemplateId) return "ADD_TEMPLATE";
       if (sizingTemplateId && !requestedMeasurementPoints?.length) return "AWAITING_MEASUREMENT_FIELDS";
       if (sizingTemplateId && requestedMeasurementPoints?.length && !submittedMeasurementPoints?.length)
         return "ADD_REQUESTED_MEASUREMENTS";
@@ -286,7 +305,7 @@ const SizingTemplatePill = ({
     // setShowHeightModal(true);
 			if (sizingTemplate && project?.id) {
 		  	router.push(
-					`/sizing-templates/${uuidToBase62Safe(sizingTemplate.id)}?projectId=${uuidToBase62Safe(project.id)}&mode=fill`
+					`/sizing-templates/${uuidToBase62Safe(sizingTemplate.id)}?projectId=${uuidToBase62Safe(project.id)}`
 				)
 			}
   };
@@ -305,7 +324,7 @@ const SizingTemplatePill = ({
             setShowHeightModal(false);
             setPendingFillNavigation(false);
             router.push(
-              `/sizing-templates/${uuidToBase62Safe(sizingTemplate.id)}?projectId=${uuidToBase62Safe(project.id)}&mode=fill`
+              `/sizing-templates/${uuidToBase62Safe(sizingTemplate.id)}?projectId=${uuidToBase62Safe(project.id)}`
             );
           },
         }
@@ -324,12 +343,28 @@ const SizingTemplatePill = ({
   // };
 
   const navigateToRequestPage = () => {
-    if (sizingTemplateId && project?.id) {
+    if (!project?.id) return;
+
+    if (sizingTemplateId){
       router.push(
-        `/sizing-templates/${uuidToBase62Safe(sizingTemplateId)}?projectId=${uuidToBase62Safe(project.id)}&mode=request`
+        `/sizing-templates/${uuidToBase62Safe(sizingTemplateId)}?projectId=${uuidToBase62Safe(project.id)}`
+      );
+    } else if (bid?.id) {
+      router.push(
+        `/sizing-templates/request/${uuidToBase62Safe(bid?.id)}`
       );
     }
   };
+
+  const handleRequestTemplate = ()=> {
+    if (!project?.id) return;
+
+    if (sizingTemplateRequested) {
+      navigateToRequestPage()
+    } else {
+      requestSizingTemplate(project?.id)
+    }
+  }
 
   const navigateToViewPage = () => {
     if (sizingTemplateId && project?.id) {
@@ -342,7 +377,7 @@ const SizingTemplatePill = ({
 	const navigateToViewSizingRecommendationsPage = () => {
     if (sizingTemplateId && project?.id) {
       router.push(
-        `/sizing-templates/${uuidToBase62Safe(sizingTemplateId)}?projectId=${uuidToBase62Safe(project.id)}&mode=recommendations`
+        `/sizing-templates/${uuidToBase62Safe(sizingTemplateId)}?projectId=${uuidToBase62Safe(project.id)}`
       );
     }
   };
@@ -418,7 +453,8 @@ const SizingTemplatePill = ({
                 <Plus />
               </span>
             }
-            onClick={navigateToRequestPage}
+            onClick={handleRequestTemplate}
+            disabled={!project?.id}
             className={cn("cursor-pointer transition-transform hover:scale-[1.02] border border-red-500 border-dashed", className)}
           />
         );

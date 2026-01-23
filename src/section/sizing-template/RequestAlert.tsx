@@ -30,12 +30,17 @@ import { ChevronDown, Loader2 } from "lucide-react";
 import HeightAndSizeModal from "@/components/sizing-template/HeightAndSizeModal";
 import { UmojaLinnSizingTemplate, UmojaLinnSizingTemplateUnit, UmojalinnStandardSize } from "@/types/project";
 import { DEFAULT_HEIGHT, DEFAULT_UNIT, MAX_IN_USE_TEMPLATES } from "@/types/constants";
+import { useQueryClient } from "@tanstack/react-query";
+import { BID, PROJECT, SIZING_TEMPLATE } from "@/tanstack/keys";
+import { useSession } from "next-auth/react";
 
 const RequestSizingTemplateAlert = () => {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { data: bidData, refetch: refetchBid } = useGetBidById(id);
   const { data: me } = useGetMe();
+  const { data: session } = useSession();
+  const queryclient = useQueryClient();
 
   const bid = bidData?.data?.data;
   const project = bid?.project;
@@ -47,6 +52,9 @@ const RequestSizingTemplateAlert = () => {
     isSuccess: requestSuccess,
   } = useRequestSizingTemplateInProject({
     onSuccess: () => {
+      queryclient.invalidateQueries({ queryKey: [BID, { id: bid?.id, role: session?.user.profileRole }]});
+      queryclient.invalidateQueries({queryKey: [PROJECT] });
+      queryclient.invalidateQueries({queryKey: [SIZING_TEMPLATE] });      
       // Navigate to measurement points selection page after successful request
       if (project?.id && id) {
         router.push(`/active-jobs/${uuidToBase62Safe(id)}/request-measurements`);
@@ -196,8 +204,9 @@ const RequestSizingTemplateAlert = () => {
           className={cn("rounded-md", requestSuccessful ? "bg-yellow-200" : "bg-error")}
           loading={isRequestingTemplate}
           disabled={requestSuccessful}
-          onClick={() => requestSizingTemplate(project?.id)}
-        >
+          onClick={() => requestSizingTemplate(project?.id) }
+          >
+          {/* console.log({ queryKey: [BID, { id: bid.id, role: me?.data.data.role }]}); */}
           {requestSuccessful ? "Requested" : "Request"}
         </Button>
       </div>
