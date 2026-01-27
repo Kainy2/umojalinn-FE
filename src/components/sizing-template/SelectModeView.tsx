@@ -34,7 +34,7 @@ import UKStandardSizeRow from "./UKStandardSizeRow";
 import DisabledTemplateItems from "./DisabledTemplateItems";
 
 type SelectModeViewProps = {
-  projectId: string;
+  projectId?: string;
   bidId?: string; // Optional bidId for bid-based API
   projectName?: string;
   buyerName?: string;
@@ -94,7 +94,7 @@ const SelectModeView = ({
 
   const handleSubmit = () => {
     // Check if template exists on project
-    if (hasTemplate) {
+    if (hasTemplate && projectId) {
       // Use template-based API (existing)
       requestPointsOnTemplate({
         projectId,
@@ -206,80 +206,88 @@ const SelectModeView = ({
 
               {/* Measurement Points with Checkboxes */}
               <div className="flex flex-col gap-2">
-                <DisabledTemplateItems
-                  title={gender}
-                />
-                {/* <DisabledItems
+                {!hasTemplate && (
+                  <>
+                    <DisabledTemplateItems title={gender} />
+                    {/* <DisabledItems
                   title="Uk Standard Size"
                   value={ukStandardSize ?? "-"}
                 /> */}
-                <UKStandardSizeRow
-                  gender={gender}
-                  value={ukStandardSize ?? null}
-                  highlighted={false}
-                  disabled
-                  onChange={()=>{}}
-                  onShowChart={()=>{}}
-                />
-                <DisabledTemplateItems
-                  title="Height"
-                  value={height ?? "-"}
-                />
+                    <UKStandardSizeRow
+                      gender={gender}
+                      value={ukStandardSize ?? null}
+                      highlighted={false}
+                      disabled
+                      onChange={() => {}}
+                      onShowChart={() => {}}
+                    />
+                    <DisabledTemplateItems
+                      title="Height"
+                      value={height ?? "-"}
+                    />
+                  </>
+                )}
 
-                {template.filter(point => point.name !== 'Height').map((point, index) => {
-                  const isSelected = selectedPoints.includes(point.prop);
-                  return (
-                    <div
-                      key={point.prop}
-                      onClick={() => handleToggle(point.prop)}
-                      onMouseEnter={() =>
-                        handlePointHover(point.img, point.name)
-                      }
-                      style={{ animationDelay: `${(index + 4) * 30}ms` }}
-                      className={cn(
-                        "flex items-center justify-between p-3 rounded-lg border transition-all duration-200 cursor-pointer group animate-in fade-in slide-in-from-left-2",
-                        isSelected
-                          ? "bg-primary border-primary shadow-sm scale-[1.01]"
-                          : "bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm"
-                      )}
-                    >
-                      <div className="flex items-center gap-3">
-                        <Checkbox
-                          checked={isSelected}
-                          onCheckedChange={() => handleToggle(point.prop)}
-                          onClick={() => handleToggle(point.prop)}
-                          className={cn(
-                            "transition-all duration-200",
-                            isSelected &&
-                              "border-white bg-white data-[state=checked]:bg-white data-[state=checked]:text-primary"
-                          )}
-                        />
-                        <span
-                          className={cn(
-                            "text-sm font-medium transition-colors",
-                            isSelected ? "text-white" : "text-foreground-body"
-                          )}
-                        >
-                          {point.name}
-                        </span>
-                      </div>
-                      <div 
-                        className="md:hidden"
-                        onClick={(e) => { e.stopPropagation(); }} 
-                        onMouseEnter={e=>e.stopPropagation()} 
-                        onMouseLeave={e=>e.stopPropagation()}
+                {template
+                  .filter((point) => point.name !== "Height")
+                  .map((point, index) => {
+                    const isSelected = selectedPoints.includes(point.prop);
+                    return (
+                      <div
+                        key={point.prop}
+                        onClick={() => handleToggle(point.prop)}
+                        onMouseEnter={() =>
+                          handlePointHover(point.img, point.name)
+                        }
+                        style={{ animationDelay: `${(index + 4) * 30}ms` }}
+                        className={cn(
+                          "flex items-center justify-between p-3 rounded-lg border transition-all duration-200 cursor-pointer group animate-in fade-in slide-in-from-left-2",
+                          isSelected
+                            ? "bg-primary border-primary shadow-sm scale-[1.01]"
+                            : "bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm"
+                        )}
                       >
-                        <HelpCirclePreview
-                          previewImage={previewImage || ""}
-                          previewName={previewName || ""}
-                          isSelected={isSelected}
-                          open={mobilePreviewOpen && previewName === point.name}
-                          onOpenChange={setMobilePreviewOpen}
+                        <div className="flex items-center gap-3">
+                          <Checkbox
+                            checked={isSelected}
+                            onCheckedChange={() => handleToggle(point.prop)}
+                            onClick={() => handleToggle(point.prop)}
+                            className={cn(
+                              "transition-all duration-200",
+                              isSelected &&
+                                "border-white bg-white data-[state=checked]:bg-white data-[state=checked]:text-primary"
+                            )}
                           />
+                          <span
+                            className={cn(
+                              "text-sm font-medium transition-colors",
+                              isSelected ? "text-white" : "text-foreground-body"
+                            )}
+                          >
+                            {point.name}
+                          </span>
+                        </div>
+                        <div
+                          className="md:hidden"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                          }}
+                          onMouseEnter={(e) => e.stopPropagation()}
+                          onMouseLeave={(e) => e.stopPropagation()}
+                        >
+                          <HelpCirclePreview
+                            previewImage={previewImage || ""}
+                            previewName={previewName || ""}
+                            isSelected={isSelected}
+                            open={
+                              mobilePreviewOpen && previewName === point.name
+                            }
+                            onOpenChange={setMobilePreviewOpen}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
               </div>
 
               {/* Mobile Actions */}

@@ -27,6 +27,8 @@ import {
 import { getSizingTemplateUpdateProps } from "@/lib/project";
 import { useGetMe } from "@/tanstack/hooks/useUser";
 import { useSession } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useGetProjectById } from "@/tanstack/hooks/useProject";
 
 type TemplateModalType = "EDIT" | "RECOMMEND" | "VIEW-ONLY"
 
@@ -40,7 +42,8 @@ type TemplateModalType = "EDIT" | "RECOMMEND" | "VIEW-ONLY"
 
 export const useSizingTemplateDialog = (
   props: SizingTemplateDialogProps & {
-    bidId?: string
+    bidId?: string;
+    projectId?: string;
   }
 ) => {
 
@@ -89,6 +92,15 @@ export const useSizingTemplateDialog = (
         setRecommendationMode(false);
       },
     });
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const urlProjectId = searchParams.get("projectId");
+    const sizingTemplateId = props.id;
+    const effectiveProjectId = props.projectId || urlProjectId || undefined;
+  
+    // Fetch project data if we have a project ID
+    const { data: projectData } = useGetProjectById(effectiveProjectId);
+    const project = projectData?.data?.data;
 		
 		const sizingTemplateResult = sizingTemplateData?.data.data
 		const isDesigner = session?.user?.profileRole === "DESIGNER";
@@ -259,9 +271,8 @@ export const useSizingTemplateDialog = (
 
 
   useEffect(() => {
-    if (sizingTemplateResult) {
+    if (sizingTemplateResult ) {
       const {
-        gender,
         name,
         unit,
         id,
@@ -284,15 +295,25 @@ export const useSizingTemplateDialog = (
         projects,
       };
       setValue(templateDetails);
-      setName(name);
-      setGender(gender);
-
-      const defaultTemplate = gender === "MALE" ? MALE_SIZING_TEMPLATE : FEMALE_SIZING_TEMPLATE
-      setPreviewImage(defaultTemplate[0].img)
-
+      setName(name);      
       if (unit) setUnit(unit);
     }
-  }, [sizingTemplateResult]);
+    
+    
+    if (project){
+      // const defaultTemplate = project.gender === "MALE" ? MALE_SIZING_TEMPLATE : FEMALE_SIZING_TEMPLATE
+      
+      setGender(project.gender ?? sizingTemplateResult?.gender ?? "MALE");
+      // setPreviewImage(defaultTemplate[0].img)
+    }
+  }, [sizingTemplateResult, project]);
+  
+  useEffect(()=>{
+    if (!gender) return;
+
+    const defaultTemplate = gender === "MALE" ? MALE_SIZING_TEMPLATE : FEMALE_SIZING_TEMPLATE
+    setPreviewImage(defaultTemplate[0].img)
+  }, [gender])
 
   const handleSuccess = (template: UmojaLinnSizingTemplate) => {
     setOpen(false);
@@ -353,7 +374,10 @@ export const useSizingTemplateDialog = (
     : isCreatingSizingTemplate;
 
 
-  console.log({templateMode, isDesigner});
+  const isNewTemplate =
+  !isDesigner && templateMode === 'EDIT' && !sizingTemplateId && !effectiveProjectId
+console.log({isNewTemplate});
+
 
   return{
 		loading,
@@ -365,6 +389,7 @@ export const useSizingTemplateDialog = (
     sizingTemplateResult,
     reviewsEdit,
     isDraft,
+    isNewTemplate,
     isTemplateHaveLiveProject,
     TEMPLATE,
     open,
@@ -401,5 +426,13 @@ export const useSizingTemplateDialog = (
     hasSubmittedPoints,
     hasReviews,
     isInUse,
+
+    router,
+    searchParams,
+    urlProjectId,
+    sizingTemplateId,
+    effectiveProjectId,
+    projectData,
+    project,
 	}
 };

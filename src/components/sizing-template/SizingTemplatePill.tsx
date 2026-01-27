@@ -365,6 +365,8 @@ const SizingTemplatePill = ({
       requestSizingTemplate(project?.id)
     }
   }
+  console.log({ handleRequestTemplate });
+  
 
   const navigateToViewPage = () => {
     if (sizingTemplateId && project?.id) {
@@ -443,21 +445,21 @@ const SizingTemplatePill = ({
         //     className={className}
         //   />
         // );
-      case "AWAITING_SIZING_TEMPLATE":
-        // // Designer view - waiting for buyer to add template
-        return (
-          <AvatarIconTag
-          label="Request Sizing Template"
-          icon={
-              <span className="text-white [&>svg]:size-5 size-7 rounded-full bg-red-500 flex items-center justify-center">
-                <Plus />
-              </span>
-            }
-            onClick={handleRequestTemplate}
-            disabled={!project?.id}
-            className={cn("cursor-pointer transition-transform hover:scale-[1.02] border border-red-500 border-dashed", className)}
-          />
-        );
+      // case "AWAITING_SIZING_TEMPLATE":
+      //   // // Designer view - waiting for buyer to add template
+      //   return (
+      //     <AvatarIconTag
+      //     label="Request Sizing Template"
+      //     icon={
+      //         <span className="text-white [&>svg]:size-5 size-7 rounded-full bg-red-500 flex items-center justify-center">
+      //           <Plus />
+      //         </span>
+      //       }
+      //       onClick={handleRequestTemplate}
+      //       disabled={!project?.id}
+      //       className={cn("cursor-pointer transition-transform hover:scale-[1.02] border border-red-500 border-dashed", className)}
+      //     />
+      //   );
 
       case "ADD_TEMPLATE":
         // Buyer view - can add template
@@ -478,6 +480,8 @@ const SizingTemplatePill = ({
           </div>
         );
 
+      case "AWAITING_SIZING_TEMPLATE":
+        // // Designer view - waiting for buyer to add template
       case "SELECT_MEASUREMENT_POINTS":
         // Designer view - need to select measurement points and request them from buyer
         return (

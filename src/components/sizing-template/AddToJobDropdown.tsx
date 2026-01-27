@@ -48,16 +48,18 @@ const AddToJobDropdown = ({
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" disabled={isDisabled} className={cn("flex items-center gap-2 min-w-[140px] transition-all duration-200 hover:border-primary hover:text-primary", className)}>
-          {isAttaching ? (
-            <><Loader2 className="size-4 animate-spin" /><span>Attaching...</span></>
-          ) : (
-            <><span>Add to Job</span><ChevronDown className={cn("size-4 transition-transform duration-200", isOpen && "rotate-180")} /></>
-          )}
-        </Button>
-        <small className="text-xs mt-2 text-red-400">
-          Standard Size and Height not available yet
-        </small>
+        <div className="flex flex-col w-36">
+          <Button variant="outline" disabled={isDisabled} className={cn("flex items-center gap-2 h-8 rounded-md min-w-[100px] transition-all duration-200 hover:border-primary hover:text-primary", className)}>
+            {isAttaching ? (
+              <><Loader2 className="size-4 animate-spin" /><span>Attaching...</span></>
+            ) : (
+              <><span>Add to Job</span><ChevronDown className={cn("size-4 transition-transform duration-200", isOpen && "rotate-180")} /></>
+            )}
+          </Button>
+          <small className="text-xs mt-2 text-red-400">
+            Standard Size and Height not available yet
+          </small>
+        </div>
       </DropdownMenuTrigger>
       
       <DropdownMenuContent align="end" className="w-[220px] animate-in fade-in-0 zoom-in-95 duration-200">
