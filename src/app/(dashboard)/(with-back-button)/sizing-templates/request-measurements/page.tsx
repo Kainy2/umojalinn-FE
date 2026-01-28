@@ -1,5 +1,9 @@
 "use client";
+
+
+
 /**
+ * Component not used at the moment
  * Request Measurements Page - Designer selects measurement points to request from buyer
  * Works with or without a template:
  * - With template: Uses template-based API
@@ -63,7 +67,7 @@ const RequestMeasurementsPage = () => {
       template={template}
       onSuccess={() => {
         // Navigate back to the active job page after successful submission
-        router.push(`/active-jobs/${id}`);
+        router.push(`/bids/${id}`);
       }}
       onUnitChange={(newUnit) => {
         // Unit change is handled within SelectModeView

@@ -4,7 +4,7 @@
  * Used when template is IN_USE but no measurement points have been requested yet.
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import Image from "next/image";
@@ -32,6 +32,7 @@ import {
 import { FEMALE_SIZING_TEMPLATE, MALE_SIZING_TEMPLATE } from "@/constant/sizingTemplate";
 import UKStandardSizeRow from "./UKStandardSizeRow";
 import DisabledTemplateItems from "./DisabledTemplateItems";
+import { useRouter } from "next/navigation";
 
 type SelectModeViewProps = {
   projectId?: string;
@@ -62,11 +63,11 @@ const SelectModeView = ({
   onSuccess,
   onUnitChange,
 }: SelectModeViewProps) => {
-  const defaultTemplate = gender === "MALE" ? MALE_SIZING_TEMPLATE : FEMALE_SIZING_TEMPLATE
   const [selectedPoints, setSelectedPoints] = useState<string[]>([]);
-  const [previewImage, setPreviewImage] = useState<string | null>(defaultTemplate[1].img);
-  const [previewName, setPreviewName] = useState<string | null>(defaultTemplate[1].name);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [previewName, setPreviewName] = useState<string | null>(null);
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
+  const router = useRouter()
 
   // Hook for template-based API (existing)
   const { mutate: requestPointsOnTemplate, isPending: isPendingTemplate } =
@@ -77,7 +78,7 @@ const SelectModeView = ({
   // Hook for bid-based API (new)
   const { mutate: requestPointsOnBid, isPending: isPendingBid } =
     useRequestMeasurementPointsOnBid({
-      onSuccess: () => onSuccess?.(),
+      onSuccess: () => router.push(`/bids/${bidId}/edit`),
     });
 
   const isPending = isPendingTemplate || isPendingBid;
@@ -126,6 +127,14 @@ const SelectModeView = ({
     setPreviewImage(img);
     setPreviewName(name);
   };
+
+  useEffect(()=>{
+    if (!gender) return;
+
+    const defaultTemplate = gender === "MALE" ? MALE_SIZING_TEMPLATE : FEMALE_SIZING_TEMPLATE
+    setPreviewImage(defaultTemplate[0].img)
+    setPreviewName(defaultTemplate[1].name)
+  }, [gender])
 
   return (
     <div className="min-h-screen bg-background">

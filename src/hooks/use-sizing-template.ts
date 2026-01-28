@@ -119,7 +119,7 @@ export const useSizingTemplateDialog = (
       !!sizingTemplateResult?.projects?.some(
         (project) => project?.status === "LIVE",
       ),
-      sizingTemplateResult?.status === "DRAFT",
+      sizingTemplateResult?.status === "LIVE",
     ];
   }, [sizingTemplateResult]);
 
@@ -362,6 +362,7 @@ export const useSizingTemplateDialog = (
       name,
       unit,
       shouldGoLive,
+      ukStandardSize: value.ukStandardSize
     };
 
     (props?.id ? updateSizingTemplate : createSizingTemplate)(
@@ -376,8 +377,6 @@ export const useSizingTemplateDialog = (
 
   const isNewTemplate =
   !isDesigner && templateMode === 'EDIT' && !sizingTemplateId && !effectiveProjectId
-console.log({isNewTemplate});
-
 
   return{
 		loading,

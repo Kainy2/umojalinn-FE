@@ -464,11 +464,22 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
             </div>
 
             {/* Measurement Points (including Height as first item from TEMPLATE) */}
-            {(sizingTemplateId && (!isInUse || hasRequestedPoints))
-            || isNewTemplate
-            && (
+            {((sizingTemplateId && (!isInUse || hasRequestedPoints))|| isNewTemplate || isDraft) && (
             <div className="flex flex-col gap-2">
-              {TEMPLATE.map((templateItem, index) => {
+              {TEMPLATE
+                .filter((templateItem) => {
+                  // For new templates or drafts, show all measurements
+                  if (isNewTemplate || isDraft) return true;
+
+                  // For in-use templates, only show requested measurement points
+                  if (isInUse && hasRequestedPoints) {
+                    return requestedMeasurementPoints.includes(templateItem.prop);
+                  }
+
+                  // Default: show all
+                  return true;
+                })
+                .map((templateItem, index) => {
                 const isDisabled = !isEditable;
                 const itemValue = value?.[templateItem.prop as keyof typeof value];
                 const reviews = sizingTemplateResult?.metadata?.reviews as Record<string, string> | undefined;
