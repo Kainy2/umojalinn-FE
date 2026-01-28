@@ -296,6 +296,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                 <div className="flex flex-col gap-2">
                   {(!recommendationMode ? (hasRequestedPoints ? TEMPLATE.filter(item => requestedMeasurementPoints.includes(item.prop)) : TEMPLATE) : TEMPLATE).map((item, index) => {
                     const itemValue = value?.[item.prop];
+                    const isSubmitted = (sizingTemplateResult?.submittedMeasurementPoints ?? []).includes(item.prop);
                     return (
                       <MeasurementPointRow
                         key={item.prop}
@@ -309,6 +310,8 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                         onClick={() => handleMeasurementClick(item.img, item.prop as keyof (UmojaLinnFemaleSizingTemplateProps | UmojaLinnMaleSizingTemplateProps))}
                         onKeyDown={(e) => handleKeyPress(index, e)}
                         ref={(el) => { inputRefs.current[index] = el; }}
+                        isSubmitted={isSubmitted}
+                        showSubmittedIndicator={true}
                         {...(recommendationMode && {
                           recommendMode: true,
                           selected: selectedMeasurements.includes(item.prop),
@@ -501,6 +504,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                     onClick={() => handleMeasurementClick(templateItem.img, templateItem.prop as BothGenderSizingTemplateProps)}
                     onKeyDown={(e) => handleKeyPress(index, e)}
                     isSubmitted={isSubmitted}
+                    showSubmittedIndicator={false}
                     ref={(el) => { inputRefs.current[index] = el; }}
                   />
                 );
