@@ -44,6 +44,7 @@ export type UmojaLinnProject = {
   reviews: Array<UmojaLinnProjectReview> | null;
   chatLinks: Array<string> | null;
   chatMedia: Array<string> | null;
+  requestedMeasurementPoints: string[];
   deliveryAddress: {
     id: string;
     country: null | string;
@@ -162,6 +163,7 @@ export type UmojaLinnBid = {
   project: UmojaLinnProject;
   designer: UmojaLinnUserRoleProfile;
   milestones: UmojaLinnMilestone[];
+  requestedMeasurementPoints: string[];
   sizingTemplateRequested: boolean;
   history: Array<
     {

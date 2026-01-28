@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { SizingTemplateDialogProps, useSizingTemplateDialog } from "@/hooks/use-sizing-template";
@@ -25,7 +24,7 @@ import { UmojaLinnSizingTemplate, UmojalinnStandardSize } from "@/types/project"
 import { UmojaLinnFemaleSizingTemplateProps, UmojaLinnMaleSizingTemplateProps } from "@/types/project";
 import { canSendReminder, getRemainingReminderTime } from "@/lib/sizing-template-utils";
 import { useSendSizingTemplateReminder } from "@/tanstack/hooks/useSizingTemplates";
-import { useGetProjectById, useGetAllBuyerProject } from "@/tanstack/hooks/useProject";
+import { useGetAllBuyerProject } from "@/tanstack/hooks/useProject";
 import TextField from "../custom/input/TextField";
 import DisabledTemplateItems from "./DisabledTemplateItems";
 
@@ -37,26 +36,17 @@ type SizingTemplatePageProps = Omit<SizingTemplateDialogProps, "children"> & {
 };
 
 const SizingTemplatePage = (props: SizingTemplatePageProps) => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const urlProjectId = searchParams.get("projectId");
-  const sizingTemplateId = props.id;
-  const effectiveProjectId = props.projectId || urlProjectId || undefined;
+  // const router = useRouter();
+  // const searchParams = useSearchParams();
+  // const urlProjectId = searchParams.get("projectId");
+  // const sizingTemplateId = props.id;
+  // const effectiveProjectId = props.projectId || urlProjectId || undefined;
 
-  // Fetch project data if we have a project ID
-  const { data: projectData } = useGetProjectById(effectiveProjectId);
-  const project = projectData?.data?.data;
+  // // Fetch project data if we have a project ID
+  // const { data: projectData } = useGetProjectById(effectiveProjectId);
+  // const project = projectData?.data?.data;
 
-  // Fetch available projects for "Add to Job" dropdown (LIVE projects without a sizing template)
-  const { data: buyerProjectsData, isLoading: isLoadingProjects } = useGetAllBuyerProject({
-    projectStatus: "ADS",
-  });
-  const availableProjects = (buyerProjectsData?.data?.data || []).filter(
-    (proj) => !proj.sizingTemplate?.id
-  );
 
-  // State for showing UK size chart in preview panel
-  const [showUKSizeChart, setShowUKSizeChart] = useState(false);
 
   const {
     loading,
@@ -91,7 +81,14 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     hasRequestedPoints,
     hasSubmittedPoints,
     isInUse,
-    isDesigner
+    isDesigner,
+    router,
+    // searchParams,
+    isNewTemplate,
+    sizingTemplateId,
+    effectiveProjectId,
+    // projectData,
+    project,
   } = useSizingTemplateDialog({
     ...props,
     handleSuccess: (template) => {
@@ -99,6 +96,17 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
       props.handleSuccess?.(template);
     },
   });
+
+    // Fetch available projects for "Add to Job" dropdown (LIVE projects without a sizing template)
+    const { data: buyerProjectsData, isLoading: isLoadingProjects } = useGetAllBuyerProject({
+      projectStatus: "ADS",
+    });
+    const availableProjects = (buyerProjectsData?.data?.data || []).filter(
+      (proj) => !proj.sizingTemplate?.id
+    );
+  
+    // State for showing UK size chart in preview panel
+    const [showUKSizeChart, setShowUKSizeChart] = useState(false);
 
   // Designer recommendation mode state
   const [selectedMeasurements, setSelectedMeasurements] = React.useState<string[]>([]);
@@ -184,7 +192,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   // === MODE-BASED RENDERING ===
 
   // SELECT MODE - Designer selects measurement points to request from buyer
-  if (templateMode === TEMPLATE_MODE.SELECT && effectiveProjectId && props?.bidId) {
+  if (templateMode === TEMPLATE_MODE.SELECT && (effectiveProjectId || props?.bidId)) {
     return (
       <SelectModeView
         projectId={effectiveProjectId}
@@ -288,6 +296,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                 <div className="flex flex-col gap-2">
                   {(!recommendationMode ? (hasRequestedPoints ? TEMPLATE.filter(item => requestedMeasurementPoints.includes(item.prop)) : TEMPLATE) : TEMPLATE).map((item, index) => {
                     const itemValue = value?.[item.prop];
+                    const isSubmitted = (sizingTemplateResult?.submittedMeasurementPoints ?? []).includes(item.prop);
                     return (
                       <MeasurementPointRow
                         key={item.prop}
@@ -301,6 +310,8 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                         onClick={() => handleMeasurementClick(item.img, item.prop as keyof (UmojaLinnFemaleSizingTemplateProps | UmojaLinnMaleSizingTemplateProps))}
                         onKeyDown={(e) => handleKeyPress(index, e)}
                         ref={(el) => { inputRefs.current[index] = el; }}
+                        isSubmitted={isSubmitted}
+                        showSubmittedIndicator={true}
                         {...(recommendationMode && {
                           recommendMode: true,
                           selected: selectedMeasurements.includes(item.prop),
@@ -431,9 +442,11 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
             </div>
 
             <div className="flex flex-col gap-2">
+            {!isNewTemplate && !isDraft && (
               <DisabledTemplateItems
                   title={gender}
                 />
+              )}
 
               {/* UK Standard Size Row */}
               <UKStandardSizeRow
@@ -445,17 +458,31 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                 disabled={!isEditable}
               />
 
-              <DisabledTemplateItems
-                title="Height"
-                value={value?.height ? `${value?.height} ${sizingTemplateResult?.unit}`: "-"}
-              />
+              {!isNewTemplate && !isDraft && (
+                <DisabledTemplateItems
+                  title="Height"
+                  value={value?.height ? `${value?.height} ${sizingTemplateResult?.unit}`: "-"}
+                />
+              )}
             </div>
 
             {/* Measurement Points (including Height as first item from TEMPLATE) */}
-           {sizingTemplateId && (!isInUse || hasRequestedPoints)
-            && (
+            {((sizingTemplateId && (!isInUse || hasRequestedPoints))|| isNewTemplate || isDraft) && (
             <div className="flex flex-col gap-2">
-              {TEMPLATE.map((templateItem, index) => {
+              {TEMPLATE
+                .filter((templateItem) => {
+                  // For new templates or drafts, show all measurements
+                  if (isNewTemplate || isDraft) return true;
+
+                  // For in-use templates, only show requested measurement points
+                  if (isInUse && hasRequestedPoints) {
+                    return requestedMeasurementPoints.includes(templateItem.prop);
+                  }
+
+                  // Default: show all
+                  return true;
+                })
+                .map((templateItem, index) => {
                 const isDisabled = !isEditable;
                 const itemValue = value?.[templateItem.prop as keyof typeof value];
                 const reviews = sizingTemplateResult?.metadata?.reviews as Record<string, string> | undefined;
@@ -477,14 +504,15 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                     onClick={() => handleMeasurementClick(templateItem.img, templateItem.prop as BothGenderSizingTemplateProps)}
                     onKeyDown={(e) => handleKeyPress(index, e)}
                     isSubmitted={isSubmitted}
+                    showSubmittedIndicator={false}
                     ref={(el) => { inputRefs.current[index] = el; }}
                   />
                 );
               })}
             </div>
-          )}
+            )}
             {/* Mobile Actions */}
-            <div className="lg:hidden mt-6 flex justify-end gap-3">
+            <div className="lg:hidden flex justify-end gap-3">
               {isEditable && !isInUse && (
                 <AddToJobDropdown
                   templateId={sizingTemplateId}
@@ -522,7 +550,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
               )}
               
               {/* Desktop Actions */}
-              <div className="hidden lg:flex justify-end gap-3 mt-6">
+              <div className="hidden lg:flex justify-end gap-3">
                 {isEditable && !isInUse && (
                   <AddToJobDropdown
                     templateId={sizingTemplateId}

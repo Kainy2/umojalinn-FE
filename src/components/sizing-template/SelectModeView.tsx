@@ -4,7 +4,7 @@
  * Used when template is IN_USE but no measurement points have been requested yet.
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import Image from "next/image";
@@ -32,9 +32,10 @@ import {
 import { FEMALE_SIZING_TEMPLATE, MALE_SIZING_TEMPLATE } from "@/constant/sizingTemplate";
 import UKStandardSizeRow from "./UKStandardSizeRow";
 import DisabledTemplateItems from "./DisabledTemplateItems";
+import { useRouter } from "next/navigation";
 
 type SelectModeViewProps = {
-  projectId: string;
+  projectId?: string;
   bidId?: string; // Optional bidId for bid-based API
   projectName?: string;
   buyerName?: string;
@@ -62,11 +63,11 @@ const SelectModeView = ({
   onSuccess,
   onUnitChange,
 }: SelectModeViewProps) => {
-  const defaultTemplate = gender === "MALE" ? MALE_SIZING_TEMPLATE : FEMALE_SIZING_TEMPLATE
   const [selectedPoints, setSelectedPoints] = useState<string[]>([]);
-  const [previewImage, setPreviewImage] = useState<string | null>(defaultTemplate[1].img);
-  const [previewName, setPreviewName] = useState<string | null>(defaultTemplate[1].name);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [previewName, setPreviewName] = useState<string | null>(null);
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
+  const router = useRouter()
 
   // Hook for template-based API (existing)
   const { mutate: requestPointsOnTemplate, isPending: isPendingTemplate } =
@@ -77,7 +78,7 @@ const SelectModeView = ({
   // Hook for bid-based API (new)
   const { mutate: requestPointsOnBid, isPending: isPendingBid } =
     useRequestMeasurementPointsOnBid({
-      onSuccess: () => onSuccess?.(),
+      onSuccess: () => router.push(`/bids/${bidId}/edit`),
     });
 
   const isPending = isPendingTemplate || isPendingBid;
@@ -94,7 +95,7 @@ const SelectModeView = ({
 
   const handleSubmit = () => {
     // Check if template exists on project
-    if (hasTemplate) {
+    if (hasTemplate && projectId) {
       // Use template-based API (existing)
       requestPointsOnTemplate({
         projectId,
@@ -126,6 +127,14 @@ const SelectModeView = ({
     setPreviewImage(img);
     setPreviewName(name);
   };
+
+  useEffect(()=>{
+    if (!gender) return;
+
+    const defaultTemplate = gender === "MALE" ? MALE_SIZING_TEMPLATE : FEMALE_SIZING_TEMPLATE
+    setPreviewImage(defaultTemplate[0].img)
+    setPreviewName(defaultTemplate[1].name)
+  }, [gender])
 
   return (
     <div className="min-h-screen bg-background">
@@ -206,80 +215,88 @@ const SelectModeView = ({
 
               {/* Measurement Points with Checkboxes */}
               <div className="flex flex-col gap-2">
-                <DisabledTemplateItems
-                  title={gender}
-                />
-                {/* <DisabledItems
+                {!hasTemplate && (
+                  <>
+                    <DisabledTemplateItems title={gender} />
+                    {/* <DisabledItems
                   title="Uk Standard Size"
                   value={ukStandardSize ?? "-"}
                 /> */}
-                <UKStandardSizeRow
-                  gender={gender}
-                  value={ukStandardSize ?? null}
-                  highlighted={false}
-                  disabled
-                  onChange={()=>{}}
-                  onShowChart={()=>{}}
-                />
-                <DisabledTemplateItems
-                  title="Height"
-                  value={height ?? "-"}
-                />
+                    <UKStandardSizeRow
+                      gender={gender}
+                      value={ukStandardSize ?? null}
+                      highlighted={false}
+                      disabled
+                      onChange={() => {}}
+                      onShowChart={() => {}}
+                    />
+                    <DisabledTemplateItems
+                      title="Height"
+                      value={height ?? "-"}
+                    />
+                  </>
+                )}
 
-                {template.filter(point => point.name !== 'Height').map((point, index) => {
-                  const isSelected = selectedPoints.includes(point.prop);
-                  return (
-                    <div
-                      key={point.prop}
-                      onClick={() => handleToggle(point.prop)}
-                      onMouseEnter={() =>
-                        handlePointHover(point.img, point.name)
-                      }
-                      style={{ animationDelay: `${(index + 4) * 30}ms` }}
-                      className={cn(
-                        "flex items-center justify-between p-3 rounded-lg border transition-all duration-200 cursor-pointer group animate-in fade-in slide-in-from-left-2",
-                        isSelected
-                          ? "bg-primary border-primary shadow-sm scale-[1.01]"
-                          : "bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm"
-                      )}
-                    >
-                      <div className="flex items-center gap-3">
-                        <Checkbox
-                          checked={isSelected}
-                          onCheckedChange={() => handleToggle(point.prop)}
-                          onClick={() => handleToggle(point.prop)}
-                          className={cn(
-                            "transition-all duration-200",
-                            isSelected &&
-                              "border-white bg-white data-[state=checked]:bg-white data-[state=checked]:text-primary"
-                          )}
-                        />
-                        <span
-                          className={cn(
-                            "text-sm font-medium transition-colors",
-                            isSelected ? "text-white" : "text-foreground-body"
-                          )}
-                        >
-                          {point.name}
-                        </span>
-                      </div>
-                      <div 
-                        className="md:hidden"
-                        onClick={(e) => { e.stopPropagation(); }} 
-                        onMouseEnter={e=>e.stopPropagation()} 
-                        onMouseLeave={e=>e.stopPropagation()}
+                {template
+                  .filter((point) => point.name !== "Height")
+                  .map((point, index) => {
+                    const isSelected = selectedPoints.includes(point.prop);
+                    return (
+                      <div
+                        key={point.prop}
+                        onClick={() => handleToggle(point.prop)}
+                        onMouseEnter={() =>
+                          handlePointHover(point.img, point.name)
+                        }
+                        style={{ animationDelay: `${(index + 4) * 30}ms` }}
+                        className={cn(
+                          "flex items-center justify-between p-3 rounded-lg border transition-all duration-200 cursor-pointer group animate-in fade-in slide-in-from-left-2",
+                          isSelected
+                            ? "bg-primary border-primary shadow-sm scale-[1.01]"
+                            : "bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm"
+                        )}
                       >
-                        <HelpCirclePreview
-                          previewImage={previewImage || ""}
-                          previewName={previewName || ""}
-                          isSelected={isSelected}
-                          open={mobilePreviewOpen && previewName === point.name}
-                          onOpenChange={setMobilePreviewOpen}
+                        <div className="flex items-center gap-3">
+                          <Checkbox
+                            checked={isSelected}
+                            onCheckedChange={() => handleToggle(point.prop)}
+                            onClick={() => handleToggle(point.prop)}
+                            className={cn(
+                              "transition-all duration-200",
+                              isSelected &&
+                                "border-white bg-white data-[state=checked]:bg-white data-[state=checked]:text-primary"
+                            )}
                           />
+                          <span
+                            className={cn(
+                              "text-sm font-medium transition-colors",
+                              isSelected ? "text-white" : "text-foreground-body"
+                            )}
+                          >
+                            {point.name}
+                          </span>
+                        </div>
+                        <div
+                          className="md:hidden"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                          }}
+                          onMouseEnter={(e) => e.stopPropagation()}
+                          onMouseLeave={(e) => e.stopPropagation()}
+                        >
+                          <HelpCirclePreview
+                            previewImage={previewImage || ""}
+                            previewName={previewName || ""}
+                            isSelected={isSelected}
+                            open={
+                              mobilePreviewOpen && previewName === point.name
+                            }
+                            onOpenChange={setMobilePreviewOpen}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
               </div>
 
               {/* Mobile Actions */}

@@ -54,9 +54,9 @@ const ActionButtons = ({
         <Button
           onClick={onSubmit}
           disabled={loading || saveDisabled || submitDisabled}
-          className="min-w-[120px] transition-all duration-200 hover:scale-[1.02]"
+          className="min-w-[80px] h-8 rounded-md transition-all duration-200 hover:scale-[1.02]"
         >
-          {loading && <Loader2 className="size-4 animate-spin mr-2" />}
+          {loading && <Loader2 className="size-2 animate-spin mr-2" />}
           {submitText}
         </Button>
       )}

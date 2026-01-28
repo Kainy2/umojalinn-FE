@@ -219,9 +219,9 @@ const MileStoneCard = (props: MileStoneCardProps) => {
       {footer}
       <div className="flex gap-4 items-center">
         <button
-          // disabled={}
+          disabled={props.loadingSave}
           onClick={() => onSave({ ...editedValues, id })}
-          className="text-left items-center w-fit flex text-sm text-primary [&>svg]:size-5 gap-2"
+          className="text-left items-center w-fit flex text-sm text-primary [&>svg]:size-5 gap-2 disabled:opacity-50"
         >
           <Save />
           Save

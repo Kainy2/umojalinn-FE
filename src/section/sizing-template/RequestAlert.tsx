@@ -35,6 +35,7 @@ import { BID, PROJECT, SIZING_TEMPLATE } from "@/tanstack/keys";
 import { useSession } from "next-auth/react";
 
 const RequestSizingTemplateAlert = () => {
+  // id here is bid id
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { data: bidData, refetch: refetchBid } = useGetBidById(id);
@@ -55,9 +56,9 @@ const RequestSizingTemplateAlert = () => {
       queryclient.invalidateQueries({ queryKey: [BID, { id: bid?.id, role: session?.user.profileRole }]});
       queryclient.invalidateQueries({queryKey: [PROJECT] });
       queryclient.invalidateQueries({queryKey: [SIZING_TEMPLATE] });      
-      // Navigate to measurement points selection page after successful request
+      // Navigate to measurement points selection page after successful request since template hasnt been added
       if (project?.id && id) {
-        router.push(`/active-jobs/${uuidToBase62Safe(id)}/request-measurements`);
+        router.push(`/sizing-templates/request/${uuidToBase62Safe(id)}`);
       }
     },
   });
@@ -206,7 +207,6 @@ const RequestSizingTemplateAlert = () => {
           disabled={requestSuccessful}
           onClick={() => requestSizingTemplate(project?.id) }
           >
-          {/* console.log({ queryKey: [BID, { id: bid.id, role: me?.data.data.role }]}); */}
           {requestSuccessful ? "Requested" : "Request"}
         </Button>
       </div>

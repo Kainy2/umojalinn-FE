@@ -36,6 +36,7 @@ type MeasurementPointRowProps = {
   onAddComment?: (comment: string) => void;
   onDeleteComment?: () => void;
   isSubmitted?: boolean;
+  showSubmittedIndicator?: boolean; // Controls visibility of green highlight for submitted fields
 };
 
 const MeasurementPointRow = forwardRef<HTMLInputElement, MeasurementPointRowProps>((props, ref) => {
@@ -68,7 +69,7 @@ const MeasurementPointRow = forwardRef<HTMLInputElement, MeasurementPointRowProp
           ? "bg-primary text-white shadow-sm scale-[1.01]"
           : "bg-white border border-gray-200 hover:border-gray-300 hover:shadow-sm",
         props.selected && props.recommendMode && "border-primary bg-amber-50 scale-[1.01]",
-        props.isSubmitted && "border-green-500 bg-green-50"
+        props.isSubmitted && props.showSubmittedIndicator && "border-green-500 bg-green-50"
       )}
     >
       {/* Left side: Checkbox, Label, Submitted indicator */}
@@ -93,7 +94,7 @@ const MeasurementPointRow = forwardRef<HTMLInputElement, MeasurementPointRowProp
         >
           {props.label}
         </label>
-        {props.isSubmitted && (
+        {props.isSubmitted && props.showSubmittedIndicator && (
           <div className="size-5 bg-green-500 rounded-full flex items-center justify-center animate-in zoom-in-0 duration-300">
             <Check className="size-3 text-white" />
           </div>

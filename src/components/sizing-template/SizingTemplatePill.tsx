@@ -219,19 +219,21 @@ const SizingTemplatePill = ({
 
   // Determine pill state
   const getPillState = (): PillState | null => {
-    const requestedMeasurementPoints = sizingTemplate?.requestedMeasurementPoints;
-    const submittedMeasurementPoints = sizingTemplate?.submittedMeasurementPoints;
+    const requestedMeasurementPoints = sizingTemplate?.requestedMeasurementPoints || bid?.requestedMeasurementPoints;
+    const submittedMeasurementPoints = sizingTemplate?.submittedMeasurementPoints
 
 		if (isLoadingTemplate || isLoadingBid || isLoadingProject || isLoadingProfile) return null;
 
     if (isDesigner) {
       // Designer states
-      if (!sizingTemplateId && !sizingTemplateRequested) return "NO_TEMPLATE";
-      if (sizingTemplateRequested && !sizingTemplateId) return "AWAITING_SIZING_TEMPLATE";
-      if (sizingTemplateId && !requestedMeasurementPoints?.length) return "SELECT_MEASUREMENT_POINTS";
-      if (sizingTemplateId && requestedMeasurementPoints?.length && !submittedMeasurementPoints?.length)
+      if (!sizingTemplateId && !sizingTemplateRequested) return "AWAITING_SIZING_TEMPLATE";
+      // if (sizingTemplateRequested && !sizingTemplateId) return "AWAITING_SIZING_TEMPLATE";
+      if (!requestedMeasurementPoints?.length) return "SELECT_MEASUREMENT_POINTS";
+      if (requestedMeasurementPoints?.length && !submittedMeasurementPoints?.length)
         return "AWAITING_BUYER_MEASUREMENTS";
       if (sizingTemplateId && submittedMeasurementPoints?.length) return "VIEW_TEMPLATE";
+
+      return "AWAITING_SIZING_TEMPLATE";
     } else {
       // Buyer states
       if (!sizingTemplateId) return "ADD_TEMPLATE";
@@ -365,6 +367,8 @@ const SizingTemplatePill = ({
       requestSizingTemplate(project?.id)
     }
   }
+  console.log({ handleRequestTemplate });
+  
 
   const navigateToViewPage = () => {
     if (sizingTemplateId && project?.id) {
@@ -443,21 +447,21 @@ const SizingTemplatePill = ({
         //     className={className}
         //   />
         // );
-      case "AWAITING_SIZING_TEMPLATE":
-        // // Designer view - waiting for buyer to add template
-        return (
-          <AvatarIconTag
-          label="Request Sizing Template"
-          icon={
-              <span className="text-white [&>svg]:size-5 size-7 rounded-full bg-red-500 flex items-center justify-center">
-                <Plus />
-              </span>
-            }
-            onClick={handleRequestTemplate}
-            disabled={!project?.id}
-            className={cn("cursor-pointer transition-transform hover:scale-[1.02] border border-red-500 border-dashed", className)}
-          />
-        );
+      // case "AWAITING_SIZING_TEMPLATE":
+      //   // // Designer view - waiting for buyer to add template
+      //   return (
+      //     <AvatarIconTag
+      //     label="Request Sizing Template"
+      //     icon={
+      //         <span className="text-white [&>svg]:size-5 size-7 rounded-full bg-red-500 flex items-center justify-center">
+      //           <Plus />
+      //         </span>
+      //       }
+      //       onClick={handleRequestTemplate}
+      //       disabled={!project?.id}
+      //       className={cn("cursor-pointer transition-transform hover:scale-[1.02] border border-red-500 border-dashed", className)}
+      //     />
+      //   );
 
       case "ADD_TEMPLATE":
         // Buyer view - can add template
@@ -478,6 +482,8 @@ const SizingTemplatePill = ({
           </div>
         );
 
+      case "AWAITING_SIZING_TEMPLATE":
+        // // Designer view - waiting for buyer to add template
       case "SELECT_MEASUREMENT_POINTS":
         // Designer view - need to select measurement points and request them from buyer
         return (
@@ -517,17 +523,17 @@ const SizingTemplatePill = ({
         // Designer view - waiting for buyer to submit measurements
         return (
           <div 
-            onClick={navigateToRequestPage}
+            // onClick={navigateToRequestPage}
             className="transition-transform opacity-50"
           >
             <AvatarIconTag
               label="Template Requested"
               icon={
-                <span className="text-white [&>svg]:size-5 size-7 rounded-full bg-gray-500 flex items-center justify-center">
+                <span className="text-white [&>svg]:size-5 size-7 rounded-full bg-gray-500 flex items-center justify-center ">
                   <Plus />
                 </span>
               }
-              className={cn("bg-gray-50 border border-gray-500 border-dashed", className)}
+              className={cn("bg-gray-50 border border-gray-500 border-dashed  cursor-not-allowed", className)}
             />
           </div>
         );
