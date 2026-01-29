@@ -205,7 +205,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
         height={typeof value?.height === "number" ? value.height : null}
         template={TEMPLATE}
         hasTemplate={!!sizingTemplateId}
-        onSuccess={() => router.push(`/active-jobs/${props.bidId}`)}
+        onSuccess={() => router.push(`/active-jobs/${effectiveProjectId}`)}
         onUnitChange={handleUnitChange}
       />
     );
@@ -216,6 +216,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
 
     return (
       <FillModeView
+        key={gender}
         templateId={sizingTemplateResult.id}
         projectId={effectiveProjectId}
         templateName={name}
@@ -246,7 +247,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
         requestedMeasurementPoints={requestedMeasurementPoints}
         currentValues={value}
         template={TEMPLATE}
-        onSuccess={() => router.push("/sizing-templates")}
+        onSuccess={() => router.push(`/projects/${effectiveProjectId}`)}
         onUnitChange={handleUnitChange}
       />
     );
@@ -283,9 +284,9 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                 <div className="animate-in fade-in duration-300">
                   <h1 className="text-lg font-bold text-foreground-body mb-6">{name}</h1>
                   <div className="space-y-10 items-start sm:items-center mb-6">
-                    <GenderTabs gender={gender} onChange={() => {}} disabled />
-                      <div className="flex justify-end items-center">
-                        {/* <h3 className="text-md font-semibold text-foreground-body">Units</h3>  */}
+                    {/* <GenderTabs gender={gender} onChange={() => {}} disabled /> */}
+                      <div className="flex justify-between items-center">
+                        <h3 className="text-md font-semibold text-foreground-body">Units</h3> 
                         <UnitSelector unit={unit} onChange={handleUnitChange} />
                       </div>
                   </div>
@@ -294,6 +295,25 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
 
 
                 <div className="flex flex-col gap-2">
+                  <DisabledTemplateItems
+                      title={gender}
+                    />
+
+                  {/* UK Standard Size Row */}
+                  <UKStandardSizeRow
+                    gender={gender}
+                    value={value?.ukStandardSize ?? null}
+                    onChange={()=>{}}
+                    onShowChart={()=>{}}
+                    highlighted={false}
+                    disabled
+                  />
+
+                  <DisabledTemplateItems
+                    title="Height"
+                    value={value?.height ? `${value?.height} ${unit}`: "-"}
+                  />
+
                   {(!recommendationMode ? (hasRequestedPoints ? TEMPLATE.filter(item => requestedMeasurementPoints.includes(item.prop)) : TEMPLATE) : TEMPLATE).map((item, index) => {
                     const itemValue = value?.[item.prop];
                     const isSubmitted = (sizingTemplateResult?.submittedMeasurementPoints ?? []).includes(item.prop);
@@ -380,7 +400,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl">
         {/* Banners */}
-        {!hasRequestedPoints && effectiveProjectId && (
+        {!hasRequestedPoints && (effectiveProjectId) && (
           <ReminderBanner
             message="Designer has not sent the measurement points"
             onSendReminder={handleSendReminder}
@@ -431,7 +451,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
               <UnitSelector
                 unit={unit}
                 onChange={handleUnitChange}
-                disabled={!isEditable}
+                // disabled={!isEditable}
               />
             </div>
 

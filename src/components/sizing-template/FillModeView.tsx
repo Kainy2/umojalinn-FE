@@ -9,10 +9,12 @@ import { Button } from "@/components/ui/button";
 import { cn, removeNonDigits } from "@/lib/utils";
 import { UmojaLinnSizingTemplate, UmojaLinnFemaleSizingTemplateProps, UmojaLinnMaleSizingTemplateProps, UmojalinnStandardSize } from "@/types/project";
 import { useSubmitMeasurementPoints, useSaveMeasurementPoints } from "@/tanstack/hooks/useSizingTemplates";
-import GenderSelector from "./GenderSelector";
+// import GenderSelector from "./GenderSelector";
 import UnitSelector from "./UnitSelector";
 import MeasurementGuide from "./MeasurementGuide";
 import { FEMALE_SIZING_TEMPLATE, MALE_SIZING_TEMPLATE } from "@/constant/sizingTemplate";
+import DisabledTemplateItems from "./DisabledTemplateItems";
+import UKStandardSizeRow from "./UKStandardSizeRow";
 
 type MeasurementValues = Partial<UmojaLinnFemaleSizingTemplateProps & UmojaLinnMaleSizingTemplateProps>;
 
@@ -134,15 +136,38 @@ const FillModeView = ({
 
               {/* Controls */}
               <div className="flex justify-between gap-4 items-start sm:items-center animate-in fade-in duration-300 delay-75">
-                <GenderSelector gender={gender} disabled />
+                {/* <GenderSelector gender={gender} disabled /> */}
+                <h3 className="text-md font-semibold text-foreground-body">Units</h3>
+
                 <UnitSelector
                   unit={unit}
                   onChange={(onChangeUnit) => onUnitChange?.(onChangeUnit)}
                 />
               </div>
 
+              <div className="flex flex-col gap-2">
+                <DisabledTemplateItems
+                    title={gender}
+                  />
+
+                {/* UK Standard Size Row */}
+                <UKStandardSizeRow
+                  gender={gender}
+                  value={ukStandardSize ?? null}
+                  onChange={()=>{}}
+                  onShowChart={()=>{}}
+                  highlighted={false}
+                  disabled
+                />
+
+                <DisabledTemplateItems
+                  title="Height"
+                  value={height ? `${height} ${unit}`: "-"}
+                />
+              </div>
+
               {/* Default Fields (read-only) */}
-              <div className="flex flex-col gap-2 animate-in fade-in duration-300 delay-100">
+              {/* <div className="flex flex-col gap-2 animate-in fade-in duration-300 delay-100">
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg text-sm">
                   <span className="font-medium">UK Standard Size</span>
                   {ukStandardSize && (
@@ -157,7 +182,7 @@ const FillModeView = ({
                     </span>
                   )}
                 </div>
-              </div>
+              </div> */}
 
               {/* Requested Measurement Points */}
               <div className="flex flex-col gap-2">
@@ -258,21 +283,21 @@ const FillModeView = ({
               />
 
               {/* Desktop Actions */}
-              <div className="hidden lg:flex flex-col gap-3 mt-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                <Button
+              <div className="hidden lg:flex justify-end gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                {/* <Button
                   variant="outline"
                   onClick={handleSave}
                   disabled={isLoading}
                   loading={isSaving}
-                  className="w-full hover:scale-[1.02] transition-transform"
+                  className="max-w-40 h-10 rounded-md hover:scale-[1.02] transition-transform"
                 >
                   Save
-                </Button>
+                </Button> */}
                 <Button
                   onClick={handleSubmit}
                   disabled={isLoading}
                   loading={isSubmitting}
-                  className="w-full hover:scale-[1.02] transition-transform"
+                  className="max-w-40 h-10 rounded-md hover:scale-[1.02] transition-transform"
                 >
                   Submit
                 </Button>
