@@ -8,7 +8,7 @@ import { TEMPLATE_MODE } from "@/types/constants";
 import MeasurementGuide from "./MeasurementGuide";
 import SuccessMessage from "./SuccessMessage";
 import ActionButtons from "./ActionButtons";
-import RequestSizingTemplateViewCard from "@/components/custom/card/RequestSIzingTemplateView";
+// import RequestSizingTemplateViewCard from "@/components/custom/card/RequestSIzingTemplateView";
 import GenderTabs from "./GenderTabs";
 import UnitSelector from "./UnitSelector";
 import MeasurementPointRow from "./MeasurementPointRow";
@@ -205,7 +205,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
         height={typeof value?.height === "number" ? value.height : null}
         template={TEMPLATE}
         hasTemplate={!!sizingTemplateId}
-        onSuccess={() => router.push(`/active-jobs/${props.bidId}`)}
+        onSuccess={() => router.push(`/active-jobs/${effectiveProjectId}`)}
         onUnitChange={handleUnitChange}
       />
     );
@@ -216,6 +216,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
 
     return (
       <FillModeView
+        key={gender}
         templateId={sizingTemplateResult.id}
         projectId={effectiveProjectId}
         templateName={name}
@@ -246,7 +247,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
         requestedMeasurementPoints={requestedMeasurementPoints}
         currentValues={value}
         template={TEMPLATE}
-        onSuccess={() => router.push("/sizing-templates")}
+        onSuccess={() => router.push(`/projects/${effectiveProjectId}`)}
         onUnitChange={handleUnitChange}
       />
     );
@@ -283,9 +284,9 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                 <div className="animate-in fade-in duration-300">
                   <h1 className="text-lg font-bold text-foreground-body mb-6">{name}</h1>
                   <div className="space-y-10 items-start sm:items-center mb-6">
-                    <GenderTabs gender={gender} onChange={() => {}} disabled />
-                      <div className="flex justify-end items-center">
-                        {/* <h3 className="text-md font-semibold text-foreground-body">Units</h3>  */}
+                    {/* <GenderTabs gender={gender} onChange={() => {}} disabled /> */}
+                      <div className="flex justify-between items-center">
+                        <h3 className="text-md font-semibold text-foreground-body">Units</h3> 
                         <UnitSelector unit={unit} onChange={handleUnitChange} />
                       </div>
                   </div>
@@ -294,9 +295,27 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
 
 
                 <div className="flex flex-col gap-2">
-                  {(!recommendationMode ? (hasRequestedPoints ? TEMPLATE.filter(item => requestedMeasurementPoints.includes(item.prop)) : TEMPLATE) : TEMPLATE).map((item, index) => {
+                  <DisabledTemplateItems
+                      title={gender}
+                    />
+
+                  {/* UK Standard Size Row */}
+                  <UKStandardSizeRow
+                    gender={gender}
+                    value={value?.ukStandardSize ?? null}
+                    onChange={()=>{}}
+                    onShowChart={()=>{}}
+                    highlighted={false}
+                    disabled
+                  />
+
+                  <DisabledTemplateItems
+                    title="Height"
+                    value={value?.height ? `${value?.height} ${unit}`: "-"}
+                  />
+
+                  {(hasRequestedPoints ? TEMPLATE.filter(item => requestedMeasurementPoints.includes(item.prop)) : TEMPLATE).map((item, index) => {
                     const itemValue = value?.[item.prop];
-                    const isSubmitted = (sizingTemplateResult?.submittedMeasurementPoints ?? []).includes(item.prop);
                     return (
                       <MeasurementPointRow
                         key={item.prop}
@@ -307,11 +326,12 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                         label={item.name}
                         highlighted={highlighted === item.prop}
                         metadata={{ review: sizingTemplateResult?.metadata?.reviews?.[item.prop], img: item?.img }}
-                        onClick={() => handleMeasurementClick(item.img, item.prop as keyof (UmojaLinnFemaleSizingTemplateProps | UmojaLinnMaleSizingTemplateProps))}
+                        onClick={() => {
+                          handleSelectMeasurement(item.prop)
+                          handleMeasurementClick(item.img, item.prop as keyof (UmojaLinnFemaleSizingTemplateProps | UmojaLinnMaleSizingTemplateProps))
+                        }}
                         onKeyDown={(e) => handleKeyPress(index, e)}
                         ref={(el) => { inputRefs.current[index] = el; }}
-                        isSubmitted={isSubmitted}
-                        showSubmittedIndicator={true}
                         {...(recommendationMode && {
                           recommendMode: true,
                           selected: selectedMeasurements.includes(item.prop),
@@ -331,7 +351,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
               {recommendationMode ? (
                 <div className="lg:hidden mt-6 flex gap-3">
                   <Button variant="outline" onClick={() => setRecommendationMode(false)} className="flex-1">Cancel</Button>
-                  <Button onClick={handleSubmitRecommendations} disabled={loading || Object.keys(measurementComments).length === 0} className="flex-1">Submit Changes</Button>
+                  <Button onClick={handleSubmitRecommendations} disabled={loading || Object.keys(measurementComments).length === 0} className="flex-1">Submit</Button>
                 </div>
               ) : hasSubmittedPoints && (
                 <div className="lg:hidden mt-6">
@@ -352,21 +372,35 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
 
                 {/* Desktop Actions - Recommend Changes only shows after buyer submits */}
                 {recommendationMode ? (
-                  <div className="hidden lg:flex flex-col gap-3 mt-6">
-                    <Button variant="outline" onClick={() => setRecommendationMode(false)}>Cancel</Button>
-                    <Button onClick={handleSubmitRecommendations} disabled={loading || Object.keys(measurementComments).length === 0} className="w-full">Submit Changes</Button>
-                  </div>
+                  <div className="hidden lg:flex gap-3 justify-end">
+                  <Button
+                    variant="outline"
+                    onClick={() => setRecommendationMode(false)}
+                    className="h-8 rounded-md"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleSubmitRecommendations}
+                    disabled={
+                      loading || Object.keys(measurementComments).length === 0
+                    }
+                    className="h-8 rounded-md"
+                  >
+                    Submit Changes
+                  </Button>
+                </div>
                 ) : hasSubmittedPoints && (
                   <div className="hidden lg:block mt-6">
                     <Button disabled={loading} onClick={() => setRecommendationMode(true)} className="w-full">Recommend Changes</Button>
                   </div>
                 )}
 
-                {highlighted && (measurementComments[highlighted] || sizingTemplateResult?.metadata?.reviews?.[highlighted]) && (
+                {/* {highlighted && (measurementComments[highlighted] || sizingTemplateResult?.metadata?.reviews?.[highlighted]) && (
                   <div className="hidden lg:block mt-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
                     <RequestSizingTemplateViewCard title={highlightedSizingName} review={measurementComments[highlighted] || sizingTemplateResult?.metadata?.reviews?.[highlighted] || ""} />
                   </div>
-                )}
+                )} */}
               </div>
             </div>
           </div>
@@ -380,7 +414,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl">
         {/* Banners */}
-        {!hasRequestedPoints && effectiveProjectId && (
+        {!hasRequestedPoints && (effectiveProjectId) && (
           <ReminderBanner
             message="Designer has not sent the measurement points"
             onSendReminder={handleSendReminder}
@@ -431,7 +465,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
               <UnitSelector
                 unit={unit}
                 onChange={handleUnitChange}
-                disabled={!isEditable}
+                // disabled={!isEditable}
               />
             </div>
 
@@ -487,7 +521,6 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                 const itemValue = value?.[templateItem.prop as keyof typeof value];
                 const reviews = sizingTemplateResult?.metadata?.reviews as Record<string, string> | undefined;
                 const reviewValue = reviews?.[templateItem.prop];
-                const isSubmitted = (sizingTemplateResult?.submittedMeasurementPoints ?? []).includes(templateItem.prop);
 
                 return (
                   <MeasurementPointRow
@@ -503,8 +536,6 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                     metadata={{ review: reviewValue, img: templateItem?.img }}
                     onClick={() => handleMeasurementClick(templateItem.img, templateItem.prop as BothGenderSizingTemplateProps)}
                     onKeyDown={(e) => handleKeyPress(index, e)}
-                    isSubmitted={isSubmitted}
-                    showSubmittedIndicator={false}
                     ref={(el) => { inputRefs.current[index] = el; }}
                   />
                 );

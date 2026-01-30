@@ -96,13 +96,13 @@ export const useSizingTemplateDialog = (
     const searchParams = useSearchParams();
     const urlProjectId = searchParams.get("projectId");
     const sizingTemplateId = props.id;
-    const effectiveProjectId = props.projectId || urlProjectId || undefined;
+		const sizingTemplateResult = sizingTemplateData?.data.data
+    const effectiveProjectId = props.projectId || urlProjectId || sizingTemplateResult?.projects[0].id || undefined;
   
     // Fetch project data if we have a project ID
     const { data: projectData } = useGetProjectById(effectiveProjectId);
     const project = projectData?.data?.data;
 		
-		const sizingTemplateResult = sizingTemplateData?.data.data
 		const isDesigner = session?.user?.profileRole === "DESIGNER";
 		const TEMPLATE = gender === "FEMALE" ? FEMALE_SIZING_TEMPLATE : MALE_SIZING_TEMPLATE;
 		const noOfInputs = TEMPLATE?.length;
@@ -377,6 +377,9 @@ export const useSizingTemplateDialog = (
 
   const isNewTemplate =
   !isDesigner && templateMode === 'EDIT' && !sizingTemplateId && !effectiveProjectId
+
+  console.log({templateMode})
+
 
   return{
 		loading,
