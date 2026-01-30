@@ -68,7 +68,7 @@ const MeasurementForm = ({
 }: MeasurementFormProps) => {
   const isEditable = modalType === "EDIT";
   const areDefaultFieldsLocked = sizingTemplateResult?.defaultFieldsLocked ?? false;
-  const submittedPoints = sizingTemplateResult?.submittedMeasurementPoints ?? [];
+  // const submittedPoints = sizingTemplateResult?.submittedMeasurementPoints ?? [];
 
   return (
     <div className={cn("flex flex-col gap-6", className)}>
@@ -109,7 +109,7 @@ const MeasurementForm = ({
           const reviewValue =
             (recommendationMode ? reviewsEdit?.[templateItem.prop as keyof typeof reviewsEdit] : undefined) ??
             sizingTemplateResult?.metadata?.reviews?.[templateItem.prop as string];
-          const isSubmitted = submittedPoints.includes(templateItem.prop);
+          // const isSubmitted = submittedPoints.includes(templateItem.prop);
 
           return (
             <MeasurementPointRow
@@ -126,7 +126,7 @@ const MeasurementForm = ({
               metadata={{ review: reviewValue, img: templateItem?.img }}
               onClick={() => onMeasurementClick(templateItem.img, templateItem.prop as string)}
               onKeyDown={(e) => onKeyPress(index, e)}
-              isSubmitted={isSubmitted}
+              // isSubmitted={isSubmitted}
               ref={(el) => { inputRefs.current[index] = el; }}
             />
           );

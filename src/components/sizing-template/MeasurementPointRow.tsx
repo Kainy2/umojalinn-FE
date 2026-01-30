@@ -7,7 +7,7 @@
 import React, { useId, forwardRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { UmojaLinnSizingTemplate } from "@/types/project";
-import { MessageCircleQuestion, MessageCircle, Trash2, MessageCirclePlus, Check } from "lucide-react";
+import { MessageCircleQuestion, MessageCircle, Trash2, MessageCirclePlus } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import Image from "next/image";
 import RequestSizingTemplateViewCard from "@/components/custom/card/RequestSIzingTemplateView";
@@ -35,8 +35,6 @@ type MeasurementPointRowProps = {
   comment?: string;
   onAddComment?: (comment: string) => void;
   onDeleteComment?: () => void;
-  isSubmitted?: boolean;
-  showSubmittedIndicator?: boolean; // Controls visibility of green highlight for submitted fields
 };
 
 const MeasurementPointRow = forwardRef<HTMLInputElement, MeasurementPointRowProps>((props, ref) => {
@@ -44,8 +42,7 @@ const MeasurementPointRow = forwardRef<HTMLInputElement, MeasurementPointRowProp
   const [showAddCommentModal, setShowAddCommentModal] = useState(false);
   const [showDeleteCommentModal, setShowDeleteCommentModal] = useState(false);
 
-  const handleCheckboxClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleCheckboxClick = () => {
     props.onSelect?.();
   };
 
@@ -60,84 +57,83 @@ const MeasurementPointRow = forwardRef<HTMLInputElement, MeasurementPointRowProp
   };
 
   return (
-    <div
-      onClick={props.onClick}
-      className={cn(
-        "flex justify-between items-center p-3 rounded-lg transition-all duration-200",
-        props.recommendMode ? "cursor-default" : "cursor-pointer hover:scale-[1.01]",
-        props.highlighted && !props.recommendMode
-          ? "bg-primary text-white shadow-sm scale-[1.01]"
-          : "bg-white border border-gray-200 hover:border-gray-300 hover:shadow-sm",
-        props.selected && props.recommendMode && "border-primary bg-amber-50 scale-[1.01]",
-        props.isSubmitted && props.showSubmittedIndicator && "border-green-500 bg-green-50"
-      )}
-    >
-      {/* Left side: Checkbox, Label, Submitted indicator */}
-      <div className="flex items-center gap-3">
-        {props.recommendMode && (
-          <div onClick={handleCheckboxClick}>
-            <Checkbox
-              checked={props.selected}
-              onCheckedChange={props.onSelect}
-              className={cn("transition-all duration-200", props.selected && "border-primary data-[state=checked]:bg-primary")}
-            />
-          </div>
+    <div className="flex items-center gap-3">
+      <div
+        role="button"
+        onClick={props.onClick}
+        className={cn(
+          "flex flex-1 justify-between items-center p-3 rounded-lg transition-all duration-200 ",
+          props.recommendMode ? "cursor-default" : "cursor-pointer hover:scale-[1.01]",
+          props.highlighted && !props.recommendMode
+            ? "bg-primary text-white shadow-sm scale-[1.01]"
+            : "bg-white border border-gray-200 cursor-pointer hover:shadow-sm",
+          props.selected && props.recommendMode && "border-primary scale-[1.01]"
         )}
-        <label
-          className={cn(
-            "text-sm font-medium transition-colors",
-            props.highlighted && !props.recommendMode ? "text-white" : "text-foreground-body",
-            props.metadata?.review && !props.hasLiveProject && !props.highlighted && "text-error-700 font-semibold",
-            props.selected && props.recommendMode && "text-primary font-semibold"
+      >
+        {/* Left side: Checkbox, Label, Submitted indicator */}
+        <div className="flex items-center gap-3 ">
+          {props.recommendMode && (
+            <div role="button" onClick={handleCheckboxClick}>
+              <Checkbox
+                checked={props.selected}
+                onCheckedChange={props.onSelect}
+                className={cn("transition-all duration-200", props.selected && "border-primary data-[state=checked]:bg-primary")}
+              />
+            </div>
           )}
-          htmlFor={id}
-        >
-          {props.label}
-        </label>
-        {props.isSubmitted && props.showSubmittedIndicator && (
-          <div className="size-5 bg-green-500 rounded-full flex items-center justify-center animate-in zoom-in-0 duration-300">
-            <Check className="size-3 text-white" />
+          <label
+            className={cn(
+              "text-sm font-medium transition-colors cursor-pointer",
+              props.highlighted && !props.recommendMode ? "text-white" : "text-foreground-body",
+              props.metadata?.review && !props.hasLiveProject && !props.highlighted && "text-error-700 font-semibold",
+              props.hasComment && props.recommendMode && "text-red-600 font-semibold"
+            )}
+            htmlFor={id}
+          >
+            {props.label}
+          </label>
+        </div>
+        
+        {/* Right side: Value/Input, Actions */}
+        <div className="flex items-center gap-2">
+          <div className="text-sm rounded-full relative">
+            {props.disabled ? (
+              <span className={cn("text-right pr-10", props.unit === "INCH" && "pr-14", props.highlighted ? "text-white" : "text-gray-500")}>
+                {props.value || 0}
+              </span>
+            ) : (
+              <input
+                ref={ref}
+                className={cn(
+                  "text-right placeholder:text-gray-400 focus-visible:outline-none rounded-full p-1 pr-10 w-20",
+                  props.unit === "INCH" && "pr-14",
+                  props.highlighted ? "bg-white/10 text-white transition-all placeholder:text-white/70" : "text-gray-500 focus-visible:bg-gray-100"
+                )}
+                id={id}
+                type="number"
+                min={0}
+                max={999}
+                onChange={props.onValueChange}
+                value={props.value || ""}
+                placeholder="0"
+                onFocus={props.onFocus}
+                autoComplete="off"
+                disabled={props.disabled}
+                onClick={props.onClick}
+                onKeyDown={props.onKeyDown}
+              />
+            )}
+            <div className={cn("absolute inset-y-0 right-0 top-0.5 flex items-center pr-4 pointer-events-none text-xs", props.highlighted ? "text-white" : "text-gray-500")}>
+              {props.unit}
+            </div>
           </div>
-        )}
-      </div>
-      
-      {/* Right side: Value/Input, Actions */}
-      <div className="flex items-center gap-2">
-        <div className="text-sm rounded-full relative">
-          {props.disabled ? (
-            <span className={cn("text-right pr-10", props.unit === "INCH" && "pr-14", props.highlighted ? "text-white" : "text-gray-500")}>
-              {props.value || 0}
-            </span>
-          ) : (
-            <input
-              ref={ref}
-              className={cn(
-                "text-right placeholder:text-gray-400 focus-visible:outline-none rounded-full p-1 pr-10 w-20",
-                props.unit === "INCH" && "pr-14",
-                props.highlighted ? "bg-white/10 text-white transition-all placeholder:text-white/70" : "text-gray-500 focus-visible:bg-gray-100"
-              )}
-              id={id}
-              type="number"
-              min={0}
-              max={999}
-              onChange={props.onValueChange}
-              value={props.value || ""}
-              placeholder="0"
-              onFocus={props.onFocus}
-              autoComplete="off"
-              disabled={props.disabled}
-              onClick={props.onClick}
-              onKeyDown={props.onKeyDown}
-            />
-          )}
-          <div className={cn("absolute inset-y-0 right-0 top-0.5 flex items-center pr-4 pointer-events-none text-xs", props.highlighted ? "text-white" : "text-gray-500")}>
-            {props.unit}
-          </div>
+
         </div>
 
+      </div>
         {/* Recommend Mode Actions */}
         {props.recommendMode && props.selected && (
-          <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-2 duration-300" onClick={(e) => e.stopPropagation()}>
+          <div className="border border-primary p-2 rounded-lg transition-all flex items-center gap-2 animate-in fade-in slide-in-from-right-2 duration-300 bg-primary/50" onClick={(e) => e.stopPropagation()}>
             {!props.hasComment ? (
               <AddCommentModal
                 measurementName={props.label}
@@ -158,8 +154,8 @@ const MeasurementPointRow = forwardRef<HTMLInputElement, MeasurementPointRowProp
                   open={showAddCommentModal}
                   onOpenChange={setShowAddCommentModal}
                 >
-                  <button onClick={handleCommentClick} className="size-8 rounded-full bg-primary flex items-center justify-center hover:bg-primary/90 transition-all duration-200 hover:scale-110">
-                    <MessageCircle className="size-4 text-white" />
+                  <button onClick={handleCommentClick} className="size-8 rounded-full flex items-center justify-center bg-yellow-50 hover:bg-yellow-100 transition-all duration-200 hover:scale-110">
+                    <MessageCircle className="size-4 text-primary" />
                   </button>
                 </AddCommentModal>
                 <DeleteCommentModal
@@ -167,8 +163,8 @@ const MeasurementPointRow = forwardRef<HTMLInputElement, MeasurementPointRowProp
                   open={showDeleteCommentModal}
                   onOpenChange={setShowDeleteCommentModal}
                 >
-                  <button onClick={handleDeleteClick} className="size-8 rounded-full bg-red-50 flex items-center justify-center hover:bg-red-100 transition-all duration-200 hover:scale-110">
-                    <Trash2 className="size-4 text-red-600" />
+                  <button onClick={handleDeleteClick} className="size-8 rounded-full bg-yellow-50 flex items-center justify-center hover:bg-yellow-100 transition-all duration-200 hover:scale-110">
+                    <Trash2 className="size-4 text-primary" />
                   </button>
                 </DeleteCommentModal>
               </>
@@ -198,7 +194,6 @@ const MeasurementPointRow = forwardRef<HTMLInputElement, MeasurementPointRowProp
           </Dialog>
         )}
       </div>
-    </div>
   );
 });
 
