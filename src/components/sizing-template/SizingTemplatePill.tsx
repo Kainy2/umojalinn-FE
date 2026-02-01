@@ -17,7 +17,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createLucideIcon, Loader2, Plus } from "lucide-react";
+import { createLucideIcon, File, Loader2, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { uuidToBase62Safe } from "@/lib/uuid";
 // import { canSendReminder } from "@/lib/sizing-template-utils";
@@ -66,7 +66,8 @@ type PillState =
   | "AWAITING_BUYER_MEASUREMENTS"
   | "ADD_REQUESTED_MEASUREMENTS"
   | "VIEW_TEMPLATE"
-  | "VIEW_SIZING_RECOMMENDATIONS";
+  | "VIEW_SIZING_RECOMMENDATIONS"
+  | "VIEW_PDF";
 
 
 
@@ -232,6 +233,7 @@ const SizingTemplatePill = ({
       if (requestedMeasurementPoints?.length && !submittedMeasurementPoints?.length)
         return "AWAITING_BUYER_MEASUREMENTS";
       if (sizingTemplateId && submittedMeasurementPoints?.length) return "VIEW_TEMPLATE";
+      if (project?.sizingTemplatePdfUrl && project.status === "COMPLETED") return "VIEW_PDF";
 
       return "AWAITING_SIZING_TEMPLATE";
     } else {
@@ -243,6 +245,7 @@ const SizingTemplatePill = ({
       if (sizingTemplateId && requestedMeasurementPoints?.length && submittedMeasurementPoints?.length && sizingTemplate?.metadata?.reviews && Object.values(sizingTemplate?.metadata?.reviews).some(Boolean))
         return "VIEW_SIZING_RECOMMENDATIONS";
       if (sizingTemplateId && submittedMeasurementPoints?.length) return "VIEW_TEMPLATE";
+      if (project?.sizingTemplatePdfUrl && project.status === "COMPLETED") return "VIEW_PDF";
     }
 
     return "NO_TEMPLATE";
@@ -383,6 +386,12 @@ const SizingTemplatePill = ({
       router.push(
         `/sizing-templates/${uuidToBase62Safe(sizingTemplateId)}?projectId=${uuidToBase62Safe(project.id)}`
       );
+    }
+  };
+
+  const downloadSizingTemplatePdf = () => {
+    if (project?.sizingTemplatePdfUrl) {
+      window.open(project?.sizingTemplatePdfUrl, "_blank");
     }
   };
 
@@ -603,6 +612,20 @@ const SizingTemplatePill = ({
 						/>
 					</div>
 				);
+
+      case "VIEW_PDF":
+        return (
+          <div
+            onClick={downloadSizingTemplatePdf}
+            className="cursor-pointer transition-transform hover:scale-[1.02]"
+          >
+            <AvatarIconTag
+              label="View PDF"
+              icon={<File className="text-primary" />}
+              className={cn("bg-primary-100 ", className)}
+            />
+          </div>
+        );
 
 			// Template attached - View mode to navigate to view page
 			// return (
