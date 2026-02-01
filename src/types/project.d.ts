@@ -45,6 +45,7 @@ export type UmojaLinnProject = {
   chatLinks: Array<string> | null;
   chatMedia: Array<string> | null;
   requestedMeasurementPoints: string[];
+  sizingTemplatePdfUrl: string | null;
   deliveryAddress: {
     id: string;
     country: null | string;
