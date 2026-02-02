@@ -201,6 +201,7 @@ export const requestMeasurementPointsOnBid = async (
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
+  
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
     `/project/bid/${base62ToUuidSafe(bidId)}/request-measurement-points`,
     measurements
