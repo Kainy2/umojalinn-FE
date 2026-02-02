@@ -116,7 +116,7 @@ export const getBuyerStatus = (
 		template?.submittedMeasurementPoints || [];
 	const hasReviews =
 		template?.metadata?.reviews &&
-		Object.values(template.metadata.reviews).some((review) => review);
+		!!Object.keys(template.metadata.reviews).length;
 
 	// Priority 1: Designer has recommended changes
 	if (hasReviews) {
@@ -126,8 +126,8 @@ export const getBuyerStatus = (
 	// Priority 2: Designer requested measurements but buyer hasn't submitted all
 	if (
 		template?.status === "IN_USE" &&
-		requestedMeasurementPoints.length > 0 &&
-		submittedMeasurementPoints.length < requestedMeasurementPoints.length
+		!!requestedMeasurementPoints.length &&
+		!submittedMeasurementPoints.length
 	) {
 		return "ADD_REQUESTED_MEASUREMENTS";
 	}
@@ -150,39 +150,37 @@ export const getDesignerStatus = (
 		template?.requestedMeasurementPoints || [];
 	const submittedMeasurementPoints =
 		template?.submittedMeasurementPoints || [];
-
+		const hasDesignerRecommendations =
+		template?.metadata?.reviews &&
+		!!Object.keys(template.metadata.reviews).length;
+	const hasRepliedRecommendations =
+		template?.metadata?.reviews &&
+		Object.values(template.metadata.reviews).some((review) => review);
 	// Priority 1: Template is in use but no measurement points requested yet
 	if (
 		template?.status === "IN_USE" &&
-		requestedMeasurementPoints.length === 0
+		!requestedMeasurementPoints.length
 	) {
 		return "REQUEST_MEASUREMENT_POINTS";
 	}
 
 	// Priority 2: Measurement points requested but buyer hasn't submitted yet
 	if (
-		requestedMeasurementPoints.length > 0 &&
-		submittedMeasurementPoints.length < requestedMeasurementPoints.length
+		template?.status === "IN_USE" &&
+		!!requestedMeasurementPoints.length &&
+		!submittedMeasurementPoints.length
 	) {
 		return "MEASUREMENT_REQUESTED";
 	}
 
-	// Priority 3: Check if template was recently updated (within last 24 hours)
-	if (template?.updatedAt) {
-		const updatedDate = new Date(template.updatedAt);
-		const now = new Date();
-		const hoursSinceUpdate =
-			(now.getTime() - updatedDate.getTime()) / (1000 * 60 * 60);
-
-		// Show "Updated" if updated within last 24 hours
-		if (hoursSinceUpdate <= 24) {
-			return "UPDATED";
-		}
+	if (template?.status === "IN_USE" && hasDesignerRecommendations) {
+		return "CHANGES_RECOMMENDED";
 	}
 
-	// Priority 4: Changes recommended (fallback for templates needing revision)
-	// This could be based on designer feedback or template review state
-	// For now, returning null unless there's specific state to check
+	// Priority 3: Check if template has designer recommendations and buyer hads filled in recommendations
+	if (template?.status === "IN_USE" && hasRepliedRecommendations) {
+		return "UPDATED";
+	}
 
 	return null;
 };
