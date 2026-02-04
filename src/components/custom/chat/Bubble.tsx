@@ -17,7 +17,7 @@ const ChatBubble = (props: UmojaLinnChat) => {
 
   const { message, urlCount } = formatMessageWithLinks(rawMessage ?? "");
   const isOnlyUrl = urlCount === 1 && rawMessage?.split(" ").length === 1;
-  const isUploading = rawMessage?.toLowerCase() === "file uploading..."
+  const isUploading = rawMessage?.toLowerCase().includes("file uploading");
 
   const isVideo = isVideoLink(imageUrl || "");
   if (!session?.user?.id) return;
