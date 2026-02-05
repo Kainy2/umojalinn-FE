@@ -4,7 +4,7 @@ import { categorizeDate } from "@/lib/date";
 import { cn, formatMessageWithLinks, isVideoLink, normaliseLink } from "@/lib/utils";
 import { UmojaLinnChat } from "@/types/project";
 import { formatDate } from "date-fns";
-import { User, X, Check, Link2 } from "lucide-react";
+import { User, X, Check, Link2, Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import React from "react";
@@ -59,12 +59,15 @@ const ChatBubble = (props: UmojaLinnChat) => {
         {message && (
           <div
             className={cn(
-              "text-black border rounded-md py-2.5 px-4 rounded-tr-none flex gap-2 whitespace-pre-wrap",
+              "text-black border rounded-md py-2.5 px-4 rounded-tr-none flex gap-2 whitespace-pre-wrap items-center",
               imageUrl && "mb-4"
             )}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" className="text-green-500"><radialGradient id="a11" cx=".66" fx=".66" cy=".3125" fy=".3125" gradientTransform="scale(1.5)"><stop offset="0" stop-color="currentColor"></stop><stop offset=".3" stop-color="currentColor" stop-opacity=".9"></stop><stop offset=".6" stop-color="currentColor" stop-opacity=".6"></stop><stop offset=".8" stop-color="currentColor" stop-opacity=".3"></stop><stop offset="1" stop-color="currentColor" stop-opacity="0"></stop></radialGradient><circle transform-origin="center" fill="none" stroke="url(#a11)" stroke-width="25" stroke-linecap="round" stroke-dasharray="200 1000" stroke-dashoffset="0" cx="100" cy="100" r="70"><animateTransform type="rotate" attributeName="transform" calcMode="spline" dur="2" values="360;0" keyTimes="0;1" keySplines="0 0 1 1" repeatCount="indefinite"></animateTransform></circle><circle transform-origin="center" fill="none" opacity=".2" stroke="currentColor" stroke-width="25" stroke-linecap="round" cx="100" cy="100" r="70"></circle></svg>
-            {message}
+            <Loader2 className="w-4 h-4 animate-spin text-green-500 shrink-0" />
+            <span>
+              {message}
+
+            </span>
           </div>
         )}
 
