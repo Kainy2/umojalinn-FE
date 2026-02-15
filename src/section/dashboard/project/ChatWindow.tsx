@@ -7,11 +7,12 @@ import ChatTimeDivider from "@/components/custom/chat/TimeDivider";
 import { categorizeDate } from "@/lib/date";
 import { UmojaLinnChat } from "@/types/project";
 import ChatBubble from "@/components/custom/chat/Bubble";
-import { ImageIcon, X } from "lucide-react";
+import { ImageIcon, PhoneCall, X } from "lucide-react";
 import useFilePicker, { useFileSizeError } from "@/hooks/useFilePicker";
 import Image from "next/image";
 import { MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES } from "@/constant";
 import { useChat } from "@/hooks/use-chat";
+import Link from "next/link";
 
 type ChatWindowProps = {
   projectId: string;
@@ -63,7 +64,6 @@ const ChatWindow = (props: ChatWindowProps) => {
       bottomDiv.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [data]);
-
 
   return (
     <div
@@ -150,6 +150,9 @@ const ChatWindow = (props: ChatWindowProps) => {
         </div>
 
         <div className="flex gap-4 justify-end items-center">
+          <Link href={`/video/${props.projectId}`} className="[&>svg]:size-5 text-foreground-body inline">
+              <PhoneCall />
+          </Link>
           <button
             onClick={handleFilePick}
             className="[&>svg]:size-5 text-foreground-body "
