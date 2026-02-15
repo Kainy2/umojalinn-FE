@@ -2,11 +2,13 @@ import { clientAxios, getAxiosToBeUsed, getServerAxiosWithToken } from "@/lib/ax
 import { convertApiParams } from "@/lib/request";
 import { base62ToUuidSafe } from "@/lib/uuid";
 import {
-  CreateWithdrawalMethodPayload,
-  DirectTransferPayload,
-  PaypalPayload,
+  // CreateWithdrawalMethodPayload,
+  // DirectTransferPayload,
+  // PaypalPayload,
   RequestWithdrawalPayload,
-  SetDefaultWithdrawalMethodPayload,
+  // SetDefaultWithdrawalMethodPayload,
+  VerifyNgnAccountPayload,
+  AddNgnBankAccounyPaylod
 } from "@/section/form/withdraw/WithdrawalAmount";
 import {
   UmojaLinnMediaLink,
@@ -16,6 +18,11 @@ import {
   UmojaLinnSpecialistType,
   UmojalinnWallet,
   UmojaLinnWithdrawalMethod,
+  UmojaLinnPayment,
+  UmojaLinnNgnBank,
+  UmojaLinnPaymentAccountInfo,
+  UmojaLinnBankVerified,
+  UmojaLinnConnectStripeAccount
 } from "@/types/project";
 import { UmojaLinnTransaction } from "@/types/transaction";
 import { UmojaLinnNotification } from "@/types/user";
@@ -25,7 +32,7 @@ import {
   ServerActionOption,
   SingleApiResponse,
 } from "@/types/util";
-import { AxiosProgressEvent, AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
 
 export const inviteBuyer = async (
   body: { emails: string[] },
@@ -210,47 +217,27 @@ export const getProjectMilestones = async (
 
 export const fundProject = async (
   id: string,
-  body: FormData,
-  onUploadProgress?: (event: AxiosProgressEvent) => void,
-  apiParams?: Record<string, unknown>,
   options?: ServerActionOption
 ) => {
   const axios = await getAxiosToBeUsed({
-    body,
     isServerAction: options?.isServerAction
   })
 
-  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
-    `/project/fund-project/${base62ToUuidSafe(id)}${
-      apiParams ? convertApiParams(apiParams) : ""
-    }`,
-    body,
-    {
-      onUploadProgress,
-    }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse<UmojaLinnPayment>>>(
+    `/project/fund-project/${base62ToUuidSafe(id)}`,
   );
 };
 
 export const fundMilestone = async (
   id: string,
-  body: FormData,
-  onUploadProgress?: (event: AxiosProgressEvent) => void,
-  apiParams?: Record<string, unknown>,
   options?: ServerActionOption
 ) => {
   const axios = await getAxiosToBeUsed({
-    body,
     isServerAction: options?.isServerAction
   })
   
-  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
-    `/project/fund-milestone/${base62ToUuidSafe(id)}${
-      apiParams ? convertApiParams(apiParams) : ""
-    }`,
-    body,
-    {
-      onUploadProgress,
-    }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse<UmojaLinnPayment>>>(
+    `/project/fund-milestone/${base62ToUuidSafe(id)}`,
   );
 };
 
@@ -369,49 +356,101 @@ export const getWithdrawalMethods = async (options?: ServerActionOption) => {
   >(`/wallet/withdrawal-methods`);
 };
 
-export const createWithdrawalMethod = async (
-  body: CreateWithdrawalMethodPayload,
-  options?: ServerActionOption
-) => {
+export const getListNgnBanks = async (options?: ServerActionOption) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
-  return axios.post<
+  return axios.get<
     unknown,
-    AxiosResponse<SingleApiResponse<UmojaLinnWithdrawalMethod>>
-  >(`/wallet/add-withdrawal-method`, body);
+    AxiosResponse<ArrayApiResponse<UmojaLinnNgnBank>>
+  >(`/wallet/list-of-ngn-banks`);
 };
-
-export const setDefaultWithdrawalMethod = async (
-  body: SetDefaultWithdrawalMethodPayload,
-  options?: ServerActionOption
-) => {
+export const getPaymentAccountInfo = async (options?: ServerActionOption) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
-  return axios.post<
+  return axios.get<
     unknown,
-    AxiosResponse<SingleApiResponse<UmojaLinnWithdrawalMethod>>
-  >(`/wallet/set-default-withdrawal-method`, body);
+    AxiosResponse<SingleApiResponse<UmojaLinnPaymentAccountInfo>>
+  >(`/wallet/payment-account-info`);
 };
 
-export const editWithdrawalMethod = async (
-  id: string,
-  body: PaypalPayload | DirectTransferPayload,
-  options?: ServerActionOption
-) => {
+export const verifyNgnAccount = async(body: VerifyNgnAccountPayload, options?: ServerActionOption) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
-  return axios.put<
-    unknown,
-    AxiosResponse<SingleApiResponse<UmojaLinnWithdrawalMethod>>
-  >(`/wallet/withdrawal-method/${id}`, body);
-};
+  return axios.post<unknown, AxiosResponse<SingleApiResponse<UmojaLinnBankVerified>>>(
+    `/wallet/verify-ngn-bank-account-number`,
+    body
+  );
+}
 
+export const addNgnBankAccount = async(body: AddNgnBankAccounyPaylod, options?: ServerActionOption )=>{
+  let axios = clientAxios;
+    if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/wallet/add-ngn-bank-account`,
+    body
+  );
+}
+
+// export const createWithdrawalMethod = async (
+//   body: CreateWithdrawalMethodPayload,
+//   options?: ServerActionOption
+// ) => {
+//   let axios = clientAxios;
+//   if (options?.isServerAction) {
+//     axios = await getServerAxiosWithToken();
+//   }
+//   return axios.post<
+//     unknown,
+//     AxiosResponse<SingleApiResponse<UmojaLinnWithdrawalMethod>>
+//   >(`/wallet/add-withdrawal-method`, body);
+// };
+
+// export const setDefaultWithdrawalMethod = async (
+//   body: SetDefaultWithdrawalMethodPayload,
+//   options?: ServerActionOption
+// ) => {
+//   let axios = clientAxios;
+//   if (options?.isServerAction) {
+//     axios = await getServerAxiosWithToken();
+//   }
+//   return axios.post<
+//     unknown,
+//     AxiosResponse<SingleApiResponse<UmojaLinnWithdrawalMethod>>
+//   >(`/wallet/set-default-withdrawal-method`, body);
+// };
+
+// export const editWithdrawalMethod = async (
+//   id: string,
+//   body: PaypalPayload | DirectTransferPayload,
+//   options?: ServerActionOption
+// ) => {
+//   let axios = clientAxios;
+//   if (options?.isServerAction) {
+//     axios = await getServerAxiosWithToken();
+//   }
+//   return axios.put<
+//     unknown,
+//     AxiosResponse<SingleApiResponse<UmojaLinnWithdrawalMethod>>
+//   >(`/wallet/withdrawal-method/${id}`, body);
+// };
+
+export const connectStripeAccount = async (options?: ServerActionOption) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse<UmojaLinnConnectStripeAccount>>>(
+    `/wallet/connect-stripe-account`
+  );
+};
 export const deleteWithdrawalMethod = async (
   id: string,
   options?: ServerActionOption

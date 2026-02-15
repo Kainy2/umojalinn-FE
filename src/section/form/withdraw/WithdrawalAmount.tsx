@@ -1,565 +1,346 @@
 "use client";
 import CustomCheckbox from "@/components/custom/Checkbox";
 import FormItemWrapper from "@/components/custom/FormItemWrapper";
-import TextAreaField from "@/components/custom/input/TextAreaField";
 import TextField from "@/components/custom/input/TextField";
-import CustomSelect from "@/components/custom/Select";
+import CustomReactSelect from "@/components/custom/ReactSelect";
 import Bank from "@/icons/Bank";
 import NairaSign from "@/icons/NairaSign";
-import { UmojaLinnCurrency, UmojaLinnWithdrawalMethod } from "@/types/project";
-import { Euro, Mail, MessageSquareWarning } from "lucide-react";
-import React, { useEffect, useMemo, useState } from "react";
-import ProjectEditFooter from "../project/edit/ProjectEditFooter";
-// import ProjectEditFooter from "../project/edit/Footer";
+import { UmojaLinnCurrency } from "@/types/project";
+import { Euro, MessageSquareWarning } from "lucide-react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
-  useCreateWithdrawalMethod,
-  useGetWithdrawalMethods,
-  useRequestWithdrawal,
-  useSetDefaultWithdrawalMethod,
+  useGetListNgnBanks,
+  useGetPaymentAccountInfo,
+  useVerifyNgnAccount,
+  useAddNgnAccount,
+  useRequestWithdrawal
 } from "@/tanstack/hooks/useProject";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn, numberToCommaString, removeNonDigits } from "@/lib/utils";
-import Paypal from "@/icons/Paypal";
-import CheckCircle from "@/icons/CheckCircle";
+import { numberToCommaString, removeNonDigits } from "@/lib/utils";
+import { capitalizeFirstLetter } from "@/lib/string";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import EditWithdrawalMethod from "@/components/custom/dialog/EditWithdrawalMethod";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { StripeStatusModal } from "@/components/custom/dialog/StripeStatusModal";
 
-const noPaypalOption = [
-  {
-    children: <span>Direct transfer </span>,
-    value: "DIRECT_TRANSFER",
-  },
-];
-const paypalOption = [
-  {
-    children: <span>Direct transfer </span>,
-    value: "DIRECT_TRANSFER",
-  },
-  {
-    children: <span>Paypal</span>,
-    value: "PAYPAL",
-  },
-];
-
-const getOptions = (currency: UmojaLinnCurrency) => {
-  if (currency === "NAIRA") {
-    return noPaypalOption;
-  }
-  return paypalOption;
+export type VerifyNgnAccountPayload = {
+  bankCode: string;
+  accountNumber: string;
 };
-
-const getIcon = (channel: UmojaLinnWithdrawalMethod["channel"]) => {
-  switch (channel) {
-    case "PAYPAL":
-      return <Paypal className="shrink-0 mt-2" />;
-    default:
-      return <Bank className="shrink-0 mt-1" />;
-  }
-};
+export type AddNgnBankAccounyPaylod = {
+  accountNumber: string;
+  bankCode: string;
+  accountName: string;
+}
 
 export type RequestWithdrawalPayload = {
   currency: UmojaLinnCurrency;
   amount: number;
-  withdrawalMethodId: string;
-};
-export type PaypalPayload = {
-  paypalEmail: string;
-};
-export type DirectTransferPayload = {
-  accountName: string;
-  bankName: string;
-  accountNumber: string;
-  bankAddress: string;
-  iban: string;
-  swiftCode: string;
-};
 
-export type CreateWithdrawalMethodPayload = {
-  channel: UmojaLinnWithdrawalMethod["channel"];
-  currency: UmojaLinnCurrency;
-} & (PaypalPayload | DirectTransferPayload);
-
-export type SetDefaultWithdrawalMethodPayload = {
-  withdrawalMethod: string;
-  currency: UmojaLinnCurrency;
 }
 
 const WithdrawalAmountForm = (props: {
   currency: UmojaLinnCurrency;
-  mode?: "WITHDRAWAL" | "PAYMENT";
 }) => {
-  const { currency, mode = "WITHDRAWAL" } = props;
-  const [paymentMethod, setPaymentMethod] = useState<
-    null | UmojaLinnWithdrawalMethod["channel"]
-  >(null);
-  const [agree, setAgree] = useState(false);
-const [isFormModalOpen, setIsFormModalOpen] = useState(false)
+  const { currency } = props;
   const router = useRouter();
   const { toast } = useToast();
-
-  const [selectedWithdrawalMethod, setSelectedWithdrawalMethod] = useState<UmojaLinnWithdrawalMethod | null>(null);
   const [amount, setAmount] = useState<string | null>(null);
 
-  const { data: withdrawalMethodsData, isPending: loadingWithdrawalMethods } =
-    useGetWithdrawalMethods();
-
-  const [paypalPayload, setPaypalPayload] = useState<PaypalPayload>({
-    paypalEmail: "",
+  // New Hooks
+  const { data: paymentAccountData, isPending: isLoadingAccount, isFetching } = useGetPaymentAccountInfo();
+  const { data: ngnBanksData, isPending: loadingNgnBanks } = useGetListNgnBanks({
+    enabled: currency === "NAIRA",
+  });
+  const { mutate: verifyNgnAccount, isPending: isVerifying } = useVerifyNgnAccount();
+  const { mutate: addNgnAccount, isPending: isAddingAccount } = useAddNgnAccount({
+    onSuccess: () => {
+      toast({ description: "Bank account added successfully!" });
+    }
   });
 
-  const [directTransferPayload, setDirectTransferPayload] =
-    useState<DirectTransferPayload>({
-      accountName: "",
-      bankName: "",
-      accountNumber: "",
-      bankAddress: "",
-      iban: "",
-      swiftCode: "",
-    });
 
-  const handlePaypalPayloadChange = (
-    prop: keyof PaypalPayload,
-    value: string
-  ) => {
-    setPaypalPayload((prev) => ({
-      ...prev,
-      [prop]: value,
-    }));
-  };
 
-  const handleDirectTransferChange = (
-    prop: keyof DirectTransferPayload,
-    value: string
-  ) => {
-    setDirectTransferPayload((prev) => ({
-      ...prev,
-      [prop]: value,
-    }));
-  };
-
-  const {
-    mutate: createWithdrawalMethod,
-    isPending: isCreatingWithdrawalMethod,
-  } = useCreateWithdrawalMethod({
-    onSuccess() {
-      setPaypalPayload({
-        paypalEmail: "",
-      });
-      setDirectTransferPayload({
-        accountName: "",
-        bankName: "",
-        accountNumber: "",
-        bankAddress: "",
-        iban: "",
-        swiftCode: "",
-      });
-      setPaymentMethod(null);
-      toast({
-        description: "Withdrawal method has been successfully created!!!",
-      });
-    },
+  const { mutate: requestWithdrawal, isPending: isRequestingWithdrawal } = useRequestWithdrawal({
+    onSuccess: () => {
+      toast({ description: "Withdrawal request submitted successfully!" });
+      router.back();
+    }
   });
-  const { mutate: requestWithdrawal, isPending: isRequestingWithdrawal } =
-    useRequestWithdrawal({
-      onSuccess() {
-        setPaypalPayload({
-          paypalEmail: "",
-        });
-        setDirectTransferPayload({
-          accountName: "",
-          bankName: "",
-          accountNumber: "",
-          bankAddress: "",
-          iban: "",
-          swiftCode: "",
-        });
-        setPaymentMethod(null);
-        router.push("/wallet");
-        toast({ description: "Withdrawal has been successfully requested!!!" });
+
+  // State for NGN Form
+  const [bankCode, setBankCode] = useState<string>("");
+  const [accountNumber, setAccountNumber] = useState<string>("");
+  const [verifiedName, setVerifiedName] = useState<string>("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [agree, setAgree] = useState(false); // Checkbox agreement state
+  const [showStripeModal, setShowStripeModal] = useState(false);
+
+
+
+  const paymentAccount = paymentAccountData?.data?.data;
+
+
+  // Helper to find bank name from code
+  const getBankName = (code: string) => {
+    return ngnBanksData?.data?.data?.find(b => b.code === code)?.name || code;
+  };
+
+  const hasActiveAccount = useMemo(() => {
+    if (!paymentAccount) return false;
+    if (currency === "NAIRA") {
+      return !!paymentAccount.paystackRecipientCode;
+    }
+    return !!paymentAccount.stripeAccountId;
+  }, [paymentAccount, currency]);
+
+  const handleVerify = () => {
+    if (!bankCode || accountNumber.length < 10) return;
+    verifyNgnAccount({ bankCode, accountNumber }, {
+      onSuccess: (data) => {
+        setVerifiedName(data.data.data.accountName);
+        toast({ description: "Account verified!" });
       },
-    });
-
-  const { mutate: setDefaultWithdrawalMethod, isPending: isPendingSetDefault } =
-    useSetDefaultWithdrawalMethod();
-
-
-const handleSetDefaultWithdrawalMethod = (withdrawalMethodId: string, currency: UmojaLinnCurrency) => {
-	if (!withdrawalMethodId) return;
-
-	setDefaultWithdrawalMethod(
-		{
-			withdrawalMethod: withdrawalMethodId,
-			currency,
-		},
-		{
-			onSuccess: () => {
-				setPaypalPayload({
-					paypalEmail: "",
-				});
-				setDirectTransferPayload({
-					accountName: "",
-					bankName: "",
-					accountNumber: "",
-					bankAddress: "",
-					iban: "",
-					swiftCode: "",
-				});
-				setPaymentMethod(null);
-				toast({
-					description:
-						"Successfully set as withdrawal method",
-				});
-			},
       onError: () => {
-        toast({
-          description:
-            "Failed to set as withdrawal method",
-        });
+        setVerifiedName("");
+        toast({ variant: "destructive", description: "Could not verify account." });
       }
-		}
-	);
-};
-
-  const isLoadingFooterButtons =
-    (!paymentMethod && !selectedWithdrawalMethod) ||
-    isCreatingWithdrawalMethod ||
-    isRequestingWithdrawal ||
-    loadingWithdrawalMethods ||
-    (selectedWithdrawalMethod && !amount) ||
-    (paymentMethod === "DIRECT_TRANSFER" && !agree);
-						
-
-  const handleContinue = () => {
-		if (!selectedWithdrawalMethod?.id && !paymentMethod) return;
-
-		if (!selectedWithdrawalMethod?.id) {
-			createWithdrawalMethod({
-				channel: paymentMethod!,
-				currency,
-				...(paymentMethod === "DIRECT_TRANSFER"
-					? directTransferPayload
-					: paypalPayload),
-			});
-			return;
-		}
-
-		requestWithdrawal({
-			currency,
-			withdrawalMethodId: selectedWithdrawalMethod.id,
-			amount: parseInt(amount ?? ""),
-		});
+    });
   };
 
-  const withdrawalMethodsForThisCurrency = useMemo(
-    () =>
-      withdrawalMethodsData?.data?.data?.filter(
-        (method) => method?.currency === currency
-      ),
-    [withdrawalMethodsData, currency]
-  );
+  const handleSaveAccount = () => {
+    if (!bankCode || !accountNumber || !verifiedName) return;
+    addNgnAccount({
+      bankCode,
+      accountNumber,
+      accountName: verifiedName
+    });
+  };
 
   useEffect(() => {
-    if (mode !== "WITHDRAWAL") return;
-    
-		const method = withdrawalMethodsForThisCurrency?.find(
-			(method) => method?.isDefault
-		);
-		setSelectedWithdrawalMethod(method ?? null);
-	}, [withdrawalMethodsForThisCurrency]);
-    
-    
+    if (currency !== "NAIRA" && paymentAccount) {
+      const validStatus = "ENABLED";
+      if (paymentAccount.stripeStatus !== validStatus) {
+        setShowStripeModal(true);
+      }
+    }
+  }, [currency, paymentAccount]);
+
+  // Logic to determine what to render
+  const showSavedAccount = hasActiveAccount && !isEditing;
 
   return (
-  <Dialog open={isFormModalOpen} onOpenChange={setIsFormModalOpen}  >
-
-    {selectedWithdrawalMethod && (
-      <EditWithdrawalMethod
-        key={selectedWithdrawalMethod.id}
-        selectedWithdrawalMethod={selectedWithdrawalMethod}
-        onSuccess={()=>setIsFormModalOpen(false)}
-      />
-    )}
-		
-        
     <div className="flex flex-col gap-6">
-          {mode === "WITHDRAWAL" &&
-            !!withdrawalMethodsForThisCurrency?.length && (
-              <TextField
-                type="text"
-                label="Withdrawal Amount"
-                placeholder="Amount to withdraw"
-                value={ numberToCommaString(amount || "") }
-                onChange={(e) => {
-                  if (e.target.value.length > 27) return
-                  const formattedValue = removeNonDigits(e.target.value)
-                  setAmount(formattedValue)
-                }}
-                startAdornment={
-                  currency === "EURO" ? (
-                    <Euro className="size-4 text-foreground-body" />
-                  ) : (
-                    <NairaSign className="size-4 text-foreground-body" />
-                  )
-                }
-              />
-            )}
-          <FormItemWrapper
-            title="Withdrawal details"
-            description="Select withdrawal method"
-          >
-            <div className="flex flex-col gap-6">
-                {loadingWithdrawalMethods &&
-                  new Array(3)
-                    .fill("")
-                    .map((_, i) => (
-                      <Skeleton key={_ + i} className="h-28 rounded-md" />
-                ))}
-                {withdrawalMethodsForThisCurrency?.map?.((method) => (
-                  <button
-                    onClick={() =>
-                      mode === "WITHDRAWAL" &&
-                      setSelectedWithdrawalMethod((prev) =>
-                        prev?.id === method?.id ? null : method
-                      )
-                    
-                    }
-                    key={method.id}
-                    className={cn(
-                      "p-4 rounded-md border relative flex gap-4",
-                      mode === "WITHDRAWAL" && selectedWithdrawalMethod?.id === method?.id && "border-primary",
-                      // mode === "WITHDRAWAL" && "cursor-pointer",
-                      mode === "PAYMENT" && "cursor-default"
-                    )}
-                  >
-                    {getIcon(method?.channel)}
-                    <div className="text-foreground-body text-start">
-                      <p>{method?.paypalEmail || method?.bankName}</p>
-                      <p className="text-sm mb-2">{method?.accountNumber}</p>
-                      <div className="flex items-center gap-2">
-                        {/* {mode === "WITHDRAWAL" && ( */}
-                            <button 
-                              disabled={isPendingSetDefault || method.isDefault} 
-                              onClick={() => handleSetDefaultWithdrawalMethod(method?.id, currency)}
-                              className={
-                                cn("font-bold disabled:cursor-not-allowed",
-                                method.isDefault &&"text-green-500",
-                              isPendingSetDefault && "opacity-50"
-                              )
-                              }
-                            >
-                              {method.isDefault ? "Default" : "Set as default"}
-                            </button>
-                          {/* )} */}
-                        <DialogTrigger 
-                          asChild
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setSelectedWithdrawalMethod(method)
-                            setIsFormModalOpen(true)}
-                        }
-                         >
-                          <button className="text-primary font-semibold cursor-pointer">
-                            Edit
-                            </button>
-                        </DialogTrigger>
-                      </div>
-                    </div>
-                    {/* <CheckCircle className="size-5 text-primary shrink-0 absolute top-4 right-4" /> */}
-                    {mode === "WITHDRAWAL" &&
-                      (selectedWithdrawalMethod?.id === method?.id ? (
-                        <CheckCircle className="size-5 text-primary shrink-0 absolute top-4 right-4" />
-                      ) : (
-                        <span className="border border-gray-400 rounded-full size-5 shrink-0 absolute top-4 right-4" />
-                      ))}
-                  </button>
-                ))}
-                
-              <CustomSelect
-                  value={paymentMethod || ""}
-                  placeholder="Add withdrawal details"
-                  onValueChange={(
-                    value: UmojaLinnWithdrawalMethod["channel"]
-                  ) => {
-                    setSelectedWithdrawalMethod(null); 
-                    setPaymentMethod(value);
-                  }}
-                  options={getOptions(currency)}
-                />
+      {/* Withdrawal Amount Input - Always show if intended to be part of the flow, 
+            or maybe only if account exists? The image shows it. */}
 
-              {paymentMethod === "PAYPAL" && (
-                <TextField
-                  placeholder="Your email address"
-                  value={paypalPayload.paypalEmail}
-                  onChange={(e) =>
-                    handlePaypalPayloadChange("paypalEmail", e.target.value)
-                  }
-                  startAdornment={
-                    <Mail className="size-5 text-foreground-body" />
-                  }
-                />
-              )}
-              {paymentMethod === "DIRECT_TRANSFER" && (
-                <div className="flex flex-col gap-6">
-                  <TextField
-                    label="Account Holder"
-                    placeholder="Account Name"
-                    value={directTransferPayload.accountName}
-                    onChange={(e) =>
-                      handleDirectTransferChange("accountName", e.target.value)
-                    }
-                  />
-                  <div className="flex flex-col lg:flex-row gap-6">
-                    <TextField
-                      placeholder="Name of Bank"
-                      label="Bank Name"
-                      startAdornment={<Bank className="size-5" />}
-                      value={directTransferPayload.bankName}
-                      onChange={(e) =>
-                        handleDirectTransferChange("bankName", e.target.value)
-                      }
-                    />
-                  </div>
-                  <TextField
-                    placeholder="Account number"
-                    label="Account number"
-                    value={directTransferPayload.accountNumber}
-                    onChange={(e) =>
-                      handleDirectTransferChange(
-                        "accountNumber",
-                        e.target.value
-                      )
-                    }
-                  />
-                  <TextAreaField
-                    label="Bank Address"
-                    placeholder="Address of Bank"
-                    value={directTransferPayload.bankAddress}
-                    onChange={(e) =>
-                      handleDirectTransferChange("bankAddress", e.target.value)
-                    }
-                  />
-                  {currency === "EURO" && (
-									<div className="flex flex-col lg:flex-row gap-6">
-										<TextField
-											placeholder="Bank IBAN"
-											label="IBAN"
-											value={directTransferPayload.iban}
-											onChange={(e) =>
-												handleDirectTransferChange(
-													"iban",
-													e.target.value
-												)
-											}
-										/>
-										<TextField
-											placeholder="Bank Swift code"
-											label="Swift code"
-											value={
-												directTransferPayload.swiftCode
-											}
-											onChange={(e) =>
-												handleDirectTransferChange(
-													"swiftCode",
-													e.target.value
-												)
-											}
-										/>
-									</div>
-								)}
-                  <div className="flex flex-col lg:flex-row gap-6"></div>
-                  <div>
-                    {/* <p className="text-sm text-foreground-body mb-2">
-                      This is a hint to help user
-                    </p> */}
-                    <div className="bg-error-50/70 border-2 border-error/50 rounded-lg p-4">
-                      <div className="flex gap-2 mb-4">
-                        <span className="icon-wrapper error">
-                          <MessageSquareWarning />
-                        </span>
-                        <div className="text-error">
-                          <p className="font-semibold">
-                            Double check your account details
-                          </p>
-                          <p>
-                            Incorrect and mismatched name and number can result
-                            in failed withdrawals and delays
-                          </p>
-                        </div>
-                      </div>
-                      <div className="p-4 border-2 bg-gray-50 rounded-sm">
-                        <CustomCheckbox
-                          checked={agree}
-                          onCheckedChange={(e: boolean) => setAgree(e)}
-                          label={{
-                            children: (
-                              <span className="text-sm">
-                                I attest that I am the owner and I have full
-                                authorizations to this bank account
-                              </span>
-                            ),
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              {paymentMethod && (
-                <p className="text-foreground-body text-sm -mt-4">
-                  Got any other payment suggestions?{" "}
-                  <a
-                    href="https://tally.so/r/mZDGMo"
-                    className="font-semibold text-primary"
-                    target="_blank"
+      <TextField
+        type="text"
+        label="Withdrawal Amount"
+        placeholder="Amount to withdraw"
+        value={numberToCommaString(amount || "")}
+        onChange={(e) => {
+          if (e.target.value.length > 27) return
+          const formattedValue = removeNonDigits(e.target.value)
+          setAmount(formattedValue)
+        }}
+        startAdornment={
+          currency === "EURO" ? (
+            <Euro className="size-4 text-foreground-body" />
+          ) : (
+            <NairaSign className="size-4 text-foreground-body" />
+          )
+        }
+      />
+
+      {/* Account Section */}
+      {isLoadingAccount || isFetching ? (
+        <Skeleton className="h-40 w-full rounded-md" />
+      ) : showSavedAccount ? (
+        <div className="border rounded-md p-4 flex flex-col gap-2">
+          <h3 className="font-semibold text-lg">Bank details</h3>
+          <div className="flex items-start gap-4 p-4 border rounded-md bg-gray-50/50">
+            <Bank className="size-8 mt-1" />
+            <div className="flex-1">
+              {currency === "NAIRA" ? (
+                <>
+                  <p className="font-semibold">{paymentAccount?.paystackAccountName}</p>
+                  <p className="text-sm text-gray-600">
+                    {getBankName(paymentAccount?.paystackBankCode || "")} • {paymentAccount?.paystackAccountNumber}
+                  </p>
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="text-primary font-semibold text-sm mt-2 hover:underline p-0 h-auto"
                   >
-                    Submit feedback
-                  </a>
-                </p>
+                    Edit
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p className="font-semibold">Stripe Account</p>
+                  <p className="text-sm text-gray-600">
+                    {paymentAccount?.stripeIban || "N/A"}
+                  </p>
+                </>
               )}
             </div>
-          </FormItemWrapper>
-   
-					{/* <ProjectEditFooter
-						hideDraft
-            onCancel={()=> setPaymentMethod(null)}
-						saveText={
-							mode === "PAYMENT" || !paymentMethod
-								? "Proceed to withdrawal"
-								: "Save details"
-						}
-						handleSave={handleContinue}
-						loading={
-							(!paymentMethod && !selectedWithdrawalMethod) ||
-							isCreatingWithdrawalMethod ||
-							isRequestingWithdrawal ||
-							loadingWithdrawalMethods ||
-							(selectedWithdrawalMethod && !amount) ||
-							(paymentMethod === "DIRECT_TRANSFER" && !agree)
-						}
-					/> */}
+          </div>
 
-          <ProjectEditFooter
-            rightSecondaryButtonProps={{
-              text: "Cancel", 
-              disabled: isLoadingFooterButtons,
-              onClick: ()=> setPaymentMethod(null),
+          <p className="text-xs text-gray-500 mt-2">
+            Payments are processed by {currency === "NAIRA" ? "Paystack" : "Stripe"}. Payout fees are set by them.
+          </p>
+        </div>
+      ) : currency === "NAIRA" ? (
+        <FormItemWrapper
+          title={isEditing ? "Edit Bank Details" : "Add Bank Details"}
+          description={`Add a ${capitalizeFirstLetter(currency.toLowerCase())} receiving account`}
+        >
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col space-y-2">
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Account Holder
+              </label>
+              <TextField
+                placeholder="Account name"
+                value={verifiedName} // READ-ONLY: Populated by verification
+                readOnly
+                disabled
+                className="bg-gray-50 text-gray-500 cursor-not-allowed"
+              />
+            </div>
+
+            <div className="flex flex-col space-y-2">
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Bank Name
+              </label>
+              <CustomReactSelect
+                placeholder="Name of bank"
+                options={ngnBanksData?.data?.data?.map(b => ({ label: b.name, value: b.code })) || []}
+                isLoading={loadingNgnBanks}
+                onChange={(opt: unknown) => {
+                  const typedValue = opt as {
+                    value: string;
+                    label: string;
+                  };
+                  setBankCode(typedValue?.value);
+                  setVerifiedName("");
+                }}
+                value={bankCode ? { label: getBankName(bankCode), value: bankCode } : null}
+                startAdornment={<Bank className="size-5 text-gray-400" />}
+              />
+            </div>
+
+            <div className="flex flex-col space-y-2">
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Account Number
+              </label>
+              <TextField
+                placeholder="Account number"
+                value={accountNumber}
+                onChange={(e) => {
+                  setAccountNumber(e.target.value);
+                  setVerifiedName(""); // Reset verification if number changes
+                }}
+              />
+            </div>
+
+            {/* Hint Text */}
+            <p className="text-xs text-gray-500">
+              This is a hint text to help user.
+            </p>
+
+            {/* Verification Warning / Checkbox Zone */}
+            <div className="bg-error-50/70 border-2 border-error/50 rounded-lg p-4">
+              <div className="flex gap-2 mb-4">
+                <span className="icon-wrapper error text-error">
+                  <MessageSquareWarning className="size-5" />
+                </span>
+                <div className="text-error text-sm">
+                  <p className="font-semibold">
+                    Double check - your account details
+                  </p>
+                  <p>
+                    Incorrect and mismatched name and number can result
+                    in failed withdrawals and delays
+                  </p>
+                </div>
+              </div>
+
+              {/* Checkbox only enabled if verified? Or always there? 
+                                Legacy logic usually requires user to check this before saving.
+                            */}
+              {verifiedName && (
+                <div className="p-4 border-2 bg-gray-50 rounded-sm">
+                  <CustomCheckbox
+                    checked={agree}
+                    onCheckedChange={(e: boolean) => setAgree(e)}
+                    label={{
+                      children: (
+                        <span className="text-sm">
+                          I attest that i am the owner and i have full authorizations to this bank account
+                        </span>
+                      ),
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-2 justify-end mt-4">
+
+              {isEditing && (
+                <Button variant="ghost" onClick={() => setIsEditing(false)}>Cancel</Button>
+              )}
+
+              {!verifiedName ? (
+                <Button
+                  type="button"
+                  disabled={!bankCode || accountNumber.length < 10 || isVerifying}
+                  onClick={handleVerify}
+                  className="w-full sm:w-auto"
+                >
+                  {isVerifying ? "Verifying..." : "Verify Account"}
+                </Button>
+              ) : (
+                <Button
+                  disabled={!verifiedName || isAddingAccount || !agree} // Require agreement
+                  onClick={handleSaveAccount}
+                  className="w-full sm:w-auto"
+                >
+                  {isAddingAccount ? "Saving..." : "Save Bank Details"}
+                </Button>
+              )}
+            </div>
+          </div>
+        </FormItemWrapper>
+      ) : null}
+
+      {/* Withdrawal Action Footer */}
+      {showSavedAccount && (
+        <div className="flex justify-between">
+          <Button variant="ghost" onClick={() => router.back()}>Back</Button>
+
+          <Button
+            disabled={!amount || Number(amount?.replace(/,/g, '')) <= 0 || isRequestingWithdrawal}
+            onClick={() => {
+              if (amount) {
+                requestWithdrawal({
+                  currency,
+                  amount: Number(amount.replace(/,/g, '')),
+                });
+              }
             }}
-            rightPrimaryButtonProps={{
-              disabled: isLoadingFooterButtons || (mode === "PAYMENT" && !paymentMethod),
-              onClick: handleContinue,
-              text:
-              mode === "WITHDRAWAL"
-                // mode === "PAYMENT" || !paymentMethod
-                  ? "Proceed to withdraw"
-                  : "Save details",
-              }}
-          />
-				</div>
+          >
+            {isRequestingWithdrawal ? "Requesting..." : "Request Withdrawal"}
+          </Button>
+        </div>
+      )}
 
-			</Dialog>
-
+      {showStripeModal && <StripeStatusModal
+        currency={currency}
+      />}
+    </div>
   );
 };
 

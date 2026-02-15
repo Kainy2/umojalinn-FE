@@ -44,7 +44,7 @@ const SettingsPaymentPage = () => {
           ]}
         />
       </div>
-      {currency && <WithdrawalAmountForm mode="PAYMENT" currency={currency} />}
+      {currency && <WithdrawalAmountForm currency={currency} />}
     </div>
   );
 };

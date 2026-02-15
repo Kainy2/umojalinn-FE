@@ -13,12 +13,13 @@ import { useParams, usePathname } from "next/navigation";
 import React, { useMemo } from "react";
 
 const FundProjectAlert = () => {
-  const pathname=usePathname();
+  const pathname = usePathname();
   const { data: me } = useSession();
   const params = useParams<{ id: string }>();
   const { data: projectData } = useGetProjectById(params?.id);
 
   const { data: projectMilestonesData } = useGetProjectMilestones(params?.id);
+
 
   const firstFundMilestone = useMemo(
     () =>
@@ -33,8 +34,9 @@ const FundProjectAlert = () => {
   const isExcludedPath = excludedPaths.some(path => pathname.includes(path));
   const isAwaitingFund = projectData?.data?.data?.fundStatus === "AWAITING_FUND";
   const isUnfunded = projectData?.data?.data?.amountFunded === 0;
+  console.log(projectData?.data)
 
-  if (isExcludedPath || !isAwaitingFund || !isUnfunded || isDesigner ) return null;
+  if (isExcludedPath || !isAwaitingFund || !isUnfunded || isDesigner) return null;
 
   return (
     <Alert
@@ -48,6 +50,8 @@ const FundProjectAlert = () => {
           <SelectFundingMethodDialog
             id={uuidToBase62Safe(firstFundMilestone?.id || "")}
             type="milestone"
+            currency={projectData?.data?.data?.currency || "NAIRA"}
+
           >
             <Button
               className="w-full md:w-auto"
@@ -57,10 +61,10 @@ const FundProjectAlert = () => {
               Fund Milestone
             </Button>
           </SelectFundingMethodDialog>
-          <SelectFundingMethodDialog id={params?.id} type="project">
+          <SelectFundingMethodDialog id={params?.id} type="project" currency={projectData?.data?.data?.currency || "NAIRA"}>
             <Button className="w-full md:w-auto">Fund Project</Button>
           </SelectFundingMethodDialog>
-        </div>
+        </div >
       }
     />
   );

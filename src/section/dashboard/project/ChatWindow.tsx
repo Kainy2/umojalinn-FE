@@ -1,7 +1,6 @@
 "use client";
 import { cn, fileToPreviewUrl } from "@/lib/utils";
 import React, { useEffect, useRef } from "react";
-
 import { Button } from "@/components/ui/button";
 import ChatTimeDivider from "@/components/custom/chat/TimeDivider";
 import { categorizeDate } from "@/lib/date";
@@ -47,15 +46,15 @@ const ChatWindow = (props: ChatWindowProps) => {
 
   const bottomDiv = useRef<HTMLDivElement | null>(null);
   const {
-		data,
-		handleSend,
-		loading,
-		message,
-		setMessage,
-		previewMedia,
-		setPreviewMedia,
-		images,
-		setImages,
+    data,
+    handleSend,
+    loading,
+    message,
+    setMessage,
+    previewMedia,
+    setPreviewMedia,
+    images,
+    setImages,
   } = useChat(props.projectId);
 
   useEffect(() => {
@@ -78,9 +77,9 @@ const ChatWindow = (props: ChatWindowProps) => {
             <React.Fragment key={i}>
               {(i === 0 ||
                 categorizeDate(data[i - 1]?.createdAt) !==
-                  categorizeDate(d?.createdAt)) && (
-                <ChatTimeDivider date={d?.createdAt} />
-              )}
+                categorizeDate(d?.createdAt)) && (
+                  <ChatTimeDivider date={d?.createdAt} />
+                )}
               <ChatBubble {...d} />
             </React.Fragment>
           );
@@ -88,8 +87,8 @@ const ChatWindow = (props: ChatWindowProps) => {
         {(!data?.length ||
           (!!data[data.length - 1]?.createdAt &&
             categorizeDate(data[data.length - 1]?.createdAt) !== "Today")) && (
-          <ChatTimeDivider date={new Date()} />
-        )}
+            <ChatTimeDivider date={new Date()} />
+          )}
         <div ref={bottomDiv} />
       </div>
       <div className="border border-border p-3 ring-transparent focus-within:ring-primary">
@@ -114,7 +113,7 @@ const ChatWindow = (props: ChatWindowProps) => {
           }}
         />
         <div className="flex flex-wrap gap-4">
-          {previewMedia.map(({type, url:previewUrl}, i) => {
+          {previewMedia.map(({ type, url: previewUrl }, i) => {
             if (!previewUrl) return null
             return (
               <span className="relative" key={previewUrl + i}>
@@ -139,7 +138,7 @@ const ChatWindow = (props: ChatWindowProps) => {
                     setPreviewMedia((prev) => prev.filter((_, index) => index !== i)
                     );
                     setImages((prev) => prev.filter((_, index) => index !== i));
-                  } }
+                  }}
                   className="flex items-center justify-center size-5 [&>svg]:size-3 text-white bg-error absolute -top-2.5 -right-2.5 rounded-full"
                 >
                   <X />

@@ -92,7 +92,7 @@ const RegistrationForm = (props: { inviterTag?: string }) => {
               children: (
                 <>
                   You agree to our{" "}
-                  <a href="/privacy-policy" target="_blank"  className="underline">
+                  <a href="/privacy-policy" target="_blank" className="underline">
                     privacy policy
                   </a>
                 </>

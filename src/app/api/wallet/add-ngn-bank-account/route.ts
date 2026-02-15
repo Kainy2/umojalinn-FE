@@ -1,21 +1,19 @@
-import { SingleApiResponse } from "@/types/util";
+import {  SingleApiResponse } from "@/types/util";
 import { customAxios, handleAPIError, setBearerToken } from "@/lib/axios";
 import { AxiosResponse } from "axios";
 import { NextRequest, NextResponse } from "next/server";
+import {  UmojaLinnBankVerified} from "@/types/project";
 
-export const POST = async (
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) => {
+
+export const POST = async (req: NextRequest) => {
   try {
     await setBearerToken(req);
 
-    const id = (await params)?.id;
-
+    const body = await req.json()
     const response = await customAxios.post<
       unknown,
-      AxiosResponse<SingleApiResponse, unknown>
-    >(`/project/fund-project/${id}`);
+      AxiosResponse<SingleApiResponse<UmojaLinnBankVerified>, unknown>
+    >(`/wallet/add-ngn-bank-account`, body);
 
     return NextResponse.json(response.data);
   } catch (error) {
