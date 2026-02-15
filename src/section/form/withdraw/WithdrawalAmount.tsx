@@ -92,9 +92,10 @@ const WithdrawalAmountForm = (props: {
     return !!paymentAccount.stripeAccountId;
   }, [paymentAccount, currency]);
 
-  const handleVerify = () => {
-    if (!bankCode || accountNumber.length < 10) return;
-    verifyNgnAccount({ bankCode, accountNumber }, {
+  const handleAutoVerify = (code: string, accNum: string) => {
+    if (!code || accNum.length !== 10) return;
+
+    verifyNgnAccount({ bankCode: code, accountNumber: accNum }, {
       onSuccess: (data) => {
         setVerifiedName(data.data.data.accountName);
         toast({ description: "Account verified!" });
@@ -120,8 +121,6 @@ const WithdrawalAmountForm = (props: {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Withdrawal Amount Input - Always show if intended to be part of the flow, 
-            or maybe only if account exists? The image shows it. */}
 
       <TextField
         type="text"
@@ -213,6 +212,10 @@ const WithdrawalAmountForm = (props: {
                   };
                   setBankCode(typedValue?.value);
                   setVerifiedName("");
+                  // Trigger verification if account number is already valid
+                  if (accountNumber.length === 10) {
+                    handleAutoVerify(typedValue?.value, accountNumber);
+                  }
                 }}
                 value={bankCode ? { label: getBankName(bankCode), value: bankCode } : null}
                 startAdornment={<Bank className="size-5 text-gray-400" />}
@@ -226,9 +229,15 @@ const WithdrawalAmountForm = (props: {
               <TextField
                 placeholder="Account number"
                 value={accountNumber}
+                disabled={isVerifying}
                 onChange={(e) => {
-                  setAccountNumber(e.target.value);
+                  const val = e.target.value;
+                  setAccountNumber(val);
                   setVerifiedName(""); // Reset verification if number changes
+
+                  if (val.length === 10 && bankCode) {
+                    handleAutoVerify(bankCode, val);
+                  }
                 }}
               />
             </div>
@@ -282,16 +291,7 @@ const WithdrawalAmountForm = (props: {
                 <Button variant="ghost" onClick={() => setIsEditing(false)}>Cancel</Button>
               )}
 
-              {!verifiedName ? (
-                <Button
-                  type="button"
-                  disabled={!bankCode || accountNumber.length < 10 || isVerifying}
-                  onClick={handleVerify}
-                  className="w-full sm:w-auto"
-                >
-                  {isVerifying ? "Verifying..." : "Verify Account"}
-                </Button>
-              ) : (
+              {verifiedName && (
                 <Button
                   disabled={!verifiedName || isAddingAccount || !agree} // Require agreement
                   onClick={handleSaveAccount}

@@ -5,7 +5,7 @@ import { getCurrencySymbol } from "@/lib/string";
 import { UmojaLinnCurrency, UmojalinnWallet } from "@/types/project";
 import { Eye, EyeOff, Upload, Lock as LockIcon, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import React, { useState } from "react";
+import React from "react";
 import CustomReactSelect from "../ReactSelect";
 import NG from "../../../../public/img/svg/NG.svg"
 import EUR from "../../../../public/img/svg/EUR.svg"
@@ -21,6 +21,10 @@ interface IWalletCardProps {
   noAction?: boolean;
   stripeStatus?: string;
   onLinkStripe?: () => void;
+  hideBalance?: boolean;
+  onToggleBalance?: () => void;
+  currency?: UmojaLinnCurrency;
+  onCurrencyChange?: (currency: UmojaLinnCurrency) => void;
 }
 
 
@@ -33,9 +37,19 @@ export const currencyOptions = [
 ] as const;
 
 const WalletCard = (props: IWalletCardProps) => {
-  const { wallet, noAction, stripeStatus, onLinkStripe } = props;
-  const [currency, setCurrency] = useState<UmojaLinnCurrency>("NAIRA");
-  const [obfuscate, setObfuscate] = useState(!noAction);
+  const {
+    wallet,
+    noAction,
+    stripeStatus,
+    onLinkStripe,
+    hideBalance,
+    onToggleBalance,
+    currency = "NAIRA",
+    onCurrencyChange
+  } = props;
+
+  // const [currency, setCurrency] = useState<UmojaLinnCurrency>("NAIRA"); // lifted to parent
+  // const [obfuscate, setObfuscate] = useState(!noAction); // logic moved to parent
 
   const currentOption = currencyOptions.find((opt) => opt.value === currency);
 
@@ -82,7 +96,10 @@ const WalletCard = (props: IWalletCardProps) => {
             value={currentOption}
             onChange={(newValue: unknown) => {
               const typedValue = newValue as (typeof currencyOptions)[number];
-              setCurrency(typedValue?.value);
+              if (onCurrencyChange && typedValue?.value) {
+                onCurrencyChange(typedValue.value);
+              }
+              // setCurrency(typedValue?.value);
             }}
             options={currencyOptions}
           />
@@ -111,15 +128,15 @@ const WalletCard = (props: IWalletCardProps) => {
 
       <div className="flex items-center lg:justify-normal justify-between gap-4 lg:mb-8">
         <h3 className="text-[24px] font-semibold lg:text-4xl lg:font-bold text-navy-900">
-          {obfuscate
+          {hideBalance
             ? "***************"
             : `${getCurrencySymbol(currency)}${formatCurrencyValue(balance)}`}
         </h3>
         <button
-          onClick={() => setObfuscate((prev) => !prev)}
+          onClick={onToggleBalance}
           className="size-10 flex items-center justify-center rounded-full bg-yellow-50 text-yellow-600 hover:bg-yellow-100 transition-colors"
         >
-          {obfuscate ? <Eye className="size-5" /> : <EyeOff className="size-5" />}
+          {hideBalance ? <Eye className="size-5" /> : <EyeOff className="size-5" />}
         </button>
       </div>
 
@@ -187,15 +204,31 @@ export default WalletCard;
 export const CurrencyCard = ({
   currency,
   amount,
+  hideBalance,
+  isSelected,
+  showActionRequired,
 }: {
   currency: UmojaLinnCurrency;
   amount: number;
+  hideBalance?: boolean;
+  isSelected?: boolean;
+  showActionRequired?: boolean;
 }) => {
   const option = currencyOptions.find((opt) => opt.value === currency);
   return (
-    <div className="p-6 border border-input rounded-lg w-[249px] bg-white flex flex-col gap-6 shadow-sm shrink-0">
-      <div className="size-8 rounded-full bg-gray-100 flex items-center justify-center text-2xl overflow-hidden relative">
-        <Image src={option?.flag || ""} alt="" width={100} height={100} />
+    <div
+      className={`p-6 border rounded-lg w-[249px] bg-white flex flex-col gap-6 shadow-sm shrink-0 ${isSelected ? "border border-[#FEEE95]" : "border-input"
+        }`}
+    >
+      <div className="flex items-center justify-between">
+        <div className="size-8 rounded-full bg-gray-100 flex items-center justify-center text-2xl overflow-hidden relative">
+          <Image src={option?.flag || ""} alt="" width={100} height={100} />
+        </div>
+        {showActionRequired && (
+          <span className="bg-[#FEF3F2] text-error-700 px-2 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap">
+            Action required
+          </span>
+        )}
       </div>
 
       <div className="flex flex-col gap-2">
@@ -203,8 +236,13 @@ export const CurrencyCard = ({
           {option?.fullName}
         </span>
         <h3 className="text-3xl font-bold text-navy-900">
-          {getCurrencySymbol(currency)}
-          {formatCurrencyValue(amount)}
+          {hideBalance ? "********" : (
+            <>
+              {getCurrencySymbol(currency)}
+              {formatCurrencyValue(amount)}
+            </>
+          )}
+
         </h3>
       </div>
     </div>

@@ -23,8 +23,10 @@ const WithdrawalPage = () => {
   const { data: walletData } = useGetWallet();
   const { data: paymentAccountData } = useGetPaymentAccountInfo();
 
+  const [selectedCurrency, setSelectedCurrency] = useState<UmojaLinnCurrency>("NAIRA");
   const [isStripeModalOpen, setIsStripeModalOpen] = useState(false);
   const [stripeModalCurrency, setStripeModalCurrency] = useState<UmojaLinnCurrency>("EURO");
+  const [hideBalance, setHideBalance] = useState(true);
 
   const {
     data: allTransactions,
@@ -40,6 +42,10 @@ const WithdrawalPage = () => {
 
   const isDesigner = session?.user?.profileRole === "DESIGNER";
 
+  const getShowActionRequired = (currency: UmojaLinnCurrency) => {
+    return currency !== "NAIRA" && paymentAccount?.stripeStatus !== "ENABLED";
+  }
+
   return (
     <>
       <h1 className="text-subtitle-1 font-bold mb-8">Wallet</h1>
@@ -51,16 +57,49 @@ const WithdrawalPage = () => {
                 wallet={wallet}
                 stripeStatus={paymentAccount?.stripeStatus}
                 onLinkStripe={() => {
-                  setStripeModalCurrency("EURO"); // Defaulting to EURO or generic non-naira
+                  setStripeModalCurrency(selectedCurrency); // Use currently selected currency
                   setIsStripeModalOpen(true);
                 }}
+                hideBalance={hideBalance}
+                onToggleBalance={() => setHideBalance((prev) => !prev)}
+                currency={selectedCurrency}
+                onCurrencyChange={setSelectedCurrency}
               />
               <CurrencyCarousel>
-                <CurrencyCard currency="NAIRA" amount={wallet?.ngnBalance || 0} />
-                <CurrencyCard currency="EURO" amount={wallet?.eurBalance || 0} />
-                <CurrencyCard currency="USD" amount={wallet?.usdBalance || 0} />
-                <CurrencyCard currency="GBP" amount={wallet?.gbpBalance || 0} />
-                <CurrencyCard currency="CAD" amount={wallet?.cadBalance || 0} />
+                <CurrencyCard
+                  currency="NAIRA"
+                  amount={wallet?.ngnBalance || 0}
+                  hideBalance={hideBalance}
+                  isSelected={selectedCurrency === "NAIRA"}
+                />
+                <CurrencyCard
+                  currency="EURO"
+                  amount={wallet?.eurBalance || 0}
+                  hideBalance={hideBalance}
+                  isSelected={selectedCurrency === "EURO"}
+                  showActionRequired={getShowActionRequired("EURO")}
+                />
+                <CurrencyCard
+                  currency="USD"
+                  amount={wallet?.usdBalance || 0}
+                  hideBalance={hideBalance}
+                  isSelected={selectedCurrency === "USD"}
+                  showActionRequired={getShowActionRequired("USD")}
+                />
+                <CurrencyCard
+                  currency="GBP"
+                  amount={wallet?.gbpBalance || 0}
+                  hideBalance={hideBalance}
+                  isSelected={selectedCurrency === "GBP"}
+                  showActionRequired={getShowActionRequired("GBP")}
+                />
+                <CurrencyCard
+                  currency="CAD"
+                  amount={wallet?.cadBalance || 0}
+                  hideBalance={hideBalance}
+                  isSelected={selectedCurrency === "CAD"}
+                  showActionRequired={getShowActionRequired("CAD")}
+                />
               </CurrencyCarousel>
             </div>
             {isDesigner && <EscrowCard wallet={wallet!} />}
