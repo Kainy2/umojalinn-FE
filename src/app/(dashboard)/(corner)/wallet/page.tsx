@@ -2,8 +2,8 @@
 import WalletCard, { EscrowCard, CurrencyCard } from "@/components/custom/card/Wallet";
 import { CurrencyCarousel } from "@/components/custom/card/CurrencyCarousel";
 import { Separator } from "@/components/ui/separator";
-import { useGetInfiniteTransactions, useGetWallet } from "@/tanstack/hooks/useProject";
-import React from "react";
+import { useGetInfiniteTransactions, useGetWallet, useGetPaymentAccountInfo } from "@/tanstack/hooks/useProject";
+import React, { useState } from "react";
 
 import { capitalizeFirstLetter, getCurrencySymbol } from "@/lib/string";
 import { formatCurrencyValue } from "@/lib/number";
@@ -15,10 +15,17 @@ import {
 } from "@/components/util/wallet";
 import { cn } from "@/lib/utils";
 import { useInfiniteData } from "@/hooks/use-infinite-data";
+import { StripeStatusModal } from "@/components/custom/dialog/StripeStatusModal";
+import { UmojaLinnCurrency } from "@/types/project";
 
 const WithdrawalPage = () => {
   const { data: session } = useSession();
   const { data: walletData } = useGetWallet();
+  const { data: paymentAccountData } = useGetPaymentAccountInfo();
+
+  const [isStripeModalOpen, setIsStripeModalOpen] = useState(false);
+  const [stripeModalCurrency, setStripeModalCurrency] = useState<UmojaLinnCurrency>("EURO");
+
   const {
     data: allTransactions,
     isPending,
@@ -29,6 +36,7 @@ const WithdrawalPage = () => {
   const transactions = useInfiniteData(allTransactions)
 
   const wallet = walletData?.data?.data;
+  const paymentAccount = paymentAccountData?.data?.data;
 
   const isDesigner = session?.user?.profileRole === "DESIGNER";
 
@@ -41,6 +49,11 @@ const WithdrawalPage = () => {
             <div className="flex flex-col gap-4">
               <WalletCard
                 wallet={wallet}
+                stripeStatus={paymentAccount?.stripeStatus}
+                onLinkStripe={() => {
+                  setStripeModalCurrency("EURO"); // Defaulting to EURO or generic non-naira
+                  setIsStripeModalOpen(true);
+                }}
               />
               <CurrencyCarousel>
                 <CurrencyCard currency="NAIRA" amount={wallet?.ngnBalance || 0} />
@@ -53,6 +66,11 @@ const WithdrawalPage = () => {
             {isDesigner && <EscrowCard wallet={wallet!} />}
           </div>
         </div>
+        <StripeStatusModal
+          open={isStripeModalOpen}
+          onOpenChange={setIsStripeModalOpen}
+          currency={stripeModalCurrency}
+        />
         <div className="flex-1 shrink-0  max-h-[80vh] overflow-y-scroll p-8 border border-border w-full lg:w-3/12">
           <h2 className="font-semibold mb-2">Recent transactions</h2>
           <Separator className="bg-border/50" />

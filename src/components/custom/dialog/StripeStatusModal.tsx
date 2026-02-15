@@ -14,17 +14,21 @@ import { useConnectStripeAccount } from "@/tanstack/hooks/useProject";
 
 interface StripeStatusModalProps {
     currency: UmojaLinnCurrency;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
 }
 
 export const StripeStatusModal = ({
     currency,
+    open,
+    onOpenChange,
 }: StripeStatusModalProps) => {
 
 
     const { mutate, isPending } = useConnectStripeAccount({
         onSuccess: (data) => {
             if (data.data.data.onboardingUrl) {
-                window.location.href = data.data.data.onboardingUrl;
+                window.open(data.data.data.onboardingUrl, "_blank");
             }
         }
     });
@@ -33,7 +37,7 @@ export const StripeStatusModal = ({
 
 
     return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader className="flex flex-col items-start gap-4">
                     <div className="rounded-lg border border-gray-200 p-3 h-12 w-12 flex items-center justify-center">

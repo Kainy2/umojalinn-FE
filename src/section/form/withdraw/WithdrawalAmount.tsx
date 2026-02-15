@@ -7,7 +7,7 @@ import Bank from "@/icons/Bank";
 import NairaSign from "@/icons/NairaSign";
 import { UmojaLinnCurrency } from "@/types/project";
 import { Euro, MessageSquareWarning } from "lucide-react";
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState } from "react";
 import {
   useGetListNgnBanks,
   useGetPaymentAccountInfo,
@@ -21,7 +21,6 @@ import { capitalizeFirstLetter } from "@/lib/string";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { StripeStatusModal } from "@/components/custom/dialog/StripeStatusModal";
 
 export type VerifyNgnAccountPayload = {
   bankCode: string;
@@ -74,7 +73,6 @@ const WithdrawalAmountForm = (props: {
   const [verifiedName, setVerifiedName] = useState<string>("");
   const [isEditing, setIsEditing] = useState(false);
   const [agree, setAgree] = useState(false); // Checkbox agreement state
-  const [showStripeModal, setShowStripeModal] = useState(false);
 
 
 
@@ -116,15 +114,6 @@ const WithdrawalAmountForm = (props: {
       accountName: verifiedName
     });
   };
-
-  useEffect(() => {
-    if (currency !== "NAIRA" && paymentAccount) {
-      const validStatus = "ENABLED";
-      if (paymentAccount.stripeStatus !== validStatus) {
-        setShowStripeModal(true);
-      }
-    }
-  }, [currency, paymentAccount]);
 
   // Logic to determine what to render
   const showSavedAccount = hasActiveAccount && !isEditing;
@@ -336,10 +325,6 @@ const WithdrawalAmountForm = (props: {
           </Button>
         </div>
       )}
-
-      {showStripeModal && <StripeStatusModal
-        currency={currency}
-      />}
     </div>
   );
 };

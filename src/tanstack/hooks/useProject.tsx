@@ -68,6 +68,7 @@ import {
   TRANSACTION,
   WALLET,
   WITHDRAWAL_METHODS,
+  PAYMENT_ACCOUNT_INFO
 } from "../keys";
 import {
   // CreateWithdrawalMethodPayload,
@@ -423,7 +424,7 @@ export const useGetPaymentAccountInfo = (
   return useQuery({
     ...options,
     enabled: !!me?.user && options?.enabled !== false,
-    queryKey: [PROJECT, WALLET],
+    queryKey: [PROJECT, WALLET, PAYMENT_ACCOUNT_INFO],
     queryFn: () => getPaymentAccountInfo(),
   });
 };

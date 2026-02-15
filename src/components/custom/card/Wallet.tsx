@@ -19,6 +19,8 @@ import Image from "next/image";
 interface IWalletCardProps {
   wallet?: UmojalinnWallet;
   noAction?: boolean;
+  stripeStatus?: string;
+  onLinkStripe?: () => void;
 }
 
 
@@ -31,7 +33,7 @@ export const currencyOptions = [
 ] as const;
 
 const WalletCard = (props: IWalletCardProps) => {
-  const { wallet, noAction } = props;
+  const { wallet, noAction, stripeStatus, onLinkStripe } = props;
   const [currency, setCurrency] = useState<UmojaLinnCurrency>("NAIRA");
   const [obfuscate, setObfuscate] = useState(!noAction);
 
@@ -56,6 +58,8 @@ const WalletCard = (props: IWalletCardProps) => {
   };
 
   const { balance, escrow } = getBalances();
+
+  const showLinkAccount = currency !== "NAIRA" && stripeStatus !== "ENABLED";
 
   return (
     <div className="px-2 py-4 lg:p-8 border border-input rounded-lg w-full bg-white relative">
@@ -84,14 +88,24 @@ const WalletCard = (props: IWalletCardProps) => {
           />
         </div>
         {!noAction && (
-          <Button
-            asChild
-            className="bg-[#E6AB00] text-white gap-2 rounded-md hidden lg:flex"
-          >
-            <Link href={`/wallet/withdraw/${currentOption?.name.toLowerCase()}`}>
-              Withdraw <Upload className="size-4" />
-            </Link>
-          </Button>
+          showLinkAccount ? (
+            <Button
+              variant="outline"
+              className="text-error border-error hover:bg-error/5 hover:text-error gap-2 rounded-md hidden lg:flex"
+              onClick={onLinkStripe}
+            >
+              Link Account
+            </Button>
+          ) : (
+            <Button
+              asChild
+              className="bg-[#E6AB00] text-white gap-2 rounded-md hidden lg:flex"
+            >
+              <Link href={`/wallet/withdraw/${currentOption?.name.toLowerCase()}`}>
+                Withdraw <Upload className="size-4" />
+              </Link>
+            </Button>
+          )
         )}
       </div>
 
@@ -117,14 +131,24 @@ const WalletCard = (props: IWalletCardProps) => {
         <ArrowRight className="text-gray-500" />
       </div>
       {!noAction && (
-        <Button
-          asChild
-          className="bg-[#E6AB00] text-white gap-2 lg:hidden w-full"
-        >
-          <Link href={`/wallet/withdraw/${currentOption?.name.toLowerCase()}`}>
-            Withdraw <Upload className="size-4" />
-          </Link>
-        </Button>
+        showLinkAccount ? (
+          <Button
+            variant="outline"
+            className="text-error border-error hover:bg-error/5 hover:text-error gap-2 lg:hidden w-full"
+            onClick={onLinkStripe}
+          >
+            Link Account
+          </Button>
+        ) : (
+          <Button
+            asChild
+            className="bg-[#E6AB00] text-white gap-2 lg:hidden w-full"
+          >
+            <Link href={`/wallet/withdraw/${currentOption?.name.toLowerCase()}`}>
+              Withdraw <Upload className="size-4" />
+            </Link>
+          </Button>
+        )
       )}
     </div>
   );
