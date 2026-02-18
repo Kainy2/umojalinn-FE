@@ -11,13 +11,14 @@ import {
 import MilestoneIndicator from "./Indicator";
 import MilestonePill from "./Pill";
 import MilestoneAction, { MilestoneActionType } from "./Action";
-import SelectFundingMethodDialog from "../dialog/SelectFundingMethod";
+// import SelectFundingMethodDialog from "../dialog/SelectFundingMethod";
 import MilestoneInputSection from "./InputSection";
 import MilestoneSubmissionsPreview from "./SubmissionsPreview";
-import FundMilestoneDialog from "../dialog/FundMilestoneDialog";
+// import FundMilestoneDialog from "../dialog/FundMilestoneDialog";
 import { UmojaLinnUser } from "@/types/user";
 import { VariableDeliveryForm } from "./VariableDeliveryForm";
 import { EDeliveryMileStoneType } from "@/types/enum";
+import { useFundMilestone} from "@/tanstack/hooks/useProject";
 
 export enum MilestoneStatus {
   INACTIVE = "INACTIVE",
@@ -92,8 +93,8 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
 }) => {
   const deliveryMilestone = !!milestones.length ? milestones[milestones.length - 1] : undefined;
 
-  const [openFundMilestoneModal, setOpenFundMilestoneModal] = useState(false);
-  const [openPayForMilestoneModal, setOpenPayForMilestoneModal] = useState(false)
+  // const [openFundMilestoneModal, setOpenFundMilestoneModal] = useState(false);
+  // const [openPayForMilestoneModal, setOpenPayForMilestoneModal] = useState(false)
   const [selectedMilestoneId, setSelectedMilestoneId] = useState('')
   const [message, setMessage] = React.useState<string>('');
   const [files, setFiles] = React.useState<FileList | null>(null);
@@ -116,25 +117,35 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
     });
 
   const onAcceptMilestoneSuccess = (isDelivery: boolean, index: number) => {
-    if (isDelivery) return
+    // if (isDelivery) return
     const nextMilestone = milestones[index + 1];
 
     if (nextMilestone.project.fundStatus === MilestoneStatus.AWAITING_FUND) {
-      setOpenFundMilestoneModal(true);
+      // setOpenFundMilestoneModal(true);
       setSelectedMilestoneId(nextMilestone.id);
     }
   }
 
   const onAcceptVariableMilestoneSuccess = (isDelivery: boolean, deliveryMilestone: UmojaLinnMilestone) => {
-    if (!isDelivery || deliveryMilestone.project.fundStatus !== MilestoneStatus.AWAITING_FUND) return
+    if (deliveryMilestone.project.fundStatus !== MilestoneStatus.AWAITING_FUND) return
 
-    setOpenFundMilestoneModal(true);
+    // setOpenFundMilestoneModal(true);
     setSelectedMilestoneId(deliveryMilestone.id);
   }
 
+  console.log({ selectedMilestoneId })
+  const fundMilestone = useFundMilestone(selectedMilestoneId, {
+    onSuccess: (data) => {
+      window.open(data.data.data.checkoutUrl, "_blank", "noopener,noreferrer");
+    },
+    onError: (err) => {
+      console.log(err);
+    }
+  });
+
   return (
     <>
-      <SelectFundingMethodDialog
+      {/* <SelectFundingMethodDialog
         id={selectedMilestoneId}
         type="milestone"
         open={openPayForMilestoneModal}
@@ -148,7 +159,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
           setOpenFundMilestoneModal(false);
           setOpenPayForMilestoneModal(true);
         }}
-      />
+      /> */}
 
       <ol className={cn(
         "flex flex-col gap-1.5",
@@ -298,15 +309,18 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                     <MilestonePill currency={currency} escrowBalance={escrowBalance} {...milestone} />
                     {isAwaitingFunding && latestSubmission?.status !== "PENDING" &&
                       !isDesigner && (
-                        <SelectFundingMethodDialog
-                          id={milestone?.id}
-                          type="milestone"
-                          currency={currency!}
-                        >
-                          <button className="text-sm underline text-primary">
+                        // <SelectFundingMethodDialog
+                        //   id={milestone?.id}
+                        //   type="milestone"
+                        //   currency={currency!}
+                        // >
+                          <button className="text-sm underline text-primary" 
+                          
+                                       onClick={()=>fundMilestone.mutate()}
+>
                             Fund Milestone
                           </button>
-                        </SelectFundingMethodDialog>
+                        // </SelectFundingMethodDialog>
                       )}
                     {(milestone?.retries?.length ?? 0) > 1 && (
                       <>

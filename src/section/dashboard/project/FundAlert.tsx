@@ -1,8 +1,8 @@
 "use client";
 import Alert from "@/components/custom/Alert";
-import SelectFundingMethodDialog from "@/components/custom/dialog/SelectFundingMethod";
+// import SelectFundingMethodDialog from "@/components/custom/dialog/SelectFundingMethod";
 import { Button } from "@/components/ui/button";
-import { uuidToBase62Safe } from "@/lib/uuid";
+// import { uuidToBase62Safe } from "@/lib/uuid";
 import {
   useGetProjectById,
   useGetProjectMilestones,
@@ -11,6 +11,7 @@ import { AlertTriangle } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useParams, usePathname } from "next/navigation";
 import React, { useMemo } from "react";
+import { useFundMilestone, useFundProject } from "@/tanstack/hooks/useProject";
 
 const FundProjectAlert = () => {
   const pathname = usePathname();
@@ -34,7 +35,22 @@ const FundProjectAlert = () => {
   const isExcludedPath = excludedPaths.some(path => pathname.includes(path));
   const isAwaitingFund = projectData?.data?.data?.fundStatus === "AWAITING_FUND";
   const isUnfunded = projectData?.data?.data?.amountFunded === 0;
-  console.log(projectData?.data)
+  const fundMilestone = useFundMilestone(firstFundMilestone?.id || "", {
+    onSuccess: (data) => {
+      window.open(data.data.data.checkoutUrl, "_blank", "noopener,noreferrer");
+    },
+    onError: (err) => {
+      console.log(err);
+    }
+  });
+  const fundProject = useFundProject(params.id, {
+    onSuccess: (data) => {
+      window.open(data.data.data.checkoutUrl, "_blank", "noopener,noreferrer");
+    },
+    onError: (err) => {
+      console.log(err);
+    }
+  });
 
   if (isExcludedPath || !isAwaitingFund || !isUnfunded || isDesigner) return null;
 
@@ -47,23 +63,16 @@ const FundProjectAlert = () => {
       message="fund escrow to start project"
       action={
         <div className="flex flex-col md:flex-row gap-1">
-          <SelectFundingMethodDialog
-            id={uuidToBase62Safe(firstFundMilestone?.id || "")}
-            type="milestone"
-            currency={projectData?.data?.data?.currency || "NAIRA"}
 
-          >
             <Button
               className="w-full md:w-auto"
               variant="outline"
               disabled={!firstFundMilestone}
+              onClick={()=>fundMilestone.mutate()}
             >
               Fund Milestone
             </Button>
-          </SelectFundingMethodDialog>
-          <SelectFundingMethodDialog id={params?.id} type="project" currency={projectData?.data?.data?.currency || "NAIRA"}>
-            <Button className="w-full md:w-auto">Fund Project</Button>
-          </SelectFundingMethodDialog>
+            <Button className="w-full md:w-auto" onClick={()=>fundProject.mutate()}>Fund Project</Button>
         </div >
       }
     />
