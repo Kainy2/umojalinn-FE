@@ -10,6 +10,12 @@ export const servers = {
         "stun:stun4.l.google.com:19302",
       ],
     },
+		{
+			urls: "turn:openrelay.metered.ca:80",
+			username: "openrelayproject",
+			credential: "openrelayproject"
+		}
+		
   ],
   iceCandidatePoolSize: 10,
 };

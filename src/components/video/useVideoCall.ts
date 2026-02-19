@@ -87,11 +87,15 @@ const useVideoCall = ({
       // Listen for answer
       onValue(callRef, async (snapshot) => {
         const data = snapshot.val();
-        if (!pc.currentRemoteDescription && data?.answer) {
-          await pc.setRemoteDescription(
-            new RTCSessionDescription(data.answer)
-          );
-        }
+
+				if (!data?.answer) return;
+
+				// Only set answer if we're still waiting for it
+				if (pc.signalingState !== "have-local-offer") return;
+
+				await pc.setRemoteDescription(
+					new RTCSessionDescription(data.answer)
+				);
       });
 
       // Listen for remote ICE candidates
