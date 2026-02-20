@@ -61,7 +61,7 @@ const SelectFundingMethodDialog = (
   };
 
 
-  const fundMilestone = useFundMilestone(props.id, {
+  const fundMilestone = useFundMilestone({
     onSuccess: (data) => {
       window.open(data.data.data.checkoutUrl, "_blank", "noopener,noreferrer");
     },
@@ -112,8 +112,11 @@ const SelectFundingMethodDialog = (
             <Button
               fullWidth
               onClick={() => {
-                const mutation = props.type === "milestone" ? fundMilestone : fundProject;
-                mutation.mutate();
+                if (props.type === "milestone") {
+                  fundMilestone.mutate(props.id);
+                } else {
+                  fundProject.mutate();
+                }
               }}
               disabled={!paymentMethod}
             >

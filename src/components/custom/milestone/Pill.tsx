@@ -9,8 +9,8 @@ import { MilestoneStatus, MilestoneTimelineItem, MilestoneTimelineProps } from "
 import { formatCurrencyValue } from "@/lib/number";
 
 const MilestonePill: React.FC<
-  MilestoneTimelineItem & Pick<MilestoneTimelineProps, "currency" | "escrowBalance">
-> = ({ amount, currency, escrowBalance = 0, status, variableSubmissions }) => {
+  MilestoneTimelineItem & Pick<MilestoneTimelineProps, "currency" | "escrowBalance"> & { isDesigner?: boolean }
+> = ({ amount, currency, escrowBalance = 0, status, variableSubmissions, isDesigner }) => {
   const variableStatus = variableSubmissions?.[0]?.status === "PENDING" ? "IN_REVIEW" : status
   const nonVariableAmount = variableStatus === MilestoneStatus.AWAITING_FUND ? amount - escrowBalance : amount
   const variableAmount = nonVariableAmount
@@ -19,10 +19,10 @@ const MilestonePill: React.FC<
   // else, he will see only the accepted prices in the pill
   //  variableAmount = variableSubmissions?.[0]?.status === "PENDING" ? variableSubmissions?.[0]?.amount : nonVariableAmount
 
-  console.log(variableStatus)
 
-  const label = getLabel(variableStatus);
-  console.log(label)
+  const label = getLabel(variableStatus, isDesigner);
+
+
   const wrapperStyle = getPillWrapperStyle(variableStatus);
   const valueStyle = getPillValueStyle(variableStatus);
   return (

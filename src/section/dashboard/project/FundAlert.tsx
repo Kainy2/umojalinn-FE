@@ -35,7 +35,7 @@ const FundProjectAlert = () => {
   const isExcludedPath = excludedPaths.some(path => pathname.includes(path));
   const isAwaitingFund = projectData?.data?.data?.fundStatus === "AWAITING_FUND";
   const isUnfunded = projectData?.data?.data?.amountFunded === 0;
-  const fundMilestone = useFundMilestone(firstFundMilestone?.id || "", {
+  const fundMilestone = useFundMilestone({
     onSuccess: (data) => {
       window.open(data.data.data.checkoutUrl, "_blank", "noopener,noreferrer");
     },
@@ -64,15 +64,15 @@ const FundProjectAlert = () => {
       action={
         <div className="flex flex-col md:flex-row gap-1">
 
-            <Button
-              className="w-full md:w-auto"
-              variant="outline"
-              disabled={!firstFundMilestone}
-              onClick={()=>fundMilestone.mutate()}
-            >
-              Fund Milestone
-            </Button>
-            <Button className="w-full md:w-auto" onClick={()=>fundProject.mutate()}>Fund Project</Button>
+          <Button
+            className="w-full md:w-auto"
+            variant="outline"
+            disabled={!firstFundMilestone}
+            onClick={() => fundMilestone.mutate(firstFundMilestone?.id || "")}
+          >
+            Fund Milestone
+          </Button>
+          <Button className="w-full md:w-auto" onClick={() => fundProject.mutate()}>Fund Project</Button>
         </div >
       }
     />

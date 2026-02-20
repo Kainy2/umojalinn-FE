@@ -244,19 +244,19 @@ export const useFundProject = (
 };
 
 export const useFundMilestone = (
-  id: string,
-  options?: GenericUseMutationProps<SingleApiResponse<UmojaLinnPayment>>
+  options?: GenericUseMutationProps<SingleApiResponse<UmojaLinnPayment>, string>
 ) => {
   const { handleError } = useHandleError("Fund Milestone");
   return useMutation({
-    mutationFn: () => fundMilestone(id),
+    ...options,
+    mutationFn: (id: string) => fundMilestone(id),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: [PROJECT] });
       options?.onSuccess?.(data, variables, context);
-
     },
-    onError: (error) => {
+    onError: (error, variables, context) => {
       handleError(error);
+      options?.onError?.(error, variables, context);
     },
   });
 };

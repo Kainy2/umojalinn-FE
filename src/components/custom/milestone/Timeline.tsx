@@ -18,7 +18,7 @@ import MilestoneSubmissionsPreview from "./SubmissionsPreview";
 import { UmojaLinnUser } from "@/types/user";
 import { VariableDeliveryForm } from "./VariableDeliveryForm";
 import { EDeliveryMileStoneType } from "@/types/enum";
-import { useFundMilestone} from "@/tanstack/hooks/useProject";
+import { useFundMilestone } from "@/tanstack/hooks/useProject";
 
 export enum MilestoneStatus {
   INACTIVE = "INACTIVE",
@@ -28,6 +28,7 @@ export enum MilestoneStatus {
   AWAITING_FUND = "AWAITING_FUND",
   PAID = "PAID",
   COMPLETED = "COMPLETED",
+  PROCESSING = "PROCESSING",
 }
 
 export type MilestoneTimelineItem = {
@@ -75,7 +76,9 @@ const getMilestoneStatus = (
   if (status === "PENDING" && transactionStatus === "AWAITING_FUND")
     return MilestoneStatus.AWAITING_FUND;
   if (transactionStatus === "PAID") return MilestoneStatus.PAID;
-  if (transactionStatus === "PROCESSING") return MilestoneStatus.REVIEW;
+  if (transactionStatus === "PROCESSING") return MilestoneStatus.PROCESSING;
+  ;
+
   if (status === "IN_REVIEW") return MilestoneStatus.IN_REVIEW;
   return MilestoneStatus.INACTIVE;
 };
@@ -95,7 +98,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
 
   // const [openFundMilestoneModal, setOpenFundMilestoneModal] = useState(false);
   // const [openPayForMilestoneModal, setOpenPayForMilestoneModal] = useState(false)
-  const [selectedMilestoneId, setSelectedMilestoneId] = useState('')
+  // const [selectedMilestoneId, setSelectedMilestoneId] = useState('')
   const [message, setMessage] = React.useState<string>('');
   const [files, setFiles] = React.useState<FileList | null>(null);
   const [editedVariablePrice, setEditedVariablePrice] =
@@ -117,12 +120,12 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
     });
 
   const onAcceptMilestoneSuccess = (isDelivery: boolean, index: number) => {
-    // if (isDelivery) return
+    if (isDelivery) return
     const nextMilestone = milestones[index + 1];
 
     if (nextMilestone.project.fundStatus === MilestoneStatus.AWAITING_FUND) {
       // setOpenFundMilestoneModal(true);
-      setSelectedMilestoneId(nextMilestone.id);
+      // setSelectedMilestoneId(nextMilestone.id);
     }
   }
 
@@ -130,18 +133,20 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
     if (deliveryMilestone.project.fundStatus !== MilestoneStatus.AWAITING_FUND) return
 
     // setOpenFundMilestoneModal(true);
-    setSelectedMilestoneId(deliveryMilestone.id);
+    // setSelectedMilestoneId(deliveryMilestone.id);
   }
-
-  console.log({ selectedMilestoneId })
-  const fundMilestone = useFundMilestone(selectedMilestoneId, {
+  const fundMilestone = useFundMilestone({
     onSuccess: (data) => {
-      window.open(data.data.data.checkoutUrl, "_blank", "noopener,noreferrer");
+      const url = data?.data?.data?.checkoutUrl;
+      if (url) {
+        window.open(url, "_blank", "noopener,noreferrer");
+      }
     },
     onError: (err) => {
-      console.log(err);
-    }
+      console.error(err);
+    },
   });
+
 
   return (
     <>
@@ -172,7 +177,6 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
             id: item?.id,
             status: getMilestoneStatus(item?.status, item?.transactionStatus),
             amount: item?.amount || 0,
-
             date: item?.updatedAt,
             title: item?.title || (isDelivery && "Delivery Method") || "No title",
             description: item?.description,
@@ -306,7 +310,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                         )}
                       </time>
                     )}
-                    <MilestonePill currency={currency} escrowBalance={escrowBalance} {...milestone} />
+                    <MilestonePill currency={currency} escrowBalance={escrowBalance} isDesigner={isDesigner} {...milestone} />
                     {isAwaitingFunding && latestSubmission?.status !== "PENDING" &&
                       !isDesigner && (
                         // <SelectFundingMethodDialog
@@ -314,12 +318,13 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                         //   type="milestone"
                         //   currency={currency!}
                         // >
-                          <button className="text-sm underline text-primary" 
-                          
-                                       onClick={()=>fundMilestone.mutate()}
->
-                            Fund Milestone
-                          </button>
+                        <button className="text-sm underline text-primary"
+                          onClick={() => {
+                            fundMilestone.mutate(milestone?.id);
+                          }}
+                        >
+                          Fund Milestone
+                        </button>
                         // </SelectFundingMethodDialog>
                       )}
                     {(milestone?.retries?.length ?? 0) > 1 && (
