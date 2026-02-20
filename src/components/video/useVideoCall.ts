@@ -90,7 +90,7 @@ const useVideoCall = ({
 
 
 				// Only set answer if we're still waiting for it
-				if (!data?.answer || pc.signalingState !== "have-remote-offer") return;
+				if (!data?.answer || pc.signalingState !== "have-local-offer") return;
 
 				await pc.setRemoteDescription(
 					new RTCSessionDescription(data.answer)
