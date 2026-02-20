@@ -88,10 +88,9 @@ const useVideoCall = ({
       onValue(callRef, async (snapshot) => {
         const data = snapshot.val();
 
-				if (!data?.answer) return;
 
 				// Only set answer if we're still waiting for it
-				if (pc.signalingState !== "have-local-offer") return;
+				if (!data?.answer || pc.signalingState !== "have-remote-offer") return;
 
 				await pc.setRemoteDescription(
 					new RTCSessionDescription(data.answer)
