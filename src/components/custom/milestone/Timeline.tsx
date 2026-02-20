@@ -11,10 +11,8 @@ import {
 import MilestoneIndicator from "./Indicator";
 import MilestonePill from "./Pill";
 import MilestoneAction, { MilestoneActionType } from "./Action";
-// import SelectFundingMethodDialog from "../dialog/SelectFundingMethod";
 import MilestoneInputSection from "./InputSection";
 import MilestoneSubmissionsPreview from "./SubmissionsPreview";
-// import FundMilestoneDialog from "../dialog/FundMilestoneDialog";
 import { UmojaLinnUser } from "@/types/user";
 import { VariableDeliveryForm } from "./VariableDeliveryForm";
 import { EDeliveryMileStoneType } from "@/types/enum";
@@ -150,21 +148,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
 
   return (
     <>
-      {/* <SelectFundingMethodDialog
-        id={selectedMilestoneId}
-        type="milestone"
-        open={openPayForMilestoneModal}
-        onOpenChange={setOpenPayForMilestoneModal}
-        currency={milestones.find((item) => item.id === selectedMilestoneId)?.currency || ""}
-      />
-      <FundMilestoneDialog
-        open={openFundMilestoneModal}
-        setOpen={setOpenFundMilestoneModal}
-        onConfirm={() => {
-          setOpenFundMilestoneModal(false);
-          setOpenPayForMilestoneModal(true);
-        }}
-      /> */}
+
 
       <ol className={cn(
         "flex flex-col gap-1.5",
@@ -313,11 +297,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                     <MilestonePill currency={currency} escrowBalance={escrowBalance} isDesigner={isDesigner} {...milestone} />
                     {isAwaitingFunding && latestSubmission?.status !== "PENDING" &&
                       !isDesigner && (
-                        // <SelectFundingMethodDialog
-                        //   id={milestone?.id}
-                        //   type="milestone"
-                        //   currency={currency!}
-                        // >
+
                         <button className="text-sm underline text-primary"
                           onClick={() => {
                             fundMilestone.mutate(milestone?.id);
@@ -325,7 +305,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                         >
                           Fund Milestone
                         </button>
-                        // </SelectFundingMethodDialog>
+
                       )}
                     {(milestone?.retries?.length ?? 0) > 1 && (
                       <>

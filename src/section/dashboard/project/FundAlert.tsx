@@ -1,8 +1,8 @@
 "use client";
 import Alert from "@/components/custom/Alert";
-// import SelectFundingMethodDialog from "@/components/custom/dialog/SelectFundingMethod";
+
 import { Button } from "@/components/ui/button";
-// import { uuidToBase62Safe } from "@/lib/uuid";
+
 import {
   useGetProjectById,
   useGetProjectMilestones,
