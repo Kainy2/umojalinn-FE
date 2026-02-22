@@ -128,7 +128,7 @@ const SelectModeView = ({
     setPreviewName(name);
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     if (!gender) return;
 
     const defaultTemplate = gender === "MALE" ? MALE_SIZING_TEMPLATE : FEMALE_SIZING_TEMPLATE
@@ -227,8 +227,9 @@ const SelectModeView = ({
                       value={ukStandardSize ?? null}
                       highlighted={false}
                       disabled
-                      onChange={() => {}}
-                      onShowChart={() => {}}
+                      isDesigner
+                      onChange={() => { }}
+                      onShowChart={() => { }}
                     />
                     <DisabledTemplateItems
                       title="Height"
@@ -264,7 +265,7 @@ const SelectModeView = ({
                             className={cn(
                               "transition-all duration-200",
                               isSelected &&
-                                "border-white bg-white data-[state=checked]:bg-white data-[state=checked]:text-primary"
+                              "border-white bg-white data-[state=checked]:bg-white data-[state=checked]:text-primary"
                             )}
                           />
                           <span

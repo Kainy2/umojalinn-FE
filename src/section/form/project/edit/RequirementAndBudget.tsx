@@ -49,14 +49,14 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
     defaultValues: {},
   });
 
-  console.log({projectFormDetails});
-  
+  console.log({ projectFormDetails });
+
   useEffect(() => {
     if (isAds && (
-      projectFormDetails.budget 
-      || projectFormDetails.currency 
+      projectFormDetails.budget
+      || projectFormDetails.currency
       || projectFormDetails.negotiable
-    )){
+    )) {
       form.reset(projectFormDetails)
       return
     }
@@ -83,7 +83,7 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
   }, [data?.data?.data, form]);
 
   const onSubmit = useCallback(
-    (mode: "SAVE" | "DRAFT", ) =>
+    (mode: "SAVE" | "DRAFT",) =>
       (values: ProjectFormRequirementsAndBugetProps) => {
         if (isAds) {
           setProjectFormDetails(prev => ({ ...prev, ...values }))
@@ -99,10 +99,9 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
           onSuccess() {
             router.push(
               mode === "DRAFT"
-                  ? "/projects/drafts"
-                : `${
-                    !!props.isOnboarding ? "/onboard" : ""
-                  }/project/${uuidToBase62Safe(props?.id)}/review`
+                ? "/projects/drafts"
+                : `${!!props.isOnboarding ? "/onboard" : ""
+                }/project/${uuidToBase62Safe(props?.id)}/review`
             );
           },
         });
@@ -215,14 +214,20 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
                         value={[
                           { value: "EURO", label: "EUR" },
                           { value: "NAIRA", label: "NGN" },
+                          { value: "USD", label: "USD" },
+                          { value: "GBP", label: "GBP" },
+                          { value: "CAD", label: "CAD" }
                         ]?.find(({ value }) => value === currencyField?.value)}
                         options={[
                           { value: "EURO", label: "EUR" },
                           { value: "NAIRA", label: "NGN" },
+                          { value: "USD", label: "USD" },
+                          { value: "GBP", label: "GBP" },
+                          { value: "CAD", label: "CAD" }
                         ]}
                         onChange={(newValue: unknown) => {
                           const typedValue = newValue as {
-                            value: "EURO" | "NAIRA";
+                            value: "EURO" | "NAIRA" | "USD" | "GBP" | "CAD";
                             label: string;
                           };
                           currencyField.onChange(typedValue?.value);
@@ -244,7 +249,7 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
         /> */}
 
         <ProjectEditFooter
-          leftButtonProps={{ 
+          leftButtonProps={{
             onClick: (e) => {
               if (isAds) form.handleSubmit(onSubmit("SAVE"))(e);
               else form.handleSubmit(onSubmit("DRAFT"))(e);
@@ -252,11 +257,11 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
             }
           }}
           rightSecondaryButtonProps={{
-            text: isAds ? "Cancel" : "Save & Exit", 
+            text: isAds ? "Cancel" : "Save & Exit",
             disabled: isUpdating,
             onClick: (e) => {
-                if (isAds) router.push(`/projects/ads/${uuidToBase62Safe(props?.id)}`);
-                else form.handleSubmit(onSubmit("DRAFT"))(e);
+              if (isAds) router.push(`/projects/ads/${uuidToBase62Safe(props?.id)}`);
+              else form.handleSubmit(onSubmit("DRAFT"))(e);
             },
           }}
           rightPrimaryButtonProps={{

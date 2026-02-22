@@ -7,7 +7,7 @@ export const MALE_STANDARD_SIZES: UmojalinnMaleStandardSize[] = [
 
 // Female standard sizes array (UK number-based)
 export const FEMALE_STANDARD_SIZES: UmojalinnFemaleStandardSize[] = [
-  "6", "8", "10", "12", "14", "16", "18", "20", "22", "24"
+ "4", "6", "8", "10", "12", "14", "16", "18", "20", "22", "24", "26", "28", "30", "32"
 ];
 
 // UK Size Chart data for males
@@ -30,16 +30,23 @@ export const UK_SIZE_CHART_MALE = [
 
 // UK Size Chart data for females
 export const UK_SIZE_CHART_FEMALE = [
-  { ukSize: "6", usSize: "2", euSize: "34", frSize: "34", letterSize: "XXS" },
-  { ukSize: "8", usSize: "4", euSize: "36", frSize: "36", letterSize: "XS" },
-  { ukSize: "10", usSize: "6", euSize: "38", frSize: "38", letterSize: "S" },
+  { ukSize: "4", usSize: "0", euSize: "32", frSize: "34", letterSize: "XXS" },
+  { ukSize: "6", usSize: "2", euSize: "34", frSize: "34", letterSize: "XS" },
+  { ukSize: "8", usSize: "4", euSize: "36", frSize: "36", letterSize: "S" },
+  { ukSize: "10", usSize: "6", euSize: "38", frSize: "38", letterSize: "S-M" },
   { ukSize: "12", usSize: "8", euSize: "40", frSize: "40", letterSize: "M" },
-  { ukSize: "14", usSize: "10", euSize: "42", frSize: "42", letterSize: "L" },
-  { ukSize: "16", usSize: "12", euSize: "44", frSize: "44", letterSize: "XL" },
-  { ukSize: "18", usSize: "14", euSize: "46", frSize: "46", letterSize: "XXL" },
-  { ukSize: "20", usSize: "16", euSize: "48", frSize: "48", letterSize: "3XL" },
-  { ukSize: "22", usSize: "18", euSize: "50", frSize: "50", letterSize: "4XL" },
-  { ukSize: "24", usSize: "20", euSize: "52", frSize: "52", letterSize: "5XL" },
+  { ukSize: "14", usSize: "10", euSize: "42", frSize: "42", letterSize: "M-L" },
+  { ukSize: "16", usSize: "12", euSize: "44", frSize: "44", letterSize: "L" },
+  { ukSize: "18", usSize: "14", euSize: "46", frSize: "46", letterSize: "XL" },
+  { ukSize: "20", usSize: "16", euSize: "48", frSize: "48", letterSize: "XXL" },
+  { ukSize: "22", usSize: "18", euSize: "50", frSize: "50", letterSize: "3XL" },
+  { ukSize: "24", usSize: "20", euSize: "52", frSize: "52", letterSize: "4XL" },
+  { ukSize: "26", usSize: "22", euSize: "54", frSize: "56", letterSize: "5XL" },
+  { ukSize: "28", usSize: "24", euSize: "56", frSize: "58", letterSize: "5XL" },
+  { ukSize: "30", usSize: "26", euSize: "6XL", frSize: "6XL", letterSize: "6XL" },
+  { ukSize: "32", usSize: "28", euSize: "60", frSize: "62", letterSize: "6XL" },
+
+
 ];
 
 /** Reminder types for sizing template reminders */

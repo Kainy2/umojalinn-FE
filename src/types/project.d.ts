@@ -8,7 +8,7 @@ export type UmojaLinnCurrency = "EURO" | "NAIRA";
 export type UmojalinnMaleStandardSize = "XXS" | "XS" | "S" | "M" | "L" | "XL" | "XXL" | "3XL" | "4XL" | "5XL" | "6XL";
 
 // Female standard sizes (UK number-based)
-export type UmojalinnFemaleStandardSize = "6" | "8" | "10" | "12" | "14" | "16" | "18" | "20" | "22" | "24";
+export type UmojalinnFemaleStandardSize = "4" | "6" | "8" | "10" | "12" | "14" | "16" | "18" | "20" | "22" | "24" | "26" | "28" | "30" | "32";
 
 // Combined type for backward compatibility
 export type UmojalinnStandardSize = UmojalinnMaleStandardSize | UmojalinnFemaleStandardSize;
