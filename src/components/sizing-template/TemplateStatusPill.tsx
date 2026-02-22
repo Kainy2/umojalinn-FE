@@ -12,6 +12,7 @@ export type BuyerStatusType =
 	| null;
 
 export type DesignerStatusType =
+	| "REQUEST_SIZING_TEMPLATE"
 	| "REQUEST_MEASUREMENT_POINTS"
 	| "MEASUREMENT_REQUESTED"
 	| "CHANGES_RECOMMENDED"
@@ -68,6 +69,17 @@ const DESIGNER_STATUS_CONFIG: Record<
 	NonNullable<DesignerStatusType>,
 	StatusConfig
 > = {
+	REQUEST_SIZING_TEMPLATE: {
+		text: "Request Sizing Template",
+		bgColor: "bg-red-50",
+		borderColor: "border-red-500",
+		textColor: "text-red-600",
+		icon: (
+			<div className="bg-red-500 rounded-full p-0.5">
+				<Plus className="size-3 text-white" />
+			</div>
+		),
+	},
 	REQUEST_MEASUREMENT_POINTS: {
 		text: "Request Measurement Points",
 		bgColor: "bg-red-50",
@@ -150,7 +162,7 @@ export const getDesignerStatus = (
 		template?.requestedMeasurementPoints || [];
 	const submittedMeasurementPoints =
 		template?.submittedMeasurementPoints || [];
-		const hasDesignerRecommendations =
+	const hasDesignerRecommendations =
 		template?.metadata?.reviews &&
 		!!Object.keys(template.metadata.reviews).length;
 	const hasRepliedRecommendations =
@@ -197,7 +209,7 @@ interface TemplateStatusPillProps {
  * Status pill component for sizing template cards
  * Shows different status indicators based on user role (buyer/designer) and template state
  */
-const TemplateStatusPill = ({ template, isBuyer, getProjectUrl, inUse, projectInUse}: TemplateStatusPillProps) => {
+const TemplateStatusPill = ({ template, isBuyer, getProjectUrl, inUse, projectInUse }: TemplateStatusPillProps) => {
 	const status = isBuyer
 		? getBuyerStatus(template)
 		: getDesignerStatus(template);
@@ -208,8 +220,8 @@ const TemplateStatusPill = ({ template, isBuyer, getProjectUrl, inUse, projectIn
 		? BUYER_STATUS_CONFIG[status as NonNullable<BuyerStatusType>]
 		: DESIGNER_STATUS_CONFIG[status as NonNullable<DesignerStatusType>];
 
-		if (!config) {
-			if (inUse && !!projectInUse) {
+	if (!config) {
+		if (inUse && !!projectInUse) {
 			return (
 				<Link
 					onClick={(e) => e.stopPropagation()}
@@ -218,10 +230,11 @@ const TemplateStatusPill = ({ template, isBuyer, getProjectUrl, inUse, projectIn
 				>
 					{projectInUse.title}
 				</Link>
-			)}
+			)
+		}
 
 		return null;
-	} 
+	}
 
 	return (
 		<div
@@ -235,7 +248,7 @@ const TemplateStatusPill = ({ template, isBuyer, getProjectUrl, inUse, projectIn
 			)}
 		>
 			<span className="text-xs font-medium truncate">
-				{config.text} 
+				{config.text}
 			</span>
 			{config.icon && <span className="flex-shrink-0">{config.icon}</span>}
 		</div>

@@ -21,7 +21,7 @@ import { ArrowRight, Minus, Plus } from "lucide-react";
 import UKSizeChartModal from "./UKSizeChartModal";
 import { MALE_STANDARD_SIZES, FEMALE_STANDARD_SIZES } from "@/types/constants";
 
-const getSizes = ( gender: UmojaLinnSizingTemplate["gender"] ) => 
+const getSizes = (gender: UmojaLinnSizingTemplate["gender"]) =>
   gender === "MALE" ? MALE_STANDARD_SIZES : FEMALE_STANDARD_SIZES;
 
 const VALUE_INCREMENT = 10;
@@ -74,7 +74,7 @@ const HeightAndSizeModal = ({
   useEffect(() => {
     if (open) {
       setHeightValue(height ?? 0);
-        setSelectedSize(ukSize);
+      setSelectedSize(ukSize);
       setSelectedUnit(unit === "INCH" ? "Inch" : "Cm");
     }
   }, [open, height, ukSize, unit]);
@@ -111,7 +111,7 @@ const HeightAndSizeModal = ({
   if (disabled && children) {
     return <>{children}</>;
   }
-  
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       {children && (
@@ -206,7 +206,7 @@ const HeightAndSizeModal = ({
               </label>
 
               {/* UK Size Chart Link */}
-              <UKSizeChartModal>
+              <UKSizeChartModal gender={gender}>
                 <button
                   type="button"
                   className="text-sm text-primary flex items-center gap-1"
