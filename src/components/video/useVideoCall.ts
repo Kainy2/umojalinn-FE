@@ -70,6 +70,8 @@ const useVideoCall = ({
 
       pc.onicecandidate = async (event) => {
         if (event.candidate) {
+					console.log("Create ICE candidate:", event.candidate);
+
           await push(offerCandidatesRef, event.candidate.toJSON());
         }
       };
@@ -112,6 +114,8 @@ const useVideoCall = ({
       const answerCandidatesRef = ref(database, `calls/${callId}/answerCandidates`);
 
       pc.onicecandidate = async (event) => {
+				console.log("Join ICE candidate:", event.candidate);
+
         if (event.candidate) {
           await push(answerCandidatesRef, event.candidate.toJSON());
         }
