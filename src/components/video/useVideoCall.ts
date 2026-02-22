@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState } from "react";
 
 import {
   ref,
@@ -27,6 +27,7 @@ type UseVideoOptions = {
 //   webcamActive: boolean;
 //   // callId: string;
 // };
+const pc = new RTCPeerConnection(servers);
 
 const useVideoCall = ({
   mode,
@@ -38,7 +39,7 @@ const useVideoCall = ({
   const localRef = useRef<HTMLVideoElement>(null);
   const remoteRef = useRef<HTMLVideoElement>(null);
 
-  const pc = useMemo(() => new RTCPeerConnection(servers), []);
+  // const pc = useMemo(() => new RTCPeerConnection(servers), []);
 
   const setupSources = async (): Promise<void> => {
     const localStream = await navigator.mediaDevices.getUserMedia({
