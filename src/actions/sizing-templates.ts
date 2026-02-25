@@ -274,3 +274,17 @@ export const sendSizingTemplateReminder = async (
     }
   );
 };
+
+export const purchaseSizingTemplate = async (
+  body: { currency: "NAIRA" | "EURO"; numberOfTemplates: number },
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse<{ checkoutUrl: string }>>>(
+    `/sizing-template/purchase`,
+    body
+  );
+};

@@ -15,6 +15,7 @@ import {
   submitMeasurementPoints,
   saveMeasurementPoints,
   sendSizingTemplateReminder,
+  purchaseSizingTemplate,
 } from "@/actions/sizing-templates";
 import { queryClient } from "@/components/provider/TanstackQueryClient";
 import useHandleError from "@/hooks/useHandleError";
@@ -111,20 +112,20 @@ export const useGetAllSizingTemplates = (
     lastId: string;
     limit: number;
     sizingTemplateStatus:
-      | UmojaLinnSizingTemplate["status"]
-      | Array<UmojaLinnSizingTemplate["status"]>;
+    | UmojaLinnSizingTemplate["status"]
+    | Array<UmojaLinnSizingTemplate["status"]>;
   }>,
   options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnSizingTemplate>>
 ) => {
   const { data: me } = useSession();
   return useQuery({
-		...options,
-		enabled:
-			!!me?.user &&
-			me?.user?.profileRole === 'BUYER' &&
-			options?.enabled !== false,
-		queryKey: [SIZING_TEMPLATE, apiParams],
-		queryFn: () => getSizingTemplates(apiParams),
+    ...options,
+    enabled:
+      !!me?.user &&
+      me?.user?.profileRole === 'BUYER' &&
+      options?.enabled !== false,
+    queryKey: [SIZING_TEMPLATE, apiParams],
+    queryFn: () => getSizingTemplates(apiParams),
   });
 };
 
@@ -356,8 +357,8 @@ export const useSendSizingTemplateReminder = (
 export const useRequestSizingTemplateInProject = (
   options?: GenericUseMutationProps<SingleApiResponse, string>
 ) => {
-    const { id } = useParams<{ id: string }>();
-    const { data: me } = useSession();
+  const { id } = useParams<{ id: string }>();
+  const { data: me } = useSession();
   const { handleError } = useHandleError("Request Sizing Template");
   const queryclient = useQueryClient();
   return useMutation({
@@ -367,11 +368,32 @@ export const useRequestSizingTemplateInProject = (
       handleError(error);
       options?.onError?.(error, variables, context);
     },
-    onSuccess:(...args) => {
-      queryclient.invalidateQueries({ queryKey: [BID, { id, role: me?.user?.profileRole }]});
-      queryclient.invalidateQueries({queryKey: [PROJECT] });
-      queryclient.invalidateQueries({queryKey: [SIZING_TEMPLATE] });
+    onSuccess: (...args) => {
+      queryclient.invalidateQueries({ queryKey: [BID, { id, role: me?.user?.profileRole }] });
+      queryclient.invalidateQueries({ queryKey: [PROJECT] });
+      queryclient.invalidateQueries({ queryKey: [SIZING_TEMPLATE] });
       options?.onSuccess?.(...args);
     }
+  });
+};
+
+export const usePurchaseSizingTemplate = (
+  options?: GenericUseMutationProps<
+    SingleApiResponse<{ checkoutUrl: string }>,
+    { currency: "NAIRA" | "EURO"; numberOfTemplates: number }
+  >
+) => {
+  const { handleError } = useHandleError("Purchase Sizing Template");
+  return useMutation({
+    ...options,
+    mutationFn: purchaseSizingTemplate,
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [SIZING_TEMPLATE] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
   });
 };

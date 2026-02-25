@@ -17,6 +17,8 @@ import { cn } from "@/lib/utils";
 import { useInfiniteData } from "@/hooks/use-infinite-data";
 import { StripeStatusModal } from "@/components/custom/dialog/StripeStatusModal";
 import { UmojaLinnCurrency } from "@/types/project";
+import VerifyPasswordDialog from "@/components/custom/dialog/VerifyPasswordDialog";
+import { useRouter } from "next/navigation";
 
 const WithdrawalPage = () => {
   const { data: session } = useSession();
@@ -27,6 +29,8 @@ const WithdrawalPage = () => {
   const [isStripeModalOpen, setIsStripeModalOpen] = useState(false);
   const [stripeModalCurrency, setStripeModalCurrency] = useState<UmojaLinnCurrency>("EURO");
   const [hideBalance, setHideBalance] = useState(true);
+  const [isVerified, setIsVerified] = useState(false);
+  const router = useRouter();
 
   const {
     data: allTransactions,
@@ -48,6 +52,15 @@ const WithdrawalPage = () => {
 
   return (
     <>
+      <VerifyPasswordDialog
+        open={!isVerified}
+        onCancel={() => {
+          router.back();
+        }}
+        onSuccess={() => {
+          setIsVerified(true);
+        }}
+      />
       <h1 className="text-subtitle-1 font-bold mb-8">Wallet</h1>
       <div className="flex h-full flex-col lg:flex-row gap-4">
         <div className="shrink-0 w-full lg:w-8/12">

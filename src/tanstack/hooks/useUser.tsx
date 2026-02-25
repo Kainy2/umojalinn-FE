@@ -6,6 +6,7 @@ import {
   onboard,
   updateNotificationSettings,
   updateUserDetails,
+  verifyWalletPassword,
 } from "@/actions/user";
 import { queryClient } from "@/components/provider/TanstackQueryClient";
 import {
@@ -43,9 +44,9 @@ export const useGetMe = (
         logOut(
           me?.user?.profileRole,
           {
-          callbackUrl: `/login?redirectTo=${path}`,
-          redirect: true,
-        });
+            callbackUrl: `/login?redirectTo=${path}`,
+            redirect: true,
+          });
       }
       return false;
     },
@@ -97,7 +98,7 @@ export const useGetInfiniteNotifications = (lastId?: string) => {
     initialPageParam: lastId,
     enabled: !!me?.user,
     queryKey: [NOTIFICATION],
-    queryFn: ({pageParam}) => getNotifications(pageParam),
+    queryFn: ({ pageParam }) => getNotifications(pageParam),
     getNextPageParam: (lastPage) => lastPage?.data.lastId,
   });
 };
@@ -190,6 +191,24 @@ export const useDeleteProjectInvitation = (
     mutationFn: (id) => deleteProjectInvitationById(id),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: [USER, ME] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useVerifyWalletPassword = (
+  options?: GenericUseMutationProps<SingleApiResponse, { email: string; password: string }>
+) => {
+  const { handleError } = useHandleError("Verify Wallet Access");
+  return useMutation({
+    ...options,
+    mutationFn: (variables) => verifyWalletPassword(variables),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [USER, ME] }); // if needed
       options?.onSuccess?.(data, variables, context);
     },
     onError: (error, variables, context) => {

@@ -118,3 +118,17 @@ export const deleteProjectInvitationById = async (
     `/user/remove-project-invitation/${base62ToUuidSafe(id)}`,
   );
 };
+
+export const verifyWalletPassword = async (
+  body: { email: string; password: string },
+  options?: ServerActionOption,
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/wallet/verify-access`,
+    body,
+  );
+};
