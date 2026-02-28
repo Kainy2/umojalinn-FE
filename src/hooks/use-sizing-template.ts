@@ -97,7 +97,7 @@ export const useSizingTemplateDialog = (
     const urlProjectId = searchParams.get("projectId");
     const sizingTemplateId = props.id;
 		const sizingTemplateResult = sizingTemplateData?.data.data
-    const effectiveProjectId = props.projectId || urlProjectId || sizingTemplateResult?.projects[0].id || undefined;
+    const effectiveProjectId = props.projectId || urlProjectId || sizingTemplateResult?.projects?.[0]?.id || undefined;
   
     // Fetch project data if we have a project ID
     const { data: projectData } = useGetProjectById(effectiveProjectId);

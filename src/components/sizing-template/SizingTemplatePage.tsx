@@ -23,7 +23,7 @@ import UKSizeChartTable from "./UKSizeChartTable";
 import { UmojaLinnSizingTemplate, UmojalinnStandardSize } from "@/types/project";
 import { UmojaLinnFemaleSizingTemplateProps, UmojaLinnMaleSizingTemplateProps } from "@/types/project";
 import { canSendReminder, getRemainingReminderTime } from "@/lib/sizing-template-utils";
-import { useSendSizingTemplateReminder } from "@/tanstack/hooks/useSizingTemplates";
+import { useSendSizingTemplateReminder, useRequestMeasurementPoints } from "@/tanstack/hooks/useSizingTemplates";
 import { useGetAllBuyerProject } from "@/tanstack/hooks/useProject";
 import TextField from "../custom/input/TextField";
 import DisabledTemplateItems from "./DisabledTemplateItems";
@@ -154,7 +154,32 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
 
   const handleAddComment = (prop: string, comment: string) => setMeasurementComments((prev) => ({ ...prev, [prop]: comment }));
   const handleDeleteComment = (prop: string) => setMeasurementComments((prev) => { const c = { ...prev }; delete c[prop]; return c; });
-  const handleSubmitRecommendations = () => requestChangeOnSizingTemplate(measurementComments);
+
+  const { mutateAsync: requestMeasurementPointsAsync, isPending: isPendingNewRequests } = useRequestMeasurementPoints();
+
+  const handleSubmitRecommendations = async () => {
+    // If the designer selected any NEW measurement points
+    const newRequestedPoints = selectedMeasurements.filter(
+      (prop) => !requestedMeasurementPoints.includes(prop)
+    );
+
+    if (newRequestedPoints.length > 0 && effectiveProjectId) {
+      await requestMeasurementPointsAsync({
+        projectId: effectiveProjectId,
+        requestedMeasurementPoints: [...requestedMeasurementPoints, ...newRequestedPoints],
+      });
+    }
+
+    // Only hit request changes if there are comments
+    if (Object.keys(measurementComments).length > 0) {
+      requestChangeOnSizingTemplate(measurementComments);
+    } else {
+      // If we only requested new points, we should still close the mode
+      setRecommendationMode(false);
+      // Wait for React Query invalidation
+      router.refresh();
+    }
+  };
 
   // Computed values
   const hasSavedMeasurements = sizingTemplateResult?.metadata?.reviews ? Object.values(sizingTemplateResult.metadata.reviews).some(Boolean) : false;
@@ -315,8 +340,11 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                     value={value?.height ? `${value?.height} ${unit}` : "-"}
                   />
 
-                  {(hasRequestedPoints ? TEMPLATE.filter(item => requestedMeasurementPoints.includes(item.prop)) : TEMPLATE).map((item, index) => {
+                  {/* Measurement Points */}
+                  {(recommendationMode ? TEMPLATE.filter(item => item.prop !== "height") : (hasRequestedPoints ? TEMPLATE.filter(item => requestedMeasurementPoints.includes(item.prop)) : TEMPLATE)).map((item, index) => {
                     const itemValue = value?.[item.prop];
+                    const isRequested = requestedMeasurementPoints.includes(item.prop);
+
                     return (
                       <MeasurementPointRow
                         key={item.prop}
@@ -341,6 +369,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                           comment: measurementComments[item.prop],
                           onAddComment: (comment: string) => handleAddComment(item.prop, comment),
                           onDeleteComment: () => handleDeleteComment(item.prop),
+                          isNewRequest: !isRequested // Pass flag to indicate this is a new measurement request
                         })}
                       />
                     );
@@ -352,7 +381,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
               {recommendationMode ? (
                 <div className="lg:hidden mt-6 flex gap-3">
                   <Button variant="outline" onClick={() => setRecommendationMode(false)} className="flex-1">Cancel</Button>
-                  <Button onClick={handleSubmitRecommendations} disabled={loading || Object.keys(measurementComments).length === 0} className="flex-1">Submit</Button>
+                  <Button onClick={handleSubmitRecommendations} disabled={loading || isPendingNewRequests || (Object.keys(measurementComments).length === 0 && selectedMeasurements.length === 0)} className="flex-1">Submit</Button>
                 </div>
               ) : hasSubmittedPoints && (
                 <div className="lg:hidden mt-6">
@@ -384,7 +413,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                     <Button
                       onClick={handleSubmitRecommendations}
                       disabled={
-                        loading || Object.keys(measurementComments).length === 0
+                        loading || isPendingNewRequests || (Object.keys(measurementComments).length === 0 && selectedMeasurements.length === 0)
                       }
                       className="h-8 rounded-md"
                     >

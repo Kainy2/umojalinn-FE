@@ -101,19 +101,19 @@ const SizingTemplateCard = (props: { template: UmojaLinnSizingTemplate }) => {
 
 					{/* Status Pill */}
 					<TemplateStatusPill
-            template={template}
-            isBuyer={isBuyer}
-            getProjectUrl={getProjectUrl}
-            inUse={inUse}
+						template={template}
+						isBuyer={isBuyer}
+						getProjectUrl={getProjectUrl}
+						inUse={inUse}
 						projectInUse={projectInUse}
-          />
+					/>
 
 					<div
 						className={cn(
 							"absolute bottom-0 p-4 backdrop-blur-md bg-white/30 border-t-1 border-white/50 w-full",
 							isBuyer &&
-								inUse &&
-								"h-full border-none flex flex-col items-center justify-center "
+							inUse &&
+							"h-full border-none flex flex-col items-center justify-center "
 						)}
 					>
 						{isBuyer ? (
