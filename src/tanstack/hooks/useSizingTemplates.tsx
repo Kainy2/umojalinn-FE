@@ -208,6 +208,7 @@ export const useAddSizingTemplateToProject = (
         variables.projectId
       ),
     onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [BID] });
       queryClient.invalidateQueries({ queryKey: [PROJECT] });
       options?.onSuccess?.(data, variables, context);
     },

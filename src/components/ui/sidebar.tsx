@@ -19,6 +19,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useStrictClientAxios } from "@/hooks/use-strict-client-axios";
+import { useUpdateLastOnline } from "@/hooks/use-update-last-online";
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -73,6 +74,8 @@ const SidebarProvider = React.forwardRef<
 
     // This is for adding token to the strict client axios to enable making api calls directly from the client and bypassing api routes and hence, vercel serverless functions as well
     useStrictClientAxios();
+    // Initialize the last online update hook
+    useUpdateLastOnline();
 
 
     // This is the internal state of the sidebar.
