@@ -104,7 +104,7 @@ const MeasurementForm = ({
           disabled={!isEditable || areDefaultFieldsLocked}
         />
 
-        {template.map((templateItem, index) => {
+        {template.filter((item) => item.prop !== "height").map((templateItem, index) => {
           const isNotEdit = modalType !== "EDIT";
           const reviewValue =
             (recommendationMode ? reviewsEdit?.[templateItem.prop as keyof typeof reviewsEdit] : undefined) ??

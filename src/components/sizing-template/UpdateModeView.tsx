@@ -58,6 +58,11 @@ const UpdateModeView = ({
   // Get fields that have recommendations
   const fieldsWithReviews = Object.keys(reviews).filter((key) => reviews[key]);
 
+  // Get fields that are requested but have no value
+  const fieldsWithMissingValues = requestedMeasurementPoints.filter(
+    (prop) => typeof currentValues[prop as keyof MeasurementValues] !== "number" || currentValues[prop as keyof MeasurementValues] === 0
+  );
+
   // Filter template to show requested points with emphasis on those needing update
   const filteredTemplate = template.filter((item) =>
     requestedMeasurementPoints.includes(item.prop)
@@ -92,9 +97,11 @@ const UpdateModeView = ({
   };
 
   const handleSubmit = () => {
-    // Only submit fields that have reviews (the ones that can be edited)
+    // Only submit fields that have reviews or are missing values (the ones that can be edited)
     const updatesToSubmit: Record<string, number> = {};
-    fieldsWithReviews.forEach((field) => {
+    const editableFields = Array.from(new Set([...fieldsWithReviews, ...fieldsWithMissingValues]));
+
+    editableFields.forEach((field) => {
       const value = values[field as keyof MeasurementValues];
       if (typeof value === "number") {
         updatesToSubmit[field] = value;
@@ -180,7 +187,8 @@ const UpdateModeView = ({
                   const numericValue = typeof pointValue === "number" ? pointValue : 0;
                   const isHighlighted = highlighted === point.prop;
                   const hasReview = fieldsWithReviews.includes(point.prop);
-                  const canEdit = hasReview;
+                  const isMissingValue = fieldsWithMissingValues.includes(point.prop);
+                  const canEdit = hasReview || isMissingValue;
 
                   return (
                     <div
@@ -194,9 +202,9 @@ const UpdateModeView = ({
                           "flex flex-1 items-center justify-between p-3 rounded-lg border transition-all duration-200 cursor-pointer animate-in fade-in slide-in-from-left-2",
                           isHighlighted
                             ? "bg-primary border-primary shadow-sm scale-[1.01]"
-                            : hasReview
-                            ? "bg-error-50 border-error-300 hover:border-error-400"
-                            : "bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm"
+                            : canEdit
+                              ? "bg-error-50 border-error-300 hover:border-error-400"
+                              : "bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm"
                         )}
                       >
                         <div className="flex items-center gap-2">
@@ -205,16 +213,13 @@ const UpdateModeView = ({
                               "text-sm font-medium transition-colors",
                               isHighlighted
                                 ? "text-white"
-                                : hasReview
-                                ? "text-error-800"
-                                : "text-foreground-body"
+                                : canEdit
+                                  ? "text-error-800"
+                                  : "text-foreground-body"
                             )}
                           >
                             {point.name}
                           </span>
-                          {/* {hasReview && !isHighlighted && (
-                            <AlertTriangle className="size-4 text-error-600" />
-                          )} */}
                         </div>
 
                         <div className="flex items-center gap-2">
@@ -236,8 +241,8 @@ const UpdateModeView = ({
                               isHighlighted
                                 ? "bg-white/10 text-white placeholder:text-white/50"
                                 : canEdit
-                                ? "bg-white text-foreground-body border border-error-300"
-                                : "bg-gray-100 text-muted-foreground cursor-not-allowed"
+                                  ? "bg-white text-foreground-body border border-error-300"
+                                  : "bg-gray-100 text-muted-foreground cursor-not-allowed"
                             )}
                           />
                           <span
@@ -251,9 +256,9 @@ const UpdateModeView = ({
                         </div>
                       </div>
 
-                      {hasReview&&(
+                      {hasReview && (
                         <div className="border border-error-300 p-2 min-w- rounded-lg transition-all flex items-center gap-2 animate-in fade-in slide-in-from-right-2 duration-300 bg-error/10" onClick={(e) => e.stopPropagation()}>
-                           <button className="size-8 rounded-full bg-error/10 flex items-center justify-center hover:bg-error/10 transition-all duration-200 hover:scale-110">
+                          <button className="size-8 rounded-full bg-error/10 flex items-center justify-center hover:bg-error/10 transition-all duration-200 hover:scale-110">
                             <MessageCirclePlus className="size-4 text-error-400" />
                           </button>
                         </div>
@@ -267,7 +272,7 @@ const UpdateModeView = ({
               <div className="lg:hidden mt-6 animate-in fade-in duration-300">
                 <Button
                   onClick={handleSubmit}
-                  disabled={isUpdating || fieldsWithReviews.length === 0}
+                  disabled={isUpdating || (fieldsWithReviews.length === 0 && fieldsWithMissingValues.length === 0)}
                   loading={isUpdating}
                   className="w-full"
                 >
@@ -300,7 +305,7 @@ const UpdateModeView = ({
               <div className="hidden lg:block mt-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <Button
                   onClick={handleSubmit}
-                  disabled={isUpdating || fieldsWithReviews.length === 0}
+                  disabled={isUpdating || (fieldsWithReviews.length === 0 && fieldsWithMissingValues.length === 0)}
                   loading={isUpdating}
                   className="w-full hover:scale-[1.02] transition-transform"
                 >

@@ -1,7 +1,7 @@
 "use client";
 
 import { UmojaLinnProject, UmojaLinnSizingTemplate } from "@/types/project";
-import { Plus, FileText, Link } from "lucide-react";
+import { Plus, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Status types for buyers and designers
@@ -12,6 +12,7 @@ export type BuyerStatusType =
 	| null;
 
 export type DesignerStatusType =
+	| "REQUEST_SIZING_TEMPLATE"
 	| "REQUEST_MEASUREMENT_POINTS"
 	| "MEASUREMENT_REQUESTED"
 	| "CHANGES_RECOMMENDED"
@@ -68,6 +69,17 @@ const DESIGNER_STATUS_CONFIG: Record<
 	NonNullable<DesignerStatusType>,
 	StatusConfig
 > = {
+	REQUEST_SIZING_TEMPLATE: {
+		text: "Request Sizing Template",
+		bgColor: "bg-red-50",
+		borderColor: "border-red-500",
+		textColor: "text-red-600",
+		icon: (
+			<div className="bg-red-500 rounded-full p-0.5">
+				<Plus className="size-3 text-white" />
+			</div>
+		),
+	},
 	REQUEST_MEASUREMENT_POINTS: {
 		text: "Request Measurement Points",
 		bgColor: "bg-red-50",
@@ -150,7 +162,7 @@ export const getDesignerStatus = (
 		template?.requestedMeasurementPoints || [];
 	const submittedMeasurementPoints =
 		template?.submittedMeasurementPoints || [];
-		const hasDesignerRecommendations =
+	const hasDesignerRecommendations =
 		template?.metadata?.reviews &&
 		!!Object.keys(template.metadata.reviews).length;
 	const hasRepliedRecommendations =
@@ -197,36 +209,40 @@ interface TemplateStatusPillProps {
  * Status pill component for sizing template cards
  * Shows different status indicators based on user role (buyer/designer) and template state
  */
-const TemplateStatusPill = ({ template, isBuyer, getProjectUrl, inUse, projectInUse}: TemplateStatusPillProps) => {
+const TemplateStatusPill = ({ template, isBuyer, inUse, projectInUse }: TemplateStatusPillProps) => {
 	const status = isBuyer
 		? getBuyerStatus(template)
 		: getDesignerStatus(template);
 
-	if (!status) return null;
+	// Instead of early returning null when status is null, we check if it's in use first.
+	if (!status || !BUYER_STATUS_CONFIG[status as NonNullable<BuyerStatusType>] && !DESIGNER_STATUS_CONFIG[status as NonNullable<DesignerStatusType>]) {
+		if (inUse && !!projectInUse) {
+			return (
+				<div
+					className={cn(
+						"absolute top-3 left-3 z-10 w-[calc(100%-24px)]",
+						"flex items-center justify-between gap-1.5 px-2.5 py-1.5",
+						"rounded-full border-2 border-dashed",
+						"bg-blue-50 border-blue-500 text-blue-600"
+					)}
+				>
+					<span className="text-xs font-medium truncate">
+						In Use
+					</span>
+				</div>
+			);
+		}
+		return null;
+	}
 
 	const config = isBuyer
 		? BUYER_STATUS_CONFIG[status as NonNullable<BuyerStatusType>]
 		: DESIGNER_STATUS_CONFIG[status as NonNullable<DesignerStatusType>];
 
-		if (!config) {
-			if (inUse && !!projectInUse) {
-			return (
-				<Link
-					onClick={(e) => e.stopPropagation()}
-					href={getProjectUrl()}
-					className="absolute top-2 left-2 px-2 py-1 bg-primary rounded-full text-sm max-w-[50%] truncate text-white"
-				>
-					{projectInUse.title}
-				</Link>
-			)}
-
-		return null;
-	} 
-
 	return (
 		<div
 			className={cn(
-				"absolute top-3 left-3 z-10 w-[92%]",
+				"absolute top-3 left-3 z-10 w-[calc(100%-24px)]",
 				"flex items-center justify-between gap-1.5 px-2.5 py-1.5",
 				"rounded-full border-2 border-dashed",
 				config.bgColor,
@@ -235,7 +251,7 @@ const TemplateStatusPill = ({ template, isBuyer, getProjectUrl, inUse, projectIn
 			)}
 		>
 			<span className="text-xs font-medium truncate">
-				{config.text} 
+				{config.text}
 			</span>
 			{config.icon && <span className="flex-shrink-0">{config.icon}</span>}
 		</div>

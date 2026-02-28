@@ -14,6 +14,7 @@ interface UKStandardSizeRowProps {
   onShowChart: () => void;
   highlighted?: boolean;
   disabled?: boolean;
+  isDesigner?: boolean;
   className?: string;
 }
 
@@ -24,6 +25,7 @@ export function UKStandardSizeRow({
   onShowChart,
   highlighted = false,
   disabled = false,
+  isDesigner = false,
   className,
 }: UKStandardSizeRowProps) {
   const [isChartOpen, setIsChartOpen] = useState(false);
@@ -52,8 +54,8 @@ export function UKStandardSizeRow({
           highlighted
             ? "bg-primary text-white border-primary"
             : disabled
-            ? "text-gray-400 border-gray-200 opacity-80 cursor-not-allowed"
-            : "text-foreground-body border-gray-200 hover:border-gray-300 hover:shadow-sm hover:scale-[1.01]",
+              ? "text-gray-400 border-gray-200 opacity-80 cursor-not-allowed"
+              : "text-foreground-body border-gray-200 hover:border-gray-300 hover:shadow-sm hover:scale-[1.01]",
           className
         )}
       >
@@ -70,15 +72,17 @@ export function UKStandardSizeRow({
           </button>
         </div>
         <div onClick={(e) => e.stopPropagation()}>
-          <UKSizeDropdown
-            gender={gender}
-            value={value}
-            onChange={onChange}
-            disabled={disabled}
-            className={cn(
-              highlighted && "bg-white/10 border-white/30 text-white"
-            )}
-          />
+          {!isDesigner && (
+            <UKSizeDropdown
+              gender={gender}
+              value={value}
+              onChange={onChange}
+              disabled={disabled}
+              className={cn(
+                highlighted && "bg-white/10 border-white/30 text-white"
+              )}
+            />
+          )}
         </div>
       </div>
 

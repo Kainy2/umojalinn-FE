@@ -7,6 +7,7 @@ const DisabledTemplateItems = ({
   title: string;
   value?: string | number;
 }) => {
+  console.log(value)
   return (
     <div
       // style={{ animationDelay: `${(index + 4) * 30}ms` }}

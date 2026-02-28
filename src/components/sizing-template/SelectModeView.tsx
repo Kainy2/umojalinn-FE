@@ -128,7 +128,7 @@ const SelectModeView = ({
     setPreviewName(name);
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     if (!gender) return;
 
     const defaultTemplate = gender === "MALE" ? MALE_SIZING_TEMPLATE : FEMALE_SIZING_TEMPLATE
@@ -139,42 +139,46 @@ const SelectModeView = ({
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl">
-        {/* Info Banner */}
-        {/* <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
-          <Info className="size-5 text-amber-600 shrink-0 mt-0.5" />
-          <div>
-            <p className="font-semibold text-foreground-body">Height and Standard Size!</p>
-            <p className="text-sm text-muted-foreground">
-              In the bidding phase, only Height and Standard size will be shown. Buyers can access
-              other measurements once the project is live.
-            </p>
-          </div>
-        </div> */}
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Column */}
           <div>
             <div className="flex flex-col gap-6">
               {/* Header */}
-              <div className="animate-in fade-in duration-300">
-                <h1 className="text-lg font-bold text-foreground-body mb-2">
-                  Request Sizing template
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                  Send measurements point to <b>&quot;{buyerName}&quot;</b>
-                  {projectName && (
-                    <>
-                      {" "}
-                      for <b>&quot;{projectName}&quot;</b> Project
-                    </>
-                  )}
-                </p>
-              </div>
+              <div className="flex flex-col gap-6">
+                <div className="animate-in fade-in duration-300">
+                  <h1 className="text-lg font-bold text-foreground-body mb-2">
+                    Request Sizing template
+                  </h1>
+                  <p className="text-sm text-muted-foreground">
+                    Send measurements point to <b>&quot;{buyerName}&quot;</b>
+                    {projectName && (
+                      <>
+                        {" "}
+                        for <b>&quot;{projectName}&quot;</b> Project
+                      </>
+                    )}
+                  </p>
+                </div>
 
+                {/* Info Banner */}
+                <div className="bg-[#fcfcfd] border border-gray-300 rounded-lg p-4 flex items-start gap-3">
+                  <HelpCircle className="size-5 text-gray-500 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-semibold text-foreground-body">Height and Standard Size!</p>
+                    <p className="text-sm leading-5 mt-1 text-gray-600">
+                      In the bidding phase, only Height and Standard size will be shown. Buyers can access other measurements once the project is live.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Scrollable List Section */}
+            <div className="flex-1 overflow-y-auto pr-2 pb-10 space-y-6">
               {/* Controls - Only show when template exists */}
               {hasTemplate && (
                 <>
-                  <div className="flex gap-4 items-start sm:items-center animate-in fade-in duration-300 delay-75">
+                  <div className="flex gap-4 items-start sm:items-center animate-in fade-in duration-300 delay-75 mt-2">
                     {/* <GenderSelector gender={gender} disabled /> */}
                     <UnitSelector
                       unit={unit}
@@ -227,8 +231,9 @@ const SelectModeView = ({
                       value={ukStandardSize ?? null}
                       highlighted={false}
                       disabled
-                      onChange={() => {}}
-                      onShowChart={() => {}}
+                      isDesigner
+                      onChange={() => { }}
+                      onShowChart={() => { }}
                     />
                     <DisabledTemplateItems
                       title="Height"
@@ -264,7 +269,7 @@ const SelectModeView = ({
                             className={cn(
                               "transition-all duration-200",
                               isSelected &&
-                                "border-white bg-white data-[state=checked]:bg-white data-[state=checked]:text-primary"
+                              "border-white bg-white data-[state=checked]:bg-white data-[state=checked]:text-primary"
                             )}
                           />
                           <span
@@ -323,7 +328,7 @@ const SelectModeView = ({
 
           {/* Right Column - Preview */}
           <div className="md:block hidden">
-            <div className="sticky top-6 flex flex-col gap-4">
+            <div className="sticky top-0 flex flex-col gap-4">
               {previewName && (
                 <h3 className="text-lg font-semibold text-foreground-body animate-in fade-in duration-200">
                   {previewName}

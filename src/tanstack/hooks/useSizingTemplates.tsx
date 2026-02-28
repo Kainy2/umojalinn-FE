@@ -111,20 +111,20 @@ export const useGetAllSizingTemplates = (
     lastId: string;
     limit: number;
     sizingTemplateStatus:
-      | UmojaLinnSizingTemplate["status"]
-      | Array<UmojaLinnSizingTemplate["status"]>;
+    | UmojaLinnSizingTemplate["status"]
+    | Array<UmojaLinnSizingTemplate["status"]>;
   }>,
   options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnSizingTemplate>>
 ) => {
   const { data: me } = useSession();
   return useQuery({
-		...options,
-		enabled:
-			!!me?.user &&
-			me?.user?.profileRole === 'BUYER' &&
-			options?.enabled !== false,
-		queryKey: [SIZING_TEMPLATE, apiParams],
-		queryFn: () => getSizingTemplates(apiParams),
+    ...options,
+    enabled:
+      !!me?.user &&
+      me?.user?.profileRole === 'BUYER' &&
+      options?.enabled !== false,
+    queryKey: [SIZING_TEMPLATE, apiParams],
+    queryFn: () => getSizingTemplates(apiParams),
   });
 };
 
@@ -207,6 +207,7 @@ export const useAddSizingTemplateToProject = (
         variables.projectId
       ),
     onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [BID] });
       queryClient.invalidateQueries({ queryKey: [PROJECT] });
       options?.onSuccess?.(data, variables, context);
     },
@@ -356,8 +357,8 @@ export const useSendSizingTemplateReminder = (
 export const useRequestSizingTemplateInProject = (
   options?: GenericUseMutationProps<SingleApiResponse, string>
 ) => {
-    const { id } = useParams<{ id: string }>();
-    const { data: me } = useSession();
+  const { id } = useParams<{ id: string }>();
+  const { data: me } = useSession();
   const { handleError } = useHandleError("Request Sizing Template");
   const queryclient = useQueryClient();
   return useMutation({
@@ -367,10 +368,10 @@ export const useRequestSizingTemplateInProject = (
       handleError(error);
       options?.onError?.(error, variables, context);
     },
-    onSuccess:(...args) => {
-      queryclient.invalidateQueries({ queryKey: [BID, { id, role: me?.user?.profileRole }]});
-      queryclient.invalidateQueries({queryKey: [PROJECT] });
-      queryclient.invalidateQueries({queryKey: [SIZING_TEMPLATE] });
+    onSuccess: (...args) => {
+      queryclient.invalidateQueries({ queryKey: [BID, { id, role: me?.user?.profileRole }] });
+      queryclient.invalidateQueries({ queryKey: [PROJECT] });
+      queryclient.invalidateQueries({ queryKey: [SIZING_TEMPLATE] });
       options?.onSuccess?.(...args);
     }
   });

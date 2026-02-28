@@ -101,7 +101,7 @@ const RequestMeasurementPointsPage = ({
 
               {/* Measurement Points */}
               <div className="flex flex-col gap-2">
-                {template.map((point, index) => {
+                {template.filter((point) => point.prop !== "height").map((point, index) => {
                   const isSelected = selectedPoints.includes(point.prop);
                   return (
                     <div

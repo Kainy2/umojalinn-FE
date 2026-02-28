@@ -125,9 +125,8 @@ const JobPage = () => {
         />
         <div className="text-foreground-body text-center">
           <h3 className="font-semibold mb-2 text-foreground">
-            {`${project?.buyer?.user?.firstName || ""} ${
-              project?.buyer?.user?.lastName || ""
-            }`.trim() || "No buyer"}
+            {`${project?.buyer?.user?.firstName || ""} ${project?.buyer?.user?.lastName || ""
+              }`.trim() || "No buyer"}
           </h3>
           <p>{project?.buyer?.user?.address?.country}</p>
         </div>
@@ -149,7 +148,9 @@ const JobPage = () => {
               : "None"
           }
         />
-        <LabelValue label="Years of experience" value={"None"} />
+
+        {/* Hide for now */}
+        {/* <LabelValue label="Years of experience" value={"None"} /> */}
 
         <div>
           <p className="text-foreground-body text-sm mb-2">
@@ -181,27 +182,27 @@ const JobPage = () => {
         <p className="text-sm text-foreground-body mb-8">Project images</p>
 
         {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"> */}
-          {project?.Gallery ? (
-            <GalleryImages
-              // title={gallery?.title}
-              // src={gallery?.imageUrl}
-              width={310}
-              height={170}
-              images={project.Gallery}
+        {project?.Gallery ? (
+          <GalleryImages
+            // title={gallery?.title}
+            // src={gallery?.imageUrl}
+            width={310}
+            height={170}
+            images={project.Gallery}
 
-              wrapperClassName="aspect-square w-full h-auto"
-            />
-          ) : (
-            <Image
-              alt=""
-              src="/img/svg/null.svg"
-              height={500}
-              width={500}
-              className="object-cover aspect-square"
-            />
-          )}
-        </div>
+            wrapperClassName="aspect-square w-full h-auto"
+          />
+        ) : (
+          <Image
+            alt=""
+            src="/img/svg/null.svg"
+            height={500}
+            width={500}
+            className="object-cover aspect-square"
+          />
+        )}
       </div>
+    </div>
     // </div>
   );
 };
