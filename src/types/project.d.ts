@@ -2,7 +2,7 @@ import { EDeliveryMileStoneType } from "./enum";
 import { UmojaLinnUser, UmojaLinnUserRoleProfile } from "./user";
 import { UmojaLinnTimestamp } from "./util";
 
-export type UmojaLinnCurrency = "EURO" | "NAIRA";
+export type UmojaLinnCurrency = "EURO" | "NAIRA" |"USD" | "GBP" | "CAD";
 
 // Male standard sizes (letter-based)
 export type UmojalinnMaleStandardSize = "XXS" | "XS" | "S" | "M" | "L" | "XL" | "XXL" | "3XL" | "4XL" | "5XL" | "6XL";
@@ -130,6 +130,7 @@ export type UmojaLinnMilestone = {
   variableSubmissions?: VariableDeliveryMileStoneSubmissions[];
   deliveryMileStoneType: EDeliveryMileStoneType;
   lastMilestoneApprovedAt: string | null;
+  currency: UmojaLinnCurrency;
   status:
     | "IN_ACTIVE"
     | "PENDING"
@@ -362,6 +363,12 @@ export type UmojalinnWallet = {
   ngnEscrowBalance: number;
   eurBalance: number;
   eurEscrowBalance: number;
+  usdBalance: number;
+  usdEscrowBalance: number;
+  gbpBalance: number;
+  gbpEscrowBalance: number;
+  cadBalance: number;
+  cadEscrowBalance: number;
   transactions: UmojalinnWalletTransaction[];
 } & UmojaLinnTimestamp;
 
@@ -406,3 +413,44 @@ export type UmojaLinnSpecialistType = {
   id: string;
   name: string;
 } & UmojaLinnTimestamp;
+
+
+export type UmojaLinnPayment ={
+  checkoutUrl: string
+  amount: number
+  currency: UmojaLinnCurrency
+
+}
+
+export type UmojaLinnNgnBank = {
+  id: string;
+  name: string;
+  code: string;
+}
+
+export type UmojaLinnPaymentAccountInfo = {
+  id: string;
+  designerId: string;
+  stripeAccountId: string | null;
+  stripeStatus: string;
+  stripeOnboardingUrl: string | null;
+  stripePayoutsEnabled: boolean;
+  stripeChargesEnabled: boolean;
+  stripeDetailsSubmitted: boolean;
+  stripeRequirements: string | null;
+  stripeIban: string | null;
+  paystackRecipientCode: string;
+  paystackStatus: string;
+  paystackBankCode: string;
+  paystackAccountNumber: string;
+  paystackAccountName: string;
+}
+
+export type UmojaLinnBankVerified = {
+  accountName: string;
+  accountNumber: string
+}
+export type UmojaLinnConnectStripeAccount = {
+  onboardingUrl: string;
+  accountId: string
+}

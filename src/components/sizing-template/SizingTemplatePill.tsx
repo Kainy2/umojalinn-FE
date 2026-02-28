@@ -474,7 +474,7 @@ const SizingTemplatePill = ({
       //     />
       //   );
 
-      case "REQUEST_SIZING_TEMPLATE":
+      case "AWAITING_SIZING_TEMPLATE":
         // Designer view - waiting for buyer to add template
         return (
           <div
@@ -512,8 +512,7 @@ const SizingTemplatePill = ({
           </div>
         );
 
-      case "AWAITING_SIZING_TEMPLATE":
-      // // Designer view - waiting for buyer to add template
+
       case "SELECT_MEASUREMENT_POINTS":
         // Designer view - need to select measurement points and request them from buyer
         return (

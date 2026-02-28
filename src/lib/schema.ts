@@ -89,7 +89,9 @@ export const onboardingDetailsFormSchema = z
 
 export const onboardingAddressFormSchema = z.object({
   address: z.string().optional(),
-  country: z.string().optional(),
+  country: z.string({
+    message: "Please provide valid country.",
+    }),
   state: z.string().optional(),
   city: z.string().optional(),
   zipCode: z.string().optional(),

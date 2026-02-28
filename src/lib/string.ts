@@ -13,6 +13,12 @@ export function getCurrencySymbol(currency?: UmojaLinnCurrency | null) {
       return "€";
     case "NAIRA":
       return "₦";
+    case "USD":
+      return "$";
+    case "GBP":
+      return "£";
+    case "CAD":
+      return "$";
     default:
       return currency;
   }

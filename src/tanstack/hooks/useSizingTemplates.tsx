@@ -15,6 +15,7 @@ import {
   submitMeasurementPoints,
   saveMeasurementPoints,
   sendSizingTemplateReminder,
+  purchaseSizingTemplate,
 } from "@/actions/sizing-templates";
 import { queryClient } from "@/components/provider/TanstackQueryClient";
 import useHandleError from "@/hooks/useHandleError";
@@ -374,5 +375,26 @@ export const useRequestSizingTemplateInProject = (
       queryclient.invalidateQueries({ queryKey: [SIZING_TEMPLATE] });
       options?.onSuccess?.(...args);
     }
+  });
+};
+
+export const usePurchaseSizingTemplate = (
+  options?: GenericUseMutationProps<
+    SingleApiResponse<{ checkoutUrl: string }>,
+    { currency: "NAIRA" | "EURO"; numberOfTemplates: number }
+  >
+) => {
+  const { handleError } = useHandleError("Purchase Sizing Template");
+  return useMutation({
+    ...options,
+    mutationFn: purchaseSizingTemplate,
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [SIZING_TEMPLATE] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
   });
 };

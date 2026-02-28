@@ -1,10 +1,10 @@
 import {
   addProjectReview,
   approveOrRejectMilestone,
-  createWithdrawalMethod,
+  // createWithdrawalMethod,
   deleteProjectById,
   deleteWithdrawalMethod,
-  editWithdrawalMethod,
+  // editWithdrawalMethod,
   fundMilestone,
   fundProject,
   getAllBuyerProjects,
@@ -24,8 +24,13 @@ import {
   requestWithdrawal,
   submitMilestone,
   updateProjectById,
-  setDefaultWithdrawalMethod,
+  // setDefaultWithdrawalMethod,
   getFundsReleasedTransactions,
+  getListNgnBanks,
+  getPaymentAccountInfo,
+  verifyNgnAccount,
+  addNgnBankAccount,
+  connectStripeAccount
 } from "@/actions/project";
 import { queryClient } from "@/components/provider/TanstackQueryClient";
 import useHandleError from "@/hooks/useHandleError";
@@ -38,6 +43,11 @@ import {
   UmojaLinnSpecialistType,
   UmojalinnWallet,
   UmojaLinnWithdrawalMethod,
+  UmojaLinnPayment,
+  UmojaLinnNgnBank,
+  UmojaLinnPaymentAccountInfo,
+  UmojaLinnBankVerified,
+  UmojaLinnConnectStripeAccount
 } from "@/types/project";
 import {
   GenericUseMutationProps,
@@ -58,14 +68,16 @@ import {
   TRANSACTION,
   WALLET,
   WITHDRAWAL_METHODS,
+  PAYMENT_ACCOUNT_INFO
 } from "../keys";
-import { AxiosProgressEvent } from "axios";
 import {
-  CreateWithdrawalMethodPayload,
-  DirectTransferPayload,
-  PaypalPayload,
+  // CreateWithdrawalMethodPayload,
+  // DirectTransferPayload,
+  // PaypalPayload,
   RequestWithdrawalPayload,
-  SetDefaultWithdrawalMethodPayload,
+  // SetDefaultWithdrawalMethodPayload,
+  VerifyNgnAccountPayload,
+  AddNgnBankAccounyPaylod
 } from "@/section/form/withdraw/WithdrawalAmount";
 import { getUserReviews, UserReviewsApiProps } from "@/actions/user";
 
@@ -157,11 +169,11 @@ export const useGetAllBuyerProject = (
     lastId: string;
     limit: number;
     projectStatus:
-      | UmojaLinnProject["status"]
-      | Array<UmojaLinnProject["status"]>;
+    | UmojaLinnProject["status"]
+    | Array<UmojaLinnProject["status"]>;
     projectType:
-      | UmojaLinnProject["projectType"]
-      | Array<UmojaLinnProject["projectType"]>;
+    | UmojaLinnProject["projectType"]
+    | Array<UmojaLinnProject["projectType"]>;
   }>,
   options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnProject>>
 ) => {
@@ -180,11 +192,11 @@ export const useGetAllDesignerProject = (
     lastId: string;
     limit: number;
     projectStatus:
-      | UmojaLinnProject["status"]
-      | Array<UmojaLinnProject["status"]>;
+    | UmojaLinnProject["status"]
+    | Array<UmojaLinnProject["status"]>;
     projectType:
-      | UmojaLinnProject["projectType"]
-      | Array<UmojaLinnProject["projectType"]>;
+    | UmojaLinnProject["projectType"]
+    | Array<UmojaLinnProject["projectType"]>;
     hasBid?: boolean;
   }>,
   options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnProject>>
@@ -214,13 +226,12 @@ export const useGetProjectMilestones = (
 
 export const useFundProject = (
   id: string,
-  onUploadProgress?: (event: AxiosProgressEvent) => void,
-  options?: GenericUseMutationProps<SingleApiResponse, FormData>
+  options?: GenericUseMutationProps<SingleApiResponse<UmojaLinnPayment>>
 ) => {
   const { handleError } = useHandleError("Fund Project");
   return useMutation({
     ...options,
-    mutationFn: (variables) => fundProject(id, variables, onUploadProgress),
+    mutationFn: () => fundProject(id),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: [PROJECT] });
       options?.onSuccess?.(data, variables, context);
@@ -233,14 +244,12 @@ export const useFundProject = (
 };
 
 export const useFundMilestone = (
-  id: string,
-  onUploadProgress?: (event: AxiosProgressEvent) => void,
-  options?: GenericUseMutationProps<SingleApiResponse, FormData>
+  options?: GenericUseMutationProps<SingleApiResponse<UmojaLinnPayment>, string>
 ) => {
   const { handleError } = useHandleError("Fund Milestone");
   return useMutation({
     ...options,
-    mutationFn: (variables) => fundMilestone(id, variables, onUploadProgress),
+    mutationFn: (id: string) => fundMilestone(id),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: [PROJECT] });
       options?.onSuccess?.(data, variables, context);
@@ -350,7 +359,7 @@ export const useGetTransactions = (
   const { data: me } = useSession();
   return useQuery({
     enabled: !!me?.user,
-		queryKey: [TRANSACTION, params],
+    queryKey: [TRANSACTION, params],
     queryFn: () => getAllTransactions(params),
   });
 };
@@ -363,11 +372,11 @@ export const useGetInfiniteTransactions = (
   const lastId = params?.lastId;
 
   return useInfiniteQuery({
-		initialPageParam: lastId,
-		enabled: !!me?.user,
-		queryKey: [TRANSACTION, params],
-		queryFn: ({ pageParam: lastId }) => getAllTransactions({ lastId, ...params }),
-		getNextPageParam: (lastPage) => lastPage?.data.lastId,
+    initialPageParam: lastId,
+    enabled: !!me?.user,
+    queryKey: [TRANSACTION, params],
+    queryFn: ({ pageParam: lastId }) => getAllTransactions({ lastId, ...params }),
+    getNextPageParam: (lastPage) => lastPage?.data.lastId,
   });
 };
 export const useGetInfiniteFundReleasedTransactions = (
@@ -378,11 +387,11 @@ export const useGetInfiniteFundReleasedTransactions = (
   const lastId = params?.lastId;
 
   return useInfiniteQuery({
-		initialPageParam: lastId,
-		enabled: !!me?.user,
-		queryKey: [FUNDS_RELEASED, params],
-		queryFn: ({ pageParam: lastId }) => getFundsReleasedTransactions({ lastId, ...params }),
-		getNextPageParam: (lastPage) => lastPage?.data.lastId,
+    initialPageParam: lastId,
+    enabled: !!me?.user,
+    queryKey: [FUNDS_RELEASED, params],
+    queryFn: ({ pageParam: lastId }) => getFundsReleasedTransactions({ lastId, ...params }),
+    getNextPageParam: (lastPage) => lastPage?.data.lastId,
   });
 };
 
@@ -397,17 +406,81 @@ export const useGetWithdrawalMethods = (
     queryFn: () => getWithdrawalMethods(),
   });
 };
-
-export const useCreateWithdrawalMethod = (
-  options?: GenericUseMutationProps<
-    SingleApiResponse<UmojaLinnWithdrawalMethod>,
-    CreateWithdrawalMethodPayload
-  >
+export const useGetListNgnBanks = (
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnNgnBank>>
 ) => {
-  const { handleError } = useHandleError("Create Withdrawal Method");
+  const { data: me } = useSession();
+  return useQuery({
+    ...options,
+    enabled: !!me?.user && options?.enabled !== false,
+    queryKey: [PROJECT, WALLET, WITHDRAWAL_METHODS],
+    queryFn: () => getListNgnBanks(),
+  });
+};
+export const useGetPaymentAccountInfo = (
+  options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnPaymentAccountInfo>>
+) => {
+  const { data: me } = useSession();
+  return useQuery({
+    ...options,
+    enabled: !!me?.user && options?.enabled !== false,
+    queryKey: [PROJECT, WALLET, PAYMENT_ACCOUNT_INFO],
+    queryFn: () => getPaymentAccountInfo(),
+  });
+};
+
+// export const useCreateWithdrawalMethod = (
+//   options?: GenericUseMutationProps<
+//     SingleApiResponse<UmojaLinnWithdrawalMethod>,
+//     CreateWithdrawalMethodPayload
+//   >
+// ) => {
+//   const { handleError } = useHandleError("Create Withdrawal Method");
+//   return useMutation({
+//     ...options,
+//     mutationFn: (variables) => createWithdrawalMethod(variables),
+//     onSuccess: (data, variables, context) => {
+//       queryClient.invalidateQueries({
+//         queryKey: [PROJECT, WALLET, WITHDRAWAL_METHODS],
+//       });
+//       options?.onSuccess?.(data, variables, context);
+//     },
+//     onError: (error, variables, context) => {
+//       handleError(error);
+//       options?.onError?.(error, variables, context);
+//     },
+//   });
+// };
+
+// export const useSetDefaultWithdrawalMethod = (
+//   options?: GenericUseMutationProps<
+//     SingleApiResponse<UmojaLinnWithdrawalMethod>,
+//     SetDefaultWithdrawalMethodPayload
+//   >
+// ) => {
+//   const { handleError } = useHandleError("Create Withdrawal Method");
+//   return useMutation({
+//     ...options,
+//     mutationFn: (variables) => setDefaultWithdrawalMethod(variables),
+//     onSuccess: (data, variables, context) => {
+//       queryClient.invalidateQueries({
+//         queryKey: [PROJECT, WALLET, WITHDRAWAL_METHODS],
+//       });
+//       options?.onSuccess?.(data, variables, context);
+//     },
+//     onError: (error, variables, context) => {
+//       handleError(error);
+//       options?.onError?.(error, variables, context);
+//     },
+//   });
+// };
+export const useVerifyNgnAccount = (
+  options?: GenericUseMutationProps<SingleApiResponse<UmojaLinnBankVerified>, VerifyNgnAccountPayload>
+) => {
+  const { handleError } = useHandleError("Verify Ngn Account");
   return useMutation({
     ...options,
-    mutationFn: (variables) => createWithdrawalMethod(variables),
+    mutationFn: (variables) => verifyNgnAccount(variables),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: [PROJECT, WALLET, WITHDRAWAL_METHODS],
@@ -419,18 +492,14 @@ export const useCreateWithdrawalMethod = (
       options?.onError?.(error, variables, context);
     },
   });
-};
-
-export const useSetDefaultWithdrawalMethod = (
-  options?: GenericUseMutationProps<
-    SingleApiResponse<UmojaLinnWithdrawalMethod>,
-    SetDefaultWithdrawalMethodPayload
-  >
+}
+export const useAddNgnAccount = (
+  options?: GenericUseMutationProps<SingleApiResponse, AddNgnBankAccounyPaylod>
 ) => {
-  const { handleError } = useHandleError("Create Withdrawal Method");
+  const { handleError } = useHandleError("Add Ngn Account");
   return useMutation({
     ...options,
-    mutationFn: (variables) => setDefaultWithdrawalMethod(variables),
+    mutationFn: (variables) => addNgnBankAccount(variables),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: [PROJECT, WALLET, WITHDRAWAL_METHODS],
@@ -442,19 +511,38 @@ export const useSetDefaultWithdrawalMethod = (
       options?.onError?.(error, variables, context);
     },
   });
-};
+}
 
-export const useEditWithdrawalMethod = (
-  id: string,
-  options?: GenericUseMutationProps<
-    SingleApiResponse<UmojaLinnWithdrawalMethod>,
-    PaypalPayload | DirectTransferPayload
-  >
+// export const useEditWithdrawalMethod = (
+//   id: string,
+//   options?: GenericUseMutationProps<
+//     SingleApiResponse<UmojaLinnWithdrawalMethod>,
+//     PaypalPayload | DirectTransferPayload
+//   >
+// ) => {
+//   const { handleError } = useHandleError("Edit Withdrawal Method");
+//   return useMutation({
+//     ...options,
+//     mutationFn: (variables) => editWithdrawalMethod(id, variables),
+//     onSuccess: (data, variables, context) => {
+//       queryClient.invalidateQueries({
+//         queryKey: [PROJECT, WALLET, WITHDRAWAL_METHODS],
+//       });
+//       options?.onSuccess?.(data, variables, context);
+//     },
+//     onError: (error, variables, context) => {
+//       handleError(error);
+//       options?.onError?.(error, variables, context);
+//     },
+//   });
+// };
+export const useConnectStripeAccount = (
+  options?: GenericUseMutationProps<SingleApiResponse<UmojaLinnConnectStripeAccount>>
 ) => {
-  const { handleError } = useHandleError("Edit Withdrawal Method");
+  const { handleError } = useHandleError("Connect Stripe Account");
   return useMutation({
     ...options,
-    mutationFn: (variables) => editWithdrawalMethod(id, variables),
+    mutationFn: () => connectStripeAccount(),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: [PROJECT, WALLET, WITHDRAWAL_METHODS],
@@ -466,8 +554,7 @@ export const useEditWithdrawalMethod = (
       options?.onError?.(error, variables, context);
     },
   });
-};
-
+}
 export const useDeleteWithdrawalMethod = (
   id: string,
   options?: GenericUseMutationProps<SingleApiResponse>
@@ -517,12 +604,12 @@ export const useDeleteProject = (
     ...options,
     mutationFn: (id) => deleteProjectById(id),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ 
-        queryKey: [PROJECT, BUYER, { apiParams: { projectStatus: "DRAFT", } }] 
+      queryClient.invalidateQueries({
+        queryKey: [PROJECT, BUYER, { apiParams: { projectStatus: "DRAFT", } }]
       });
       queryClient.invalidateQueries({
-        queryKey: [PROJECT, BUYER, { 
-          apiParams: { projectStatus: "ADS" } 
+        queryKey: [PROJECT, BUYER, {
+          apiParams: { projectStatus: "ADS" }
         }],
       });
       options?.onSuccess?.(data, variables, context);

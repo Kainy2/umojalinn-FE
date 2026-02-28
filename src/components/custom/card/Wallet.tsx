@@ -2,97 +2,249 @@
 import { Button } from "@/components/ui/button";
 import { formatCurrencyValue } from "@/lib/number";
 import { getCurrencySymbol } from "@/lib/string";
-import { UmojaLinnCurrency } from "@/types/project";
-import { Eye, EyeOff, Upload } from "lucide-react";
+import { UmojaLinnCurrency, UmojalinnWallet } from "@/types/project";
+import { Eye, EyeOff, Upload, Lock as LockIcon, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import React, { useState } from "react";
+import React from "react";
 import CustomReactSelect from "../ReactSelect";
+import NG from "../../../../public/img/svg/NG.svg"
+import EUR from "../../../../public/img/svg/EUR.svg"
+import USD from "../../../../public/img/svg/USD.svg"
+import GBP from "../../../../public/img/svg/GBP.svg"
+import CAD from "../../../../public/img/svg/CAD.svg"
+import Image from "next/image";
 
-type WalletCardProps = {
-  value?: number;
-  title?: string;
-  subtitle: string;
-  currency: UmojaLinnCurrency;
+
+
+interface IWalletCardProps {
+  wallet?: UmojalinnWallet;
   noAction?: boolean;
-  href?: string;
-};
+  stripeStatus?: string;
+  onLinkStripe?: () => void;
+  hideBalance?: boolean;
+  onToggleBalance?: () => void;
+  currency?: UmojaLinnCurrency;
+  onCurrencyChange?: (currency: UmojaLinnCurrency) => void;
+}
 
-type EscrowCardProps = Pick<WalletCardProps, "title" | "subtitle"> & {
-  value?: Record<UmojaLinnCurrency, number>;
-};
 
 export const currencyOptions = [
-  {
-    value: "EURO",
-    label: "EUR",
-  },
-  {
-    value: "NAIRA",
-    label: "NGN",
-  },
+  { value: "NAIRA", label: "NGN", name: "Naira", flag: NG.src, fullName: "Nigeria Naira" },
+  { value: "EURO", label: "EUR", name: "Euro", flag: EUR.src, fullName: "European Euro" },
+  { value: "USD", label: "USD", name: "USD", flag: USD.src, fullName: "United States Dollar" },
+  { value: "GBP", label: "GBP", name: "GBP", flag: GBP.src, fullName: "British Pound" },
+  { value: "CAD", label: "CAD", name: "CAD", flag: CAD.src, fullName: "Canadian Dollar" },
 ] as const;
 
-export const EscrowCard = (props: EscrowCardProps) => {
-  const { value, title, subtitle } = props;
-  const [currency, setCurrency] = useState<UmojaLinnCurrency>("EURO");
+const WalletCard = (props: IWalletCardProps) => {
+  const {
+    wallet,
+    noAction,
+    stripeStatus,
+    onLinkStripe,
+    hideBalance,
+    onToggleBalance,
+    currency = "NAIRA",
+    onCurrencyChange
+  } = props;
+
+  // const [currency, setCurrency] = useState<UmojaLinnCurrency>("NAIRA"); // lifted to parent
+  // const [obfuscate, setObfuscate] = useState(!noAction); // logic moved to parent
+
+  const currentOption = currencyOptions.find((opt) => opt.value === currency);
+
+  const getBalances = () => {
+    if (!wallet) return { balance: 0, escrow: 0 };
+    switch (currency) {
+      case "NAIRA":
+        return { balance: wallet.ngnBalance, escrow: wallet.ngnEscrowBalance };
+      case "EURO":
+        return { balance: wallet.eurBalance, escrow: wallet.eurEscrowBalance };
+      case "USD":
+        return { balance: wallet.usdBalance, escrow: wallet.usdEscrowBalance };
+      case "GBP":
+        return { balance: wallet.gbpBalance, escrow: wallet.gbpEscrowBalance };
+      case "CAD":
+        return { balance: wallet.cadBalance, escrow: wallet.cadEscrowBalance };
+      default:
+        return { balance: 0, escrow: 0 };
+    }
+  };
+
+  const { balance, escrow } = getBalances();
+
+  const showLinkAccount = currency !== "NAIRA" && stripeStatus !== "ENABLED";
 
   return (
-    <div className="p-8 border border-input">
-      {!!title && <h2 className="font-semibold pb-7">{title}</h2>}
-      <h3 className="mb-4">{subtitle}</h3>
-      <div className="border border-input p-2 pl-4 rounded-md inline-flex justify-center items-center gap-8">
-        <span className="font-semibold text-subtitle-1 ">
-          {getCurrencySymbol(currency)}
-          {formatCurrencyValue(value?.[currency] || 0)}
-        </span>
-        <span className="p-2 rounded-sm bg-gray-100">
+    <div className="px-2 py-4 lg:p-8 border border-input rounded-lg w-full bg-white relative">
+      <div className="flex justify-between items-start lg:mb-6">
+        <div className="flex items-center gap-2">
+          <h2 className="text-gray-600 text-sm">
+            {currentOption?.name} Balance
+          </h2>
           <CustomReactSelect
-            adornment
+            adornment={false}
             isSearchable={false}
-            value={currencyOptions?.find((opt) => opt?.value === currency)}
+            className="w-fit min-w-[80px]"
+            classNames={{
+              control: () => "!bg-gray-100 !border-none !rounded-2xl !min-h-[32px] !h-[32px]",
+              valueContainer: () => "!p-0 !px-3",
+              singleValue: () => "!text-sm !font-semibold !text-navy-900",
+              indicatorSeparator: () => "!hidden",
+              dropdownIndicator: () => "!p-0 !pr-2 !text-navy-900",
+            }}
+            value={currentOption}
             onChange={(newValue: unknown) => {
               const typedValue = newValue as (typeof currencyOptions)[number];
-              setCurrency(typedValue?.value);
+              if (onCurrencyChange && typedValue?.value) {
+                onCurrencyChange(typedValue.value);
+              }
+              // setCurrency(typedValue?.value);
             }}
             options={currencyOptions}
           />
-        </span>
+        </div>
+        {!noAction && (
+          showLinkAccount ? (
+            <Button
+              variant="outline"
+              className="text-error border-error hover:bg-error/5 hover:text-error gap-2 rounded-md hidden lg:flex"
+              onClick={onLinkStripe}
+            >
+              Link Account
+            </Button>
+          ) : (
+            <Button
+              asChild
+              className="bg-[#E6AB00] text-white gap-2 rounded-md hidden lg:flex"
+            >
+              <Link href={`/wallet/withdraw/${currentOption?.name.toLowerCase()}`}>
+                Withdraw <Upload className="size-4" />
+              </Link>
+            </Button>
+          )
+        )}
       </div>
+
+      <div className="flex items-center lg:justify-normal justify-between gap-4 lg:mb-8">
+        <h3 className="text-[24px] font-semibold lg:text-4xl lg:font-bold text-navy-900">
+          {hideBalance
+            ? "***************"
+            : `${getCurrencySymbol(currency)}${formatCurrencyValue(balance)}`}
+        </h3>
+        <button
+          onClick={onToggleBalance}
+          className="size-10 flex items-center justify-center rounded-full bg-yellow-50 text-yellow-600 hover:bg-yellow-100 transition-colors"
+        >
+          {hideBalance ? <Eye className="size-5" /> : <EyeOff className="size-5" />}
+        </button>
+      </div>
+
+      <div className="inline-flex items-center gap-3 bg-gray-50 rounded-lg px-4 my-2 py-2">
+        <span className="text-gray-600 font-medium bg-white px-2 py-0.5 rounded-md">Money in escrow</span>
+        <span className="font-semibold text-navy-900">
+          {`${getCurrencySymbol(currency)}${formatCurrencyValue(escrow)}`}
+        </span>
+        <ArrowRight className="text-gray-500" />
+      </div>
+      {!noAction && (
+        showLinkAccount ? (
+          <Button
+            variant="outline"
+            className="text-error border-error hover:bg-error/5 hover:text-error gap-2 lg:hidden w-full"
+            onClick={onLinkStripe}
+          >
+            Link Account
+          </Button>
+        ) : (
+          <Button
+            asChild
+            className="bg-[#E6AB00] text-white gap-2 lg:hidden w-full"
+          >
+            <Link href={`/wallet/withdraw/${currentOption?.name.toLowerCase()}`}>
+              Withdraw <Upload className="size-4" />
+            </Link>
+          </Button>
+        )
+      )}
     </div>
   );
 };
 
-const WalletCard = (props: WalletCardProps) => {
-  const { value, title, subtitle, currency, noAction, href } = props;
-  const [obfuscate, setObfuscate] = useState(!noAction);
+export const EscrowCard = ({ wallet }: { wallet: UmojalinnWallet }) => {
   return (
-    <div className="p-8 border border-input">
-      {!!title && <h2 className="font-semibold mb-7">{title}</h2>}
-      <h3 className="mb-4">{subtitle}</h3>
-      <div className="flex justify-between items-start md:items-center flex-col md:flex-row gap-4">
-        <h4 className="font-semibold text-subtitle-1 ">
-          {obfuscate
-            ? "***************"
-            : `${getCurrencySymbol(currency)}${formatCurrencyValue(value)}`}
-        </h4>
-        {!noAction && href && (
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setObfuscate((prev) => !prev)}
-              className="size-11 flex items-center justify-center rounded-full bg-primary-50 text-primary [&>svg]:size-5 shrink-0 aspect-square"
-            >
-              {obfuscate ? <Eye /> : <EyeOff />}
-            </button>
-            <Button asChild>
-              <Link href={href}>
-                Withdraw <Upload className="size-5" />
-              </Link>
-            </Button>
-          </div>
-        )}
+    <div className="p-6 border border-input rounded-lg w-full  bg-white">
+      <h3 className="text-gray-600 mb-6">Money In Escrow</h3>
+
+      <div className="flex flex-col gap-4 mb-8">
+        <div className="text-[18px] font-bold text-navy-900">
+          {getCurrencySymbol("NAIRA")}{formatCurrencyValue(wallet?.ngnEscrowBalance || 0)}
+        </div>
+        <div className="text-[18px] font-bold text-navy-900">
+          {getCurrencySymbol("GBP")}{formatCurrencyValue(wallet?.gbpEscrowBalance || 0)}
+        </div>
+        <div className="text-[18px] font-bold text-navy-900">
+          {getCurrencySymbol("EURO")}{formatCurrencyValue(wallet?.eurEscrowBalance || 0)}
+        </div>
+        <div className="text-[18px] font-bold text-navy-900">
+          {getCurrencySymbol("USD")}{formatCurrencyValue(wallet?.usdEscrowBalance || 0)}
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3 bg-gray-50 rounded-lg p-4 text-sm text-gray-700">
+        <LockIcon className="size-4 shrink-0" />
+        <span>Escrow funds are disbursed upon the approval of specific milestones.</span>
       </div>
     </div>
   );
 };
 
 export default WalletCard;
+
+export const CurrencyCard = ({
+  currency,
+  amount,
+  hideBalance,
+  isSelected,
+  showActionRequired,
+}: {
+  currency: UmojaLinnCurrency;
+  amount: number;
+  hideBalance?: boolean;
+  isSelected?: boolean;
+  showActionRequired?: boolean;
+}) => {
+  const option = currencyOptions.find((opt) => opt.value === currency);
+  return (
+    <div
+      className={`p-6 border rounded-lg w-[249px] bg-white flex flex-col gap-6 shadow-sm shrink-0 ${isSelected ? "border border-[#FEEE95]" : "border-input"
+        }`}
+    >
+      <div className="flex items-center justify-between">
+        <div className="size-8 rounded-full bg-gray-100 flex items-center justify-center text-2xl overflow-hidden relative">
+          <Image src={option?.flag || ""} alt="" width={100} height={100} />
+        </div>
+        {showActionRequired && (
+          <span className="bg-[#FEF3F2] text-error-700 px-2 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap">
+            Action required
+          </span>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-gray-600 font-medium text-base">
+          {option?.fullName}
+        </span>
+        <h3 className="text-3xl font-bold text-navy-900">
+          {hideBalance ? "********" : (
+            <>
+              {getCurrencySymbol(currency)}
+              {formatCurrencyValue(amount)}
+            </>
+          )}
+
+        </h3>
+      </div>
+    </div>
+  );
+};

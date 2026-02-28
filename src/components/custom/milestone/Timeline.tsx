@@ -11,13 +11,12 @@ import {
 import MilestoneIndicator from "./Indicator";
 import MilestonePill from "./Pill";
 import MilestoneAction, { MilestoneActionType } from "./Action";
-import SelectFundingMethodDialog from "../dialog/SelectFundingMethod";
 import MilestoneInputSection from "./InputSection";
 import MilestoneSubmissionsPreview from "./SubmissionsPreview";
-import FundMilestoneDialog from "../dialog/FundMilestoneDialog";
 import { UmojaLinnUser } from "@/types/user";
 import { VariableDeliveryForm } from "./VariableDeliveryForm";
 import { EDeliveryMileStoneType } from "@/types/enum";
+import { useFundMilestone } from "@/tanstack/hooks/useProject";
 
 export enum MilestoneStatus {
   INACTIVE = "INACTIVE",
@@ -27,6 +26,7 @@ export enum MilestoneStatus {
   AWAITING_FUND = "AWAITING_FUND",
   PAID = "PAID",
   COMPLETED = "COMPLETED",
+  PROCESSING = "PROCESSING",
 }
 
 export type MilestoneTimelineItem = {
@@ -74,7 +74,9 @@ const getMilestoneStatus = (
   if (status === "PENDING" && transactionStatus === "AWAITING_FUND")
     return MilestoneStatus.AWAITING_FUND;
   if (transactionStatus === "PAID") return MilestoneStatus.PAID;
-  if (transactionStatus === "PROCESSING") return MilestoneStatus.REVIEW;
+  if (transactionStatus === "PROCESSING") return MilestoneStatus.PROCESSING;
+  ;
+
   if (status === "IN_REVIEW") return MilestoneStatus.IN_REVIEW;
   return MilestoneStatus.INACTIVE;
 };
@@ -90,17 +92,17 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
   buyer,
   disabled = false,
 }) => {
-const deliveryMilestone = !!milestones.length ? milestones[milestones.length - 1]:undefined;
+  const deliveryMilestone = !!milestones.length ? milestones[milestones.length - 1] : undefined;
 
-  const [openFundMilestoneModal, setOpenFundMilestoneModal] = useState(false);
-  const [openPayForMilestoneModal, setOpenPayForMilestoneModal] = useState(false)
-  const [selectedMilestoneId, setSelectedMilestoneId] = useState('')
+  // const [openFundMilestoneModal, setOpenFundMilestoneModal] = useState(false);
+  // const [openPayForMilestoneModal, setOpenPayForMilestoneModal] = useState(false)
+  // const [selectedMilestoneId, setSelectedMilestoneId] = useState('')
   const [message, setMessage] = React.useState<string>('');
   const [files, setFiles] = React.useState<FileList | null>(null);
-  const [editedVariablePrice, setEditedVariablePrice] = 
-  useState(deliveryMilestone?.amount ?? 0)
-	const [selectedVariableDeliveryMethod, setSelectedVariableDeliveryMethod] = 
-  useState(deliveryMilestone?.deliveryMethod ?? "IN_PERSON_PICKUP")
+  const [editedVariablePrice, setEditedVariablePrice] =
+    useState(deliveryMilestone?.amount ?? 0)
+  const [selectedVariableDeliveryMethod, setSelectedVariableDeliveryMethod] =
+    useState(deliveryMilestone?.deliveryMethod ?? "IN_PERSON_PICKUP")
 
   const [editableDeliverySubmission, setEditableDeliverySubmission] =
     useState<UmojaLinnDeliveryMilestoneReviewProps>({
@@ -115,103 +117,102 @@ const deliveryMilestone = !!milestones.length ? milestones[milestones.length - 1
       trackingId: "",
     });
 
-    const onAcceptMilestoneSuccess = (isDelivery: boolean, index: number) => {
-      if (isDelivery) return
-      const nextMilestone = milestones[index + 1];
-      
-      if (nextMilestone.project.fundStatus === MilestoneStatus.AWAITING_FUND) {
-        setOpenFundMilestoneModal(true);
-        setSelectedMilestoneId(nextMilestone.id);
+  const onAcceptMilestoneSuccess = (isDelivery: boolean, index: number) => {
+    if (isDelivery) return
+    const nextMilestone = milestones[index + 1];
+
+    if (nextMilestone.project.fundStatus === MilestoneStatus.AWAITING_FUND) {
+      // setOpenFundMilestoneModal(true);
+      // setSelectedMilestoneId(nextMilestone.id);
+    }
+  }
+
+  const onAcceptVariableMilestoneSuccess = (isDelivery: boolean, deliveryMilestone: UmojaLinnMilestone) => {
+    if (deliveryMilestone.project.fundStatus !== MilestoneStatus.AWAITING_FUND) return
+
+    // setOpenFundMilestoneModal(true);
+    // setSelectedMilestoneId(deliveryMilestone.id);
+  }
+  const fundMilestone = useFundMilestone({
+    onSuccess: (data) => {
+      const url = data?.data?.data?.checkoutUrl;
+      if (url) {
+        window.open(url, "_blank", "noopener,noreferrer");
       }
-    }
+    },
+    onError: (err) => {
+      console.error(err);
+    },
+  });
 
-    const onAcceptVariableMilestoneSuccess = (isDelivery: boolean, deliveryMilestone: UmojaLinnMilestone) => {
-      if (!isDelivery || deliveryMilestone.project.fundStatus !== MilestoneStatus.AWAITING_FUND) return
-
-      setOpenFundMilestoneModal(true);
-      setSelectedMilestoneId(deliveryMilestone.id);
-    }
 
   return (
-  <>
-    <SelectFundingMethodDialog
-      id={selectedMilestoneId}
-      type="milestone"
-      open={openPayForMilestoneModal}
-      onOpenChange={setOpenPayForMilestoneModal}
-    />
-    <FundMilestoneDialog
-      open={openFundMilestoneModal}
-      setOpen={setOpenFundMilestoneModal}
-      onConfirm={() => {
-        setOpenFundMilestoneModal(false);
-        setOpenPayForMilestoneModal(true);
-      }}
-    />        
+    <>
 
-    <ol className={cn(
-      "flex flex-col gap-1.5",
-      disabled && "opacity-50 pointer-events-none select-none",
-      className
-    )}>
-      {milestones.map((item, index) => {
-        const isDelivery = !!item?.deliveryMethod;
-        const milestone: MilestoneTimelineItem = {
-          id: item?.id,
-          status: getMilestoneStatus(item?.status, item?.transactionStatus),
-          amount: item?.amount || 0,
-          date: item?.updatedAt,
-          title: item?.title || (isDelivery && "Delivery Method") || "No title",
-          description: item?.description,
-          variableSubmissions: item?.variableSubmissions,
-          isCurrent: ["PENDING", "ACTIVE", "REJECTED", "IN_REVIEW"].includes(
-            item?.status
-          ),
-        };
 
-        const isVariableDelivery = item.deliveryMileStoneType === EDeliveryMileStoneType.VARIABLE 
-        const isAwaitingFunding = milestone?.status === MilestoneStatus.AWAITING_FUND 
-        const latestSubmission = milestone.variableSubmissions?.[0]
-        const isCompletedOrCurrent =
-          milestone?.status === MilestoneStatus.COMPLETED ||
-          milestone?.isCurrent;
-        
-        return (
-          <li key={index} className="flex flex-col gap-1.5">
-            <div className="flex flex-row gap-3">
-              {/* Circular indicator with icons */}
-              <MilestoneIndicator {...milestone} />
+      <ol className={cn(
+        "flex flex-col gap-1.5",
+        disabled && "opacity-50 pointer-events-none select-none",
+        className
+      )}>
+        {milestones.map((item, index) => {
+          const isDelivery = !!item?.deliveryMethod;
+          const milestone: MilestoneTimelineItem = {
+            id: item?.id,
+            status: getMilestoneStatus(item?.status, item?.transactionStatus),
+            amount: item?.amount || 0,
+            date: item?.updatedAt,
+            title: item?.title || (isDelivery && "Delivery Method") || "No title",
+            description: item?.description,
+            variableSubmissions: item?.variableSubmissions,
+            isCurrent: ["PENDING", "ACTIVE", "REJECTED", "IN_REVIEW"].includes(
+              item?.status
+            ),
+          };
 
-              {/* Title */}
-              <h3
-                className={cn(
-                  "flex-1 font-semibold text-gray-400 mt-1 truncate",
-                  isCompletedOrCurrent && "text-foreground-body"
-                )}
-              >
-                {milestone?.title}
-              </h3>
-            </div>
-            <div className="flex flex-row items-stretch gap-3">
-              {/* Line indicator */}
-              <span
-                className={cn(
-                  "flex flex-col justify-center items-center w-8 shrink-0 before:content-[''] before:w-0.5 before:h-full before:bg-gray-200 before:flex-1 before:rounded-full ",
-                  milestone?.status === MilestoneStatus.COMPLETED &&
-                    "before:bg-success",
-                  milestone?.isCurrent && "before:bg-gray-500"
-                )}
-              />
-              {/* Details, actions and content */}
-              <div className="flex-1 flex flex-col gap-2">
-                <p
+          const isVariableDelivery = item.deliveryMileStoneType === EDeliveryMileStoneType.VARIABLE
+          const isAwaitingFunding = milestone?.status === MilestoneStatus.AWAITING_FUND
+          const latestSubmission = milestone.variableSubmissions?.[0]
+          const isCompletedOrCurrent =
+            milestone?.status === MilestoneStatus.COMPLETED ||
+            milestone?.isCurrent;
+
+          return (
+            <li key={index} className="flex flex-col gap-1.5">
+              <div className="flex flex-row gap-3">
+                {/* Circular indicator with icons */}
+                <MilestoneIndicator {...milestone} />
+
+                {/* Title */}
+                <h3
                   className={cn(
-                    "text-gray-400",
+                    "flex-1 font-semibold text-gray-400 mt-1 truncate",
                     isCompletedOrCurrent && "text-foreground-body"
                   )}
                 >
-                  {milestone?.description}
-                  {/* {isDelivery && (
+                  {milestone?.title}
+                </h3>
+              </div>
+              <div className="flex flex-row items-stretch gap-3">
+                {/* Line indicator */}
+                <span
+                  className={cn(
+                    "flex flex-col justify-center items-center w-8 shrink-0 before:content-[''] before:w-0.5 before:h-full before:bg-gray-200 before:flex-1 before:rounded-full ",
+                    milestone?.status === MilestoneStatus.COMPLETED &&
+                    "before:bg-success",
+                    milestone?.isCurrent && "before:bg-gray-500"
+                  )}
+                />
+                {/* Details, actions and content */}
+                <div className="flex-1 flex flex-col gap-2">
+                  <p
+                    className={cn(
+                      "text-gray-400",
+                      isCompletedOrCurrent && "text-foreground-body"
+                    )}
+                  >
+                    {milestone?.description}
+                    {/* {isDelivery && (
                     <>
                       Delivery method{" "}
                       <span className="text-xs py-1 px-2 border rounded-sm">
@@ -221,151 +222,152 @@ const deliveryMilestone = !!milestones.length ? milestones[milestones.length - 1
                       </span>
                     </>
                   )} */}
-                </p>
-                {milestone?.additionalContent}
+                  </p>
+                  {milestone?.additionalContent}
 
-                <VariableDeliveryForm
-                  isAwaitingFunding={isAwaitingFunding}
-                  milestoneId={item?.id}
-                  isVariableDelivery={isVariableDelivery}
-                  isDesigner={!!isDesigner}
-                  isDeliveryMilestone={isDelivery}
-                  variableSubmissions={item?.variableSubmissions}
-                  currency={currency ?? 'NAIRA'}
-                  isCurrentMilestone={!!milestone?.isCurrent}
-                  editedVariablePrice={editedVariablePrice}
-                  setEditedVariablePrice={setEditedVariablePrice}
-                  selectedVariableDeliveryMethod={selectedVariableDeliveryMethod}
-                  setSelectedVariableDeliveryMethod={setSelectedVariableDeliveryMethod}
-                />
+                  <VariableDeliveryForm
+                    isAwaitingFunding={isAwaitingFunding}
+                    milestoneId={item?.id}
+                    isVariableDelivery={isVariableDelivery}
+                    isDesigner={!!isDesigner}
+                    isDeliveryMilestone={isDelivery}
+                    variableSubmissions={item?.variableSubmissions}
+                    currency={currency ?? 'NAIRA'}
+                    isCurrentMilestone={!!milestone?.isCurrent}
+                    editedVariablePrice={editedVariablePrice}
+                    setEditedVariablePrice={setEditedVariablePrice}
+                    selectedVariableDeliveryMethod={selectedVariableDeliveryMethod}
+                    setSelectedVariableDeliveryMethod={setSelectedVariableDeliveryMethod}
+                  />
 
-                <MilestoneSubmissionsPreview
-                  status={milestone?.status}
-                  milestoneId={item?.id}
-                  deliveryMethod={item?.deliveryMethod}
-                  isDeliveryMilestone={isDelivery}
-                  isFixedDelivery={!isVariableDelivery}
-                  {...{
-                    // isBuyer,
-                    isDesigner,
-                    designer,
-                    buyer,
-                  }}
-                />
-                {/* Input */}
-                {isDesigner && ( 
-                  <MilestoneInputSection
+                  <MilestoneSubmissionsPreview
+                    status={milestone?.status}
+                    milestoneId={item?.id}
+                    deliveryMethod={item?.deliveryMethod}
+                    isDeliveryMilestone={isDelivery}
+                    isFixedDelivery={!isVariableDelivery}
                     {...{
-                      isDesigner,
                       // isBuyer,
-                      message,
-                      files,
-                      status: milestone?.status,
-                      onFilesChange: setFiles,
-                      onMessageChange: setMessage,
-                      isDeliveryMilestone: isDelivery,
-                      deliveryMethod: item?.deliveryMethod,
-                      editedDeliveryDetails: editableDeliverySubmission,
-                      onChangeDeliveryDetails: (value) =>
-                        setEditableDeliverySubmission((prev) => ({
-                          ...prev,
-                          ...value,
-                        })),
+                      isDesigner,
+                      designer,
+                      buyer,
                     }}
                   />
-                )}
-                <div
-                  className={cn(
-                    "flex gap-2 flex-wrap items-center text-sm",
-                    isCompletedOrCurrent && "text-foreground-body"
+                  {/* Input */}
+                  {isDesigner && (
+                    <MilestoneInputSection
+                      {...{
+                        isDesigner,
+                        // isBuyer,
+                        message,
+                        files,
+                        status: milestone?.status,
+                        onFilesChange: setFiles,
+                        onMessageChange: setMessage,
+                        isDeliveryMilestone: isDelivery,
+                        deliveryMethod: item?.deliveryMethod,
+                        editedDeliveryDetails: editableDeliverySubmission,
+                        onChangeDeliveryDetails: (value) =>
+                          setEditableDeliverySubmission((prev) => ({
+                            ...prev,
+                            ...value,
+                          })),
+                      }}
+                    />
                   )}
-                >
-                  {milestone?.date && isCompletedOrCurrent && (
-                    <time
-                      className={cn(
-                        "text-gray-400 text-sm",
-                        isCompletedOrCurrent && "text-foreground-body"
-                      )}
-                    >
-                      {format(
-                        new Date(milestone?.date),
-                        "MMM dd, yyyy • hh:mmaaa"
-                      )}
-                    </time>
-                  )}
-                  <MilestonePill currency={currency} escrowBalance={escrowBalance} {...milestone} />
-                  {isAwaitingFunding && latestSubmission?.status !== "PENDING" &&
-                    !isDesigner && (
-                      <SelectFundingMethodDialog
-                        id={milestone?.id}
-                        type="milestone"
-                      >
-                        <button className="text-sm underline text-primary">
-                          Fund Milestone
-                        </button>
-                      </SelectFundingMethodDialog>
-                    )}
-                  {(milestone?.retries?.length ?? 0) > 1 && (
-                    <>
-                      <span
-                        className={cn(
-                          "text-gray-400",
-                          (milestone?.status === MilestoneStatus.COMPLETED ||
-                            milestone?.isCurrent) &&
-                            "text-foreground-body"
-                        )}
-                      >
-                        {milestone?.retries?.length}{" "}
-                      </span>
-                      <button className="text-sm underline text-primary">
-                        retries
-                      </button>
-                    </>
-                  )}
-                  <span
+                  <div
                     className={cn(
-                      "text-gray-400",
-                      (milestone?.status === MilestoneStatus.COMPLETED ||
-                        milestone?.isCurrent) &&
-                        "text-foreground-body"
+                      "flex gap-2 flex-wrap items-center text-sm",
+                      isCompletedOrCurrent && "text-foreground-body"
                     )}
                   >
-                    {milestone?.info}
-                  </span>
-                </div>
-                <MilestoneAction
-                  {...milestone}
-                  message={message}
-                  files={files}
-                  clear={() => {
-                    setMessage("");
-                    setFiles(null);
-                  }}
-                  deliverySubmission={editableDeliverySubmission}
-                  variableSubmissions={item?.variableSubmissions}
-                  isAwaitingFunding={false}
-                  onActionClick={(action) => console.log(action)}
-                  onAcceptMilestoneSuccess={()=> onAcceptMilestoneSuccess(isDelivery, index)}
-                  onAcceptVariableMilestoneSuccess={(deliveryMilestone) => 
-                    onAcceptVariableMilestoneSuccess(isDelivery, deliveryMilestone)
-                  }
-                  {...{
+                    {milestone?.date && isCompletedOrCurrent && (
+                      <time
+                        className={cn(
+                          "text-gray-400 text-sm",
+                          isCompletedOrCurrent && "text-foreground-body"
+                        )}
+                      >
+                        {format(
+                          new Date(milestone?.date),
+                          "MMM dd, yyyy • hh:mmaaa"
+                        )}
+                      </time>
+                    )}
+                    <MilestonePill currency={currency} escrowBalance={escrowBalance} isDesigner={isDesigner} {...milestone} />
+                    {isAwaitingFunding && latestSubmission?.status !== "PENDING" &&
+                      !isDesigner && (
+
+                        <button className="text-sm underline text-primary"
+                          onClick={() => {
+                            fundMilestone.mutate(milestone?.id);
+                          }}
+                        >
+                          Fund Milestone
+                        </button>
+
+                      )}
+                    {(milestone?.retries?.length ?? 0) > 1 && (
+                      <>
+                        <span
+                          className={cn(
+                            "text-gray-400",
+                            (milestone?.status === MilestoneStatus.COMPLETED ||
+                              milestone?.isCurrent) &&
+                            "text-foreground-body"
+                          )}
+                        >
+                          {milestone?.retries?.length}{" "}
+                        </span>
+                        <button className="text-sm underline text-primary">
+                          retries
+                        </button>
+                      </>
+                    )}
+                    <span
+                      className={cn(
+                        "text-gray-400",
+                        (milestone?.status === MilestoneStatus.COMPLETED ||
+                          milestone?.isCurrent) &&
+                        "text-foreground-body"
+                      )}
+                    >
+                      {milestone?.info}
+                    </span>
+                  </div>
+                  <MilestoneAction
+                    {...milestone}
+                    message={message}
+                    files={files}
+                    clear={() => {
+                      setMessage("");
+                      setFiles(null);
+                    }}
+                    deliverySubmission={editableDeliverySubmission}
+                    variableSubmissions={item?.variableSubmissions}
+                    isAwaitingFunding={false}
+                    onActionClick={(action) => console.log(action)}
+                    onAcceptMilestoneSuccess={() => onAcceptMilestoneSuccess(isDelivery, index)}
+                    onAcceptVariableMilestoneSuccess={(deliveryMilestone) =>
+                      onAcceptVariableMilestoneSuccess(isDelivery, deliveryMilestone)
+                    }
+                    {...{
                       isDesigner,
                       isDelivery,
                       projectId,
                       isVariableDelivery,
                       editedVariablePrice,
                       selectedVariableDeliveryMethod,
-                  }}
-                />
+                    }}
+                  />
+                </div>
               </div>
-            </div>
-          </li>
+            </li>
 
-        );
-      })}
-    </ol>
-  </>
+          );
+        })}
+      </ol>
+    </>
 
   );
 };
