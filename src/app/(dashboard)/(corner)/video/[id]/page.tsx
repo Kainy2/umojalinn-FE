@@ -1,12 +1,16 @@
 import React from "react";
-import VideoCall from "@/components/video/VideoCall";
+import AgoraVideo from "@/components/video/agora/agora-video";
 
+type PageProps = {
+  params: {
+    id: string;
+  };
+};
 
-const VideoCallPage = () => {
-
+const VideoCallPage = ({ params }: PageProps) => {
   return (
-    <div className="">
-      <VideoCall />
+    <div className="h-screen">
+      <AgoraVideo channelId={params.id} />
     </div>
   );
 };
