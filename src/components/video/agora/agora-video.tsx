@@ -173,6 +173,30 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
     };
   }, [client]);
 
+  // Play local video in call container when entering call view
+  useEffect(() => {
+    if (!isInCall || !localVideoTrack) return;
+
+    // DOM element should now be mounted, safe to play video
+    try {
+      localVideoTrack.play("local-video-call");
+      console.log("Local video playing in call view");
+    } catch (err) {
+      console.error("Failed to play local video in call view:", err);
+      setError("Failed to display local video. Please check your camera.");
+    }
+
+    // Cleanup: stop playing when leaving call view
+    return () => {
+      try {
+        localVideoTrack.stop();
+        console.log("Local video stopped in call view");
+      } catch (err) {
+        console.error("Failed to stop local video:", err);
+      }
+    };
+  }, [isInCall, localVideoTrack]);
+
   // Join call handler
   const handleJoinCall = async () => {
     if (!client || !localVideoTrack || !localAudioTrack) {
@@ -203,11 +227,17 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
       // Publish local tracks
       await client.publish([localVideoTrack, localAudioTrack]);
 
+      // Stop video in preview container before transitioning
+      try {
+        localVideoTrack.stop();
+      } catch (err) {
+        console.error("Failed to stop preview video:", err);
+      }
+
       // Transition to call view
       setIsInCall(true);
 
-      // Play local video in call view (different container)
-      localVideoTrack.play("local-video-call");
+      // Note: Local video will be played by useEffect when DOM is ready
 
       console.log("Joined channel:", config.channelName);
     } catch (err) {
@@ -416,7 +446,7 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
 
       {/* Main Call View */}
       {isInCall && (
-        <div className="relative w-full h-screen bg-background">
+        <div className="relative w-full h-[80vh] bg-background">
           {/* Remote Users Grid */}
           {remoteUsers.length > 0 ? (
             <div className="absolute inset-0 grid grid-cols-1 md:grid-cols-2 gap-2 p-4">
@@ -424,7 +454,7 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
                 <div
                   key={user.uid}
                   id={`remote-video-${user.uid}`}
-                  className="relative w-full h-full bg-gray-900 rounded-lg overflow-hidden"
+                  className="relative h-full aspect-video bg-gray-900 rounded-lg overflow-hidden"
                 >
                   {!user.videoTrack && (
                     <div className="absolute inset-0 flex items-center justify-center">
