@@ -1,13 +1,10 @@
 import React from "react";
 import AgoraVideo from "@/components/video/agora/agora-video";
+import { PageProps } from "@/types/util";
 
-type PageProps = {
-  params: {
-    id: string;
-  };
-};
+const VideoCallPage = async (props: PageProps<{ id: string }>) => {
+  const params = await props.params;
 
-const VideoCallPage = ({ params }: PageProps) => {
   return (
     <div className="h-screen">
       <AgoraVideo channelId={params.id} />
