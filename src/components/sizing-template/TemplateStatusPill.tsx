@@ -9,6 +9,7 @@ export type BuyerStatusType =
 	| "ADD_REQUESTED_MEASUREMENTS"
 	| "ADD_SIZING_TEMPLATE"
 	| "CHANGES_RECOMMENDED"
+	| "UPDATED"
 	| null;
 
 export type DesignerStatusType =
@@ -62,6 +63,12 @@ const BUYER_STATUS_CONFIG: Record<NonNullable<BuyerStatusType>, StatusConfig> = 
 			</div>
 		),
 	},
+	UPDATED: {
+		text: "Updated",
+		bgColor: "bg-green-50",
+		borderColor: "border-green-500",
+		textColor: "text-green-600",
+	},
 };
 
 // Designer status configurations
@@ -110,9 +117,9 @@ const DESIGNER_STATUS_CONFIG: Record<
 	},
 	UPDATED: {
 		text: "Updated",
-		bgColor: "bg-red-50",
-		borderColor: "border-red-500",
-		textColor: "text-red-600",
+		bgColor: "bg-green-50",
+		borderColor: "border-green-500",
+		textColor: "text-green-600",
 	},
 };
 
@@ -142,6 +149,15 @@ export const getBuyerStatus = (
 		!submittedMeasurementPoints.length
 	) {
 		return "ADD_REQUESTED_MEASUREMENTS";
+	}
+
+	// Priority 2.5: Measurement points requested and buyer has submitted them
+	if (
+		template?.status === "IN_USE" &&
+		!!requestedMeasurementPoints.length &&
+		!!submittedMeasurementPoints.length
+	) {
+		return "UPDATED";
 	}
 
 	// Priority 3: Template is draft or incomplete
@@ -194,6 +210,15 @@ export const getDesignerStatus = (
 		return "UPDATED";
 	}
 
+	// Priority 4: Measurement points requested and buyer has submitted them
+	if (
+		template?.status === "IN_USE" &&
+		!!requestedMeasurementPoints.length &&
+		!!submittedMeasurementPoints.length
+	) {
+		return "UPDATED";
+	}
+
 	return null;
 };
 
@@ -220,7 +245,7 @@ const TemplateStatusPill = ({ template, isBuyer, inUse, projectInUse }: Template
 			return (
 				<div
 					className={cn(
-						"absolute top-3 left-3 z-10 w-[calc(100%-24px)]",
+						"absolute top-3 left-3 z-10 w-full",
 						"flex items-center justify-between gap-1.5 px-2.5 py-1.5",
 						"rounded-full border-2 border-dashed",
 						"bg-blue-50 border-blue-500 text-blue-600"
@@ -242,7 +267,7 @@ const TemplateStatusPill = ({ template, isBuyer, inUse, projectInUse }: Template
 	return (
 		<div
 			className={cn(
-				"absolute top-3 left-3 z-10 w-[calc(100%-24px)]",
+				"top-3 left-3 z-10 w-full",
 				"flex items-center justify-between gap-1.5 px-2.5 py-1.5",
 				"rounded-full border-2 border-dashed",
 				config.bgColor,

@@ -189,6 +189,7 @@ const UpdateModeView = ({
                   const hasReview = fieldsWithReviews.includes(point.prop);
                   const isMissingValue = fieldsWithMissingValues.includes(point.prop);
                   const canEdit = hasReview || isMissingValue;
+                  const isFilledReview = hasReview && numericValue > 0;
 
                   return (
                     <div
@@ -213,9 +214,11 @@ const UpdateModeView = ({
                               "text-sm font-medium transition-colors",
                               isHighlighted
                                 ? "text-white"
-                                : canEdit
-                                  ? "text-error-800"
-                                  : "text-foreground-body"
+                                : isFilledReview
+                                  ? "text-green-600"
+                                  : canEdit
+                                    ? "text-error-800"
+                                    : "text-foreground-body"
                             )}
                           >
                             {point.name}
