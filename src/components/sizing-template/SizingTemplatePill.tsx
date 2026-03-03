@@ -67,8 +67,9 @@ type PillState =
   | "AWAITING_BUYER_MEASUREMENTS"
   | "ADD_REQUESTED_MEASUREMENTS"
   | "VIEW_TEMPLATE"
-  | "VIEW_SIZING_RECOMMENDATIONS"
-  | "VIEW_PDF";
+  | "VIEW_SIZING_RECOMMENDATIONS" | "CHANGES_RECOMMENDED"
+  | "VIEW_PDF"
+  | "UPDATED";
 
 
 
@@ -226,6 +227,9 @@ const SizingTemplatePill = ({
 
     if (isLoadingTemplate || isLoadingBid || isLoadingProject || isLoadingProfile) return null;
 
+    const hasDesignerRecommendations = sizingTemplate?.metadata?.reviews && !!Object.keys(sizingTemplate.metadata.reviews).length;
+    const hasRepliedRecommendations = sizingTemplate?.metadata?.reviews && Object.values(sizingTemplate.metadata.reviews).some(Boolean);
+
     if (isDesigner) {
       // Designer states
       if (!sizingTemplateId) return "REQUEST_SIZING_TEMPLATE";
@@ -234,6 +238,11 @@ const SizingTemplatePill = ({
       if (!requestedMeasurementPoints?.length) return "SELECT_MEASUREMENT_POINTS";
       if (requestedMeasurementPoints?.length && !submittedMeasurementPoints?.length)
         return "AWAITING_BUYER_MEASUREMENTS";
+
+      if (sizingTemplateId && hasDesignerRecommendations) return "CHANGES_RECOMMENDED";
+      if (sizingTemplateId && hasRepliedRecommendations) return "UPDATED";
+      if (sizingTemplateId && requestedMeasurementPoints?.length && submittedMeasurementPoints?.length) return "UPDATED";
+
       if (sizingTemplateId && submittedMeasurementPoints?.length) return "VIEW_TEMPLATE";
       if (project?.sizingTemplatePdfUrl && project.status === "COMPLETED") return "VIEW_PDF";
 
@@ -242,10 +251,14 @@ const SizingTemplatePill = ({
       // Buyer states
       if (!sizingTemplateId) return "ADD_TEMPLATE";
       if (sizingTemplateId && !requestedMeasurementPoints?.length) return "AWAITING_MEASUREMENT_FIELDS";
+
+      if (sizingTemplateId && hasDesignerRecommendations) return "VIEW_SIZING_RECOMMENDATIONS";
+
       if (sizingTemplateId && requestedMeasurementPoints?.length && !submittedMeasurementPoints?.length)
         return "ADD_REQUESTED_MEASUREMENTS";
-      if (sizingTemplateId && requestedMeasurementPoints?.length && submittedMeasurementPoints?.length && sizingTemplate?.metadata?.reviews && Object.values(sizingTemplate?.metadata?.reviews).some(Boolean))
-        return "VIEW_SIZING_RECOMMENDATIONS";
+
+      if (sizingTemplateId && requestedMeasurementPoints?.length && submittedMeasurementPoints?.length) return "UPDATED";
+
       if (sizingTemplateId && submittedMeasurementPoints?.length) return "VIEW_TEMPLATE";
       if (project?.sizingTemplatePdfUrl && project.status === "COMPLETED") return "VIEW_PDF";
     }
@@ -643,6 +656,61 @@ const SizingTemplatePill = ({
               label="View PDF"
               icon={<File className="text-primary" />}
               className={cn("bg-primary-100 ", className)}
+            />
+          </div>
+        );
+
+      case "UPDATED":
+        return (
+          <div
+            className="cursor-pointer transition-transform hover:scale-[1.02]"
+            onClick={() => {
+              if (!project?.sizingTemplateId) return;
+              if (project.status === "ADS") {
+                handleSelectTemplate(project?.sizingTemplateId)
+                return
+              }
+
+              if (project.status === "LIVE") {
+                navigateToViewPage()
+                return
+              }
+            }}
+          >
+            <AvatarIconTag
+              label="Updated"
+              icon={<CheckCircle className="text-green-500" />}
+              disabled={!project?.sizingTemplateId}
+              className={cn("bg-green-50 border border-green-500 text-green-600", className)}
+            />
+          </div>
+        );
+
+      case "CHANGES_RECOMMENDED":
+        return (
+          <div
+            className="cursor-pointer transition-transform hover:scale-[1.02]"
+            onClick={() => {
+              if (!project?.sizingTemplateId) return;
+              if (project.status === "ADS") {
+                handleSelectTemplate(project?.sizingTemplateId)
+                return
+              }
+
+              if (project.status === "LIVE") {
+                navigateToViewPage()
+                return
+              }
+            }}
+          >
+            <AvatarIconTag
+              label="Changes Recommended"
+              icon={
+                <span className="text-primary [&>svg]:size-5 size-7 rounded-full flex items-center justify-center">
+                  <CustomFileQuestion />
+                </span>
+              }
+              className={cn("bg-gray-50 border border-gray-400 text-gray-600", className)}
             />
           </div>
         );
