@@ -76,7 +76,7 @@ const SizingTemplatesPage = () => {
         {data?.data?.data?.map?.((template) => (
           <SizingTemplateCard template={template} key={template?.id} />
         ))}
-        {session?.user?.profileRole === "BUYER" && (
+        {session?.user?.profileRole === "BUYER" && (data?.data?.data?.length || 0) >= 3 && (
           <BuyExtraTemplateCard onClick={() => router.push("/sizing-templates/buy")} />
         )}
       </div>

@@ -1,6 +1,6 @@
 "use client";
 import TextField from "@/components/custom/input/TextField";
-import { Form, FormField } from "@/components/ui/form";
+import { Form, FormField, FormMessage } from "@/components/ui/form";
 
 import { onboardingAddressFormSchema } from "@/lib/schema";
 
@@ -15,10 +15,11 @@ import { useForm } from "react-hook-form";
 import CustomSelectCountry from "@/components/custom/SelectCountry";
 import { useStrictClientAxios } from "@/hooks/use-strict-client-axios";
 
+
 const OnboardAddressForm = (props: { role: UmojaLinnUserRole }) => {
   const router = useRouter();
   useStrictClientAxios();
-  
+
   const nextUrl = `/onboard/${props.role?.toLocaleLowerCase()}/profile-picture`;
 
   const form = useForm<OnboardingProps["address"]>({
@@ -83,15 +84,18 @@ const OnboardAddressForm = (props: { role: UmojaLinnUserRole }) => {
           control={form.control}
           name="country"
           render={({ field }) => (
-            <CustomSelectCountry
-              {...field}
-              value={field.value}
-              onChange={(val: unknown) => {
-                const typedVal = val as { value: string };
-                field.onChange(typedVal?.value);
-              }}
-              label="Country"
-            />
+            <div className="flex flex-col gap-2">
+              <CustomSelectCountry
+                {...field}
+                value={field.value}
+                onChange={(val: unknown) => {
+                  const typedVal = val as { value: string };
+                  field.onChange(typedVal?.value);
+                }}
+                label="Country"
+              />
+              <FormMessage />
+            </div>
           )}
         />
         <FormField

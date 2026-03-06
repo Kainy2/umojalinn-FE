@@ -31,7 +31,7 @@ const UKSizeChartModal = ({ children, gender }: UKSizeChartModalProps) => {
         <DialogHeader>
           <DialogTitle>UK Size Chart</DialogTitle>
           <DialogDescription>
-            Use this chart to find the closest UK size which to your chest fit. This is
+            Use this chart to find the closest UK size. This is
             just a guide — the designer will request your exact measurements soon and use
             those to create your outfit.
           </DialogDescription>

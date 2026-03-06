@@ -110,7 +110,7 @@ const MeasurementPointRow = forwardRef<HTMLInputElement, MeasurementPointRowProp
                 <input
                   ref={ref}
                   className={cn(
-                    "text-right placeholder:text-gray-400 focus-visible:outline-none rounded-full p-1 pr-10 w-20",
+                    "text-right placeholder:text-black focus-visible:outline-none rounded-full p-1 pr-10 w-20",
                     props.unit === "INCH" && "pr-14",
                     props.highlighted ? "bg-white/10 text-white transition-all placeholder:text-white/70" : "text-gray-500 focus-visible:bg-gray-100"
                   )}

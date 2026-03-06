@@ -20,7 +20,7 @@ type MeasurementValues = Partial<UmojaLinnFemaleSizingTemplateProps & UmojaLinnM
 
 type FillModeViewProps = {
   templateId: string;
-  projectId: string;  
+  projectId: string;
   templateName: string;
   gender: UmojaLinnSizingTemplate["gender"];
   unit: UmojaLinnSizingTemplate["unit"];
@@ -147,22 +147,22 @@ const FillModeView = ({
 
               <div className="flex flex-col gap-2">
                 <DisabledTemplateItems
-                    title={gender}
-                  />
+                  title={gender}
+                />
 
                 {/* UK Standard Size Row */}
                 <UKStandardSizeRow
                   gender={gender}
                   value={ukStandardSize ?? null}
-                  onChange={()=>{}}
-                  onShowChart={()=>{}}
+                  onChange={() => { }}
+                  onShowChart={() => { }}
                   highlighted={false}
                   disabled
                 />
 
                 <DisabledTemplateItems
                   title="Height"
-                  value={height ? `${height} ${unit}`: "-"}
+                  value={height ? `${height} ${unit}` : "-"}
                 />
               </div>
 
@@ -226,15 +226,15 @@ const FillModeView = ({
                           min={0}
                           max={999}
                           value={numericValue || ""}
-                          onChange={e=>{console.log("val", e.target.value); handleChange(point.prop)(e)}}
+                          onChange={e => { console.log("val", e.target.value); handleChange(point.prop)(e) }}
                           onKeyDown={(event) => handleKeyPress(index, event)}
                           onClick={(event) => event.stopPropagation()}
                           placeholder="0"
                           className={cn(
-                            "w-20 text-right text-sm rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-primary/50",
+                            "w-20 text-right text-sm rounded-md p-2 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50",
                             isHighlighted
                               ? "bg-white/10 text-white placeholder:text-white/50"
-                              : "bg-gray-50 text-foreground-body"
+                              : "text-foreground-body"
                           )}
                         />
                         <span

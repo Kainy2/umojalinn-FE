@@ -20,11 +20,10 @@ const BuyTemplatesPage = () => {
     const [selectedCurrency, setSelectedCurrency] = useState("euro");
     const [templateCount, setTemplateCount] = useState("1");
 
-    const BASE_PRICE_USD = 599.0;
-    const USD_TO_EUR_RATE = 0.92;
+    const BASE_PRICE_EUR = 5.99;
 
-    // Always calculate and show the display price in Euro
-    const pricePerTemplateInEuro = BASE_PRICE_USD * USD_TO_EUR_RATE;
+
+    const pricePerTemplateInEuro = BASE_PRICE_EUR;
     const totalAmount = (parseInt(templateCount) * pricePerTemplateInEuro).toLocaleString(undefined, {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,

@@ -229,15 +229,14 @@ const SizingTemplatePill = ({
 
     const hasDesignerRecommendations = sizingTemplate?.metadata?.reviews && !!Object.keys(sizingTemplate.metadata.reviews).length;
     const hasRepliedRecommendations = sizingTemplate?.metadata?.reviews && Object.values(sizingTemplate.metadata.reviews).some(Boolean);
+    console.log(sizingTemplateRequested, sizingTemplateId)
 
     if (isDesigner) {
       // Designer states
-      if (!sizingTemplateId) return "REQUEST_SIZING_TEMPLATE";
-      if (!sizingTemplateId && !sizingTemplateRequested) return "AWAITING_SIZING_TEMPLATE";
-      // if (sizingTemplateRequested && !sizingTemplateId) return "AWAITING_SIZING_TEMPLATE";
+      if (!sizingTemplateId && !sizingTemplateRequested) return "REQUEST_SIZING_TEMPLATE";
+      if (!sizingTemplateId && sizingTemplateRequested) return "AWAITING_SIZING_TEMPLATE";
       if (!requestedMeasurementPoints?.length) return "SELECT_MEASUREMENT_POINTS";
-      if (requestedMeasurementPoints?.length && !submittedMeasurementPoints?.length)
-        return "AWAITING_BUYER_MEASUREMENTS";
+      if (sizingTemplateId && requestedMeasurementPoints?.length && !submittedMeasurementPoints?.length) return "AWAITING_BUYER_MEASUREMENTS";
 
       if (sizingTemplateId && hasDesignerRecommendations) return "CHANGES_RECOMMENDED";
       if (sizingTemplateId && hasRepliedRecommendations) return "UPDATED";
@@ -257,7 +256,6 @@ const SizingTemplatePill = ({
       if (sizingTemplateId && requestedMeasurementPoints?.length && !submittedMeasurementPoints?.length)
         return "ADD_REQUESTED_MEASUREMENTS";
 
-      if (sizingTemplateId && requestedMeasurementPoints?.length && submittedMeasurementPoints?.length) return "UPDATED";
 
       if (sizingTemplateId && submittedMeasurementPoints?.length) return "VIEW_TEMPLATE";
       if (project?.sizingTemplatePdfUrl && project.status === "COMPLETED") return "VIEW_PDF";
@@ -471,23 +469,9 @@ const SizingTemplatePill = ({
       //     className={className}
       //   />
       // );
-      // case "AWAITING_SIZING_TEMPLATE":
-      //   // // Designer view - waiting for buyer to add template
-      //   return (
-      //     <AvatarIconTag
-      //     label="Request Sizing Template"
-      //     icon={
-      //         <span className="text-white [&>svg]:size-5 size-7 rounded-full bg-red-500 flex items-center justify-center">
-      //           <Plus />
-      //         </span>
-      //       }
-      //       onClick={handleRequestTemplate}
-      //       disabled={!project?.id}
-      //       className={cn("cursor-pointer transition-transform hover:scale-[1.02] border border-red-500 border-dashed", className)}
-      //     />
-      //   );
 
-      case "AWAITING_SIZING_TEMPLATE":
+
+      case "REQUEST_SIZING_TEMPLATE":
         // Designer view - waiting for buyer to add template
         return (
           <div
@@ -501,7 +485,7 @@ const SizingTemplatePill = ({
                   <Plus />
                 </span>
               }
-              className={cn("bg-red-50 border border-red-500", className)}
+              className={cn("bg-red-50 border text-red-500 border-dashed border-red-500 ", className)}
             />
           </div>
         );
@@ -569,7 +553,7 @@ const SizingTemplatePill = ({
             className="transition-transform opacity-50"
           >
             <AvatarIconTag
-              label="Template Requested"
+              label="Measurement Requested"
               icon={
                 <span className="text-white [&>svg]:size-5 size-7 rounded-full bg-gray-500 flex items-center justify-center ">
                   <Plus />
@@ -715,19 +699,6 @@ const SizingTemplatePill = ({
           </div>
         );
 
-      // Template attached - View mode to navigate to view page
-      // return (
-      //   <div
-      //     onClick={navigateToViewPage}
-      //     className="cursor-pointer transition-transform hover:scale-[1.02]"
-      //   >
-      //     <AvatarIconTag
-      //       label="View sizing template"
-      //       icon={<CheckCircle className="text-success" />}
-      //       className={className}
-      //     />
-      //   </div>
-      // );
 
       default:
         return (

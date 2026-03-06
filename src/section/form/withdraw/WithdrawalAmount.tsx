@@ -55,6 +55,7 @@ const WithdrawalAmountForm = (props: {
   const { mutate: addNgnAccount, isPending: isAddingAccount } = useAddNgnAccount({
     onSuccess: () => {
       toast({ description: "Bank account added successfully!" });
+      router.refresh();
     }
   });
 
@@ -76,8 +77,15 @@ const WithdrawalAmountForm = (props: {
 
 
 
-  const paymentAccount = paymentAccountData?.data?.data;
+  // Find the account relevant to the current currency
+  const paymentAccount = useMemo(() => {
+    const accounts = paymentAccountData?.data?.data ?? [];
 
+    if (currency === "NAIRA") {
+      return accounts.find(a => !!a.paystackRecipientCode) ?? null;
+    }
+    return accounts.find(a => !!a.stripeAccountId) ?? null;
+  }, [paymentAccountData, currency]);
 
   // Helper to find bank name from code
   const getBankName = (code: string) => {
@@ -122,24 +130,26 @@ const WithdrawalAmountForm = (props: {
   return (
     <div className="flex flex-col gap-6">
 
-      <TextField
-        type="text"
-        label="Withdrawal Amount"
-        placeholder="Amount to withdraw"
-        value={numberToCommaString(amount || "")}
-        onChange={(e) => {
-          if (e.target.value.length > 27) return
-          const formattedValue = removeNonDigits(e.target.value)
-          setAmount(formattedValue)
-        }}
-        startAdornment={
-          currency === "EURO" ? (
-            <Euro className="size-4 text-foreground-body" />
-          ) : (
-            <NairaSign className="size-4 text-foreground-body" />
-          )
-        }
-      />
+      {showSavedAccount && (
+        <TextField
+          type="text"
+          label="Withdrawal Amount"
+          placeholder="Amount to withdraw"
+          value={numberToCommaString(amount || "")}
+          onChange={(e) => {
+            if (e.target.value.length > 27) return
+            const formattedValue = removeNonDigits(e.target.value)
+            setAmount(formattedValue)
+          }}
+          startAdornment={
+            currency === "EURO" ? (
+              <Euro className="size-4 text-foreground-body" />
+            ) : (
+              <NairaSign className="size-4 text-foreground-body" />
+            )
+          }
+        />
+      )}
 
       {/* Account Section */}
       {isLoadingAccount || isFetching ? (
@@ -306,10 +316,10 @@ const WithdrawalAmountForm = (props: {
       ) : null}
 
       {/* Withdrawal Action Footer */}
-      {showSavedAccount && (
-        <div className="flex justify-between">
-          <Button variant="ghost" onClick={() => router.back()}>Back</Button>
+      <div className="flex justify-between">
+        <Button variant="ghost" onClick={() => router.back()}>Back</Button>
 
+        {showSavedAccount && (
           <Button
             disabled={!amount || Number(amount?.replace(/,/g, '')) <= 0 || isRequestingWithdrawal}
             onClick={() => {
@@ -323,8 +333,8 @@ const WithdrawalAmountForm = (props: {
           >
             {isRequestingWithdrawal ? "Requesting..." : "Request Withdrawal"}
           </Button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

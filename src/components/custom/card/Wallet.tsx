@@ -20,6 +20,7 @@ interface IWalletCardProps {
   wallet?: UmojalinnWallet;
   noAction?: boolean;
   stripeStatus?: string;
+  paystackStatus?: string;
   onLinkStripe?: () => void;
   hideBalance?: boolean;
   onToggleBalance?: () => void;
@@ -41,6 +42,7 @@ const WalletCard = (props: IWalletCardProps) => {
     wallet,
     noAction,
     stripeStatus,
+    paystackStatus,
     onLinkStripe,
     hideBalance,
     onToggleBalance,
@@ -74,6 +76,7 @@ const WalletCard = (props: IWalletCardProps) => {
   const { balance, escrow } = getBalances();
 
   const showLinkAccount = currency !== "NAIRA" && stripeStatus !== "ENABLED";
+  const showAddAccount = currency === "NAIRA" && paystackStatus !== "ENABLED";
 
   return (
     <div className="px-2 py-4 lg:p-8 border border-input rounded-lg w-full bg-white relative">
@@ -112,6 +115,16 @@ const WalletCard = (props: IWalletCardProps) => {
               onClick={onLinkStripe}
             >
               Link Account
+            </Button>
+          ) : showAddAccount ? (
+            <Button
+              asChild
+              variant="outline"
+              className="text-error border-error hover:bg-error/5 hover:text-error gap-2 rounded-md hidden lg:flex"
+            >
+              <Link href={`/wallet/withdraw/${currentOption?.name.toLowerCase()}`}>
+                Add Account <ArrowRight className="size-4" />
+              </Link>
             </Button>
           ) : (
             <Button
@@ -155,6 +168,16 @@ const WalletCard = (props: IWalletCardProps) => {
             onClick={onLinkStripe}
           >
             Link Account
+          </Button>
+        ) : showAddAccount ? (
+          <Button
+            asChild
+            variant="outline"
+            className="text-error border-error hover:bg-error/5 hover:text-error gap-2 lg:hidden w-full"
+          >
+            <Link href={`/wallet/withdraw/${currentOption?.name.toLowerCase()}`}>
+              Add Account <ArrowRight className="size-4" />
+            </Link>
           </Button>
         ) : (
           <Button
@@ -207,18 +230,21 @@ export const CurrencyCard = ({
   hideBalance,
   isSelected,
   showActionRequired,
+  onClick,
 }: {
   currency: UmojaLinnCurrency;
   amount: number;
   hideBalance?: boolean;
   isSelected?: boolean;
   showActionRequired?: boolean;
+  onClick?: () => void;
 }) => {
   const option = currencyOptions.find((opt) => opt.value === currency);
   return (
     <div
-      className={`p-6 border rounded-lg w-[249px] bg-white flex flex-col gap-6 shadow-sm shrink-0 ${isSelected ? "border border-[#FEEE95]" : "border-input"
-        }`}
+      onClick={onClick}
+      className={`p-6 border rounded-lg w-[249px] bg-white flex flex-col gap-6 shadow-sm shrink-0 transition-all ${isSelected ? "border border-[#FEEE95] ring-2 ring-[#FEEE95]/50" : "border-input hover:border-[#FEEE95]/60"
+        } ${onClick ? "cursor-pointer" : ""}`}
     >
       <div className="flex items-center justify-between">
         <div className="size-8 rounded-full bg-gray-100 flex items-center justify-center text-2xl overflow-hidden relative">
