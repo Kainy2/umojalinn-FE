@@ -15,7 +15,7 @@ import { useSession } from "next-auth/react";
 
 // MP - Measurement Points
 
-const ActiveProjectPage = () => {  
+const ActiveProjectPage = () => {
   const { id } = useParams<{ id: string }>();
   const { data: projectMilestonesData, isPending: isLoadingProjectMilestones } =
     useGetProjectMilestones(id);
@@ -37,12 +37,12 @@ const ActiveProjectPage = () => {
 
   const sizingTemplate = templateData?.data?.data;
   const isDesigner = session?.user?.profileRole === "DESIGNER";
-  
+
   // Check if measurement points have NOT been requested (null or empty)
-  const hasMeasurementPointsRequested = sizingTemplate?.requestedMeasurementPoints && 
+  const hasMeasurementPointsRequested = sizingTemplate?.requestedMeasurementPoints &&
     sizingTemplate.requestedMeasurementPoints.length > 0;
   // Check if measurement points have NOT been requested (null or empty)
-  const hasMeasurementPointsSubmitted = sizingTemplate?.submittedMeasurementPoints && 
+  const hasMeasurementPointsSubmitted = sizingTemplate?.submittedMeasurementPoints &&
     sizingTemplate.submittedMeasurementPoints.length > 0;
 
   if (isLoadingProjectMilestones || isLoadingProject || isLoadingMe || isLoadingSizingTemplate)
@@ -89,7 +89,7 @@ const ActiveProjectPage = () => {
           isDesigner={project?.buyerId === meData?.data?.data?.designerProfile?.id}
           milestones={projectMilestonesData?.data?.data || []}
           className="flex-1"
-          disabled={ showRequestPointsBanner || isAwaitingMeasurementPointsValues }
+        // disabled={ showRequestPointsBanner || isAwaitingMeasurementPointsValues }
         />
         <aside className="md:max-w-80 flex-1 w-full shrink-0">
           <EscrowCard

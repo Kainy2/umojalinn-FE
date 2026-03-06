@@ -11,12 +11,14 @@ import {
 } from "@/tanstack/hooks/useProject";
 import { ProjectFormRequirementsAndBugetProps } from "@/types/form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Euro, Lock, Unlock } from "lucide-react";
+import { Euro, Lock, Unlock, DollarSign } from "lucide-react";
 import React, { useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import ProjectEditFooter from "./ProjectEditFooter";
 // import ProjectEditFooter from "./Footer";
 import NairaSign from "@/icons/NairaSign";
+import GbpSign from "@/icons/GbpSign";
+import CadSign from "@/icons/CadSign";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { uuidToBase62Safe } from "@/lib/uuid";
@@ -49,7 +51,6 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
     defaultValues: {},
   });
 
-  console.log({ projectFormDetails });
 
   useEffect(() => {
     if (isAds && (
@@ -80,6 +81,7 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
     //   if (data?.data?.data?.experienceLevel) {
     //     form.setValue("experienceLevel", data?.data?.data?.experienceLevel);
     //   }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.data?.data, form]);
 
   const onSubmit = useCallback(
@@ -205,6 +207,12 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
                           <Euro />
                         ) : currencyField?.value === "NAIRA" ? (
                           <NairaSign />
+                        ) : currencyField?.value === "USD" ? (
+                          <DollarSign />
+                        ) : currencyField?.value === "GBP" ? (
+                          <GbpSign />
+                        ) : currencyField?.value === "CAD" ? (
+                          <CadSign />
                         ) : null}
                       </span>
                     }

@@ -42,12 +42,13 @@ const WithdrawalPage = () => {
   const transactions = useInfiniteData(allTransactions)
 
   const wallet = walletData?.data?.data;
-  const paymentAccount = paymentAccountData?.data?.data;
+  const paymentAccount = paymentAccountData?.data?.data?.[0];
 
   const isDesigner = session?.user?.profileRole === "DESIGNER";
 
   const getShowActionRequired = (currency: UmojaLinnCurrency) => {
-    return currency !== "NAIRA" && paymentAccount?.stripeStatus !== "ENABLED";
+    if (currency === "NAIRA") return paymentAccount?.paystackStatus !== "ENABLED";
+    return paymentAccount?.stripeStatus !== "ENABLED";
   }
 
   return (
@@ -69,8 +70,9 @@ const WithdrawalPage = () => {
               <WalletCard
                 wallet={wallet}
                 stripeStatus={paymentAccount?.stripeStatus}
+                paystackStatus={paymentAccount?.paystackStatus}
                 onLinkStripe={() => {
-                  setStripeModalCurrency(selectedCurrency); // Use currently selected currency
+                  setStripeModalCurrency(selectedCurrency);
                   setIsStripeModalOpen(true);
                 }}
                 hideBalance={hideBalance}
@@ -84,6 +86,8 @@ const WithdrawalPage = () => {
                   amount={wallet?.ngnBalance || 0}
                   hideBalance={hideBalance}
                   isSelected={selectedCurrency === "NAIRA"}
+                  showActionRequired={getShowActionRequired("NAIRA")}
+                  onClick={() => setSelectedCurrency("NAIRA")}
                 />
                 <CurrencyCard
                   currency="EURO"
@@ -91,6 +95,7 @@ const WithdrawalPage = () => {
                   hideBalance={hideBalance}
                   isSelected={selectedCurrency === "EURO"}
                   showActionRequired={getShowActionRequired("EURO")}
+                  onClick={() => setSelectedCurrency("EURO")}
                 />
                 <CurrencyCard
                   currency="USD"
@@ -98,6 +103,7 @@ const WithdrawalPage = () => {
                   hideBalance={hideBalance}
                   isSelected={selectedCurrency === "USD"}
                   showActionRequired={getShowActionRequired("USD")}
+                  onClick={() => setSelectedCurrency("USD")}
                 />
                 <CurrencyCard
                   currency="GBP"
@@ -105,6 +111,7 @@ const WithdrawalPage = () => {
                   hideBalance={hideBalance}
                   isSelected={selectedCurrency === "GBP"}
                   showActionRequired={getShowActionRequired("GBP")}
+                  onClick={() => setSelectedCurrency("GBP")}
                 />
                 <CurrencyCard
                   currency="CAD"
@@ -112,6 +119,7 @@ const WithdrawalPage = () => {
                   hideBalance={hideBalance}
                   isSelected={selectedCurrency === "CAD"}
                   showActionRequired={getShowActionRequired("CAD")}
+                  onClick={() => setSelectedCurrency("CAD")}
                 />
               </CurrencyCarousel>
             </div>

@@ -17,7 +17,7 @@ const BuyExtraTemplateCard = ({ onClick }: IBuyExtraTemplateCardProps) => {
                 />
                 {/* Price Pill */}
                 <div className="absolute top-4 left-4 bg-[#FFFDF0] text-[#865C20] border border-[#FDE047] font-bold px-4 py-1.5 rounded-full text-sm shadow-sm z-10">
-                    $599
+                    €5.99
                 </div>
             </div>
 

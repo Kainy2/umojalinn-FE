@@ -418,7 +418,7 @@ export const useGetListNgnBanks = (
   });
 };
 export const useGetPaymentAccountInfo = (
-  options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnPaymentAccountInfo>>
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnPaymentAccountInfo>>
 ) => {
   const { data: me } = useSession();
   return useQuery({

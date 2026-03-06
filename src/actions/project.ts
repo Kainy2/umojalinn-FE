@@ -373,7 +373,7 @@ export const getPaymentAccountInfo = async (options?: ServerActionOption) => {
   }
   return axios.get<
     unknown,
-    AxiosResponse<SingleApiResponse<UmojaLinnPaymentAccountInfo>>
+    AxiosResponse<ArrayApiResponse<UmojaLinnPaymentAccountInfo>>
   >(`/wallet/payment-account-info`);
 };
 

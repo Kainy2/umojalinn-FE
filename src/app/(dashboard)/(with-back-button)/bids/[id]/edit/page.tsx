@@ -27,28 +27,28 @@ const BidPage = () => {
     project,
     handleCancel,
     handleUpdateAction,
-		handleAdd,
-		handleToggle,
-		handleSave,
-		handleUpdate,
-		milestones,
-		totalPrice,
-		addNote,
-		setAddNote,
-		note,
-		setNote,
-		excess,
-		showExcessDialog,
-		setShowExcessDialog,
-		deliveryMethod,
-		setDeliveryMethod,
-		deliveryMilestonePrice,
-		setDeliveryMilestonePrice,
-		mode,
-		editMode,
-		editing,
-		isPending,
-		deleteMilestone,
+    handleAdd,
+    handleToggle,
+    handleSave,
+    handleUpdate,
+    milestones,
+    totalPrice,
+    addNote,
+    setAddNote,
+    note,
+    setNote,
+    excess,
+    showExcessDialog,
+    setShowExcessDialog,
+    deliveryMethod,
+    setDeliveryMethod,
+    deliveryMilestonePrice,
+    setDeliveryMilestonePrice,
+    mode,
+    editMode,
+    editing,
+    isPending,
+    deleteMilestone,
     isUpdatingBid,
     isSubmittingBid,
     isPendingDelete,
@@ -57,7 +57,7 @@ const BidPage = () => {
     selectedDeliveryMethodType,
     setSelectedDeliveryMethodType
   } = useBidEdit();
-  
+
   if (isPending) {
     return (
       <div className="flex flex-col gap-8">
@@ -86,21 +86,21 @@ const BidPage = () => {
         />
       )}
       {milestones.map((milestone, index) => (
-       <MilestoneCard
+        <MilestoneCard
           loadingDelete={isPendingDelete}
-					hideActions={(!!editing && index !== editing) || !editMode}
-					onDelete={() =>
-						milestone?.id && deleteMilestone(milestone?.id)
-					}
-					onCancel={()=> handleCancel(index)}
-					onSave={handleSave(index)}
-          loadingSave={isPendingUpdateBid||isPendingCreateBid}
-					key={index}
-					view={index !== editing || !editMode}
-					{...milestone}
-					onEdit={handleToggle(index)}
-					currency={project?.currency || null}
-				/>
+          hideActions={(!!editing && index !== editing) || !editMode}
+          onDelete={() =>
+            milestone?.id && deleteMilestone(milestone?.id)
+          }
+          onCancel={() => handleCancel(index)}
+          onSave={handleSave(index)}
+          loadingSave={isPendingUpdateBid || isPendingCreateBid}
+          key={index}
+          view={index !== editing || !editMode}
+          {...milestone}
+          onEdit={handleToggle(index)}
+          currency={project?.currency || null}
+        />
       ))}
 
       {editMode && !editing && (
@@ -181,7 +181,7 @@ const BidPage = () => {
           {formatCurrencyValue(totalPrice)}
         </span>
       </p>
-       {bid?.additionalNotesToClient && (
+      {bid?.additionalNotesToClient && (
         <Alert
           type="error"
           title="Your rationale"
@@ -212,15 +212,15 @@ const BidPage = () => {
         {editMode && (
           <div className="flex gap-4">
             {bid?.status === "DRAFT" && (
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 disabled={isUpdatingBid || isSubmittingBid}
                 onClick={() => handleUpdate("UPDATE")}
               >
                 Save & Exit
               </Button>
             )}
-            <Button 
+            <Button
               variant="default"
               loading={isUpdatingBid || isSubmittingBid}
               onClick={() => handleUpdate("LIVE")}
@@ -247,3 +247,4 @@ const BidPage = () => {
 };
 
 export default BidPage;
+

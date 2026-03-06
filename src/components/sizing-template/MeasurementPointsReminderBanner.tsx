@@ -20,7 +20,7 @@ type MeasurementPointsReminderBannerProps = {
   lastReminderSentAt?: string;
   isBuyer: boolean;
   className?: string;
-	isAwaitingMeasurementPointsValues?: boolean;
+  isAwaitingMeasurementPointsValues?: boolean;
 };
 
 const MeasurementPointsReminderBanner = ({
@@ -29,7 +29,7 @@ const MeasurementPointsReminderBanner = ({
   lastReminderSentAt,
   isBuyer,
   className,
-	isAwaitingMeasurementPointsValues,
+  isAwaitingMeasurementPointsValues,
 }: MeasurementPointsReminderBannerProps) => {
   const [remainingTime, setRemainingTime] = useState<string | null>(
     getRemainingReminderTime(lastReminderSentAt)
@@ -76,9 +76,9 @@ const MeasurementPointsReminderBanner = ({
           className
         )}
       >
-        <div className="flex items-center gap-3 justify-center w-full ">
+        <div className="flex items:start lg:items-center gap-3 justify-center w-full ">
           <Bell className="size-5 text-amber-600 shrink-0" />
-          <div className="flex- flex gap-2 ">
+          <div className="flex- flex gap-2 flex-col lg:flex-row items-start lg:items-center  ">
             <p className="text-sm font-medium text-foreground-body">
               Designer has not sent the measurement point
             </p>
@@ -104,42 +104,42 @@ const MeasurementPointsReminderBanner = ({
     );
   }
 
-	// Designer view - After sending measurement points, be able to remind Buyer to fill measurement point values
-	if (isAwaitingMeasurementPointsValues) {
-		return (
-			<div
-			className={cn(
-				"bg-amber-50 border-b border-amber-200 p-2 animate-in fade-in duration-300",
-				className
-			)}
-		>
-			<div className="flex items-center gap-3 justify-center w-full ">
-				<Bell className="size-5 text-amber-600 shrink-0" />
-				<div className="flex- flex gap-2 ">
-					<p className="text-sm font-medium text-foreground-body">
-						Awaiting template from buyer
-					</p>
-					<button
-						onClick={handleSendReminder}
-						disabled={!canSend || isPending}
-						className={cn(
-							"text-sm text-primary font-medium underline hover:no-underline transition-colors",
-							(!canSend || isPending) && "opacity-50 cursor-not-allowed"
-						)}
-					>
-						{isPending ? "Sending..." : "Send Reminder"}
-					</button>
-					{!canSend && remainingTime && (
-						<div className="flex items-center gap-1 text-xs text-amber-700">
-							<Clock className="size-3" />
-							<span>Wait {remainingTime} before sending another reminder</span>
-						</div>
-					)}
-				</div>
-			</div>
-		</div>
-		);
-	}
+  // Designer view - After sending measurement points, be able to remind Buyer to fill measurement point values
+  if (isAwaitingMeasurementPointsValues) {
+    return (
+      <div
+        className={cn(
+          "bg-amber-50 border-b border-amber-200 p-2 animate-in fade-in duration-300",
+          className
+        )}
+      >
+        <div className="flex items-start lg:items-center gap-2 lg:gap-3 justify-center w-full">
+          <Bell className="size-5 text-amber-600 shrink-0" />
+          <div className="flex flex-col lg:flex-row items-start lg:items-center gap-2 text-center lg:text-left">
+            <p className="text-sm font-medium text-foreground-body">
+              Awaiting template from buyer
+            </p>
+            <button
+              onClick={handleSendReminder}
+              disabled={!canSend || isPending}
+              className={cn(
+                "text-sm text-primary font-medium underline hover:no-underline transition-colors",
+                (!canSend || isPending) && "opacity-50 cursor-not-allowed"
+              )}
+            >
+              {isPending ? "Sending..." : "Send Reminder"}
+            </button>
+            {!canSend && remainingTime && (
+              <div className="flex items-center gap-1 text-xs text-amber-700">
+                <Clock className="size-3" />
+                <span>Wait {remainingTime} before sending another reminder</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Designer view - Link to request measurement point fields in sizing template page
   return (
