@@ -229,7 +229,10 @@ const SizingTemplatePill = ({
 
     const hasDesignerRecommendations = sizingTemplate?.metadata?.reviews && !!Object.keys(sizingTemplate.metadata.reviews).length;
     const hasRepliedRecommendations = sizingTemplate?.metadata?.reviews && Object.values(sizingTemplate.metadata.reviews).some(Boolean);
-    console.log(sizingTemplateRequested, sizingTemplateId)
+
+    // Check if the designer has viewed the latest updates
+    const lastViewedAt = typeof window !== "undefined" ? localStorage.getItem(`sizingTemplate_viewed_${sizingTemplateId}`) : null;
+    const isNewUpdate = sizingTemplate?.updatedAt && (!lastViewedAt || new Date(sizingTemplate.updatedAt) > new Date(lastViewedAt));
 
     if (isDesigner) {
       // Designer states
@@ -238,9 +241,11 @@ const SizingTemplatePill = ({
       if (!requestedMeasurementPoints?.length) return "SELECT_MEASUREMENT_POINTS";
       if (sizingTemplateId && requestedMeasurementPoints?.length && !submittedMeasurementPoints?.length) return "AWAITING_BUYER_MEASUREMENTS";
 
-      if (sizingTemplateId && hasDesignerRecommendations) return "CHANGES_RECOMMENDED";
-      if (sizingTemplateId && hasRepliedRecommendations) return "UPDATED";
-      if (sizingTemplateId && requestedMeasurementPoints?.length && submittedMeasurementPoints?.length) return "UPDATED";
+      // If buyer has replied to recommendations or submitted for the first time
+      if (sizingTemplateId && submittedMeasurementPoints?.length && isNewUpdate) return "UPDATED";
+
+      // If there are unanswered recommendations
+      if (sizingTemplateId && hasDesignerRecommendations && !hasRepliedRecommendations) return "CHANGES_RECOMMENDED";
 
       if (sizingTemplateId && submittedMeasurementPoints?.length) return "VIEW_TEMPLATE";
       if (project?.sizingTemplatePdfUrl && project.status === "COMPLETED") return "VIEW_PDF";
@@ -265,6 +270,7 @@ const SizingTemplatePill = ({
   };
 
   const pillState = getPillState();
+  console.log(pillState)
 
   // Handlers
   const handleSelectTemplate = (templateId: string) => {
@@ -480,6 +486,25 @@ const SizingTemplatePill = ({
           >
             <AvatarIconTag
               label="Request Sizing Template"
+              icon={
+                <span className="text-white [&>svg]:size-4 size-7 rounded-full bg-red-500 flex items-center justify-center">
+                  <Plus />
+                </span>
+              }
+              className={cn("bg-red-50 border text-red-500 border-dashed border-red-500 ", className)}
+            />
+          </div>
+        );
+
+      case "AWAITING_SIZING_TEMPLATE":
+        // Designer view - waiting for buyer to add template
+        return (
+          <div
+            onClick={navigateToRequestPage}
+            className="cursor-pointer transition-transform hover:scale-[1.02]"
+          >
+            <AvatarIconTag
+              label="Awaiting Sizing Template"
               icon={
                 <span className="text-white [&>svg]:size-4 size-7 rounded-full bg-red-500 flex items-center justify-center">
                   <Plus />

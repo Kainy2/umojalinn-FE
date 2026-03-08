@@ -3,6 +3,7 @@ import WalletCard, { EscrowCard, CurrencyCard } from "@/components/custom/card/W
 import { CurrencyCarousel } from "@/components/custom/card/CurrencyCarousel";
 import { Separator } from "@/components/ui/separator";
 import { useGetInfiniteTransactions, useGetWallet, useGetPaymentAccountInfo } from "@/tanstack/hooks/useProject";
+import { useConnectStripeAccount } from "@/tanstack/hooks/useProject";
 import React, { useState } from "react";
 
 import { capitalizeFirstLetter, getCurrencySymbol } from "@/lib/string";
@@ -15,7 +16,6 @@ import {
 } from "@/components/util/wallet";
 import { cn } from "@/lib/utils";
 import { useInfiniteData } from "@/hooks/use-infinite-data";
-import { StripeStatusModal } from "@/components/custom/dialog/StripeStatusModal";
 import { UmojaLinnCurrency } from "@/types/project";
 import VerifyPasswordDialog from "@/components/custom/dialog/VerifyPasswordDialog";
 import { useRouter } from "next/navigation";
@@ -26,8 +26,6 @@ const WithdrawalPage = () => {
   const { data: paymentAccountData } = useGetPaymentAccountInfo();
 
   const [selectedCurrency, setSelectedCurrency] = useState<UmojaLinnCurrency>("NAIRA");
-  const [isStripeModalOpen, setIsStripeModalOpen] = useState(false);
-  const [stripeModalCurrency, setStripeModalCurrency] = useState<UmojaLinnCurrency>("EURO");
   const [hideBalance, setHideBalance] = useState(true);
   const [isVerified, setIsVerified] = useState(false);
   const router = useRouter();
@@ -46,10 +44,28 @@ const WithdrawalPage = () => {
 
   const isDesigner = session?.user?.profileRole === "DESIGNER";
 
-  const getShowActionRequired = (currency: UmojaLinnCurrency) => {
-    if (currency === "NAIRA") return paymentAccount?.paystackStatus !== "ENABLED";
-    return paymentAccount?.stripeStatus !== "ENABLED";
-  }
+  const { mutate: connectStripeAccount, isPending: isLinkingStripe } = useConnectStripeAccount({
+    onSuccess: (data) => {
+      if (data.data.data.onboardingUrl) {
+        window.open(data.data.data.onboardingUrl, "_blank");
+      }
+    },
+  });
+
+  const getActionLabel = (currency: UmojaLinnCurrency): string | null => {
+    if (currency === "NAIRA") {
+      return paymentAccount?.paystackStatus !== "ENABLED" ? "Action required" : null;
+    }
+    switch (paymentAccount?.stripeStatus) {
+      case "NOT_CONNECTED": return "Not connected";
+      case "ONBOARDING_STARTED": return "Setup incomplete";
+      case "ACTION_REQUIRED": return "Action required";
+      case "BANK_DETAILS_MISSING": return "Bank details missing";
+      case "RESTRICTED": return "Restricted";
+      case "ENABLED": return null;
+      default: return null;
+    }
+  };
 
   return (
     <>
@@ -71,10 +87,8 @@ const WithdrawalPage = () => {
                 wallet={wallet}
                 stripeStatus={paymentAccount?.stripeStatus}
                 paystackStatus={paymentAccount?.paystackStatus}
-                onLinkStripe={() => {
-                  setStripeModalCurrency(selectedCurrency);
-                  setIsStripeModalOpen(true);
-                }}
+                isLinkingStripe={isLinkingStripe}
+                onLinkStripe={() => connectStripeAccount()}
                 hideBalance={hideBalance}
                 onToggleBalance={() => setHideBalance((prev) => !prev)}
                 currency={selectedCurrency}
@@ -86,7 +100,7 @@ const WithdrawalPage = () => {
                   amount={wallet?.ngnBalance || 0}
                   hideBalance={hideBalance}
                   isSelected={selectedCurrency === "NAIRA"}
-                  showActionRequired={getShowActionRequired("NAIRA")}
+                  stripeStatusLabel={getActionLabel("NAIRA")}
                   onClick={() => setSelectedCurrency("NAIRA")}
                 />
                 <CurrencyCard
@@ -94,7 +108,7 @@ const WithdrawalPage = () => {
                   amount={wallet?.eurBalance || 0}
                   hideBalance={hideBalance}
                   isSelected={selectedCurrency === "EURO"}
-                  showActionRequired={getShowActionRequired("EURO")}
+                  stripeStatusLabel={getActionLabel("EURO")}
                   onClick={() => setSelectedCurrency("EURO")}
                 />
                 <CurrencyCard
@@ -102,7 +116,7 @@ const WithdrawalPage = () => {
                   amount={wallet?.usdBalance || 0}
                   hideBalance={hideBalance}
                   isSelected={selectedCurrency === "USD"}
-                  showActionRequired={getShowActionRequired("USD")}
+                  stripeStatusLabel={getActionLabel("USD")}
                   onClick={() => setSelectedCurrency("USD")}
                 />
                 <CurrencyCard
@@ -110,7 +124,7 @@ const WithdrawalPage = () => {
                   amount={wallet?.gbpBalance || 0}
                   hideBalance={hideBalance}
                   isSelected={selectedCurrency === "GBP"}
-                  showActionRequired={getShowActionRequired("GBP")}
+                  stripeStatusLabel={getActionLabel("GBP")}
                   onClick={() => setSelectedCurrency("GBP")}
                 />
                 <CurrencyCard
@@ -118,7 +132,7 @@ const WithdrawalPage = () => {
                   amount={wallet?.cadBalance || 0}
                   hideBalance={hideBalance}
                   isSelected={selectedCurrency === "CAD"}
-                  showActionRequired={getShowActionRequired("CAD")}
+                  stripeStatusLabel={getActionLabel("CAD")}
                   onClick={() => setSelectedCurrency("CAD")}
                 />
               </CurrencyCarousel>
@@ -126,11 +140,6 @@ const WithdrawalPage = () => {
             {isDesigner && <EscrowCard wallet={wallet!} />}
           </div>
         </div>
-        <StripeStatusModal
-          open={isStripeModalOpen}
-          onOpenChange={setIsStripeModalOpen}
-          currency={stripeModalCurrency}
-        />
         <div className="flex-1 shrink-0  max-h-[80vh] overflow-y-scroll p-8 border border-border w-full lg:w-3/12">
           <h2 className="font-semibold mb-2">Recent transactions</h2>
           <Separator className="bg-border/50" />

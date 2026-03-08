@@ -22,6 +22,7 @@ interface IWalletCardProps {
   stripeStatus?: string;
   paystackStatus?: string;
   onLinkStripe?: () => void;
+  isLinkingStripe?: boolean;
   hideBalance?: boolean;
   onToggleBalance?: () => void;
   currency?: UmojaLinnCurrency;
@@ -44,6 +45,7 @@ const WalletCard = (props: IWalletCardProps) => {
     stripeStatus,
     paystackStatus,
     onLinkStripe,
+    isLinkingStripe,
     hideBalance,
     onToggleBalance,
     currency = "NAIRA",
@@ -74,6 +76,17 @@ const WalletCard = (props: IWalletCardProps) => {
   };
 
   const { balance, escrow } = getBalances();
+
+  const getStripeLinkLabel = (): string => {
+    switch (stripeStatus) {
+      case "NOT_CONNECTED": return "Link Account";
+      case "ONBOARDING_STARTED": return "Complete setup";
+      case "ACTION_REQUIRED": return "Action required";
+      case "BANK_DETAILS_MISSING": return "Add Account";
+      case "RESTRICTED": return "Resolve restrictions";
+      default: return "Link Account";
+    }
+  };
 
   const showLinkAccount = currency !== "NAIRA" && stripeStatus !== "ENABLED";
   const showAddAccount = currency === "NAIRA" && paystackStatus !== "ENABLED";
@@ -113,8 +126,9 @@ const WalletCard = (props: IWalletCardProps) => {
               variant="outline"
               className="text-error border-error hover:bg-error/5 hover:text-error gap-2 rounded-md hidden lg:flex"
               onClick={onLinkStripe}
+              disabled={isLinkingStripe}
             >
-              Link Account
+              {isLinkingStripe ? "Connecting..." : getStripeLinkLabel()}
             </Button>
           ) : showAddAccount ? (
             <Button
@@ -166,8 +180,9 @@ const WalletCard = (props: IWalletCardProps) => {
             variant="outline"
             className="text-error border-error hover:bg-error/5 hover:text-error gap-2 lg:hidden w-full"
             onClick={onLinkStripe}
+            disabled={isLinkingStripe}
           >
-            Link Account
+            {isLinkingStripe ? "Connecting..." : getStripeLinkLabel()}
           </Button>
         ) : showAddAccount ? (
           <Button
@@ -229,14 +244,14 @@ export const CurrencyCard = ({
   amount,
   hideBalance,
   isSelected,
-  showActionRequired,
+  stripeStatusLabel,
   onClick,
 }: {
   currency: UmojaLinnCurrency;
   amount: number;
   hideBalance?: boolean;
   isSelected?: boolean;
-  showActionRequired?: boolean;
+  stripeStatusLabel?: string | null;
   onClick?: () => void;
 }) => {
   const option = currencyOptions.find((opt) => opt.value === currency);
@@ -250,9 +265,9 @@ export const CurrencyCard = ({
         <div className="size-8 rounded-full bg-gray-100 flex items-center justify-center text-2xl overflow-hidden relative">
           <Image src={option?.flag || ""} alt="" width={100} height={100} />
         </div>
-        {showActionRequired && (
+        {stripeStatusLabel && (
           <span className="bg-[#FEF3F2] text-error-700 px-2 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap">
-            Action required
+            {stripeStatusLabel}
           </span>
         )}
       </div>

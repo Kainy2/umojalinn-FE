@@ -29,6 +29,7 @@ import { useGetMe } from "@/tanstack/hooks/useUser";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useGetProjectById } from "@/tanstack/hooks/useProject";
+import { useGetBidById } from "@/tanstack/hooks/useBid";
 
 type TemplateModalType = "EDIT" | "RECOMMEND" | "VIEW-ONLY"
 
@@ -96,22 +97,20 @@ export const useSizingTemplateDialog = (
     const searchParams = useSearchParams();
     const urlProjectId = searchParams.get("projectId");
     const sizingTemplateId = props.id;
-		const sizingTemplateResult = sizingTemplateData?.data.data
+    const sizingTemplateResult = sizingTemplateData?.data.data;
+
     const effectiveProjectId = props.projectId || urlProjectId || sizingTemplateResult?.projects?.[0]?.id || undefined;
   
     // Fetch project data if we have a project ID
     const { data: projectData } = useGetProjectById(effectiveProjectId);
     const project = projectData?.data?.data;
+
+    const { data: bidData } = useGetBidById(props.bidId || "", { enabled: !!props.bidId });
+    const bid = bidData?.data?.data;
 		
 		const isDesigner = session?.user?.profileRole === "DESIGNER";
 		const TEMPLATE = gender === "FEMALE" ? FEMALE_SIZING_TEMPLATE : MALE_SIZING_TEMPLATE;
 		const noOfInputs = TEMPLATE?.length;
-  // const type =
-	// 	props.type || session?.user.profileRole === "BUYER"
-	// 		? sizingTemplateResult?.status !== "IN_USE"
-	// 			? "DRAFT-EDIT"
-	// 			: "BUYER-VIEW"
-	// 		: "DESIGNER-VIEW";
 
 
   const [isTemplateHaveLiveProject, isDraft] = useMemo(() => {
@@ -124,13 +123,19 @@ export const useSizingTemplateDialog = (
   }, [sizingTemplateResult]);
 
   // Derived state for measurement points
-  const requestedMeasurementPoints = sizingTemplateResult?.requestedMeasurementPoints || [];
+  const requestedMeasurementPoints =
+    sizingTemplateResult?.requestedMeasurementPoints ||
+    bid?.requestedMeasurementPoints ||
+    project?.requestedMeasurementPoints ||
+    [];
   const submittedMeasurementPoints = sizingTemplateResult?.submittedMeasurementPoints || [];
   const hasRequestedPoints = requestedMeasurementPoints.length > 0;
   const hasSubmittedPoints = submittedMeasurementPoints.length > 0;
   const hasReviews = sizingTemplateResult?.metadata?.reviews && 
     Object.values(sizingTemplateResult.metadata.reviews).some(Boolean);
   const isInUse = sizingTemplateResult?.status === "IN_USE";
+  const isProjectLive = project?.status === "LIVE";
+
 
   // New templateMode with proper priority logic
   const templateMode: TemplateMode = useMemo(() => {
@@ -167,7 +172,7 @@ export const useSizingTemplateDialog = (
     }
 
     // FILL: Buyer needs to fill requested measurement points
-    if (isInUse && hasRequestedPoints && !hasSubmittedPoints) {
+    if (isInUse && hasRequestedPoints && !hasSubmittedPoints && isProjectLive) {
       return TEMPLATE_MODE.FILL;
     }
 
