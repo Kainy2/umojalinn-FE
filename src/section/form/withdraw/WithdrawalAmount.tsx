@@ -55,7 +55,7 @@ const WithdrawalAmountForm = (props: {
   const { mutate: addNgnAccount, isPending: isAddingAccount } = useAddNgnAccount({
     onSuccess: () => {
       toast({ description: "Bank account added successfully!" });
-      router.refresh();
+      router.push('/wallet')
     }
   });
 

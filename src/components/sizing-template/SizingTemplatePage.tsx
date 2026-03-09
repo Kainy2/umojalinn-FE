@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { SizingTemplateDialogProps, useSizingTemplateDialog } from "@/hooks/use-sizing-template";
@@ -189,6 +189,9 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   const isCreatingNew = !sizingTemplateId;
   const isEditable = !isInUse && (templateMode === TEMPLATE_MODE.EDIT || isCreatingNew);
   const canEditGender = isEditable && !isInUse;
+  const isProjectLive = project?.status === "LIVE";
+
+  console.log("isProjectLive", isProjectLive);
 
   // Page title and description based on mode
   const getPageTitle = () => {
@@ -204,6 +207,13 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     if (isInUse) return "This template is currently in use with a project";
     return "View and manage your sizing template";
   };
+
+  // Track viewed status for designers
+  useEffect(() => {
+    if (isDesigner && sizingTemplateResult?.id && (templateMode === TEMPLATE_MODE.VIEW || templateMode === TEMPLATE_MODE.RECOMMEND)) {
+      localStorage.setItem(`sizingTemplate_viewed_${sizingTemplateResult.id}`, new Date().toISOString());
+    }
+  }, [isDesigner, sizingTemplateResult?.id, templateMode]);
 
   // Loading state
   if (props?.id && (isLoadingSizingTemplate || loadingMe || !sizingTemplateResult)) {
@@ -230,7 +240,12 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
         height={typeof value?.height === "number" ? value.height : null}
         template={TEMPLATE}
         hasTemplate={!!sizingTemplateId}
-        onSuccess={() => router.push(`/active-jobs/${effectiveProjectId}`)}
+        prefilledPoints={requestedMeasurementPoints}
+        onSuccess={() => {
+          if (props.handleSuccess) {
+            props.handleSuccess(sizingTemplateResult || undefined);
+          }
+        }}
         onUnitChange={handleUnitChange}
       />
     );
@@ -532,7 +547,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
             </div>
 
             {/* Measurement Points (including Height as first item from TEMPLATE) */}
-            {((sizingTemplateId && (!isInUse || hasRequestedPoints)) || isNewTemplate || isDraft) && (
+            {((sizingTemplateId && (!isInUse || (isInUse && hasRequestedPoints && isProjectLive))) || isNewTemplate || isDraft) && (
               <div className="flex flex-col gap-2">
                 {TEMPLATE
                   .filter((templateItem) => {

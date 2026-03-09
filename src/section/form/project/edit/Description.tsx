@@ -43,7 +43,7 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
     props?.id
   );
   const [useSizingTemplate, setUseSizingTemplate] = useState(false);
-  
+
   const router = useRouter();
   const { projectFormDetails, setProjectFormDetails } = useCreateProjectContext()
 
@@ -61,12 +61,12 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
     });
 
   useEffect(() => {
-    if (isAds && projectFormDetails.firstName){
+    if (isAds && projectFormDetails.firstName) {
       form.reset(projectFormDetails)
       return
     }
 
-    if (data?.data?.data ) {
+    if (data?.data?.data) {
       Object.entries(data.data.data).forEach(([key, value]) => {
         if (
           value !== null &&
@@ -75,7 +75,7 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
         ) {
           if (key === "sizingTemplateId" && !!value) setUseSizingTemplate(true);
           form.setValue(
-            key as keyof ProjectFormDetailsProps, 
+            key as keyof ProjectFormDetailsProps,
             typeof value === "boolean" ? value : value.toString()
           );
         }
@@ -104,17 +104,17 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
       form.setValue("lastName", data?.data?.data?.buyer?.user?.lastName);
     }
   }, [data?.data?.data, form, isAds, projectFormDetails]);
-  
+
 
   const onSubmit = useCallback(
-    (mode: "SAVE" | "DRAFT") => (values: ProjectFormDetailsProps) => {  
-        
+    (mode: "SAVE" | "DRAFT") => (values: ProjectFormDetailsProps) => {
+
       if (isAds) {
-        setProjectFormDetails(prev => ({...prev, ...values}))
+        setProjectFormDetails(prev => ({ ...prev, ...values }))
         router.push(`/project/${uuidToBase62Safe(props?.id)}/gallery`);
-        return 
-      }      
-      
+        return
+      }
+
       const { firstName, lastName, designerId, ...otherValues } = values;
       void firstName; void lastName; void designerId;
 
@@ -132,9 +132,9 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
         },
       });
     },
-    [props?.id, props.isOnboarding, router, updateProject, setProjectFormDetails, isAds ]
+    [props?.id, props.isOnboarding, router, updateProject, setProjectFormDetails, isAds]
   );
-    
+
   useEffect(() => {
     if (form.watch("sizingTemplateId")) setUseSizingTemplate(true);
     else setUseSizingTemplate(false);
@@ -295,19 +295,19 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
             name="clothingTypes"
             render={({ field, fieldState }) => (
               <>
-              <FormCustomTagSelectField
-                error={fieldState.error}
-                hint={`${field.value?.length || 0}/8 tags`}
-                options={
-                  clothingTypes?.data?.data?.map?.((type) => ({
-                    value: type?.id,
-                    label: type.name,
-                  })) || []
-                }
-                value={field.value || []}
-                onChange={(val: string[]) => field.onChange(val)}
-              />
-              {fieldState.error && <FormErrorMessage message={fieldState.error?.message} />}
+                <FormCustomTagSelectField
+                  error={fieldState.error}
+                  hint={`${field.value?.length || 0}/8 tags`}
+                  options={
+                    clothingTypes?.data?.data?.map?.((type) => ({
+                      value: type?.id,
+                      label: type.name,
+                    })) || []
+                  }
+                  value={field.value || []}
+                  onChange={(val: string[]) => field.onChange(val)}
+                />
+                {fieldState.error && <FormErrorMessage message={fieldState.error?.message} />}
               </>
 
             )}
@@ -322,18 +322,18 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
             name="dueDate"
             render={({ field, fieldState }) => (
               <>
-              <FormCustomDatePickerField
-                {...field}
-                error={fieldState.error}
-                type="default"
-                value={field.value ? new Date(field.value) : undefined}
-                onChange={(val: Date) => field.onChange(val)}
-                calendar={{
-                  fromYear: new Date().getFullYear(),
-                  toYear: addYears(new Date(), 2).getFullYear(),
-                }}
-              />
-              {fieldState.error && <FormErrorMessage message={fieldState.error?.message} />}
+                <FormCustomDatePickerField
+                  {...field}
+                  error={fieldState.error}
+                  type="default"
+                  value={field.value ? new Date(field.value) : undefined}
+                  onChange={(val: Date) => field.onChange(val)}
+                  calendar={{
+                    fromYear: new Date().getFullYear(),
+                    toYear: addYears(new Date(), 2).getFullYear(),
+                  }}
+                />
+                {fieldState.error && <FormErrorMessage message={fieldState.error?.message} />}
               </>
             )}
           />
@@ -349,21 +349,21 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
               render={({ field, fieldState }) => {
                 return (
                   <>
-                  <CustomSelectCountry
-                    {...field}
-                    error={fieldState.error}
-                    value={field.value}
-                    onChange={(newValue: unknown) => {
-                      const typedValue = newValue as {
-                        value: string;
-                        label: string;
-                      };
-                      field.onChange(typedValue?.value);
-                    }}
-                    placeholder="Country"
-                  />
-                  {fieldState.error && <FormErrorMessage message={fieldState.error?.message} />}
-              </>
+                    <CustomSelectCountry
+                      {...field}
+                      error={fieldState.error}
+                      value={field.value}
+                      onChange={(newValue: unknown) => {
+                        const typedValue = newValue as {
+                          value: string;
+                          label: string;
+                        };
+                        field.onChange(typedValue?.value);
+                      }}
+                      placeholder="Country"
+                    />
+                    {fieldState.error && <FormErrorMessage message={fieldState.error?.message} />}
+                  </>
                 );
               }}
             />
@@ -372,9 +372,9 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
               name="city"
               render={({ field, fieldState }) => (
                 <>
-                <TextField {...field} error={fieldState.error} placeholder="City" />
-                {fieldState.error && <FormErrorMessage message={fieldState.error?.message} />}
-              </>
+                  <TextField {...field} error={fieldState.error} placeholder="City" />
+                  {fieldState.error && <FormErrorMessage message={fieldState.error?.message} />}
+                </>
               )}
             />
             <div className="flex flex-col lg:flex-row gap-4">
@@ -398,8 +398,8 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
               name="address"
               render={({ field, fieldState }) => (
                 <>
-                <TextField {...field} error={fieldState.error} placeholder="Address" />
-                {fieldState.error && <FormErrorMessage message={fieldState.error?.message} />}
+                  <TextField {...field} error={fieldState.error} placeholder="Address" />
+                  {fieldState.error && <FormErrorMessage message={fieldState.error?.message} />}
                 </>
               )}
             />
@@ -412,7 +412,7 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
           <FormField
             control={form.control}
             name="additionalNotes"
-            render={({ field, fieldState }) => 
+            render={({ field, fieldState }) =>
               <Textarea {...field} error={fieldState.error} />
             }
           />
@@ -444,20 +444,23 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
                           }
                         </span>
                       </div>
-                      <CustomSelect
-                        key={String(sizingTemplateData?.data?.data?.length)}
-                        {...field}
-                        error={fieldState.error}
-                        disabled={loadingSizingTemplate}
-                        onValueChange={field.onChange}
-                        options={sizingTemplateData?.data?.data?.map(
-                          (template) => ({
-                            children: template?.name,
-                            value: template?.id,
-                          })
-                        )}
-                        placeholder="Select sizing templates"
-                      />
+                      {
+                        sizingTemplateData?.data?.data?.length ?
+                          (<CustomSelect
+                            key={String(sizingTemplateData?.data?.data?.length)}
+                            {...field}
+                            error={fieldState.error}
+                            disabled={loadingSizingTemplate}
+                            onValueChange={field.onChange}
+                            options={sizingTemplateData?.data?.data?.map(
+                              (template) => ({
+                                children: template?.name,
+                                value: template?.id,
+                              })
+                            )}
+                            placeholder="Select sizing templates"
+                          />) : (<></>)
+                      }
                     </>
                   )}
                 </div>
@@ -467,24 +470,24 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
         )}
 
         <FormItemWrapper
-            title="Will you be providing your own material?"
-            description="Toggle yes if you are providing your own material"
-          >
-            <FormField
-              control={form.control}
-              name="willProvideMaterials"
-              render={({ field: { onChange, value } }) => (
-                <Switch
-                  key={String(value)}
-                  onCheckedChange={onChange}
-                  checked={value} 
-                  showHelpText
-                  checkedHelpText="Yes"
-                  uncheckedHelpText="No"
-                />
-              )}
-            />
-          </FormItemWrapper>
+          title="Will you be providing your own material?"
+          description="Toggle yes if you are providing your own material"
+        >
+          <FormField
+            control={form.control}
+            name="willProvideMaterials"
+            render={({ field: { onChange, value } }) => (
+              <Switch
+                key={String(value)}
+                onCheckedChange={onChange}
+                checked={value}
+                showHelpText
+                checkedHelpText="Yes"
+                uncheckedHelpText="No"
+              />
+            )}
+          />
+        </FormItemWrapper>
 
         <ProjectEditFooter
           leftButtonProps={{ hidden: true }}
@@ -493,8 +496,8 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
             text: isAds ? "Cancel" : "Save & Exit",
             disabled: isUpdating,
             onClick: (e) => {
-                if (isAds) router.push(`/projects/ads/${uuidToBase62Safe(props?.id)}`);
-                else {form.handleSubmit(onSubmit("DRAFT"))(e)};
+              if (isAds) router.push(`/projects/ads/${uuidToBase62Safe(props?.id)}`);
+              else { form.handleSubmit(onSubmit("DRAFT"))(e) };
             },
           }}
           rightPrimaryButtonProps={{
@@ -502,7 +505,7 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
             disabled: isUpdating,
             onClick: form.handleSubmit(onSubmit("SAVE")),
           }}
-          />
+        />
       </form>
     </Form>
   );

@@ -21,10 +21,10 @@ const InterSans = Inter({
 
 export const metadata: Metadata = {
   title: "Welcome to Umoja",
-  description: "Join our family of verified designers who are increasing their Profitability by Optimising their Productivity",
+  description: "Join our family of verified designers’ and handle your orders and clients with ease",
 };
 
-export default function RootLayout({ children }: LayoutProps) {  
+export default function RootLayout({ children }: LayoutProps) {
   return (
     <RollbarProvider config={clientConfig}>
       <html lang="en">

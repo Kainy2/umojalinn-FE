@@ -35,6 +35,25 @@ export const CurrencyCarousel = ({ children }: ICurrencyCarouselProps) => {
         return () => resizeObserver.disconnect();
     }, [children]);
 
+    const handleChildClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        const container = scrollContainerRef.current;
+        if (!container) return;
+
+        // Find the direct child of the scroll container that was clicked
+        let target = e.target as HTMLElement | null;
+        while (target && target.parentElement !== container) {
+            target = target.parentElement;
+        }
+
+        if (target) {
+            target.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+                inline: "nearest",
+            });
+        }
+    };
+
     const scroll = (direction: "left" | "right") => {
         const container = scrollContainerRef.current;
         if (!container) return;
@@ -73,6 +92,7 @@ export const CurrencyCarousel = ({ children }: ICurrencyCarouselProps) => {
             <div
                 ref={scrollContainerRef}
                 onScroll={checkScrollPosition}
+                onClick={handleChildClick}
                 className="flex gap-4 overflow-x-auto pb-4 no-scrollbar"
                 style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >

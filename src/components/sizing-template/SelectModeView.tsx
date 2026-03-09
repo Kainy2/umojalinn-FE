@@ -60,10 +60,11 @@ const SelectModeView = ({
   height,
   template,
   hasTemplate = true,
+  prefilledPoints = [],
   onSuccess,
   onUnitChange,
-}: SelectModeViewProps) => {
-  const [selectedPoints, setSelectedPoints] = useState<string[]>([]);
+}: SelectModeViewProps & { prefilledPoints?: string[] }) => {
+  const [selectedPoints, setSelectedPoints] = useState<string[]>(prefilledPoints);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [previewName, setPreviewName] = useState<string | null>(null);
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
@@ -127,6 +128,12 @@ const SelectModeView = ({
     setPreviewImage(img);
     setPreviewName(name);
   };
+
+  useEffect(() => {
+    if (prefilledPoints.length > 0) {
+      setSelectedPoints(prefilledPoints);
+    }
+  }, [prefilledPoints]);
 
   useEffect(() => {
     if (!gender) return;

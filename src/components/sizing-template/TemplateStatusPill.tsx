@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { UmojaLinnProject, UmojaLinnSizingTemplate } from "@/types/project";
 import { Plus, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -9,7 +10,6 @@ export type BuyerStatusType =
 	| "ADD_REQUESTED_MEASUREMENTS"
 	| "ADD_SIZING_TEMPLATE"
 	| "CHANGES_RECOMMENDED"
-	| "UPDATED"
 	| null;
 
 export type DesignerStatusType =
@@ -63,12 +63,7 @@ const BUYER_STATUS_CONFIG: Record<NonNullable<BuyerStatusType>, StatusConfig> = 
 			</div>
 		),
 	},
-	UPDATED: {
-		text: "Updated",
-		bgColor: "bg-green-50",
-		borderColor: "border-green-500",
-		textColor: "text-green-600",
-	},
+
 };
 
 // Designer status configurations
@@ -151,14 +146,6 @@ export const getBuyerStatus = (
 		return "ADD_REQUESTED_MEASUREMENTS";
 	}
 
-	// Priority 2.5: Measurement points requested and buyer has submitted them
-	if (
-		template?.status === "IN_USE" &&
-		!!requestedMeasurementPoints.length &&
-		!!submittedMeasurementPoints.length
-	) {
-		return "UPDATED";
-	}
 
 	// Priority 3: Template is draft or incomplete
 	if (template?.status === "DRAFT") {
@@ -172,7 +159,8 @@ export const getBuyerStatus = (
  * Determines which status pill to show for a designer based on template state
  */
 export const getDesignerStatus = (
-	template: UmojaLinnSizingTemplate
+	template: UmojaLinnSizingTemplate,
+	isViewed: boolean = true
 ): DesignerStatusType => {
 	const requestedMeasurementPoints =
 		template?.requestedMeasurementPoints || [];
@@ -184,6 +172,7 @@ export const getDesignerStatus = (
 	const hasRepliedRecommendations =
 		template?.metadata?.reviews &&
 		Object.values(template.metadata.reviews).some((review) => review);
+
 	// Priority 1: Template is in use but no measurement points requested yet
 	if (
 		template?.status === "IN_USE" &&
@@ -201,22 +190,22 @@ export const getDesignerStatus = (
 		return "MEASUREMENT_REQUESTED";
 	}
 
-	if (template?.status === "IN_USE" && hasDesignerRecommendations) {
-		return "CHANGES_RECOMMENDED";
-	}
+	// Priority 3: Check for new updates or unanswered recommendations
+	if (template?.status === "IN_USE") {
+		// New update (initial submission or reply to recommendations)
+		if (submittedMeasurementPoints.length > 0 && !isViewed) {
+			return "UPDATED";
+		}
 
-	// Priority 3: Check if template has designer recommendations and buyer hads filled in recommendations
-	if (template?.status === "IN_USE" && hasRepliedRecommendations) {
-		return "UPDATED";
-	}
+		// Recommending changes if there are recommendations that haven't been replied to correctly
+		if (hasDesignerRecommendations && !hasRepliedRecommendations) {
+			return "CHANGES_RECOMMENDED";
+		}
 
-	// Priority 4: Measurement points requested and buyer has submitted them
-	if (
-		template?.status === "IN_USE" &&
-		!!requestedMeasurementPoints.length &&
-		!!submittedMeasurementPoints.length
-	) {
-		return "UPDATED";
+		// Stable state after viewing updates
+		if (submittedMeasurementPoints.length > 0) {
+			return "UPDATED"; // Default for card view if not specifically tracked as "viewed" in that context
+		}
 	}
 
 	return null;
@@ -235,9 +224,16 @@ interface TemplateStatusPillProps {
  * Shows different status indicators based on user role (buyer/designer) and template state
  */
 const TemplateStatusPill = ({ template, isBuyer, inUse, projectInUse }: TemplateStatusPillProps) => {
+	// Check viewed status in local storage for designers
+	const isViewed = React.useMemo(() => {
+		if (isBuyer || typeof window === "undefined") return true;
+		const lastViewedAt = localStorage.getItem(`sizingTemplate_viewed_${template.id}`);
+		return !!(template.updatedAt && lastViewedAt && new Date(lastViewedAt) >= new Date(template.updatedAt));
+	}, [template.id, template.updatedAt, isBuyer]);
+
 	const status = isBuyer
 		? getBuyerStatus(template)
-		: getDesignerStatus(template);
+		: getDesignerStatus(template, isViewed);
 
 	// Instead of early returning null when status is null, we check if it's in use first.
 	if (!status || !BUYER_STATUS_CONFIG[status as NonNullable<BuyerStatusType>] && !DESIGNER_STATUS_CONFIG[status as NonNullable<DesignerStatusType>]) {
