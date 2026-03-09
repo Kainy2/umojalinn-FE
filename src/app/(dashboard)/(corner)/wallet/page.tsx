@@ -63,7 +63,7 @@ const WithdrawalPage = () => {
       case "BANK_DETAILS_MISSING": return "Bank details missing";
       case "RESTRICTED": return "Restricted";
       case "ENABLED": return null;
-      default: return null;
+      default: return "Action required";
     }
   };
 
