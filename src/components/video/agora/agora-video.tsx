@@ -13,7 +13,6 @@ import AgoraRTC, {
 import { Mic, MicOff, Video as VideoIcon, VideoOff, PhoneMissed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-// import { cn } from "@/lib/utils";
 import { createAgoraConfig, validateAgoraConfig } from "./config";
 import { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
 
