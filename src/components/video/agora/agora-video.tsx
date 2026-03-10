@@ -224,8 +224,31 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
         config.uid
       );
 
-      // Publish local tracks
+      // CRITICAL FIX: Ensure tracks are enabled before publishing
+      // Agora SDK requires tracks to be enabled when publishing
+      // If user muted in waiting room, tracks were disabled via setEnabled(false)
+      if (localVideoTrack && !localVideoTrack.enabled) {
+        console.log("Re-enabling video track before publish");
+        await localVideoTrack.setEnabled(true);
+      }
+      if (localAudioTrack && !localAudioTrack.enabled) {
+        console.log("Re-enabling audio track before publish");
+        await localAudioTrack.setEnabled(true);
+      }
+
+      // Publish local tracks (must be enabled)
       await client.publish([localVideoTrack, localAudioTrack]);
+
+      // Re-apply user's mute preferences if they had muted in waiting room
+      // Use setMuted() for in-call muting (keeps track active but stops transmission)
+      if (isVideoMuted && localVideoTrack) {
+        console.log("Re-applying video mute state");
+        await localVideoTrack.setMuted(true);
+      }
+      if (isAudioMuted && localAudioTrack) {
+        console.log("Re-applying audio mute state");
+        await localAudioTrack.setMuted(true);
+      }
 
       // Stop video in preview container before transitioning
       try {
@@ -282,12 +305,24 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
   const toggleAudioMute = async () => {
     if (!localAudioTrack) return;
 
-    if (isAudioMuted) {
-      await localAudioTrack.setEnabled(true);
-      setIsAudioMuted(false);
+    if (isInCall) {
+      // During call: use setMuted() to control transmission
+      if (isAudioMuted) {
+        await localAudioTrack.setMuted(false);
+        setIsAudioMuted(false);
+      } else {
+        await localAudioTrack.setMuted(true);
+        setIsAudioMuted(true);
+      }
     } else {
-      await localAudioTrack.setEnabled(false);
-      setIsAudioMuted(true);
+      // In waiting room: use setEnabled() to control hardware
+      if (isAudioMuted) {
+        await localAudioTrack.setEnabled(true);
+        setIsAudioMuted(false);
+      } else {
+        await localAudioTrack.setEnabled(false);
+        setIsAudioMuted(true);
+      }
     }
   };
 
@@ -295,12 +330,24 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
   const toggleVideoMute = async () => {
     if (!localVideoTrack) return;
 
-    if (isVideoMuted) {
-      await localVideoTrack.setEnabled(true);
-      setIsVideoMuted(false);
+    if (isInCall) {
+      // During call: use setMuted() to control transmission
+      if (isVideoMuted) {
+        await localVideoTrack.setMuted(false);
+        setIsVideoMuted(false);
+      } else {
+        await localVideoTrack.setMuted(true);
+        setIsVideoMuted(true);
+      }
     } else {
-      await localVideoTrack.setEnabled(false);
-      setIsVideoMuted(true);
+      // In waiting room: use setEnabled() to control hardware
+      if (isVideoMuted) {
+        await localVideoTrack.setEnabled(true);
+        setIsVideoMuted(false);
+      } else {
+        await localVideoTrack.setEnabled(false);
+        setIsVideoMuted(true);
+      }
     }
   };
 
