@@ -192,19 +192,13 @@ export const getDesignerStatus = (
 
 	// Priority 3: Check for new updates or unanswered recommendations
 	if (template?.status === "IN_USE") {
-		// New update (initial submission or reply to recommendations)
-		if (submittedMeasurementPoints.length > 0 && !isViewed) {
+		if (hasRepliedRecommendations && !isViewed) {
 			return "UPDATED";
 		}
 
 		// Recommending changes if there are recommendations that haven't been replied to correctly
 		if (hasDesignerRecommendations && !hasRepliedRecommendations) {
 			return "CHANGES_RECOMMENDED";
-		}
-
-		// Stable state after viewing updates
-		if (submittedMeasurementPoints.length > 0) {
-			return "UPDATED"; // Default for card view if not specifically tracked as "viewed" in that context
 		}
 	}
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { SizingTemplateDialogProps, useSizingTemplateDialog } from "@/hooks/use-sizing-template";
@@ -55,18 +55,24 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     handleSubmit: originalHandleSubmit,
     sizingTemplateResult,
     isDraft,
+    isNewTemplate,
+    // isTemplateHaveLiveProject,
     TEMPLATE,
+    // open,
+    // setOpen,
     name,
-    setName,
     gender,
     unit,
     value,
     highlighted,
     setHighlighted,
     setGender,
+    setName,
     setUnit,
     handleChangeValuesByUnit,
     recommendationMode,
+    // openRequestChangesDialog,
+    // setOpenRequestChangesDialog,
     setRecommendationMode,
     loadingMe,
     isLoadingSizingTemplate,
@@ -76,15 +82,20 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     setPreviewImage,
     inputRefs,
     // modalType,
+    // editMode,
+    // setEditMode,
+    // New mode-related exports
     templateMode,
     requestedMeasurementPoints,
+    // submittedMeasurementPoints,
     hasRequestedPoints,
     hasSubmittedPoints,
+    // hasReviews,
     isInUse,
     isDesigner,
     router,
     // searchParams,
-    isNewTemplate,
+    // urlProjectId,
     sizingTemplateId,
     effectiveProjectId,
     // projectData,
@@ -190,8 +201,9 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   const isEditable = !isInUse && (templateMode === TEMPLATE_MODE.EDIT || isCreatingNew);
   const canEditGender = isEditable && !isInUse;
   const isProjectLive = project?.status === "LIVE";
-
-  console.log("isProjectLive", isProjectLive);
+  // const hasRepliedRecommendations =
+  //   !sizingTemplateResult?.metadata?.reviews ||
+  //   Object.keys(sizingTemplateResult.metadata.reviews).length === 0;
 
   // Page title and description based on mode
   const getPageTitle = () => {
@@ -208,12 +220,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     return "View and manage your sizing template";
   };
 
-  // Track viewed status for designers
-  useEffect(() => {
-    if (isDesigner && sizingTemplateResult?.id && (templateMode === TEMPLATE_MODE.VIEW || templateMode === TEMPLATE_MODE.RECOMMEND)) {
-      localStorage.setItem(`sizingTemplate_viewed_${sizingTemplateResult.id}`, new Date().toISOString());
-    }
-  }, [isDesigner, sizingTemplateResult?.id, templateMode]);
+
 
   // Loading state
   if (props?.id && (isLoadingSizingTemplate || loadingMe || !sizingTemplateResult)) {
@@ -347,7 +354,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                     onShowChart={() => { }}
                     highlighted={false}
                     disabled
-                    isDesigner={isDesigner}
+                  // isDesigner={isDesigner}
                   />
 
                   <DisabledTemplateItems
@@ -356,39 +363,61 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                   />
 
                   {/* Measurement Points */}
-                  {(recommendationMode ? TEMPLATE.filter(item => item.prop !== "height") : (hasRequestedPoints ? TEMPLATE.filter(item => requestedMeasurementPoints.includes(item.prop)) : TEMPLATE)).map((item, index) => {
-                    const itemValue = value?.[item.prop];
-                    const isRequested = requestedMeasurementPoints.includes(item.prop);
+                  {(recommendationMode ? TEMPLATE.filter(item => item.prop !== "height") : (hasRequestedPoints ? TEMPLATE.filter(item => requestedMeasurementPoints.includes(item.prop)) : TEMPLATE))
+                    .sort((a, b) => {
+                      // Prioritize fields with reviews to appear at the top
+                      const aHasReview = !!sizingTemplateResult?.metadata?.reviews?.[a.prop];
+                      const bHasReview = !!sizingTemplateResult?.metadata?.reviews?.[b.prop];
+                      if (aHasReview && !bHasReview) return -1;
+                      if (!aHasReview && bHasReview) return 1;
+                      return 0;
+                    })
+                    .map((item, index) => {
+                      const itemValue = value?.[item.prop];
+                      const isRequested = requestedMeasurementPoints.includes(item.prop);
+                      const hasReview = !!sizingTemplateResult?.metadata?.reviews?.[item.prop];
 
-                    return (
-                      <MeasurementPointRow
-                        key={item.prop}
-                        disabled
-                        onValueChange={handleChange(item.prop)}
-                        value={typeof itemValue === "number" ? itemValue : 0}
-                        unit={unit}
-                        label={item.name}
-                        highlighted={highlighted === item.prop}
-                        metadata={{ review: sizingTemplateResult?.metadata?.reviews?.[item.prop], img: item?.img }}
-                        onClick={() => {
-                          handleSelectMeasurement(item.prop)
-                          handleMeasurementClick(item.img, item.prop as keyof (UmojaLinnFemaleSizingTemplateProps | UmojaLinnMaleSizingTemplateProps))
-                        }}
-                        onKeyDown={(e) => handleKeyPress(index, e)}
-                        ref={(el) => { inputRefs.current[index] = el; }}
-                        {...(recommendationMode && {
-                          recommendMode: true,
-                          selected: selectedMeasurements.includes(item.prop),
-                          onSelect: () => handleSelectMeasurement(item.prop),
-                          hasComment: !!measurementComments[item.prop],
-                          comment: measurementComments[item.prop],
-                          onAddComment: (comment: string) => handleAddComment(item.prop, comment),
-                          onDeleteComment: () => handleDeleteComment(item.prop),
-                          isNewRequest: !isRequested // Pass flag to indicate this is a new measurement request
-                        })}
-                      />
-                    );
-                  })}
+                      // const hasDesignerRecommendations = sizingTemplateResult?.metadata?.reviews && !!Object.keys(sizingTemplateResult.metadata.reviews).length;
+                      // const hasRepliedRecommendations = !sizingTemplateResult?.metadata?.reviews || Object.keys(sizingTemplateResult.metadata.reviews).length === 0;
+
+                      // Only apply the styling if NOT in recommend mode (i.e in standard view mode)
+                      const isPendingBuyerReply = !recommendationMode && hasReview;
+                      const isNewlyUpdated = !recommendationMode && !hasReview && isRequested;
+
+
+
+                      return (
+                        <MeasurementPointRow
+                          key={item.prop}
+                          disabled
+                          onValueChange={handleChange(item.prop)}
+                          value={typeof itemValue === "number" ? itemValue : 0}
+                          unit={unit}
+                          label={item.name}
+                          highlighted={highlighted === item.prop}
+                          metadata={{ review: sizingTemplateResult?.metadata?.reviews?.[item.prop], img: item?.img }}
+                          isPendingBuyerReply={isPendingBuyerReply}
+                          isNewlyUpdated={isNewlyUpdated}
+                          onClick={() => {
+                            handleSelectMeasurement(item.prop)
+                            handleMeasurementClick(item.img, item.prop as keyof (UmojaLinnFemaleSizingTemplateProps | UmojaLinnMaleSizingTemplateProps))
+                          }}
+                          isDesigner={isDesigner}
+                          onKeyDown={(e) => handleKeyPress(index, e)}
+                          ref={(el) => { inputRefs.current[index] = el; }}
+                          {...(recommendationMode && {
+                            recommendMode: true,
+                            selected: selectedMeasurements.includes(item.prop),
+                            onSelect: () => handleSelectMeasurement(item.prop),
+                            hasComment: !!measurementComments[item.prop],
+                            comment: measurementComments[item.prop],
+                            onAddComment: (comment: string) => handleAddComment(item.prop, comment),
+                            onDeleteComment: () => handleDeleteComment(item.prop),
+                            isNewRequest: !isRequested // Pass flag to indicate this is a new measurement request
+                          })}
+                        />
+                      );
+                    })}
                 </div>
               </div>
 
@@ -436,16 +465,10 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                     </Button>
                   </div>
                 ) : hasSubmittedPoints && (
-                  <div className="hidden lg:block mt-6">
-                    <Button disabled={loading} onClick={() => setRecommendationMode(true)} className="w-full">Recommend Changes</Button>
+                  <div className="hidden lg:flex justify-end mt-6">
+                    <Button disabled={loading} onClick={() => setRecommendationMode(true)} className="h-8 rounded-md bg-primary-600">Recommend Changes</Button>
                   </div>
                 )}
-
-                {/* {highlighted && (measurementComments[highlighted] || sizingTemplateResult?.metadata?.reviews?.[highlighted]) && (
-                  <div className="hidden lg:block mt-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                    <RequestSizingTemplateViewCard title={highlightedSizingName} review={measurementComments[highlighted] || sizingTemplateResult?.metadata?.reviews?.[highlighted] || ""} />
-                  </div>
-                )} */}
               </div>
             </div>
           </div>
@@ -535,7 +558,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                 onShowChart={handleShowUKSizeChart}
                 highlighted={showUKSizeChart}
                 disabled={!isEditable}
-                isDesigner={isDesigner}
+              // isDesigner={isDesigner}
               />
 
               {!isNewTemplate && !isDraft && (

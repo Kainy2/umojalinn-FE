@@ -31,10 +31,12 @@ export default function RootLayout({ children }: LayoutProps) {
         <body className={`${InterSans.className}  antialiased`}>
           <NextAuthProvider>
             <TanstackQueryClientProvider>
+
               {children}
               <Toaster />
               <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_TAG_ID ?? ''} />
               <Analytics />
+
             </TanstackQueryClientProvider>
           </NextAuthProvider>
         </body>
