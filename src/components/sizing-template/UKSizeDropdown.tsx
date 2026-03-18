@@ -30,28 +30,33 @@ export function UKSizeDropdown({
   const placeholder = gender === "MALE" ? "Select size (S, M, L...)" : "Select UK size (6, 8, 10...)";
 
   return (
-    <Select
-      value={value ?? undefined}
-      onValueChange={(val) => onChange(val as UmojalinnStandardSize)}
-      disabled={disabled}
-    >
-      <SelectTrigger
-        className={cn(
-          "w-[100px] h-8 text-sm bg-white border-gray-200",
-          disabled && "opacity-50 cursor-not-allowed",
-          className
-        )}
+    <>
+
+      {disabled ? (<div>{value}</div>) : (<Select
+        value={value ?? undefined}
+        onValueChange={(val) => onChange(val as UmojalinnStandardSize)}
+        disabled={disabled}
       >
-        <SelectValue placeholder={placeholder} />
-      </SelectTrigger>
-      <SelectContent>
-        {sizes.map((size) => (
-          <SelectItem key={size} value={size} className="text-sm">
-            {gender === "FEMALE" ? `UK ${size}` : size}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+        <SelectTrigger
+          className={cn(
+            "w-[100px] h-8 text-sm bg-white border-gray-200",
+            disabled && "opacity-50 cursor-not-allowed",
+            className
+          )}
+        >
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent>
+          {sizes.map((size) => (
+            <SelectItem key={size} value={size} className="text-sm">
+              {gender === "FEMALE" ? `UK ${size}` : size}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>)
+      }
+    </>
+
   );
 }
 

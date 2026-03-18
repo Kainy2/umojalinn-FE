@@ -229,16 +229,12 @@ const SelectModeView = ({
                 {!hasTemplate && (
                   <>
                     <DisabledTemplateItems title={gender} />
-                    {/* <DisabledItems
-                  title="Uk Standard Size"
-                  value={ukStandardSize ?? "-"}
-                /> */}
                     <UKStandardSizeRow
                       gender={gender}
                       value={ukStandardSize ?? null}
                       highlighted={false}
                       disabled
-                      isDesigner
+                      // isDesigner
                       onChange={() => { }}
                       onShowChart={() => { }}
                     />

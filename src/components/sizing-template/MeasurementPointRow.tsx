@@ -35,6 +35,9 @@ type MeasurementPointRowProps = {
   onAddComment?: (comment: string) => void;
   onDeleteComment?: () => void;
   isNewRequest?: boolean; // Indicates if this is an unrequested point being requested now
+  isPendingBuyerReply?: boolean; // When designer has recommended changes but buyer has not replied yet
+  isNewlyUpdated?: boolean; // When buyer has replied and designer is viewing the updated changes for the first time
+  isDesigner?: boolean;
 };
 
 const MeasurementPointRow = forwardRef<HTMLInputElement, MeasurementPointRowProps>((props, ref) => {
@@ -56,17 +59,23 @@ const MeasurementPointRow = forwardRef<HTMLInputElement, MeasurementPointRowProp
     setShowDeleteCommentModal(true);
   };
 
+
+
   return (
     <div className="flex items-center gap-3">
       <div
         role="button"
         onClick={props.onClick}
         className={cn(
-          "flex flex-1 justify-between items-center p-3 rounded-lg transition-all duration-200 ",
+          "flex flex-1 justify-between border items-center p-3 rounded-lg transition-all duration-200 ",
           props.recommendMode ? "cursor-default" : "cursor-pointer hover:scale-[1.01]",
           props.highlighted && !props.recommendMode
             ? "bg-primary text-white shadow-sm scale-[1.01]"
-            : "bg-white border border-gray-200 cursor-pointer hover:shadow-sm",
+            : props.isPendingBuyerReply
+              ? "bg-gray-50/50  border-gray-200 opacity-60 cursor-default"
+              : props.isNewlyUpdated
+                ? "bg-green-50 border-green-200 shadow-sm"
+                : "bg-white border border-gray-200 cursor-pointer hover:shadow-sm",
           props.selected && props.recommendMode && "border-primary scale-[1.01]"
         )}
       >
@@ -85,8 +94,9 @@ const MeasurementPointRow = forwardRef<HTMLInputElement, MeasurementPointRowProp
             className={cn(
               "text-sm font-medium transition-colors cursor-pointer",
               props.highlighted && !props.recommendMode ? "text-white" : "text-foreground-body",
-              props.metadata?.review && !props.hasLiveProject && !props.highlighted && "text-error-700 font-semibold",
-              props.hasComment && props.recommendMode && "text-red-600 font-semibold"
+              props.isPendingBuyerReply && "text-gray-400 font-normal",
+              props.isNewlyUpdated && "text-green-700 font-semibold",
+              props.hasComment && props.recommendMode && "text-gray-500 font-semibold"
             )}
             htmlFor={id}
           >
@@ -103,14 +113,18 @@ const MeasurementPointRow = forwardRef<HTMLInputElement, MeasurementPointRowProp
           ) : (
             <div className="text-sm rounded-full relative">
               {props.disabled ? (
-                <span className={cn("text-right pr-10", props.unit === "INCH" && "pr-14", props.highlighted ? "text-white" : "text-gray-500")}>
+                <span className={cn(
+                  "text-right pr-10",
+                  props.unit === "INCH" && "pr-14",
+                  props.highlighted ? "text-white" : props.isPendingBuyerReply ? "text-gray-300" : "text-gray-500"
+                )}>
                   {props.value || 0}
                 </span>
               ) : (
                 <input
                   ref={ref}
                   className={cn(
-                    "text-right placeholder:text-black focus-visible:outline-none rounded-full p-1 pr-10 w-20",
+                    "text-right placeholder:text-black focus-visible:outline-none rounded-full p-1 pr-10 w-20 bg-transparent",
                     props.unit === "INCH" && "pr-14",
                     props.highlighted ? "bg-white/10 text-white transition-all placeholder:text-white/70" : "text-gray-500 focus-visible:bg-gray-100"
                   )}
@@ -128,7 +142,10 @@ const MeasurementPointRow = forwardRef<HTMLInputElement, MeasurementPointRowProp
                   onKeyDown={props.onKeyDown}
                 />
               )}
-              <div className={cn("absolute inset-y-0 right-0 top-0.5 flex items-center pr-4 pointer-events-none text-xs", props.highlighted ? "text-white" : "text-gray-500")}>
+              <div className={cn(
+                "absolute inset-y-0 right-0 top-0.5 flex items-center pr-4 pointer-events-none text-xs",
+                props.highlighted ? "text-white" : props.isPendingBuyerReply ? "text-gray-300" : "text-gray-500"
+              )}>
                 {props.unit}
               </div>
             </div>
@@ -177,12 +194,18 @@ const MeasurementPointRow = forwardRef<HTMLInputElement, MeasurementPointRowProp
         </div>
       )}
 
-      {/* Mobile Preview Dialog */}
+      {/* Review Dialog/Icon */}
       {props.metadata && !props.recommendMode && (
         <Dialog>
           <DialogTrigger asChild>
-            <button className={cn("lg:hidden", props.highlighted ? "text-white" : "text-primary")}>
-              <MessageCircleQuestion className="size-5 text-gray-400" />
+            <button className={cn(props.highlighted ? "text-white" : props.isPendingBuyerReply ? "text-gray-300" : "text-primary")}>
+              {!!props.metadata.review ? (
+                <div className="size-8 rounded-lg border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 transition-colors shadow-sm">
+                  <MessageCircle className="size-4 text-gray-400" />
+                </div>
+              ) : (
+                <MessageCircleQuestion className="size-5 lg:hidden text-gray-400" />
+              )}
             </button>
           </DialogTrigger>
           <DialogContent className="w-[80vw] max-w-[425px] max-h-[80vh] h-[80vh]">
@@ -190,7 +213,7 @@ const MeasurementPointRow = forwardRef<HTMLInputElement, MeasurementPointRowProp
               <DialogTitle className="text-lg font-semibold mb-4">{props.label}</DialogTitle>
               <div className="h-full w-full relative">
                 <Image src={props.metadata?.img || ""} fill alt={`Guide for ${props.label}`} className="absolute object-contain h-full w-full" />
-                {!!props.metadata?.review && !props.hasLiveProject && (
+                {!!props.metadata?.review && (
                   <RequestSizingTemplateViewCard className="absolute top-0" title={props?.label || ""} review={props?.metadata?.review || ""} />
                 )}
               </div>

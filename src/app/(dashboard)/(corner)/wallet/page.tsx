@@ -47,7 +47,7 @@ const WithdrawalPage = () => {
   const { mutate: connectStripeAccount, isPending: isLinkingStripe } = useConnectStripeAccount({
     onSuccess: (data) => {
       if (data.data.data.onboardingUrl) {
-        window.open(data.data.data.onboardingUrl, "_blank");
+        window.location.href = data.data.data.onboardingUrl;
       }
     },
   });

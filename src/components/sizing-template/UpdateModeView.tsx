@@ -64,9 +64,16 @@ const UpdateModeView = ({
   );
 
   // Filter template to show requested points with emphasis on those needing update
-  const filteredTemplate = template.filter((item) =>
-    requestedMeasurementPoints.includes(item.prop)
-  );
+  const filteredTemplate = template
+    .filter((item) => requestedMeasurementPoints.includes(item.prop))
+    .sort((a, b) => {
+      // Prioritize fields with reviews to appear at the top
+      const aHasReview = !!reviews[a.prop as keyof ReviewsMap];
+      const bHasReview = !!reviews[b.prop as keyof ReviewsMap];
+      if (aHasReview && !bHasReview) return -1;
+      if (!aHasReview && bHasReview) return 1;
+      return 0;
+    });
 
   // Sync with current values when they change
   useEffect(() => {
@@ -189,7 +196,7 @@ const UpdateModeView = ({
                   const hasReview = fieldsWithReviews.includes(point.prop);
                   const isMissingValue = fieldsWithMissingValues.includes(point.prop);
                   const canEdit = hasReview || isMissingValue;
-                  const isFilledReview = hasReview && numericValue > 0;
+                  // const isFilledReview = hasReview && numericValue > 0;
 
                   return (
                     <div
@@ -203,9 +210,11 @@ const UpdateModeView = ({
                           "flex flex-1 items-center justify-between p-3 rounded-lg border transition-all duration-200 cursor-pointer animate-in fade-in slide-in-from-left-2",
                           isHighlighted
                             ? "bg-primary border-primary shadow-sm scale-[1.01]"
-                            : canEdit
-                              ? "bg-error-50 border-error-300 hover:border-error-400"
-                              : "bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm"
+                            : hasReview
+                              ? "bg-white border-error-500 hover:border-error-600 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]" // Red border for reviews
+                              : canEdit
+                                ? "bg-white border-error-300 hover:border-error-400"
+                                : "bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm"
                         )}
                       >
                         <div className="flex items-center gap-2">
@@ -214,11 +223,7 @@ const UpdateModeView = ({
                               "text-sm font-medium transition-colors",
                               isHighlighted
                                 ? "text-white"
-                                : isFilledReview
-                                  ? "text-green-600"
-                                  : canEdit
-                                    ? "text-error-800"
-                                    : "text-foreground-body"
+                                : "text-foreground-body"
                             )}
                           >
                             {point.name}
@@ -236,16 +241,13 @@ const UpdateModeView = ({
                             value={numericValue || ""}
                             onChange={handleChange(point.prop)}
                             onKeyDown={(event) => handleKeyPress(index, event)}
-                            onClick={(event) => event.stopPropagation()}
                             placeholder="0"
                             disabled={!canEdit}
                             className={cn(
                               "w-20 text-right text-sm rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-primary/50",
                               isHighlighted
                                 ? "bg-white/10 text-white placeholder:text-white/50"
-                                : canEdit
-                                  ? "bg-white text-foreground-body border border-error-300"
-                                  : "bg-gray-100 text-muted-foreground cursor-not-allowed"
+                                : "bg-white text-foreground-body border-none"
                             )}
                           />
                           <span
@@ -260,9 +262,9 @@ const UpdateModeView = ({
                       </div>
 
                       {hasReview && (
-                        <div className="border border-error-300 p-2 min-w- rounded-lg transition-all flex items-center gap-2 animate-in fade-in slide-in-from-right-2 duration-300 bg-error/10" onClick={(e) => e.stopPropagation()}>
-                          <button className="size-8 rounded-full bg-error/10 flex items-center justify-center hover:bg-error/10 transition-all duration-200 hover:scale-110">
-                            <MessageCirclePlus className="size-4 text-error-400" />
+                        <div className="border border-error-300 p-2 min-w- rounded-lg transition-all flex items-center gap-2 animate-in fade-in slide-in-from-right-2 duration-300 bg-white" onClick={(e) => e.stopPropagation()}>
+                          <button className="size-8 rounded-full bg-error-50 flex items-center justify-center transition-all duration-200 hover:scale-110">
+                            <MessageCirclePlus className="size-4 text-error-500" />
                           </button>
                         </div>
                       )}
@@ -279,7 +281,7 @@ const UpdateModeView = ({
                   loading={isUpdating}
                   className="w-full"
                 >
-                  Save Updates
+                  Submit Changes
                 </Button>
               </div>
             </div>
@@ -305,14 +307,14 @@ const UpdateModeView = ({
               )} */}
 
               {/* Desktop Actions */}
-              <div className="hidden lg:block mt-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="hidden lg:flex justify-end gap-2 -mt-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <Button
                   onClick={handleSubmit}
                   disabled={isUpdating || (fieldsWithReviews.length === 0 && fieldsWithMissingValues.length === 0)}
                   loading={isUpdating}
-                  className="w-full hover:scale-[1.02] transition-transform"
+                  className=" hover:scale-[1.02] transition-transform rounded-md bg-primary-600"
                 >
-                  Save Updates
+                  Submit Changes
                 </Button>
               </div>
             </div>

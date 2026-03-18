@@ -9,90 +9,89 @@ import { uuidToBase62Safe } from "@/lib/uuid";
 import { useSession } from "next-auth/react";
 
 type NotificationCardProps = {
-  id: string;
-  senderProfileUrl?: string | null;
-  senderName: string;
-  createdAt: Date | string;
-  isRead?: boolean;
-  message: string;
-  metadata?: UmojaLinnNotification["metadata"];
-  onClick?: React.ComponentProps<"button">["onClick"];
+	id: string;
+	senderProfileUrl?: string | null;
+	senderName: string;
+	createdAt: Date | string;
+	isRead?: boolean;
+	message: string;
+	metadata?: UmojaLinnNotification["metadata"];
+	onClick?: React.ComponentProps<"button">["onClick"];
 };
 
 const getActions = (
-  metadata: UmojaLinnNotification["metadata"],
-  role: UmojaLinnUserRole,
-  message: UmojaLinnNotification["message"],
+	metadata: UmojaLinnNotification["metadata"],
+	role: UmojaLinnUserRole,
+	message: UmojaLinnNotification["message"],
 ): ButtonProps[] | undefined => {
-  const isMessage = message.includes("message");
-  const keys = Object.keys(metadata || {});
-  if (keys.includes("projectId")) {
-    let projectHref: string;
-    if (metadata?.bidId) {
-      projectHref = `/bids/${uuidToBase62Safe(metadata?.bidId)}${
-        role === "BUYER" ? "" : "/edit"
-      }`;
-    } else {
-      switch (metadata?.projectStatus) {
-        case "ADS":
-          projectHref =
-				role === 'BUYER'
-					? `/ads/${uuidToBase62Safe(metadata?.projectId || '')}`
-					: `/jobs/${uuidToBase62Safe(metadata?.projectId || '')}`;
-          break;
-        case "COMPLETED":
-          projectHref = `/completed-jobs/${uuidToBase62Safe(
-            metadata?.projectId || "",
-          )}`;
-          break;
-        case "DRAFT":
-          projectHref = `/drafts/${uuidToBase62Safe(
-            metadata?.projectId || "",
-          )}`;
-          break;
-        case "LIVE":
-        default: {
-          const projectPath = role === 'BUYER' ? 'projects' : 'active-jobs';
-          const projectId = uuidToBase62Safe(metadata?.projectId || '');
-          const chatSuffix = isMessage ? '/chat' : '';
-        
-          projectHref = `/${projectPath}/${projectId}${chatSuffix}`;
-          break;
-        }
-      }
-    }
-    return [
-		{
-			children: metadata?.bidId
-				? 'View Bid'
-				: isMessage
-          ? 'View Chat'
-          : role !== 'BUYER'
-            ? 'View Job'
-            : 'View Project',
-			href: projectHref,
-			variant: 'outline',
-		},
-	];
-  }
+	const isMessage = message.includes("message");
+	const keys = Object.keys(metadata || {});
+	if (keys.includes("projectId")) {
+		let projectHref: string;
+		if (metadata?.bidId) {
+			projectHref = `/bids/${uuidToBase62Safe(metadata?.bidId)}${role === "BUYER" ? "" : "/edit"
+				}`;
+		} else {
+			switch (metadata?.projectStatus) {
+				case "ADS":
+					projectHref =
+						role === 'BUYER'
+							? `/ads/${uuidToBase62Safe(metadata?.projectId || '')}`
+							: `/jobs/${uuidToBase62Safe(metadata?.projectId || '')}`;
+					break;
+				case "COMPLETED":
+					projectHref = `/completed-jobs/${uuidToBase62Safe(
+						metadata?.projectId || "",
+					)}`;
+					break;
+				case "DRAFT":
+					projectHref = `/drafts/${uuidToBase62Safe(
+						metadata?.projectId || "",
+					)}`;
+					break;
+				case "LIVE":
+				default: {
+					const projectPath = role === 'BUYER' ? 'projects' : 'active-jobs';
+					const projectId = uuidToBase62Safe(metadata?.projectId || '');
+					const chatSuffix = isMessage ? '/chat' : '';
+
+					projectHref = `/${projectPath}/${projectId}${chatSuffix}`;
+					break;
+				}
+			}
+		}
+		return [
+			{
+				children: metadata?.bidId
+					? 'View Bid'
+					: isMessage
+						? 'View Chat'
+						: role !== 'BUYER'
+							? 'View Job'
+							: 'View Project',
+				href: projectHref,
+				variant: 'outline',
+			},
+		];
+	}
 };
 
 const NotificationCard = (props: NotificationCardProps) => {
-  const {
-    message,
-    senderName,
-    metadata,
-    createdAt,
-    isRead,
-    senderProfileUrl,
-    id,
-    onClick,
-  } = props;
+	const {
+		message,
+		senderName,
+		metadata,
+		createdAt,
+		isRead,
+		senderProfileUrl,
+		id,
+		onClick,
+	} = props;
 
-  const { mutate: markNotificationRead } = useMarkNotificationAsRead();
-  const { data: session } = useSession();
+	const { mutate: markNotificationRead } = useMarkNotificationAsRead();
+	const { data: session } = useSession();
 
-  return (
+	return (
 		<button
 			className="flex flex-col gap-2 relative text-foreground-body p-2 py-3 transition hover:bg-gray-100"
 			onClick={(e) => {
@@ -117,13 +116,13 @@ const NotificationCard = (props: NotificationCardProps) => {
 					</div>
 					<p>
 						<NotificationMessage
-              message={message || ""}
+							message={message || ""}
 							content={metadata || {}}
-							// options={{
-							//   projectName: {
-							//     className: "text-primary font-semibold",
-							//   },
-							// }}
+						// options={{
+						//   projectName: {
+						//     className: "text-primary font-semibold",
+						//   },
+						// }}
 						/>
 					</p>
 				</div>
@@ -153,7 +152,7 @@ const NotificationCard = (props: NotificationCardProps) => {
 				<span className="size-2 bg-success absolute top-2 right-2 rounded-full" />
 			)}
 		</button>
-  );
+	);
 };
 
 export default NotificationCard;

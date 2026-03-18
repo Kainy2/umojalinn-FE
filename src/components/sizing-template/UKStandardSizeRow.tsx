@@ -14,8 +14,9 @@ interface UKStandardSizeRowProps {
   onShowChart: () => void;
   highlighted?: boolean;
   disabled?: boolean;
-  isDesigner?: boolean;
+  // isDesigner?: boolean;
   className?: string;
+
 }
 
 export function UKStandardSizeRow({
@@ -25,8 +26,9 @@ export function UKStandardSizeRow({
   onShowChart,
   highlighted = false,
   disabled = false,
-  isDesigner = false,
+  // isDesigner = false,
   className,
+
 }: UKStandardSizeRowProps) {
   const [isChartOpen, setIsChartOpen] = useState(false);
 
@@ -71,18 +73,19 @@ export function UKStandardSizeRow({
             <HelpCircle className="size-4" />
           </button>
         </div>
-        <div onClick={(e) => e.stopPropagation()}>
-          {!isDesigner && (
-            <UKSizeDropdown
-              gender={gender}
-              value={value}
-              onChange={onChange}
-              disabled={disabled}
-              className={cn(
-                highlighted && "bg-white/10 border-white/30 text-white"
-              )}
-            />
-          )}
+        <div onClick={(e) => e.stopPropagation()} className="text-foreground-body">
+
+          <UKSizeDropdown
+            gender={gender}
+            value={value}
+            onChange={onChange}
+            disabled={disabled}
+            className={cn(
+              highlighted && "bg-white/10 border-white/30 text-white"
+            )}
+          />
+
+
         </div>
       </div>
 

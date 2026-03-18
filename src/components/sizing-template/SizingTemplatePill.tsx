@@ -58,16 +58,14 @@ type SizingTemplatePillProps = {
 };
 
 type PillState =
-  | "NO_TEMPLATE"
   | "REQUEST_SIZING_TEMPLATE"
-  | "AWAITING_SIZING_TEMPLATE"
+  | "REQUEST_MEASUREMENT_POINTS"
+  | "MEASUREMENT_REQUESTED"
   | "ADD_TEMPLATE"
-  | "SELECT_MEASUREMENT_POINTS"
-  | "AWAITING_MEASUREMENT_FIELDS"
-  | "AWAITING_BUYER_MEASUREMENTS"
   | "ADD_REQUESTED_MEASUREMENTS"
   | "VIEW_TEMPLATE"
-  | "VIEW_SIZING_RECOMMENDATIONS" | "CHANGES_RECOMMENDED"
+  | "VIEW_SIZING_RECOMMENDATIONS"
+  | "CHANGES_RECOMMENDED"
   | "VIEW_PDF"
   | "UPDATED";
 
@@ -108,8 +106,10 @@ const SizingTemplatePill = ({
 
   // For non-bid contexts (like active projects), sizingTemplateRequested might be on the project level
   // If bid exists, use bid.sizingTemplateRequested, otherwise assume true if template exists or project is LIVE
+  const isProjectLive = project?.status === "LIVE"
+
   const sizingTemplateRequested = bid?.sizingTemplateRequested ??
-    (project?.status === "LIVE" || !!sizingTemplateId);
+    (isProjectLive || !!sizingTemplateId);
 
   const { data: templateData, refetch: refetchTemplate, isLoading: isLoadingTemplate } = useGetSizingTemplateById(
     sizingTemplateId || undefined,
@@ -228,52 +228,61 @@ const SizingTemplatePill = ({
     if (isLoadingTemplate || isLoadingBid || isLoadingProject || isLoadingProfile) return null;
 
     const hasDesignerRecommendations = sizingTemplate?.metadata?.reviews && !!Object.keys(sizingTemplate.metadata.reviews).length;
-    const hasRepliedRecommendations = sizingTemplate?.metadata?.reviews && Object.values(sizingTemplate.metadata.reviews).some(Boolean);
+    const hasRepliedRecommendations =
+      !sizingTemplate?.metadata?.reviews ||
+      Object.keys(sizingTemplate.metadata.reviews).length === 0;
 
-    // Check if the designer has viewed the latest updates
-    const lastViewedAt = typeof window !== "undefined" ? localStorage.getItem(`sizingTemplate_viewed_${sizingTemplateId}`) : null;
-    const isNewUpdate = sizingTemplate?.updatedAt && (!lastViewedAt || new Date(sizingTemplate.updatedAt) > new Date(lastViewedAt));
 
     if (isDesigner) {
-      // Designer states
-      if (!sizingTemplateId && !sizingTemplateRequested) return "REQUEST_SIZING_TEMPLATE";
-      if (!sizingTemplateId && sizingTemplateRequested) return "AWAITING_SIZING_TEMPLATE";
-      if (!requestedMeasurementPoints?.length) return "SELECT_MEASUREMENT_POINTS";
-      if (sizingTemplateId && requestedMeasurementPoints?.length && !submittedMeasurementPoints?.length) return "AWAITING_BUYER_MEASUREMENTS";
+      if (project?.sizingTemplatePdfUrl && project.status === "COMPLETED") return "VIEW_PDF";
 
-      // If buyer has replied to recommendations or submitted for the first time
-      if (sizingTemplateId && submittedMeasurementPoints?.length && isNewUpdate) return "UPDATED";
+      // 7. Buyer updates measurement points after changes recommended, but designer has not viewed them yet
+      if (sizingTemplateId && hasRepliedRecommendations) return "UPDATED";
 
-      // If there are unanswered recommendations
+      // 6. Designer requests changes to measurement points
       if (sizingTemplateId && hasDesignerRecommendations && !hasRepliedRecommendations) return "CHANGES_RECOMMENDED";
 
+      // 5. Template added AND measurement points filled
       if (sizingTemplateId && submittedMeasurementPoints?.length) return "VIEW_TEMPLATE";
-      if (project?.sizingTemplatePdfUrl && project.status === "COMPLETED") return "VIEW_PDF";
 
-      return "AWAITING_SIZING_TEMPLATE";
+      // 3 & 4. Template and measurement points requested but buyer has not added / filled them
+      if (requestedMeasurementPoints?.length && (!sizingTemplateId || !submittedMeasurementPoints?.length)) return "MEASUREMENT_REQUESTED";
+
+      // 2. Sizing template requested but measurement points not defined
+      if ((sizingTemplateRequested || sizingTemplateId) && !requestedMeasurementPoints?.length) return "REQUEST_MEASUREMENT_POINTS";
+
+      // 1. No sizing template attached
+      return "REQUEST_SIZING_TEMPLATE";
     } else {
-      // Buyer states
-      if (!sizingTemplateId) return "ADD_TEMPLATE";
-      if (sizingTemplateId && !requestedMeasurementPoints?.length) return "AWAITING_MEASUREMENT_FIELDS";
-
-      if (sizingTemplateId && hasDesignerRecommendations) return "VIEW_SIZING_RECOMMENDATIONS";
-
-      if (sizingTemplateId && requestedMeasurementPoints?.length && !submittedMeasurementPoints?.length)
-        return "ADD_REQUESTED_MEASUREMENTS";
-
-
-      if (sizingTemplateId && submittedMeasurementPoints?.length) return "VIEW_TEMPLATE";
       if (project?.sizingTemplatePdfUrl && project.status === "COMPLETED") return "VIEW_PDF";
-    }
 
-    return "NO_TEMPLATE";
+      if (!isProjectLive) {
+        if (sizingTemplateId) return "VIEW_TEMPLATE";
+        return "ADD_TEMPLATE";
+      }
+
+      // Live project
+      // 2. Designer recommended changes and buyer has not made them
+      if (sizingTemplateId && hasDesignerRecommendations && !hasRepliedRecommendations) return "VIEW_SIZING_RECOMMENDATIONS";
+
+      // 1. Designer requested measurement points and they are not filled
+      if (requestedMeasurementPoints?.length && (!sizingTemplateId || !submittedMeasurementPoints?.length)) return "ADD_REQUESTED_MEASUREMENTS";
+
+      // 3. Buyer completes requested measurements or changes
+      if (sizingTemplateId && submittedMeasurementPoints?.length) return "VIEW_TEMPLATE";
+
+      // Default for Buyer (should add template if no template attached)
+      if (!sizingTemplateId) return "ADD_TEMPLATE";
+
+      return "VIEW_TEMPLATE";
+    }
   };
 
   const pillState = getPillState();
-  console.log(pillState)
 
   // Handlers
   const handleSelectTemplate = (templateId: string) => {
+
     const fullTemplate = allTemplatesData?.data?.data?.find((t) => t.id === templateId);
     setSelectedTemplate(fullTemplate || ({ id: templateId } as UmojaLinnSizingTemplate));
     setIsCreatingNew(false);
@@ -369,14 +378,12 @@ const SizingTemplatePill = ({
   const navigateToRequestPage = () => {
     if (!project?.id) return;
 
+    const query = `?projectId=${uuidToBase62Safe(project.id)}`;
+
     if (sizingTemplateId) {
-      router.push(
-        `/sizing-templates/${uuidToBase62Safe(sizingTemplateId)}?projectId=${uuidToBase62Safe(project.id)}`
-      );
+      router.push(`/sizing-templates/${uuidToBase62Safe(sizingTemplateId)}${query}`);
     } else if (bid?.id) {
-      router.push(
-        `/sizing-templates/request/${uuidToBase62Safe(bid?.id)}`
-      );
+      router.push(`/sizing-templates/request/${uuidToBase62Safe(bid.id)}${query}`);
     }
   };
 
@@ -389,7 +396,7 @@ const SizingTemplatePill = ({
       requestSizingTemplate(project?.id)
     }
   }
-  console.log({ handleRequestTemplate });
+
 
 
   const navigateToViewPage = () => {
@@ -462,26 +469,12 @@ const SizingTemplatePill = ({
   // Render pill based on state
   const renderPill = () => {
     switch (pillState) {
-      case "NO_TEMPLATE":
-      // return (
-      //   <AvatarIconTag
-      //     label="No sizing template"
-      //     icon={
-      //       <span className="text-white [&>svg]:size-5 size-7 rounded-full bg-error flex items-center justify-center">
-      //         <CircleAlert />
-      //       </span>
-      //     }
-      //     disabled
-      //     className={className}
-      //   />
-      // );
-
-
       case "REQUEST_SIZING_TEMPLATE":
-        // Designer view - waiting for buyer to add template
         return (
           <div
-            onClick={handleRequestTemplate}
+            onClick={() => {
+              handleRequestTemplate();
+            }}
             className="cursor-pointer transition-transform hover:scale-[1.02]"
           >
             <AvatarIconTag
@@ -496,15 +489,16 @@ const SizingTemplatePill = ({
           </div>
         );
 
-      case "AWAITING_SIZING_TEMPLATE":
-        // Designer view - waiting for buyer to add template
+      case "REQUEST_MEASUREMENT_POINTS":
         return (
           <div
-            onClick={navigateToRequestPage}
+            onClick={() => {
+              navigateToRequestPage();
+            }}
             className="cursor-pointer transition-transform hover:scale-[1.02]"
           >
             <AvatarIconTag
-              label="Awaiting Sizing Template"
+              label="Request Measurement Points"
               icon={
                 <span className="text-white [&>svg]:size-4 size-7 rounded-full bg-red-500 flex items-center justify-center">
                   <Plus />
@@ -515,11 +509,32 @@ const SizingTemplatePill = ({
           </div>
         );
 
-      case "ADD_TEMPLATE":
-        // Buyer view - can add template
+      case "MEASUREMENT_REQUESTED":
         return (
           <div
-            onClick={() => setSelectModalOpen(true)}
+            onClick={() => {
+              navigateToViewPage();
+            }}
+            className="transition-transform opacity-50"
+          >
+            <AvatarIconTag
+              label="Measurement Requested"
+              icon={
+                <span className="text-white [&>svg]:size-5 size-7 rounded-full bg-gray-500 flex items-center justify-center ">
+                  <Plus />
+                </span>
+              }
+              className={cn("bg-gray-50 border border-green-500 border-dashed cursor-pointer", className)}
+            />
+          </div>
+        );
+
+      case "ADD_TEMPLATE":
+        return (
+          <div
+            onClick={() => {
+              setSelectModalOpen(true);
+            }}
             className="cursor-pointer transition-transform hover:scale-[1.02]"
           >
             <AvatarIconTag
@@ -534,66 +549,12 @@ const SizingTemplatePill = ({
           </div>
         );
 
-
-      case "SELECT_MEASUREMENT_POINTS":
-        // Designer view - need to select measurement points and request them from buyer
-        return (
-          <div
-            onClick={navigateToRequestPage}
-            className="cursor-pointer transition-transform hover:scale-[1.02]"
-          >
-            <AvatarIconTag
-              label="Request measurement points"
-              icon={
-                <span className="text-white [&>svg]:size-4 size-7 rounded-full bg-red-500 flex items-center justify-center">
-                  <Plus />
-                </span>
-              }
-              className={cn("bg-red-50 border border-red-500", className)}
-            />
-          </div>
-        );
-
-      // case "AWAITING_MEASUREMENT_FIELDS":
-      //   // Buyer view - waiting for designer to request measurement points
-      //   return renderReminderPopover(
-      //     <div className="cursor-pointer transition-transform hover:scale-[1.02]">
-      //       <AvatarIconTag
-      //         label="Awaiting Measurement Fields"
-      //         icon={
-      //           <span className="text-white [&>svg]:size-4 size-7 rounded-full bg-red-500 flex items-center justify-center">
-      //             <Bell />
-      //           </span>
-      //         }
-      //         className={cn("bg-red-50 border border-red-500", className)}
-      //       />
-      //     </div>
-      //   );
-
-      case "AWAITING_BUYER_MEASUREMENTS":
-        // Designer view - waiting for buyer to submit measurements
-        return (
-          <div
-            onClick={navigateToViewPage}
-            className="transition-transform opacity-50"
-          >
-            <AvatarIconTag
-              label="Measurement Requested"
-              icon={
-                <span className="text-white [&>svg]:size-5 size-7 rounded-full bg-gray-500 flex items-center justify-center ">
-                  <Plus />
-                </span>
-              }
-              className={cn("bg-gray-50 border border-gray-500 border-dashed  cursor-not-allowed", className)}
-            />
-          </div>
-        );
-
       case "ADD_REQUESTED_MEASUREMENTS":
-        // Buyer view - need to fill measurement values
         return (
           <div
-            onClick={handleFillMeasurementsClick}
+            onClick={() => {
+              handleFillMeasurementsClick();
+            }}
             className="cursor-pointer transition-transform hover:scale-[1.02]"
           >
             <AvatarIconTag
@@ -609,10 +570,11 @@ const SizingTemplatePill = ({
         );
 
       case "VIEW_SIZING_RECOMMENDATIONS":
-        // Buyer view - need to view sizing recommendations that designer sent after submitting measurements
         return (
           <div
-            onClick={navigateToViewSizingRecommendationsPage}
+            onClick={() => {
+              navigateToViewSizingRecommendationsPage();
+            }}
             className="cursor-pointer transition-transform hover:scale-[1.02]"
           >
             <AvatarIconTag
@@ -627,28 +589,17 @@ const SizingTemplatePill = ({
           </div>
         );
 
-      case "AWAITING_MEASUREMENT_FIELDS":
-      // Buyer view - waiting for designer to request measurement points
       case "VIEW_TEMPLATE":
-        // Template attached - View mode to open height and size modal
         return (
           <div
             className="cursor-pointer transition-transform hover:scale-[1.02]"
             onClick={() => {
               if (!project?.sizingTemplateId) return;
-              if (project.status === "ADS") {
-                handleSelectTemplate(project?.sizingTemplateId)
-                return
-              }
-
-              if (project.status === "LIVE") {
-                navigateToViewPage()
-                return
-              }
+              navigateToViewPage()
             }}
           >
             <AvatarIconTag
-              label="View sizing template"
+              label="View Sizing Template"
               icon={<CheckCircle className="text-success" />}
               disabled={!project?.sizingTemplateId}
             />
@@ -658,7 +609,9 @@ const SizingTemplatePill = ({
       case "VIEW_PDF":
         return (
           <div
-            onClick={downloadSizingTemplatePdf}
+            onClick={() => {
+              downloadSizingTemplatePdf();
+            }}
             className="cursor-pointer transition-transform hover:scale-[1.02]"
           >
             <AvatarIconTag
@@ -675,22 +628,14 @@ const SizingTemplatePill = ({
             className="cursor-pointer transition-transform hover:scale-[1.02]"
             onClick={() => {
               if (!project?.sizingTemplateId) return;
-              if (project.status === "ADS") {
-                handleSelectTemplate(project?.sizingTemplateId)
-                return
-              }
-
-              if (project.status === "LIVE") {
-                navigateToViewPage()
-                return
-              }
+              navigateToViewPage()
             }}
           >
             <AvatarIconTag
               label="Updated"
-              icon={<CheckCircle className="text-green-500" />}
+              icon={<CheckCircle className="text-red-500" />}
               disabled={!project?.sizingTemplateId}
-              className={cn("bg-green-50 border border-green-500 text-green-600", className)}
+              className={cn("bg-red-50 border border-red-500 text-red-600", className)}
             />
           </div>
         );
@@ -724,7 +669,6 @@ const SizingTemplatePill = ({
           </div>
         );
 
-
       default:
         return (
           <AvatarIconTag
@@ -734,6 +678,8 @@ const SizingTemplatePill = ({
         );
     }
   };
+
+
 
   return (
     <>

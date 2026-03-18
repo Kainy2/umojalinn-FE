@@ -166,23 +166,6 @@ const FillModeView = ({
                 />
               </div>
 
-              {/* Default Fields (read-only) */}
-              {/* <div className="flex flex-col gap-2 animate-in fade-in duration-300 delay-100">
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg text-sm">
-                  <span className="font-medium">UK Standard Size</span>
-                  {ukStandardSize && (
-                    <span className="text-muted-foreground">{ukStandardSize}</span>
-                  )}
-                </div>
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg text-sm">
-                  <span className="font-medium">Height</span>
-                  {height !== null && height !== undefined && (
-                    <span className="text-muted-foreground">
-                      {height} {unit}
-                    </span>
-                  )}
-                </div>
-              </div> */}
 
               {/* Requested Measurement Points */}
               <div className="flex flex-col gap-2">
@@ -228,7 +211,6 @@ const FillModeView = ({
                           value={numericValue || ""}
                           onChange={e => { console.log("val", e.target.value); handleChange(point.prop)(e) }}
                           onKeyDown={(event) => handleKeyPress(index, event)}
-                          onClick={(event) => event.stopPropagation()}
                           placeholder="0"
                           className={cn(
                             "w-20 text-right text-sm rounded-md p-2 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50",

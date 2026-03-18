@@ -28,7 +28,8 @@ export const StripeStatusModal = ({
     const { mutate, isPending } = useConnectStripeAccount({
         onSuccess: (data) => {
             if (data.data.data.onboardingUrl) {
-                window.open(data.data.data.onboardingUrl, "_blank");
+                window.location.href = data.data.data.onboardingUrl;
+
             }
         }
     });
