@@ -201,6 +201,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   const isEditable = !isInUse && (templateMode === TEMPLATE_MODE.EDIT || isCreatingNew);
   const canEditGender = isEditable && !isInUse;
   const isProjectLive = project?.status === "LIVE";
+  const isChangesUpdated = sizingTemplateResult?.isChangesUpdated;
   // const hasRepliedRecommendations =
   //   !sizingTemplateResult?.metadata?.reviews ||
   //   Object.keys(sizingTemplateResult.metadata.reviews).length === 0;
@@ -382,7 +383,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
 
                       // Only apply the styling if NOT in recommend mode (i.e in standard view mode)
                       const isPendingBuyerReply = !recommendationMode && hasReview;
-                      const isNewlyUpdated = !recommendationMode && !hasReview && isRequested;
+                      const isNewlyUpdated = !recommendationMode && !hasReview && isChangesUpdated;
 
 
 

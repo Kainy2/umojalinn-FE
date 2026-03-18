@@ -82,8 +82,11 @@ export const useSizingTemplateDialog = (
 
   const { isPending: loadingMe } = useGetMe();
   const { data: session } = useSession();
+  const searchParams = useSearchParams();
+  const viewParam = searchParams.get("view") === "true";
+
   const { data: sizingTemplateData, isPending: isLoadingSizingTemplate } =
-    useGetSizingTemplateById(props?.id);
+    useGetSizingTemplateById(props?.id, { view: viewParam });
     const {
       mutate: requestChangeOnSizingTemplate,
       isPending: isRequestingChangeOnSizingTemplate,
@@ -94,7 +97,6 @@ export const useSizingTemplateDialog = (
       },
     });
     const router = useRouter();
-    const searchParams = useSearchParams();
     const urlProjectId = searchParams.get("projectId");
     const sizingTemplateId = props.id;
     const sizingTemplateResult = sizingTemplateData?.data.data;

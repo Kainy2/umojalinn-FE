@@ -260,6 +260,7 @@ export type UmojaLinnSizingTemplate = {
   submittedMeasurementPoints?: string[];
   lastReminderSentAt?: string;
   lastReminderSentBy?: string;
+  isChangesUpdated?: boolean;
   metadata?: {
     reviews?: Record<
       keyof (UmojaLinnMaleSizingTemplateProps &

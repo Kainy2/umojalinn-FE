@@ -91,6 +91,7 @@ export const getBuyerSizingTemplateById = async (
 
 export const getDesignerSizingTemplateById = async (
   id: string,
+  view?: boolean,
   options?: ServerActionOption
 ) => {
   let axios = clientAxios;
@@ -100,7 +101,7 @@ export const getDesignerSizingTemplateById = async (
   return axios.get<
     unknown,
     AxiosResponse<SingleApiResponse<UmojaLinnSizingTemplate>>
-  >(`/sizing-template/designer/${base62ToUuidSafe(id)}`);
+  >(`/sizing-template/designer/${base62ToUuidSafe(id)}${view ? "?view=true" : ""}`);
 };
 
 export const requestChangeOnSizingTemplate = async (
