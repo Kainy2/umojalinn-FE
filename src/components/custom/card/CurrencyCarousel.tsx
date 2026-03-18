@@ -46,10 +46,10 @@ export const CurrencyCarousel = ({ children }: ICurrencyCarouselProps) => {
         }
 
         if (target) {
-            target.scrollIntoView({
+            const scrollLeft = target.offsetLeft - (container.clientWidth / 2) + (target.clientWidth / 2);
+            container.scrollTo({
+                left: scrollLeft,
                 behavior: "smooth",
-                block: "nearest",
-                inline: "nearest",
             });
         }
     };
