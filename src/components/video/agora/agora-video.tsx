@@ -42,7 +42,53 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
   const [isVideoMuted, setIsVideoMuted] = useState(false);
   const [isInitializing, setIsInitializing] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null); // Blocking errors (mic)
+  const [cameraWarning, setCameraWarning] = useState<string | null>(null); // Non-blocking warnings
+
+  // Helper function to get user-friendly error messages
+  const getDeviceErrorMessage = (
+    error: Error,
+    deviceType: 'camera' | 'microphone'
+  ): string => {
+    const errorName = error.name;
+    const errorMessage = error.message;
+
+    const isNotAllowed = errorName === 'NotAllowedError' ||
+                         errorMessage.includes('NotAllowedError') ||
+                         errorMessage.includes('Permission denied');
+
+    const isNotFound = errorName === 'NotFoundError' ||
+                       errorMessage.includes('NotFoundError') ||
+                       errorMessage.includes('not found');
+
+    const isNotReadable = errorName === 'NotReadableError' ||
+                          errorMessage.includes('NotReadableError') ||
+                          errorMessage.includes('already in use');
+
+    if (deviceType === 'camera') {
+      if (isNotAllowed) {
+        return "Camera access denied. You'll join with audio only. To enable camera, click the camera icon in your browser's address bar.";
+      }
+      if (isNotFound) {
+        return "No camera detected. You'll join with audio only.";
+      }
+      if (isNotReadable) {
+        return "Camera is in use by another application. You'll join with audio only.";
+      }
+      return "Camera unavailable. You'll join with audio only.";
+    } else {
+      if (isNotAllowed) {
+        return "Microphone access denied. Please click the camera icon in your browser's address bar and allow microphone access, then try again.";
+      }
+      if (isNotFound) {
+        return "No microphone detected. Please connect a microphone and refresh the page.";
+      }
+      if (isNotReadable) {
+        return "Your microphone is currently in use by another application. Please close other apps (like Zoom, Teams, or Skype) and try again.";
+      }
+      return "Unable to access your microphone. Please check your device settings and try again.";
+    }
+  };
 
   // Initialize Agora client and local tracks on mount
   useEffect(() => {
@@ -50,6 +96,7 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
       try {
         setIsInitializing(true);
         setError(null);
+        setCameraWarning(null);
 
         // Create Agora client
         const agoraClient = AgoraRTC.createClient({
@@ -58,29 +105,46 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
         });
         setClient(agoraClient);
 
-        // Get local tracks (camera and microphone)
-        const [videoTrack, audioTrack] = await Promise.all([
-          AgoraRTC.createCameraVideoTrack(),
-          AgoraRTC.createMicrophoneAudioTrack(),
-        ]);
+        // Initialize camera track (non-blocking)
+        let videoTrack: ICameraVideoTrack | null = null;
+        try {
+          videoTrack = await AgoraRTC.createCameraVideoTrack();
+          setLocalVideoTrack(videoTrack);
+          videoTrack.play("local-video-preview");
+          console.log("Camera initialized successfully");
+        } catch (cameraError) {
+          console.warn("Camera initialization failed:", cameraError);
+          const cameraErrorMessage = getDeviceErrorMessage(cameraError as Error, 'camera');
+          setCameraWarning(cameraErrorMessage);
+          // Don't throw - allow user to continue with audio only
+        }
 
-        setLocalVideoTrack(videoTrack);
-        setLocalAudioTrack(audioTrack);
+        // Initialize microphone track (blocking)
+        let audioTrack: IMicrophoneAudioTrack | null = null;
+        try {
+          audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+          setLocalAudioTrack(audioTrack);
+          console.log("Microphone initialized successfully");
+        } catch (micError) {
+          console.error("Microphone initialization failed:", micError);
+          const micErrorMessage = getDeviceErrorMessage(micError as Error, 'microphone');
+          setError(micErrorMessage);
 
-        // Play local video in waiting room
-        videoTrack.play("local-video-preview");
+          // Clean up camera track if it was initialized
+          if (videoTrack) {
+            videoTrack.stop();
+            videoTrack.close();
+            setLocalVideoTrack(null);
+          }
+
+          setIsInitializing(false);
+          return; // Block initialization
+        }
 
         setIsInitializing(false);
       } catch (err) {
         console.error("Failed to initialize Agora:", err);
-        const error = err as Error;
-        if (error.message.includes("NotAllowedError")) {
-          setError("Camera/microphone access denied. Please enable permissions.");
-        } else if (error.message.includes("NotFoundError")) {
-          setError("No camera/microphone found.");
-        } else {
-          setError("Failed to initialize. Please try again.");
-        }
+        setError("Failed to initialize video call. Please refresh and try again.");
         setIsInitializing(false);
       }
     };
@@ -102,6 +166,33 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
       }
     };
   }, []);
+
+  // Retry camera initialization
+  const retryCamera = async () => {
+    if (!client) return;
+
+    setCameraWarning(null);
+
+    try {
+      const videoTrack = await AgoraRTC.createCameraVideoTrack();
+      setLocalVideoTrack(videoTrack);
+
+      if (isInCall) {
+        videoTrack.play("local-video-call");
+        if (client) {
+          await client.publish([videoTrack]);
+        }
+      } else {
+        videoTrack.play("local-video-preview");
+      }
+
+      console.log("Camera retry successful");
+    } catch (cameraError) {
+      console.warn("Camera retry failed:", cameraError);
+      const cameraErrorMessage = getDeviceErrorMessage(cameraError as Error, 'camera');
+      setCameraWarning(cameraErrorMessage);
+    }
+  };
 
   // Setup Agora event listeners when client is ready
   useEffect(() => {
@@ -198,9 +289,14 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
 
   // Join call handler
   const handleJoinCall = async () => {
-    if (!client || !localVideoTrack || !localAudioTrack) {
-      setError("Tracks not ready. Please try again.");
+    // Only audio track is required - video is optional
+    if (!client || !localAudioTrack) {
+      setError("Audio is required to join the call. Please check your microphone and try again.");
       return;
+    }
+
+    if (!localVideoTrack) {
+      console.log("Joining call without video track (audio-only mode)");
     }
 
     setIsJoining(true);
@@ -235,8 +331,27 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
         await localAudioTrack.setEnabled(true);
       }
 
-      // Publish local tracks (must be enabled)
-      await client.publish([localVideoTrack, localAudioTrack]);
+      // Build array of available tracks
+      const tracksToPublish: (ICameraVideoTrack | IMicrophoneAudioTrack)[] = [];
+
+      if (localAudioTrack) {
+        tracksToPublish.push(localAudioTrack);
+      }
+
+      if (localVideoTrack) {
+        tracksToPublish.push(localVideoTrack);
+      }
+
+      // Publish only available tracks
+      if (tracksToPublish.length > 0) {
+        await client.publish(tracksToPublish);
+        console.log(`Published ${tracksToPublish.length} track(s)`);
+      } else {
+        console.error("No tracks available to publish");
+        setError("Unable to publish media. Please refresh and try again.");
+        setIsJoining(false);
+        return;
+      }
 
       // Re-apply user's mute preferences if they had muted in waiting room
       // Use setMuted() for in-call muting (keeps track active but stops transmission)
@@ -403,8 +518,9 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
                     onClick={toggleVideoMute}
                     disabled={!localVideoTrack}
                     className="rounded-full"
+                    title={!localVideoTrack ? "Camera unavailable" : "Toggle camera"}
                   >
-                    {isVideoMuted ? <VideoOff className="h-5 w-5" /> : <VideoIcon className="h-5 w-5" />}
+                    {isVideoMuted || !localVideoTrack ? <VideoOff className="h-5 w-5" /> : <VideoIcon className="h-5 w-5" />}
                   </Button>
                 </div>
 
@@ -430,7 +546,7 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
                 {isInitializing && (
                   <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                     <div className="text-white text-center">
-                      <div className="mb-2">Initializing camera...</div>
+                      <div className="mb-2">Initializing devices...</div>
                     </div>
                   </div>
                 )}
@@ -438,6 +554,27 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
 
               {/* RIGHT: Join Call Section with User Info */}
               <div className="flex flex-col gap-6 p-8 bg-background border border-border rounded-lg">
+                {/* Camera Warning Banner */}
+                {cameraWarning && !isInCall && (
+                  <div className="mb-4 bg-warning-50 border border-warning-200 rounded-lg p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-warning-800 mb-1">Camera Unavailable</h3>
+                        <p className="text-sm text-warning-700">{cameraWarning}</p>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={retryCamera}
+                        disabled={isJoining}
+                        className="ml-4"
+                      >
+                        Retry Camera
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
                 {/* User Info */}
                 <div className="flex flex-col items-center gap-4">
                   <Avatar className="h-20 w-20">
@@ -469,7 +606,7 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
                   size="lg"
                   variant="default"
                   onClick={handleJoinCall}
-                  disabled={!localVideoTrack || !localAudioTrack || isInitializing || isJoining}
+                  disabled={!localAudioTrack || isInitializing || isJoining}
                   loading={isJoining}
                   fullWidth
                 >
@@ -561,9 +698,11 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
               size="icon"
               variant={isVideoMuted ? "destructive" : "secondary"}
               onClick={toggleVideoMute}
+              disabled={!localVideoTrack}
               className="rounded-full h-12 w-12"
+              title={!localVideoTrack ? "Camera unavailable" : "Toggle camera"}
             >
-              {isVideoMuted ? <VideoOff className="h-5 w-5" /> : <VideoIcon className="h-5 w-5" />}
+              {isVideoMuted || !localVideoTrack ? <VideoOff className="h-5 w-5" /> : <VideoIcon className="h-5 w-5" />}
             </Button>
 
             {/* Leave Call */}
