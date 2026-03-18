@@ -10,10 +10,12 @@ import AgoraRTC, {
   IRemoteVideoTrack,
   IRemoteAudioTrack
 } from "agora-rtc-sdk-ng";
-import { Mic, MicOff, Video as VideoIcon, VideoOff, PhoneMissed } from "lucide-react";
+import { Mic, MicOff, Video as VideoIcon, VideoOff, ArrowLeft, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { createAgoraConfig, validateAgoraConfig } from "./config";
+import ChatWindow from "@/section/dashboard/project/ChatWindow";
+import useClipboard from "@/hooks/useClipboard";
 import { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
 
 type AgoraVideoProps = {
@@ -366,7 +368,9 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
 
       // Stop video in preview container before transitioning
       try {
-        localVideoTrack.stop();
+        if (localVideoTrack) {
+          localVideoTrack.stop();
+        }
       } catch (err) {
         console.error("Failed to stop preview video:", err);
       }
@@ -470,6 +474,14 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
     if (!session?.user?.email) return "U";
     const email = session.user.email;
     return email.charAt(0).toUpperCase();
+  };
+
+  // Copy meeting link to clipboard
+  const { handleCopy } = useClipboard();
+
+  const handleCopyMeetingLink = () => {
+    const meetingUrl = `${process.env.NEXT_PUBLIC_WEB_URL}/video/${channelId}`;
+    handleCopy(meetingUrl);
   };
 
   return (
@@ -629,91 +641,185 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
 
       {/* Main Call View */}
       {isInCall && (
-        <div className="relative w-full h-[80vh] bg-background">
-          {/* Remote Users Grid */}
-          {remoteUsers.length > 0 ? (
-            <div className="absolute inset-0 grid grid-cols-1 md:grid-cols-2 gap-2 p-4">
-              {remoteUsers.map((user) => (
-                <div
-                  key={user.uid}
-                  id={`remote-video-${user.uid}`}
-                  className="relative h-full aspect-video bg-gray-900 rounded-lg overflow-hidden"
-                >
-                  {!user.videoTrack && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Avatar className="h-24 w-24">
-                        <AvatarFallback className="text-2xl">
-                          {String(user.uid).charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center bg-muted">
-              <div className="text-center">
-                <p className="text-lg font-semibold text-foreground mb-2">
-                  Waiting for others to join...
-                </p>
-                <p className="text-sm text-foreground-body">
-                  Share the call ID: <span className="font-mono">{channelId}</span>
-                </p>
-              </div>
-            </div>
-          )}
+        <div className="relative w-full h-[80vh] bg-background flex flex-col">
+          {/* Header Section */}
+          <div className="flex-none border-b border-border bg-background px-6 py-4">
+            <div className="flex items-center justify-between gap-4">
+              {/* Left: Back Button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => router.back()}
+                className="rounded-full"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
 
-          {/* Local Video - PiP */}
-          <div className="absolute bottom-24 right-10 w-[280px] h-[210px] rounded-lg overflow-hidden z-10 border-2 border-border bg-gray-900">
-            <div
-              id="local-video-call"
-              className="w-full h-full"
-              style={{ background: isVideoMuted ? "#000" : "transparent" }}
-            />
-            {isVideoMuted && (
-              <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
-                <Avatar className="h-16 w-16">
+              {/* Center: Avatars and Call Info */}
+              <div className="flex-1 flex items-center gap-3">
+                {/* Current User Avatar */}
+                <Avatar className="h-10 w-10 border-2 border-primary">
                   <AvatarImage src={session?.user?.profilePhotoUri || undefined} />
                   <AvatarFallback>{getUserInitials()}</AvatarFallback>
                 </Avatar>
+
+                {/* Remote Users Avatars (max 3 shown) */}
+                {remoteUsers.slice(0, 3).map((user, index) => (
+                  <Avatar
+                    key={user.uid}
+                    className="h-10 w-10 border-2 border-secondary"
+                    style={{ marginLeft: index > 0 ? '-8px' : '0' }}
+                  >
+                    <AvatarFallback>
+                      {String(user.uid).charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                ))}
+
+                {remoteUsers.length > 3 && (
+                  <div className="h-10 w-10 rounded-full bg-muted border-2 border-border flex items-center justify-center text-xs font-semibold ml-[-8px]">
+                    +{remoteUsers.length - 3}
+                  </div>
+                )}
               </div>
-            )}
+
+              {/* Right: Copy Meeting Link Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCopyMeetingLink}
+                className="hidden md:flex gap-2"
+              >
+                <Copy className="h-4 w-4" />
+                Copy Link
+              </Button>
+            </div>
           </div>
 
-          {/* Call Controls - Bottom Center */}
-          <div className="absolute left-1/2 bottom-10 -translate-x-1/2 flex gap-3 z-10">
-            {/* Audio Mute */}
-            <Button
-              size="icon"
-              variant={isAudioMuted ? "destructive" : "secondary"}
-              onClick={toggleAudioMute}
-              className="rounded-full h-12 w-12"
-            >
-              {isAudioMuted ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
-            </Button>
+          {/* Main Content Area */}
+          <div className="flex-1 flex flex-col lg:flex-row overflow-hidden gap-10">
+            {/* Video Section */}
+            <div className="relative flex-1 bg-background">
+              {/* Remote Users Grid */}
+              {remoteUsers.length > 0 ? (
+                <div className="absolute inset-0 grid grid-cols-1 md:grid-cols-2 gap-2 p-4">
+                  {remoteUsers.map((user) => (
+                    <div
+                      key={user.uid}
+                      id={`remote-video-${user.uid}`}
+                      className="relative h-full aspect-video bg-gray-900 rounded-lg overflow-hidden"
+                    >
+                      {!user.videoTrack && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Avatar className="h-24 w-24">
+                            <AvatarFallback className="text-2xl">
+                              {String(user.uid).charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center bg-muted">
+                  <div className="text-center">
+                    <p className="text-lg font-semibold text-foreground mb-2">
+                      Waiting for others to join...
+                    </p>
+                    <p className="text-sm text-foreground-body">
+                      Share the call ID: <span className="font-mono">{channelId}</span>
+                    </p>
+                  </div>
+                </div>
+              )}
 
-            {/* Video Mute */}
-            <Button
-              size="icon"
-              variant={isVideoMuted ? "destructive" : "secondary"}
-              onClick={toggleVideoMute}
-              disabled={!localVideoTrack}
-              className="rounded-full h-12 w-12"
-              title={!localVideoTrack ? "Camera unavailable" : "Toggle camera"}
-            >
-              {isVideoMuted || !localVideoTrack ? <VideoOff className="h-5 w-5" /> : <VideoIcon className="h-5 w-5" />}
-            </Button>
+              {/* Local Video - PiP (Bottom Left) */}
+              <div className="absolute bottom-32 left-6 w-[200px] lg:w-[280px] h-[150px] lg:h-[210px] rounded-lg overflow-hidden z-10 border-2 border-border bg-gray-900 shadow-lg">
+                <div
+                  id="local-video-call"
+                  className="w-full h-full"
+                  style={{ background: isVideoMuted ? "#000" : "transparent" }}
+                />
+                {isVideoMuted && (
+                  <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
+                    <Avatar className="h-16 w-16">
+                      <AvatarImage src={session?.user?.profilePhotoUri || undefined} />
+                      <AvatarFallback>{getUserInitials()}</AvatarFallback>
+                    </Avatar>
+                  </div>
+                )}
+              </div>
 
-            {/* Leave Call */}
-            <Button
-              size="icon"
-              variant="destructive"
-              onClick={handleLeaveCall}
-              className="rounded-full h-14 w-14"
-            >
-              <PhoneMissed className="h-6 w-6" />
-            </Button>
+              {/* Call Controls - Bottom Bar */}
+              <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 max-w-5xl w-[90%]">
+                <div
+                  className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0 px-4 md:px-8 py-4 md:py-5 rounded-3xl opacity-20"
+                  style={{ backgroundColor: '#1F1F1F30',}}
+                >
+                  {/* Left: End Meeting Button */}
+                  <button
+                    onClick={handleLeaveCall}
+                    className="flex items-center gap-3 px-6 py-3 rounded-full text-white font-semibold transition-opacity hover:opacity-90"
+                    style={{ backgroundColor: '#FF6B6B' }}
+                  >
+                    <ArrowLeft className="h-5 w-5" />
+                    <span>End Meeting</span>
+                  </button>
+
+                  {/* Center: Media Controls */}
+                  <div className="flex items-center gap-3">
+                    {/* Microphone Button */}
+                    <button
+                      onClick={toggleAudioMute}
+                      className="rounded-full h-14 w-14 flex items-center justify-center transition-colors"
+                      style={{
+                        backgroundColor: isAudioMuted ? '#EF4444' : 'white',
+                        color: isAudioMuted ? 'white' : 'black'
+                      }}
+                      title={isAudioMuted ? "Unmute microphone" : "Mute microphone"}
+                    >
+                      {isAudioMuted ? <MicOff className="h-6 w-6" /> : <Mic className="h-6 w-6" />}
+                    </button>
+
+                    {/* Video Button */}
+                    <button
+                      onClick={toggleVideoMute}
+                      disabled={!localVideoTrack}
+                      className="rounded-full h-14 w-14 flex items-center justify-center transition-colors disabled:cursor-not-allowed"
+                      style={{
+                        backgroundColor: isVideoMuted || !localVideoTrack ? '#EF4444' : '#F59E0B',
+                        color: 'white',
+                        opacity: !localVideoTrack ? 0.5 : 1
+                      }}
+                      title={!localVideoTrack ? "Camera unavailable" : isVideoMuted ? "Turn on camera" : "Turn off camera"}
+                    >
+                      {isVideoMuted || !localVideoTrack ? <VideoOff className="h-6 w-6" /> : <VideoIcon className="h-6 w-6" />}
+                    </button>
+                  </div>
+
+                  {/* Right: Call ID with Copy */}
+                  <button
+                    onClick={handleCopyMeetingLink}
+                    className="flex items-center gap-3 px-5 py-3 rounded-full font-mono text-sm transition-opacity hover:opacity-80"
+                    style={{ backgroundColor: '#E5E7EB', color: '#1F2937' }}
+                    title="Copy meeting link"
+                  >
+                    <span className="hidden sm:inline">{channelId}</span>
+                    <span className="sm:hidden">{channelId.substring(0, 12)}...</span>
+                    <Copy className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Chat Panel */}
+            <div className="w-full lg:w-[400px] pl-10 lg:flex-none border-t lg:border-t-0 lg:border-l border-border bg-background">
+              <ChatWindow
+                projectId={channelId}
+                className="h-full max-h-none"
+              />
+            </div>
           </div>
         </div>
       )}
