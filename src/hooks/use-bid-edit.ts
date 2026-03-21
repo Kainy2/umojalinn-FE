@@ -13,6 +13,9 @@ import {
 } from "@/tanstack/hooks/useBid";
 import { UmojaLinnDeliveryMethod } from "@/types/project";
 import { EDeliveryMileStoneType } from "@/types/enum";
+import { SingleApiResponse } from "@/types/util";
+import { UmojaLinnSubmitBidResponse } from "@/types/project";
+import { AxiosResponse } from "axios";
 
 
 const MILESTONE_TEMPLATE = {
@@ -39,6 +42,11 @@ const { id } = useParams<{ id: string }>();
     useState<UmojaLinnDeliveryMethod | null>(null);
   const [selectedDeliveryMethodType, setSelectedDeliveryMethodType] = 
   useState<EDeliveryMileStoneType>(EDeliveryMileStoneType.FIXED);
+  const [showStripeModal, setShowStripeModal] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState<UmojaLinnSubmitBidResponse>({
+    paymentAccountConnected: false,
+    paymentAccountOnboarded: false,
+  });
 
   // const { data: meData } = useGetMe();
 
@@ -109,7 +117,16 @@ const { id } = useParams<{ id: string }>();
 
   // Called after last update
   const { mutate: submitBid, isPending: isSubmittingBid } = useSubmitBid(id, {
-    onSuccess() {
+    onSuccess(data: AxiosResponse<SingleApiResponse<UmojaLinnSubmitBidResponse>>) {
+      const { paymentAccountConnected, paymentAccountOnboarded } =
+        data.data.data || {};
+
+      if (!paymentAccountConnected || !paymentAccountOnboarded) {
+        setPaymentStatus({ paymentAccountConnected, paymentAccountOnboarded });
+        setShowStripeModal(true);
+        return;
+      }
+
       toast({
         title: "Bid Live",
         description: "Your bid has been published successfully.",
@@ -289,6 +306,9 @@ const { id } = useParams<{ id: string }>();
     isPendingUpdateBid,
     isPendingCreateBid,
     selectedDeliveryMethodType, 
-    setSelectedDeliveryMethodType
+    setSelectedDeliveryMethodType,
+    showStripeModal,
+    setShowStripeModal,
+    paymentStatus,
 	}
 }

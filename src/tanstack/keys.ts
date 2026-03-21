@@ -15,4 +15,5 @@ export const USER = "USER";
 export const ME = "ME";
 export const NOTIFICATION = "NOTIFICATION";
 export const PAYMENT_ACCOUNT_INFO = "PAYMENT_ACCOUNT_INFO";
+export const APP_CONFIG = "APP_CONFIG";
 
