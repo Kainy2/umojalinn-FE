@@ -36,15 +36,7 @@ type SizingTemplatePageProps = Omit<SizingTemplateDialogProps, "children"> & {
 };
 
 const SizingTemplatePage = (props: SizingTemplatePageProps) => {
-  // const router = useRouter();
-  // const searchParams = useSearchParams();
-  // const urlProjectId = searchParams.get("projectId");
-  // const sizingTemplateId = props.id;
-  // const effectiveProjectId = props.projectId || urlProjectId || undefined;
 
-  // // Fetch project data if we have a project ID
-  // const { data: projectData } = useGetProjectById(effectiveProjectId);
-  // const project = projectData?.data?.data;
 
 
 
@@ -87,7 +79,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     // New mode-related exports
     templateMode,
     requestedMeasurementPoints,
-    // submittedMeasurementPoints,
+    submittedMeasurementPoints,
     hasRequestedPoints,
     hasSubmittedPoints,
     // hasReviews,
@@ -378,12 +370,9 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                       const isRequested = requestedMeasurementPoints.includes(item.prop);
                       const hasReview = !!sizingTemplateResult?.metadata?.reviews?.[item.prop];
 
-                      // const hasDesignerRecommendations = sizingTemplateResult?.metadata?.reviews && !!Object.keys(sizingTemplateResult.metadata.reviews).length;
-                      // const hasRepliedRecommendations = !sizingTemplateResult?.metadata?.reviews || Object.keys(sizingTemplateResult.metadata.reviews).length === 0;
 
-                      // Only apply the styling if NOT in recommend mode (i.e in standard view mode)
                       const isPendingBuyerReply = !recommendationMode && hasReview;
-                      const isNewlyUpdated = !recommendationMode && !hasReview && isChangesUpdated;
+                      const isNewlyUpdated = !recommendationMode && !hasReview && isChangesUpdated && submittedMeasurementPoints.includes(item.prop);
 
 
 
