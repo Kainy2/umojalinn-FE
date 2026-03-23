@@ -83,7 +83,7 @@ const WalletCard = (props: IWalletCardProps) => {
       case "ONBOARDING_STARTED": return "Complete setup";
       case "ACTION_REQUIRED": return "Action required";
       case "BANK_DETAILS_MISSING": return "Add Account";
-      case "RESTRICTED": return "Resolve restrictions";
+      case "RESTRICTED": return "Link Account";
       default: return "Link Account";
     }
   };

@@ -132,6 +132,7 @@ export const getBuyerStatus = (
 		template?.metadata?.reviews &&
 		!!Object.keys(template.metadata.reviews).length;
 
+
 	// Priority 1: Designer has recommended changes
 	if (hasReviews) {
 		return "CHANGES_RECOMMENDED";
@@ -160,7 +161,6 @@ export const getBuyerStatus = (
  */
 export const getDesignerStatus = (
 	template: UmojaLinnSizingTemplate,
-	isViewed: boolean = true
 ): DesignerStatusType => {
 	const requestedMeasurementPoints =
 		template?.requestedMeasurementPoints || [];
@@ -172,6 +172,7 @@ export const getDesignerStatus = (
 	const hasRepliedRecommendations =
 		template?.metadata?.reviews &&
 		Object.values(template.metadata.reviews).some((review) => review);
+	const isChangesUpdated = template?.isChangesUpdated;
 
 	// Priority 1: Template is in use but no measurement points requested yet
 	if (
@@ -192,7 +193,7 @@ export const getDesignerStatus = (
 
 	// Priority 3: Check for new updates or unanswered recommendations
 	if (template?.status === "IN_USE") {
-		if (hasRepliedRecommendations && !isViewed) {
+		if (hasRepliedRecommendations && isChangesUpdated) {
 			return "UPDATED";
 		}
 
@@ -218,16 +219,10 @@ interface TemplateStatusPillProps {
  * Shows different status indicators based on user role (buyer/designer) and template state
  */
 const TemplateStatusPill = ({ template, isBuyer, inUse, projectInUse }: TemplateStatusPillProps) => {
-	// Check viewed status in local storage for designers
-	const isViewed = React.useMemo(() => {
-		if (isBuyer || typeof window === "undefined") return true;
-		const lastViewedAt = localStorage.getItem(`sizingTemplate_viewed_${template.id}`);
-		return !!(template.updatedAt && lastViewedAt && new Date(lastViewedAt) >= new Date(template.updatedAt));
-	}, [template.id, template.updatedAt, isBuyer]);
 
 	const status = isBuyer
 		? getBuyerStatus(template)
-		: getDesignerStatus(template, isViewed);
+		: getDesignerStatus(template);
 
 	// Instead of early returning null when status is null, we check if it's in use first.
 	if (!status || !BUYER_STATUS_CONFIG[status as NonNullable<BuyerStatusType>] && !DESIGNER_STATUS_CONFIG[status as NonNullable<DesignerStatusType>]) {
