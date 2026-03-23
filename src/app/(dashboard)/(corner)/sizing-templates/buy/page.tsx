@@ -14,13 +14,15 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { usePurchaseSizingTemplate } from "@/tanstack/hooks/useSizingTemplates";
+import { useGetAppConfig } from "@/tanstack/hooks/useUser";
 
 const BuyTemplatesPage = () => {
     const router = useRouter();
+    const { data: appConfig } = useGetAppConfig();
     const [selectedCurrency, setSelectedCurrency] = useState("euro");
     const [templateCount, setTemplateCount] = useState("1");
 
-    const BASE_PRICE_EUR = 5.99;
+    const BASE_PRICE_EUR = appConfig?.data?.data?.defaultTemplatePriceInEuro || 5.99;
 
 
     const pricePerTemplateInEuro = BASE_PRICE_EUR;

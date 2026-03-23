@@ -113,7 +113,7 @@ const SizingTemplatePill = ({
 
   const { data: templateData, refetch: refetchTemplate, isLoading: isLoadingTemplate } = useGetSizingTemplateById(
     sizingTemplateId || undefined,
-    { enabled: !!sizingTemplateId }
+    { enabled: !!sizingTemplateId, view: false }
   );
   const { data: allTemplatesData } = useGetAllSizingTemplates();
 
@@ -225,6 +225,7 @@ const SizingTemplatePill = ({
     const requestedMeasurementPoints = sizingTemplate?.requestedMeasurementPoints || bid?.requestedMeasurementPoints;
     const submittedMeasurementPoints = sizingTemplate?.submittedMeasurementPoints
 
+
     if (isLoadingTemplate || isLoadingBid || isLoadingProject || isLoadingProfile) return null;
 
     const hasDesignerRecommendations = sizingTemplate?.metadata?.reviews && !!Object.keys(sizingTemplate.metadata.reviews).length;
@@ -232,12 +233,12 @@ const SizingTemplatePill = ({
       !sizingTemplate?.metadata?.reviews ||
       Object.keys(sizingTemplate.metadata.reviews).length === 0;
 
-
     if (isDesigner) {
       if (project?.sizingTemplatePdfUrl && project.status === "COMPLETED") return "VIEW_PDF";
 
       // 7. Buyer updates measurement points after changes recommended, but designer has not viewed them yet
-      if (sizingTemplateId && hasRepliedRecommendations) return "UPDATED";
+      if (sizingTemplateId && hasRepliedRecommendations && sizingTemplate?.isChangesUpdated)
+        return "UPDATED";
 
       // 6. Designer requests changes to measurement points
       if (sizingTemplateId && hasDesignerRecommendations && !hasRepliedRecommendations) return "CHANGES_RECOMMENDED";
@@ -399,10 +400,10 @@ const SizingTemplatePill = ({
 
 
 
-  const navigateToViewPage = () => {
+  const navigateToViewPage = (view?: boolean) => {
     if (sizingTemplateId && project?.id) {
       router.push(
-        `/sizing-templates/${uuidToBase62Safe(sizingTemplateId)}?projectId=${uuidToBase62Safe(project.id)}`
+        `/sizing-templates/${uuidToBase62Safe(sizingTemplateId)}?projectId=${uuidToBase62Safe(project.id)}${view ? "&view=true" : ""}`
       );
     }
   };
@@ -513,9 +514,9 @@ const SizingTemplatePill = ({
         return (
           <div
             onClick={() => {
-              navigateToViewPage();
+              navigateToRequestPage();
             }}
-            className="transition-transform opacity-50"
+            className="transition-transform "
           >
             <AvatarIconTag
               label="Measurement Requested"
@@ -524,7 +525,7 @@ const SizingTemplatePill = ({
                   <Plus />
                 </span>
               }
-              className={cn("bg-gray-50 border border-green-500 border-dashed cursor-pointer", className)}
+              className={cn("border border-green-500 border-dashed cursor-pointer", className)}
             />
           </div>
         );
@@ -628,7 +629,7 @@ const SizingTemplatePill = ({
             className="cursor-pointer transition-transform hover:scale-[1.02]"
             onClick={() => {
               if (!project?.sizingTemplateId) return;
-              navigateToViewPage()
+              navigateToViewPage(true)
             }}
           >
             <AvatarIconTag

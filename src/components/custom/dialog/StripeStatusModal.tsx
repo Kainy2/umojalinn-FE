@@ -10,32 +10,49 @@ import {
 import { Button } from "@/components/ui/button";
 import { Landmark } from "lucide-react";
 import { UmojaLinnCurrency } from "@/types/project";
+import { useRouter } from "next/navigation";
 import { useConnectStripeAccount } from "@/tanstack/hooks/useProject";
 
 interface StripeStatusModalProps {
     currency: UmojaLinnCurrency;
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    paymentAccountConnected?: boolean;
+    paymentAccountOnboarded?: boolean;
 }
 
 export const StripeStatusModal = ({
     currency,
     open,
     onOpenChange,
+    paymentAccountConnected,
+    paymentAccountOnboarded,
 }: StripeStatusModalProps) => {
-
+    const router = useRouter();
 
     const { mutate, isPending } = useConnectStripeAccount({
         onSuccess: (data) => {
             if (data.data.data.onboardingUrl) {
                 window.location.href = data.data.data.onboardingUrl;
-
             }
         }
     });
 
+    const isNaira = currency === "NAIRA";
 
+    let title = `${currency} payout setup incomplete`;
+    let description = `You can accept ${currency} projects, but funds will be held securely until you add a ${currency}-receiving account.`;
+    let buttonText = isNaira ? "Add Account" : "Continue Stripe Setup";
 
+    if (isNaira) {
+        title = "Add a bank account to accept Naira projects";
+        description = "To receive Naira payments, you must connect a bank account";
+        buttonText = "Add Account";
+    } else if (!paymentAccountConnected && !paymentAccountOnboarded) {
+        title = `Connect Stripe to receive ${currency} projects`;
+        description = `To receive ${currency} payments, you must connect a Stripe account`;
+        buttonText = "Connect Stripe";
+    }
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -46,23 +63,29 @@ export const StripeStatusModal = ({
                     </div>
                     <div className="space-y-2">
                         <DialogTitle className="text-[18px] font-semibold">
-                            {currency} payout setup incomplete
+                            {title}
                         </DialogTitle>
-                        <DialogDescription className="text-left">
-                            You can accept {currency} projects, but funds will be held securely
-                            until you add a {currency}-receiving account
-                        </DialogDescription>
+                        {description && (
+                            <DialogDescription className="text-left">
+                                {description}
+                            </DialogDescription>
+                        )}
                     </div>
                 </DialogHeader>
                 <DialogFooter className="sm:justify-start w-full mt-4">
                     <Button
                         type="button"
                         className="w-full bg-[#EAAA08] text-white font-semibold text-[18px]"
-                        onClick={() => mutate()}
+                        onClick={() => {
+                            if (isNaira) {
+                                router.push("/wallet/withdraw/naira");
+                            } else {
+                                mutate();
+                            }
+                        }}
                         disabled={isPending}
                     >
-                        {/* <Image src='/stripe.png' width={100} height={100} alt='stripe' /> */}
-                        {isPending ? "Redirecting..." : "Continue Stripe Setup"}
+                        {isPending ? "Redirecting..." : buttonText}
                     </Button>
                 </DialogFooter>
             </DialogContent>

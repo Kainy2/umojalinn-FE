@@ -186,6 +186,10 @@ export type UmojaLinnBid = {
     deliveryMileStoneType: EDeliveryMileStoneType;
   } & UmojaLinnTimestamp;
 };
+export type UmojaLinnSubmitBidResponse = {
+  paymentAccountConnected: boolean;
+  paymentAccountOnboarded: boolean;
+}
 
 export type UmojaLinnMaleSizingTemplateProps = {
   neck: number | null;
@@ -260,6 +264,7 @@ export type UmojaLinnSizingTemplate = {
   submittedMeasurementPoints?: string[];
   lastReminderSentAt?: string;
   lastReminderSentBy?: string;
+  isChangesUpdated?: boolean;
   metadata?: {
     reviews?: Record<
       keyof (UmojaLinnMaleSizingTemplateProps &

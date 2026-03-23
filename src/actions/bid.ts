@@ -14,6 +14,7 @@ import {
   SingleApiResponse,
 } from "@/types/util";
 import { AxiosResponse } from "axios";
+import { UmojaLinnSubmitBidResponse } from "@/types/project";
 
 export const createBid = async (
   projectId: string,
@@ -200,7 +201,7 @@ export const submitBid = async (id: string, options?: ServerActionOption) => {
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
-  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+  return axios.post<unknown, AxiosResponse<SingleApiResponse<UmojaLinnSubmitBidResponse>>>(
     `/project/submit-bid/${base62ToUuidSafe(id)}`
   );
 };

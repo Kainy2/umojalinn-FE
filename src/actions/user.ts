@@ -10,6 +10,17 @@ import {
   SingleApiResponse,
 } from "@/types/util";
 import { AxiosResponse } from "axios";
+import { TAppConfig } from "@/types/app-config";
+
+export const getAppConfig = async (options?: ServerActionOption) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.get<unknown, AxiosResponse<SingleApiResponse<TAppConfig>>>(
+    "/user/app-config",
+  );
+};
 
 export const getMe = async (options?: ServerActionOption) => {
   let axios = clientAxios;

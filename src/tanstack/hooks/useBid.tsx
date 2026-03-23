@@ -30,6 +30,8 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { BID, BUYER, DESIGNER, MILESTONE, PROJECT } from "../keys";
 import { EDeliveryMileStoneType } from "@/types/enum";
+import { UmojaLinnSubmitBidResponse } from "@/types/project";
+
 
 export const useCreateBid = (
   options?: GenericUseMutationProps<SingleApiResponse<UmojaLinnBid>, string>
@@ -55,8 +57,8 @@ export const useGetDesignerBids = (
     limit: number;
     bidStatus: UmojaLinnBid["status"] | Array<UmojaLinnBid["status"]>;
     projectStatus:
-      | UmojaLinnProject["status"]
-      | Array<UmojaLinnProject["status"]>;
+    | UmojaLinnProject["status"]
+    | Array<UmojaLinnProject["status"]>;
   }>,
   options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnBid>>
 ) => {
@@ -75,8 +77,8 @@ export const useGetBuyerBids = (
     limit: number;
     bidStatus: UmojaLinnBid["status"] | Array<UmojaLinnBid["status"]>;
     projectStatus:
-      | UmojaLinnProject["status"]
-      | Array<UmojaLinnProject["status"]>;
+    | UmojaLinnProject["status"]
+    | Array<UmojaLinnProject["status"]>;
   }>,
   options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnBid>>
 ) => {
@@ -235,7 +237,7 @@ export const useApproveOrRejectVariableDeliveryMilestone = (
   const { handleError } = useHandleError("Update Bid");
   return useMutation({
     ...options,
-    mutationFn: (variables) => 
+    mutationFn: (variables) =>
       approveOrRejectVariableDeliveryMilestone(id, variables),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: [BID] });
@@ -262,7 +264,7 @@ export const useAddVariableDeliveryMilestone = (
   const { handleError } = useHandleError("Create Milestone");
   return useMutation({
     ...options,
-    mutationFn: (payload) => 
+    mutationFn: (payload) =>
       addVariableDeliveryMilestone(bidId, payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: [BID] });
@@ -279,7 +281,7 @@ export const useAddVariableDeliveryMilestone = (
 
 export const useSubmitBid = (
   id: string,
-  options?: GenericUseMutationProps<SingleApiResponse>
+  options?: GenericUseMutationProps<SingleApiResponse<UmojaLinnSubmitBidResponse>>
 ) => {
   const { handleError } = useHandleError("Submit Bid");
   return useMutation({

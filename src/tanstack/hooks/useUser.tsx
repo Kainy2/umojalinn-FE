@@ -7,11 +7,12 @@ import {
   updateNotificationSettings,
   updateUserDetails,
   verifyWalletPassword,
+  getAppConfig,
 } from "@/actions/user";
 import { queryClient } from "@/components/provider/TanstackQueryClient";
 import {
-  GenericUseMutationProps,
   GenericUseQueryProps,
+  GenericUseMutationProps,
 } from "@/types/tanstack";
 import { UmojaLinnNotification, UmojaLinnUser } from "@/types/user";
 import { ArrayApiResponse, SingleApiResponse } from "@/types/util";
@@ -19,11 +20,24 @@ import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
-import { ME, NOTIFICATION, USER } from "../keys";
+import { APP_CONFIG, ME, NOTIFICATION, USER } from "../keys";
 import { getNotifications, markAllNotificationsAsRead, markNotificationAsRead } from "@/actions/project";
 import useHandleError from "@/hooks/useHandleError";
 import { NotificationSettingsProps, PasswordUpdateProps } from "@/types/form";
 import { logOut } from "@/lib/auth";
+import { TAppConfig } from "@/types/app-config";
+
+export const useGetAppConfig = (
+  options?: GenericUseQueryProps<SingleApiResponse<TAppConfig>>,
+) => {
+  const { data: me } = useSession();
+  return useQuery({
+    ...options,
+    enabled: !!me?.user && options?.enabled !== false,
+    queryKey: [USER, APP_CONFIG],
+    queryFn: () => getAppConfig(),
+  });
+};
 
 export const useGetMe = (
   options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnUser>>,

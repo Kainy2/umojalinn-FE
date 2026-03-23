@@ -143,17 +143,21 @@ export const useGetAllDesignerSizingTemplates = (
 
 export const useGetSizingTemplateById = (
   id?: string,
-  options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnSizingTemplate>>
+  options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnSizingTemplate>> & {
+    view?: boolean;
+  }
 ) => {
   const { data: me } = useSession();
+  const { view, ...queryOptions } = options || {};
+
   return useQuery({
-    ...options,
-    enabled: !!me?.user && !!id && options?.enabled !== false,
-    queryKey: [SIZING_TEMPLATE, id],
+    ...queryOptions,
+    enabled: !!me?.user && !!id && queryOptions.enabled !== false,
+    queryKey: [SIZING_TEMPLATE, id, view],
     queryFn: () =>
-      (me?.user?.profileRole === "BUYER"
-        ? getBuyerSizingTemplateById
-        : getDesignerSizingTemplateById)(id || ""),
+      me?.user?.profileRole === "BUYER"
+        ? getBuyerSizingTemplateById(id || "")
+        : getDesignerSizingTemplateById(id || "", view),
   });
 };
 
