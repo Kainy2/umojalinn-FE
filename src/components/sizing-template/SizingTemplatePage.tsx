@@ -473,7 +473,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl">
         {/* Banners */}
-        {!hasRequestedPoints && (effectiveProjectId) && (
+        {!hasRequestedPoints && isProjectLive && (effectiveProjectId) && (
           <ReminderBanner
             message="Designer has not sent the measurement points"
             onSendReminder={handleSendReminder}
