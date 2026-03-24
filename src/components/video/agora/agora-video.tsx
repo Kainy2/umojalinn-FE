@@ -16,6 +16,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { createAgoraConfig, validateAgoraConfig } from "./config";
 import ChatWindow from "@/section/dashboard/project/ChatWindow";
 import useClipboard from "@/hooks/useClipboard";
+import { useGetProjectById } from "@/tanstack/hooks/useProject";
+import { useGetMe } from "@/tanstack/hooks/useUser";
 import { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
 
 type AgoraVideoProps = {
@@ -46,6 +48,39 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
   const [isJoining, setIsJoining] = useState(false);
   const [error, setError] = useState<string | null>(null); // Blocking errors (mic)
   const [cameraWarning, setCameraWarning] = useState<string | null>(null); // Non-blocking warnings
+
+  // Fetch project data to get other participant info
+  const { data: projectData } = useGetProjectById(channelId);
+  const project = projectData?.data?.data;
+
+  // Get current user data (same pattern as topbar)
+  const { data: meData } = useGetMe();
+  const me = meData?.data?.data;
+
+  // Determine other participant
+  const currentUserId = session?.user?.id;
+  const isCurrentUserBuyer = currentUserId === project?.buyerId;
+  const otherParticipant = isCurrentUserBuyer
+    ? project?.designer?.user
+    : project?.buyer?.user;
+
+  // Participant info for waiting screen
+  const participantName = otherParticipant
+    ? `${otherParticipant.firstName} ${otherParticipant.lastName}`
+    : "User";
+  const participantAvatar = otherParticipant?.profilePhotoUri;
+
+  // Set CSS variable for topbar height
+  useEffect(() => {
+    const topbar = document.querySelector('[data-topbar]') || document.querySelector('header');
+    if (topbar) {
+      const height = topbar.getBoundingClientRect().height;
+      document.documentElement.style.setProperty('--topbar-height', `${height}px`);
+    } else {
+      // Fallback if topbar not found
+      document.documentElement.style.setProperty('--topbar-height', '64px');
+    }
+  }, []);
 
   // Helper function to get user-friendly error messages
   const getDeviceErrorMessage = (
@@ -469,13 +504,6 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
     }
   };
 
-  // Get user initials for avatar fallback
-  const getUserInitials = () => {
-    if (!session?.user?.email) return "U";
-    const email = session.user.email;
-    return email.charAt(0).toUpperCase();
-  };
-
   // Copy meeting link to clipboard
   const { handleCopy } = useClipboard();
 
@@ -488,90 +516,107 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
     <>
       {/* Waiting Room */}
       {!isInCall && (
-        <div className="min-h-screen bg-background p-6 flex items-center justify-center">
-          <div className="w-full max-w-6xl">
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr,400px] gap-8 items-center">
-              {/* LEFT: Video Preview */}
-              <div className="relative w-full aspect-video bg-muted rounded-lg overflow-hidden">
-                {/* Video container */}
-                <div
-                  id="local-video-preview"
-                  className="w-full h-full"
-                  style={{ background: isVideoMuted ? "#000" : "transparent" }}
-                />
+        <div
+          className="w-full bg-background flex items-center justify-center"
+          style={{ height: 'calc(100vh - 100px)' }}
+        >
+          <div className="w-full max-w-6xl mx-auto px-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* LEFT PANEL: Camera Preview */}
+              <div className="bg-muted col-span-2 rounded-3xl overflow-hidden flex flex-col">
+                {/* Video Preview Area */}
+                <div className="relative flex-1 min-h-[400px] lg:min-h-[500px]">
+                  {/* Video container */}
+                  <div
+                    id="local-video-preview"
+                    className="w-full h-full"
+                    style={{ background: isVideoMuted ? "#000" : "transparent" }}
+                  />
 
-                {/* Video muted overlay */}
-                {isVideoMuted && (
-                  <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
-                    <Avatar className="h-24 w-24">
-                      <AvatarImage src={session?.user?.profilePhotoUri || undefined} />
-                      <AvatarFallback className="text-2xl">
-                        {getUserInitials()}
-                      </AvatarFallback>
-                    </Avatar>
-                  </div>
-                )}
+                  {/* Video muted overlay - show user avatar */}
+                  {isVideoMuted && (
+                    <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
+                      <Avatar className="h-32 w-32">
+                        <AvatarImage
+                          className="object-cover"
+                          src={me?.profilePhotoUri || ""}
+                          alt={me?.firstName}
+                        />
+                        <AvatarFallback className="text-4xl">
+                          {me?.firstName?.[0]?.toLocaleUpperCase?.()}
+                          {me?.lastName?.[0]?.toLocaleUpperCase?.()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </div>
+                  )}
 
-                {/* Floating Mute Controls */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-                  <Button
-                    size="icon"
-                    variant={isAudioMuted ? "destructive" : "secondary"}
-                    onClick={toggleAudioMute}
-                    disabled={!localAudioTrack}
-                    className="rounded-full"
-                  >
-                    {isAudioMuted ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
-                  </Button>
-
-                  <Button
-                    size="icon"
-                    variant={isVideoMuted ? "destructive" : "secondary"}
-                    onClick={toggleVideoMute}
-                    disabled={!localVideoTrack}
-                    className="rounded-full"
-                    title={!localVideoTrack ? "Camera unavailable" : "Toggle camera"}
-                  >
-                    {isVideoMuted || !localVideoTrack ? <VideoOff className="h-5 w-5" /> : <VideoIcon className="h-5 w-5" />}
-                  </Button>
-                </div>
-
-                {/* Error Overlay */}
-                {error && (
-                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center p-6">
-                    <div className="bg-background rounded-lg p-6 max-w-md text-center">
-                      <h3 className="text-lg font-semibold text-destructive mb-2">Error</h3>
-                      <p className="text-sm text-foreground-body mb-4">{error}</p>
-                      <div className="flex gap-2 justify-center">
-                        <Button variant="outline" onClick={() => router.back()}>
-                          Go Back
-                        </Button>
-                        <Button variant="default" onClick={() => window.location.reload()}>
-                          Try Again
-                        </Button>
+                  {/* Error Overlay */}
+                  {error && (
+                    <div className="absolute inset-0 bg-black/80 flex items-center justify-center p-6">
+                      <div className="bg-background rounded-lg p-6 max-w-md text-center">
+                        <h3 className="text-lg font-semibold text-destructive mb-2">Error</h3>
+                        <p className="text-sm text-foreground-body mb-4">{error}</p>
+                        <div className="flex gap-2 justify-center">
+                          <Button variant="outline" onClick={() => router.back()}>
+                            Go Back
+                          </Button>
+                          <Button variant="default" onClick={() => window && window.location.reload()}>
+                            Try Again
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* Loading Overlay */}
-                {isInitializing && (
-                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                    <div className="text-white text-center">
-                      <div className="mb-2">Initializing devices...</div>
+                  {/* Loading Overlay */}
+                  {isInitializing && (
+                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                      <div className="text-white text-center">
+                        <div className="mb-2">Initializing devices...</div>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
 
-              {/* RIGHT: Join Call Section with User Info */}
-              <div className="flex flex-col gap-6 p-8 bg-background border border-border rounded-lg">
-                {/* Camera Warning Banner */}
-                {cameraWarning && !isInCall && (
-                  <div className="mb-4 bg-warning-50 border border-warning-200 rounded-lg p-4">
+                {/* Control Buttons at Bottom */}
+                <div className="flex items-center justify-center gap-4 p-3 bg-background/5">
+                  {/* Video Toggle */}
+                  <button
+                    onClick={toggleVideoMute}
+                    disabled={!localVideoTrack}
+                    className="rounded-full h-12 w-12 flex items-center justify-center transition-colors"
+                    style={{
+                      backgroundColor: isVideoMuted || !localVideoTrack ? '#E7A808' : '#FFFFFF',
+                      color: isVideoMuted || !localVideoTrack ? '#FFFFFF' : '#000000',
+                      opacity: !localVideoTrack ? 0.5 : 1
+                    }}
+                    title={!localVideoTrack ? "Camera unavailable" : isVideoMuted ? "Turn on camera" : "Turn off camera"}
+                  >
+                    {isVideoMuted || !localVideoTrack ? <VideoOff className="h-6 w-6" /> : <VideoIcon className="h-6 w-6" />}
+                  </button>
+
+                  {/* Audio Toggle */}
+                  <button
+                    onClick={toggleAudioMute}
+                    disabled={!localAudioTrack}
+                    className="rounded-full h-12 w-12 flex items-center justify-center transition-colors"
+                    style={{
+                      backgroundColor: isAudioMuted ? '#E7A808' : '#FFFFFF',
+                      color: isAudioMuted ? '#FFFFFF' : '#000000'
+                      // backgroundColor: isAudioMuted ? '#6B7280' : '#FFFFFF',
+                      // color: isAudioMuted ? '#FFFFFF' : '#000000'
+                    }}
+                    title={isAudioMuted ? "Unmute microphone" : "Mute microphone"}
+                  >
+                    {isAudioMuted ? <MicOff className="h-6 w-6" /> : <Mic className="h-6 w-6" />}
+                  </button>
+                </div>
+
+                {/* Camera Warning Banner (if exists) */}
+                {cameraWarning && (
+                  <div className="mx-4 mb-4 bg-warning-50 border border-warning-200 rounded-lg p-3">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <h3 className="font-semibold text-warning-800 mb-1">Camera Unavailable</h3>
                         <p className="text-sm text-warning-700">{cameraWarning}</p>
                       </div>
                       <Button
@@ -581,58 +626,57 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
                         disabled={isJoining}
                         className="ml-4"
                       >
-                        Retry Camera
+                        Retry
                       </Button>
                     </div>
                   </div>
                 )}
+              </div>
 
-                {/* User Info */}
-                <div className="flex flex-col items-center gap-4">
-                  <Avatar className="h-20 w-20">
-                    <AvatarImage src={session?.user?.profilePhotoUri || undefined} />
-                    <AvatarFallback className="text-2xl">
-                      {getUserInitials()}
-                    </AvatarFallback>
-                  </Avatar>
+              {/* RIGHT PANEL: Participant Info */}
+              <div className="bg-muted rounded-3xl flex flex-col items-center justify-center p-8 min-h-[400px] lg:min-h-[500px]">
+                {/* Participant Avatar */}
+                <Avatar className="h-32 w-32 mb-6">
+                  <AvatarImage src={participantAvatar || undefined} />
+                  <AvatarFallback className="text-4xl">
+                    {otherParticipant?.firstName?.charAt(0).toUpperCase() || "U"}
+                  </AvatarFallback>
+                </Avatar>
 
-                  <div className="text-center">
-                    <h2 className="text-lg font-semibold text-foreground">
-                      {session?.user?.email || "Guest User"}
-                    </h2>
-                    <p className="text-sm text-foreground-body">
-                      Ready to join the call
-                    </p>
-                  </div>
-                </div>
+                {/* Participant Name */}
+                <h2 className="text-lg font-bold text-foreground mb-2 text-center">
+                  {participantName}
+                </h2>
 
-                {/* Call Info */}
-                <div className="text-center">
-                  <p className="text-sm text-foreground-body">
-                    Call ID: <span className="font-mono text-xs">{channelId}</span>
-                  </p>
-                </div>
+                {/* Ready to call text */}
+                <p className="text-foreground-body mb-8">Ready to call?</p>
 
-                {/* Action Buttons */}
+                {/* Start Call Button */}
                 <Button
                   size="lg"
                   variant="default"
                   onClick={handleJoinCall}
                   disabled={!localAudioTrack || isInitializing || isJoining}
                   loading={isJoining}
-                  fullWidth
+                  className="rounded-full px-8"
                 >
-                  {isJoining ? 'Joining...' : 'Join Call'}
+                  {isJoining ? 'Starting...' : 'Start Call'}
                 </Button>
 
+                {/* Cancel Button */}
                 <Button
                   size="lg"
-                  variant="outline"
+                  variant="ghost"
                   onClick={() => router.back()}
-                  fullWidth
+                  className="mt-4"
                 >
                   Cancel
                 </Button>
+
+                {/* Call ID (small text at bottom) */}
+                <p className="text-xs text-foreground-body mt-8">
+                  Call ID: <span className="font-mono">{channelId}</span>
+                </p>
               </div>
             </div>
           </div>
@@ -641,7 +685,10 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
 
       {/* Main Call View */}
       {isInCall && (
-        <div className="relative w-full h-[80vh] bg-background flex flex-col">
+        <div
+          className="relative w-full bg-background flex flex-col"
+          style={{ height: 'calc(100vh - 150px)' }}
+        >
           {/* Header Section */}
           <div className="flex-none border-b border-border bg-background px-6 py-4">
             <div className="flex items-center justify-between gap-4">
@@ -659,8 +706,15 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
               <div className="flex-1 flex items-center gap-3">
                 {/* Current User Avatar */}
                 <Avatar className="h-10 w-10 border-2 border-primary">
-                  <AvatarImage src={session?.user?.profilePhotoUri || undefined} />
-                  <AvatarFallback>{getUserInitials()}</AvatarFallback>
+                  <AvatarImage
+                    className="object-cover"
+                    src={me?.profilePhotoUri || ""}
+                    alt={me?.firstName}
+                  />
+                  <AvatarFallback>
+                    {me?.firstName?.[0]?.toLocaleUpperCase?.()}
+                    {me?.lastName?.[0]?.toLocaleUpperCase?.()}
+                  </AvatarFallback>
                 </Avatar>
 
                 {/* Remote Users Avatars (max 3 shown) */}
@@ -697,17 +751,18 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
           </div>
 
           {/* Main Content Area */}
-          <div className="flex-1 flex flex-col lg:flex-row overflow-hidden gap-10">
+          <div className="flex-1 flex flex-col lg:flex-row overflow-hidden p-2">
             {/* Video Section */}
             <div className="relative flex-1 bg-background">
               {/* Remote Users Grid */}
               {remoteUsers.length > 0 ? (
-                <div className="absolute inset-0 grid grid-cols-1 md:grid-cols-2 gap-2 p-4">
+                <div className="absolute inset-0 grid grid-cols-1 gap-2 p-4 z-0">
                   {remoteUsers.map((user) => (
                     <div
                       key={user.uid}
                       id={`remote-video-${user.uid}`}
-                      className="relative h-full aspect-video bg-gray-900 rounded-lg overflow-hidden"
+                      className="relative w-full h-full bg-gray-900 rounded-lg overflow-hidden"
+                      style={{ aspectRatio: '16/9', objectFit: 'cover' }}
                     >
                       {!user.videoTrack && (
                         <div className="absolute inset-0 flex items-center justify-center">
@@ -735,7 +790,7 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
               )}
 
               {/* Local Video - PiP (Bottom Left) */}
-              <div className="absolute bottom-32 left-6 w-[200px] lg:w-[280px] h-[150px] lg:h-[210px] rounded-lg overflow-hidden z-10 border-2 border-border bg-gray-900 shadow-lg">
+              <div className="absolute bottom-36 left-6 w-[200px] h-[150px] rounded-lg overflow-hidden z-10 border-2 border-border bg-gray-900 shadow-lg">
                 <div
                   id="local-video-call"
                   className="w-full h-full"
@@ -744,8 +799,15 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
                 {isVideoMuted && (
                   <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
                     <Avatar className="h-16 w-16">
-                      <AvatarImage src={session?.user?.profilePhotoUri || undefined} />
-                      <AvatarFallback>{getUserInitials()}</AvatarFallback>
+                      <AvatarImage
+                        className="object-cover"
+                        src={me?.profilePhotoUri || ""}
+                        alt={me?.firstName}
+                      />
+                      <AvatarFallback>
+                        {me?.firstName?.[0]?.toLocaleUpperCase?.()}
+                        {me?.lastName?.[0]?.toLocaleUpperCase?.()}
+                      </AvatarFallback>
                     </Avatar>
                   </div>
                 )}
@@ -754,8 +816,8 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
               {/* Call Controls - Bottom Bar */}
               <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 max-w-5xl w-[90%]">
                 <div
-                  className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0 px-4 md:px-8 py-4 md:py-5 rounded-3xl opacity-20"
-                  style={{ backgroundColor: '#1F1F1F30',}}
+                  className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0 px-4 md:px-8 py-4 md:py-5 rounded-3xl"
+                  style={{ backgroundColor: '#1F1F1F60' }}
                 >
                   {/* Left: End Meeting Button */}
                   <button
@@ -814,7 +876,7 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
             </div>
 
             {/* Chat Panel */}
-            <div className="w-full lg:w-[400px] pl-10 lg:flex-none border-t lg:border-t-0 lg:border-l border-border bg-background">
+            <div className="w-full lg:w-[400px] lg:flex-none border-t lg:border-t-0 lg:border-l border-border bg-background">
               <ChatWindow
                 projectId={channelId}
                 className="h-full max-h-none"
