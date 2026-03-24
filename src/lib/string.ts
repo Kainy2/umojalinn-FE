@@ -18,7 +18,7 @@ export function getCurrencySymbol(currency?: UmojaLinnCurrency | null) {
     case "GBP":
       return "£";
     case "CAD":
-      return "$";
+      return "C$";
     default:
       return currency;
   }
