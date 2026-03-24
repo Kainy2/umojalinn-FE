@@ -274,10 +274,11 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   }
 
   // UPDATE MODE - Buyer updates fields with recommendations
-  if (templateMode === TEMPLATE_MODE.UPDATE && sizingTemplateResult?.id) {
+  if (templateMode === TEMPLATE_MODE.UPDATE && sizingTemplateResult?.id && effectiveProjectId) {
     return (
       <UpdateModeView
         templateId={sizingTemplateResult.id}
+        projectId={effectiveProjectId}
         templateName={name}
         gender={gender}
         unit={unit}
