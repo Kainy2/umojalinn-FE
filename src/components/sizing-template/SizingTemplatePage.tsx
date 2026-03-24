@@ -274,10 +274,11 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   }
 
   // UPDATE MODE - Buyer updates fields with recommendations
-  if (templateMode === TEMPLATE_MODE.UPDATE && sizingTemplateResult?.id) {
+  if (templateMode === TEMPLATE_MODE.UPDATE && sizingTemplateResult?.id && effectiveProjectId) {
     return (
       <UpdateModeView
         templateId={sizingTemplateResult.id}
+        projectId={effectiveProjectId}
         templateName={name}
         gender={gender}
         unit={unit}
@@ -472,7 +473,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl">
         {/* Banners */}
-        {!hasRequestedPoints && (effectiveProjectId) && (
+        {!hasRequestedPoints && isProjectLive && (effectiveProjectId) && (
           <ReminderBanner
             message="Designer has not sent the measurement points"
             onSendReminder={handleSendReminder}

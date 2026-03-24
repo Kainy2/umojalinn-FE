@@ -9,11 +9,9 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { AlertTriangle, MessageCirclePlus } from "lucide-react";
 import { UmojaLinnSizingTemplate, UmojaLinnFemaleSizingTemplateProps, UmojaLinnMaleSizingTemplateProps } from "@/types/project";
-import { useUpdateSizingTemplate } from "@/tanstack/hooks/useSizingTemplates";
-// import GenderSelector from "./GenderSelector";
+import { useSubmitMeasurementPoints } from "@/tanstack/hooks/useSizingTemplates";
 import UnitSelector from "./UnitSelector";
 import MeasurementGuide from "./MeasurementGuide";
-// import RequestSizingTemplateViewCard from "@/components/custom/card/RequestSIzingTemplateView";
 import { FEMALE_SIZING_TEMPLATE, MALE_SIZING_TEMPLATE } from "@/constant/sizingTemplate";
 
 type MeasurementValues = Partial<UmojaLinnFemaleSizingTemplateProps & UmojaLinnMaleSizingTemplateProps>;
@@ -21,6 +19,7 @@ type ReviewsMap = Partial<Record<string, string>>;
 
 type UpdateModeViewProps = {
   templateId: string;
+  projectId: string;
   templateName: string;
   gender: UmojaLinnSizingTemplate["gender"];
   unit: UmojaLinnSizingTemplate["unit"];
@@ -36,6 +35,7 @@ type UpdateModeViewProps = {
 
 const UpdateModeView = ({
   templateId,
+  projectId,
   templateName,
   gender,
   unit,
@@ -80,7 +80,10 @@ const UpdateModeView = ({
     setValues(currentValues);
   }, [currentValues]);
 
-  const { mutate: updateTemplate, isPending: isUpdating } = useUpdateSizingTemplate(templateId, {
+  // const { mutate: updateTemplate, isPending: isUpdating } = useUpdateSizingTemplate(templateId, {
+  //   onSuccess: () => onSuccess?.(),
+  // });
+  const { mutate: updateTemplate, isPending: isUpdating } = useSubmitMeasurementPoints(templateId, {
     onSuccess: () => onSuccess?.(),
   });
 
@@ -114,7 +117,7 @@ const UpdateModeView = ({
         updatesToSubmit[field] = value;
       }
     });
-    updateTemplate(updatesToSubmit);
+    updateTemplate({ projectId, measurements: updatesToSubmit });
   };
 
   const highlightedName = filteredTemplate.find((item) => item.prop === highlighted)?.name || "";
