@@ -61,7 +61,7 @@ const WithdrawalPage = () => {
       case "ONBOARDING_STARTED": return "Setup incomplete";
       case "ACTION_REQUIRED": return "Action required";
       case "BANK_DETAILS_MISSING": return "Bank details missing";
-      case "RESTRICTED": return "Restricted";
+      case "RESTRICTED": return "Action required";
       case "ENABLED": return null;
       default: return "Action required";
     }
