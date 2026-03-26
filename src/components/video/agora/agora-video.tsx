@@ -19,6 +19,8 @@ import useClipboard from "@/hooks/useClipboard";
 import { useGetProjectById } from "@/tanstack/hooks/useProject";
 import { useGetMe } from "@/tanstack/hooks/useUser";
 import { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
+import { sendChatInProject } from "@/actions/project";
+import { jsonToFormData } from "@/lib/utils";
 
 type AgoraVideoProps = {
   channelId: string;
@@ -57,9 +59,9 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
   const { data: meData } = useGetMe();
   const me = meData?.data?.data;
 
-  // Determine other participant
-  const currentUserId = session?.user?.id;
-  const isCurrentUserBuyer = currentUserId === project?.buyerId;
+  // Determine other participant based on session role
+  const currentUserRole = session?.user?.profileRole;
+  const isCurrentUserBuyer = currentUserRole === "BUYER";
   const otherParticipant = isCurrentUserBuyer
     ? project?.designer?.user
     : project?.buyer?.user;
@@ -410,6 +412,21 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
         console.error("Failed to stop preview video:", err);
       }
 
+      // Send call join notification to chat BEFORE transitioning to call view
+      try {
+        await sendChatInProject(
+          channelId,
+          jsonToFormData({
+            message: channelId, // Store channelId in message field for Join Call button
+            type: "CALL_JOIN"
+          })
+        );
+        console.log("Call join notification sent");
+      } catch (notificationErr) {
+        console.error("Failed to send call join notification:", notificationErr);
+        // Don't block call join if notification fails
+      }
+
       // Transition to call view
       setIsInCall(true);
 
@@ -523,7 +540,7 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
           <div className="w-full max-w-6xl mx-auto px-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* LEFT PANEL: Camera Preview */}
-              <div className="bg-muted col-span-2 rounded-3xl overflow-hidden flex flex-col">
+              <div className="bg-muted lg:col-span-2 rounded-3xl overflow-hidden flex flex-col">
                 {/* Video Preview Area */}
                 <div className="relative flex-1 min-h-[400px] lg:min-h-[500px]">
                   {/* Video container */}
@@ -634,9 +651,9 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
               </div>
 
               {/* RIGHT PANEL: Participant Info */}
-              <div className="bg-muted rounded-3xl flex flex-col items-center justify-center p-8 min-h-[400px] lg:min-h-[500px]">
+              <div className="bg-transparent md:bg-muted rounded-none md:rounded-3xl p-0 md:p-8 flex flex-col items-center justify-center min-h-[200px] lg:min-h-[500px]">
                 {/* Participant Avatar */}
-                <Avatar className="h-32 w-32 mb-6">
+                <Avatar className="h-32 w-32 mb-6 hidden md:flex">
                   <AvatarImage src={participantAvatar || undefined} />
                   <AvatarFallback className="text-4xl">
                     {otherParticipant?.firstName?.charAt(0).toUpperCase() || "U"}
@@ -644,12 +661,12 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
                 </Avatar>
 
                 {/* Participant Name */}
-                <h2 className="text-lg font-bold text-foreground mb-2 text-center">
+                <h2 className="text-lg font-bold text-foreground mb-2 text-center hidden md:block">
                   {participantName}
                 </h2>
 
                 {/* Ready to call text */}
-                <p className="text-foreground-body mb-8">Ready to call?</p>
+                <p className="text-foreground-body mb-8 hidden md:block">Ready to call?</p>
 
                 {/* Start Call Button */}
                 <Button

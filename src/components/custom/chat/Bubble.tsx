@@ -8,6 +8,8 @@ import { User, X, Check, Link2, Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import React from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 const ChatBubble = (props: UmojaLinnChat) => {
   const { user, createdAt, message: rawMessage, type, imageMeta, imageUrl, severity } =
@@ -39,6 +41,46 @@ const ChatBubble = (props: UmojaLinnChat) => {
           {severity === "ERROR" ? <X /> : <Check />}
         </span>{" "}
         <span className="flex-1">{message}</span>
+      </div>
+    );
+  }
+
+  if (type === "CALL_JOIN") {
+    return (
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex flex-col gap-3">
+        <div className="flex items-center gap-3">
+          {user?.profilePhotoUri ? (
+            <Image
+              src={user?.profilePhotoUri}
+              alt=""
+              height={40}
+              width={40}
+              className="rounded-full shrink-0 object-cover size-10"
+            />
+          ) : (
+            <div className="rounded-full shrink-0 bg-blue-100 size-10 flex items-center justify-center [&>svg]:size-5 text-blue-600">
+              <User />
+            </div>
+          )}
+          <div className="flex-1">
+            <p className="font-semibold text-blue-900">
+              {user?.firstName} {user?.lastName} joined the call
+            </p>
+            <p className="text-xs text-blue-600">
+              {categorizeDate(createdAt) === "Today" ? "" : formatDate(createdAt, "dd/MM/yy, ")}
+              {formatDate(createdAt, "hh:mmaa")}
+            </p>
+          </div>
+        </div>
+        <Link href={`/video/${message}`}>
+          <Button
+            className="w-full"
+            size="sm"
+            disabled={session?.user?.id && message ? undefined : true}
+          >
+            Join Call
+          </Button>
+        </Link>
       </div>
     );
   }
