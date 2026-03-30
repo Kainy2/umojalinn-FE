@@ -74,7 +74,6 @@ const FillModeView = ({
 
   const handleChange = (prop: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
     const numValue = parseFloat(removeNonDigits(event.target.value)) || 0;
-    console.log(numValue);
     setValues((prev) => ({ ...prev, [prop]: numValue }));
   };
 
@@ -115,6 +114,10 @@ const FillModeView = ({
     });
     submitPoints({ projectId, measurements: measurementsToSubmit });
   };
+
+  const isSubmitDisabled = requestedMeasurementPoints.some(
+    (point) => !values[point as keyof MeasurementValues]
+  );
 
   const isLoading = isSubmitting || isSaving;
   const highlightedName = filteredTemplate.find((item) => item.prop === highlighted)?.name || "";
@@ -246,7 +249,7 @@ const FillModeView = ({
                 </Button>
                 <Button
                   onClick={handleSubmit}
-                  disabled={isLoading}
+                  disabled={isLoading || isSubmitDisabled}
                   loading={isSubmitting}
                   className="flex-1"
                 >
@@ -277,7 +280,7 @@ const FillModeView = ({
                 </Button> */}
                 <Button
                   onClick={handleSubmit}
-                  disabled={isLoading}
+                  disabled={isLoading || isSubmitDisabled}
                   loading={isSubmitting}
                   className="max-w-40 h-10 rounded-md hover:scale-[1.02] transition-transform"
                 >

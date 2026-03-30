@@ -17,10 +17,10 @@ const ProjectReviewView = (props: {
   projectFormDetails?: StateType;
   loading?: boolean;
 }) => {
-const { projectFormDetails } = props
-const {data} = useGetClothingTypes()
+  const { projectFormDetails } = props
+  const { data } = useGetClothingTypes()
 
-const allClothingTypes = data?.data?.data
+  const allClothingTypes = data?.data?.data
 
   if (props.loading) {
     return (
@@ -64,7 +64,7 @@ const allClothingTypes = data?.data?.data
 
   return (
     <>
-      <div className="p-4 bg-gray-100 mb-4">
+      <div className="p-4 mt-2 lg:mt-0 bg-gray-100 mb-4">
         <h3 className="text-md font-semibold text-foreground-body mb-1">
           {projectFormDetails?.title || props?.project?.title || "No title"}
         </h3>
@@ -77,17 +77,17 @@ const allClothingTypes = data?.data?.data
             <span className="font-semibold">
               {
                 projectFormDetails?.dueDate
-                ? formatDate(projectFormDetails?.dueDate, "MMM dd, yyyy")
-                : props?.project?.dueDate
-                ? formatDate(props?.project?.dueDate, "MMM dd, yyyy")
-                : "None"}
+                  ? formatDate(projectFormDetails?.dueDate, "MMM dd, yyyy")
+                  : props?.project?.dueDate
+                    ? formatDate(props?.project?.dueDate, "MMM dd, yyyy")
+                    : "None"}
             </span>
           </p>
           <p className="text-sm text-muted-foreground">
             Project budget:{" "}
             <span className="font-semibold">
-              {getCurrencySymbol( (projectFormDetails?.currency as UmojaLinnCurrency) || props?.project?.currency)}
-              {formatCurrencyValue( (projectFormDetails?.budget as number ) || props?.project?.budget)  || "0"}
+              {getCurrencySymbol((projectFormDetails?.currency as UmojaLinnCurrency) || props?.project?.currency)}
+              {formatCurrencyValue((projectFormDetails?.budget as number) || props?.project?.budget) || "0"}
             </span>
           </p>
         </div>
@@ -100,30 +100,30 @@ const allClothingTypes = data?.data?.data
           <div className="flex flex-row gap-4">
             {/* { id: string; projectId: string; imageUrl: string; title: string; isCoverImage: boolean; } */}
             {/* {props?.project?.Gallery?.map?.((gallery) => ( */}
-              <GalleryImages
-                images={
-                  projectFormDetails?.gallery?.length
-                    ? projectFormDetails?.gallery.map((gal, i) => ({
-                      id: (gal?.id ?? '') as string,
-                      projectId: (props.project?.id || '0'),
-                      imageUrl: typeof gal.image === 'string'
-                        ? gal.image 
-                        : URL.createObjectURL(gal.image),
-                      title: gal?.title,
-                      isCoverImage: gal?.isCoverImage,
-                      createdAt: props?.project?.Gallery?.[i]?.createdAt ?? '',
-                      updatedAt: props?.project?.Gallery?.[i]?.updatedAt ?? ''
-                    }))
-                    : props?.project?.Gallery ? 
+            <GalleryImages
+              images={
+                projectFormDetails?.gallery?.length
+                  ? projectFormDetails?.gallery.map((gal, i) => ({
+                    id: (gal?.id ?? '') as string,
+                    projectId: (props.project?.id || '0'),
+                    imageUrl: typeof gal.image === 'string'
+                      ? gal.image
+                      : URL.createObjectURL(gal.image),
+                    title: gal?.title,
+                    isCoverImage: gal?.isCoverImage,
+                    createdAt: props?.project?.Gallery?.[i]?.createdAt ?? '',
+                    updatedAt: props?.project?.Gallery?.[i]?.updatedAt ?? ''
+                  }))
+                  : props?.project?.Gallery ?
                     props.project.Gallery
-                   :[]}
-                // key={gallery?.id}
-                width={310}
-                height={170}
-                // src={gallery.imageUrl}
-                // title={gallery?.title}
-                wrapperClassName="aspect-video "
-              />
+                    : []}
+              // key={gallery?.id}
+              width={310}
+              height={170}
+              // src={gallery.imageUrl}
+              // title={gallery?.title}
+              wrapperClassName="aspect-video "
+            />
             {/* ))} */}
           </div>
         </div>
@@ -131,11 +131,11 @@ const allClothingTypes = data?.data?.data
       <Collapsible title="Delivery Details">
         <LabelBadge
           title="Country"
-          value={ projectFormDetails?.country || props?.project?.deliveryAddress?.country}
+          value={projectFormDetails?.country || props?.project?.deliveryAddress?.country}
         />
         <LabelBadge
           title="City"
-          value={ projectFormDetails?.city || props?.project?.deliveryAddress?.city}
+          value={projectFormDetails?.city || props?.project?.deliveryAddress?.city}
         />
         <LabelBadge
           title="Province / State / Zip code"
@@ -146,14 +146,14 @@ const allClothingTypes = data?.data?.data
         />
         <LabelBadge
           title="Address"
-          value={ projectFormDetails?.address || props?.project?.deliveryAddress?.address}
+          value={projectFormDetails?.address || props?.project?.deliveryAddress?.address}
         />
       </Collapsible>
       <Collapsible title="Other Details">
         <LabelBadge
-            title="Additional notes"
-            value={projectFormDetails?.additionalNotes || props?.project?.additionalNotes}
-          />
+          title="Additional notes"
+          value={projectFormDetails?.additionalNotes || props?.project?.additionalNotes}
+        />
 
         <div className="flex items-center justify-between">
           <p className="text-foreground-body text-sm">
@@ -172,7 +172,7 @@ const allClothingTypes = data?.data?.data
 
         <LabelBadge
           title="Clothing type"
-          value={ 
+          value={
             projectFormDetails?.clothingTypes?.map(
               id => allClothingTypes?.find(type => type.id === id)?.name
             ) || props?.project?.clothingTypes?.map?.((type) => type.name)}
@@ -195,9 +195,8 @@ const allClothingTypes = data?.data?.data
           avatar={{
             src: props?.project?.designer?.user?.profilePhotoUri,
           }}
-          label={`${props?.project?.designer?.user?.firstName || ""} ${
-            props?.project?.designer?.user?.lastName || ""
-          }`}
+          label={`${props?.project?.designer?.user?.firstName || ""} ${props?.project?.designer?.user?.lastName || ""
+            }`}
         />
       </div>
     </>

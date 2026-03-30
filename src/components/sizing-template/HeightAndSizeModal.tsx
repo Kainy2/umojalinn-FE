@@ -94,6 +94,21 @@ const HeightAndSizeModal = ({
     setHeightValue((prev) => Number(Math.max(VALUE_MIN, prev - VALUE_INCREMENT).toFixed(1)));
   };
 
+  const handleUnitChange = (newUnit: "Inch" | "Cm") => {
+    if (selectedUnit === newUnit) return;
+
+    // CM to INCH or INCH to CM conversion
+    const conversionFactor = newUnit === "Inch" ? 0.393701 : 2.54;
+
+    setHeightValue((prev) => {
+      const convertedValue = prev * conversionFactor;
+      // Round to 1 decimal place to maintain consistency with the existing height input step
+      return Number(convertedValue.toFixed(1));
+    });
+
+    setSelectedUnit(newUnit);
+  };
+
   const handleHeightInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value);
     if (!isNaN(value) && value >= VALUE_MIN) {
@@ -139,7 +154,7 @@ const HeightAndSizeModal = ({
             <div className="flex gap-1 bg-gray-100 rounded-lg p-1 mb-4">
               <button
                 type="button"
-                onClick={() => setSelectedUnit("Inch")}
+                onClick={() => handleUnitChange("Inch")}
                 disabled={isLoading}
                 className={cn(
                   "flex-1 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200",
@@ -152,7 +167,7 @@ const HeightAndSizeModal = ({
               </button>
               <button
                 type="button"
-                onClick={() => setSelectedUnit("Cm")}
+                onClick={() => handleUnitChange("Cm")}
                 disabled={isLoading}
                 className={cn(
                   "flex-1 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200",
@@ -183,7 +198,7 @@ const HeightAndSizeModal = ({
                   disabled={isLoading}
                   step="0.1"
                   min="0"
-                  className="text-5xl self-start font-semibold w-24 text-center bg-transparent border-b-2 border-gray-200 focus:border-primary focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="text-5xl self-start font-semibold w-28 text-center bg-transparent border-b-2 border-gray-200 focus:border-primary focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
                 <span className="text-subtitle-1 text-gray-500">{selectedUnit}</span>
               </div>

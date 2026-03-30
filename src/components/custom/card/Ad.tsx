@@ -64,7 +64,7 @@ const AdCard = (props: { project: UmojaLinnProject }) => {
         <div className="flex items-center gap-2 [&>svg]:size-6 [&>svg]:text-gray-300">
           <p className="bg-gray-100 p-2 py-1 text-foreground-body text-sm rounded-full flex items-center gap-1 before:content-[''] before:size-2 before:block before:bg-gray-500 before:rounded-full ">
             {[
-              props.project?.deliveryAddress?.state,
+              props.project?.deliveryAddress?.city,
               props.project?.deliveryAddress?.country,
             ]
               .filter((loc) => !!loc)
