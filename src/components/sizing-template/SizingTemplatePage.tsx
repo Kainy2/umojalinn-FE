@@ -143,6 +143,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     setShowUKSizeChart(true);
     setHighlighted(null);
   };
+  console.log(templateMode)
 
   const handleSendReminder = () => {
     if (!effectiveProjectId) return;
@@ -301,9 +302,9 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
         <div className="container mx-auto px-4 py-6 max-w-7xl">
 
           {/* Banners */}
-          {!hasRequestedPoints && effectiveProjectId && (
+          {hasRequestedPoints && !hasSubmittedPoints && isProjectLive && effectiveProjectId && (
             <ReminderBanner
-              message="Buyer has not attached a template yet"
+              message={sizingTemplateId ? "Awaiting Measurements" : "Buyer has not attached a template yet"}
               onSendReminder={handleSendReminder}
               lastReminderSentAt={sizingTemplateResult?.lastReminderSentAt}
               canSendReminder={canSendReminderNow}
@@ -561,7 +562,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
             </div>
 
             {/* Measurement Points (including Height as first item from TEMPLATE) */}
-            {((sizingTemplateId && (!isInUse || (isInUse && hasRequestedPoints && isProjectLive))) || isNewTemplate || isDraft) && (
+            {((sizingTemplateId && (!isInUse || (isInUse && hasRequestedPoints || hasSubmittedPoints && isProjectLive))) || isNewTemplate || isDraft) && (
               <div className="flex flex-col gap-2">
                 {TEMPLATE
                   .filter((templateItem) => {

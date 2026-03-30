@@ -21,6 +21,7 @@ type MeasurementPointsReminderBannerProps = {
   isBuyer: boolean;
   className?: string;
   isAwaitingMeasurementPointsValues?: boolean;
+  isProjectLive: boolean
 };
 
 const MeasurementPointsReminderBanner = ({
@@ -30,6 +31,7 @@ const MeasurementPointsReminderBanner = ({
   isBuyer,
   className,
   isAwaitingMeasurementPointsValues,
+  isProjectLive,
 }: MeasurementPointsReminderBannerProps) => {
   const [remainingTime, setRemainingTime] = useState<string | null>(
     getRemainingReminderTime(lastReminderSentAt)
@@ -68,7 +70,7 @@ const MeasurementPointsReminderBanner = ({
   };
 
   // Buyer view - reminder to Designer that he has not sent measurement points
-  if (isBuyer) {
+  if (isBuyer && isProjectLive) {
     return (
       <div
         className={cn(

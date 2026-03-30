@@ -41,6 +41,15 @@ const SettingsPaymentPage = () => {
               children: "Naira",
               value: "NAIRA",
             },
+            {
+              children: "Dollar",
+              value: "USD",
+            },
+            {
+              children: "Pound",
+              value: "GBP",
+            },
+            { children: "Canadian Dollar", value: "CAD" }
           ]}
         />
       </div>

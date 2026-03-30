@@ -10,7 +10,10 @@ import { uuidToBase62Safe } from "@/lib/uuid";
 import { useCreateBid } from "@/tanstack/hooks/useBid";
 import { useGetProjectById } from "@/tanstack/hooks/useProject";
 import { formatDate } from "date-fns";
-import { CircleDollarSign, MoreVertical } from "lucide-react";
+import { MoreVertical, Euro, DollarSign } from "lucide-react";
+import NairaSign from "@/icons/NairaSign";
+import GbpSign from "@/icons/GbpSign";
+import CadSign from "@/icons/CadSign";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
@@ -83,7 +86,21 @@ const JobPage = () => {
               {project?.title || "No title"}
             </h1>
             <div className="flex items-center gap-2 [&>svg]:size-6 [&>svg]:text-gray-300">
-              <CircleDollarSign />
+              {/* <CircleDollarSign />   */}
+              <div className="[&>svg]:size-6 [&>svg]:text-gray-300 border-2 rounded-full items-center  flex">
+                {project?.currency === "EURO" ? (
+                  <Euro />
+                ) : project?.currency === "NAIRA" ? (
+                  <NairaSign />
+                ) : project?.currency === "USD" ? (
+                  <DollarSign />
+                ) : project?.currency === "GBP" ? (
+                  <GbpSign />
+                ) : project?.currency === "CAD" ? (
+                  <CadSign />
+                ) : null}
+
+              </div>
               <p>
                 {getCurrencySymbol(project?.currency)}
                 {project?.budget || 0}
