@@ -65,6 +65,7 @@ const ActiveJobsPage = () => {
           projectId={project?.id || ""}
           lastReminderSentAt={sizingTemplate?.lastReminderSentAt}
           isBuyer={!isDesigner}
+          isProjectLive={project?.status === "LIVE"}
           isAwaitingMeasurementPointsValues={isAwaitingMeasurementPointsValues}
           className="mb-2"
         />

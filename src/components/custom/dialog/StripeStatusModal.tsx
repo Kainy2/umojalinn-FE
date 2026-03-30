@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
     Dialog,
     DialogContent,
@@ -8,12 +8,15 @@ import {
     DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Landmark } from "lucide-react";
 import { UmojaLinnCurrency } from "@/types/project";
 import { useRouter } from "next/navigation";
+import { CircleHelp } from "lucide-react";
 import { useConnectStripeAccount } from "@/tanstack/hooks/useProject";
 
-interface StripeStatusModalProps {
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+
+interface IStripeStatusModalProps {
     currency: UmojaLinnCurrency;
     open: boolean;
     onOpenChange: (open: boolean) => void;
@@ -27,8 +30,15 @@ export const StripeStatusModal = ({
     onOpenChange,
     paymentAccountConnected,
     paymentAccountOnboarded,
-}: StripeStatusModalProps) => {
+}: IStripeStatusModalProps) => {
     const router = useRouter();
+    const [checked, setChecked] = React.useState(false);
+
+    useEffect(() => {
+        if (!open) {
+            setChecked(false);
+        }
+    }, [open]);
 
     const { mutate, isPending } = useConnectStripeAccount({
         onSuccess: (data) => {
@@ -40,42 +50,90 @@ export const StripeStatusModal = ({
 
     const isNaira = currency === "NAIRA";
 
-    let title = `${currency} payout setup incomplete`;
-    let description = `You can accept ${currency} projects, but funds will be held securely until you add a ${currency}-receiving account.`;
-    let buttonText = isNaira ? "Add Account" : "Continue Stripe Setup";
+    const getCurrencyDisplay = (curr: UmojaLinnCurrency) => {
+        switch (curr) {
+            case "EURO":
+                return "EUR";
+            case "NAIRA":
+                return "NGN";
+            default:
+                return curr;
+        }
+    };
+
+    const displayCurrency = getCurrencyDisplay(currency);
+
+    let title = `${displayCurrency} payout setup incomplete`;
+    let description = `You can accept ${displayCurrency} projects, but funds will be held securely until you add a ${displayCurrency}-receiving account. Umoja linn does not convert currencies.`;
+    let buttonText = isNaira ? "Add Account" : "Create Bid (Set up Payout later in wallet)";
 
     if (isNaira) {
         title = "Add a bank account to accept Naira projects";
         description = "To receive Naira payments, you must connect a bank account";
         buttonText = "Add Account";
     } else if (!paymentAccountConnected && !paymentAccountOnboarded) {
-        title = `Connect Stripe to receive ${currency} projects`;
-        description = `To receive ${currency} payments, you must connect a Stripe account`;
+        title = `Connect Stripe to accept ${displayCurrency} projects`;
+        description = `To receive ${displayCurrency} payments, you must connect a Stripe account`;
         buttonText = "Connect Stripe";
+    }
+
+    const isConnectStripe = !isNaira && !paymentAccountConnected && !paymentAccountOnboarded;
+
+    const checkboxLabel = isConnectStripe
+        ? `I understand ${displayCurrency} payouts require an international ${displayCurrency} account - funds will be held until I complete my ${displayCurrency} payout setup.`
+        : `I understand I cannot withdraw ${displayCurrency} until payout setup is complete.`;
+
+    if (isNaira) {
+        // Image 1 shows "NGN payout setup incomplete" for Naira state
+        title = `${displayCurrency} payout setup incomplete`;
+        description = `You can accept ${displayCurrency} projects, but funds will be held securely until you add a ${displayCurrency}-receiving account. Umoja linn does not convert currencies.`;
+        buttonText = "Create Bid (Set up Payout later in wallet)";
     }
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="sm:max-w-[544px]">
                 <DialogHeader className="flex flex-col items-start gap-4">
-                    <div className="rounded-lg border border-gray-200 p-3 h-12 w-12 flex items-center justify-center">
-                        <Landmark className="h-6 w-6 text-gray-600" />
-                    </div>
                     <div className="space-y-2">
-                        <DialogTitle className="text-[18px] font-semibold">
-                            {title}
-                        </DialogTitle>
-                        {description && (
-                            <DialogDescription className="text-left">
-                                {description}
-                            </DialogDescription>
-                        )}
+                        <div className="flex items-center gap-2">
+                            <div className="icon-wrapper error mb-4">
+                                <CircleHelp />
+                            </div>
+
+                            <div>
+
+                                <DialogTitle className="text-[18px] font-semibold text-[#181D27]">
+                                    {title}
+                                </DialogTitle>
+
+                                {description && (
+                                    <DialogDescription className="text-left text-[#535862]">
+                                        {description}
+                                    </DialogDescription>
+                                )}
+                            </div>
+
+                        </div>
                     </div>
                 </DialogHeader>
+                <div className="flex items-start space-x-3 mt-6 ">
+                    <Checkbox
+                        id="acknowledge"
+                        checked={checked}
+                        onCheckedChange={(val) => setChecked(!!val)}
+                        className="mt-0.5 border-[#D0D5DD] data-[state=checked]:border-[#EAAA08] data-[state=checked]:bg-white data-[state=checked]:text-[#EAAA08]"
+                    />
+                    <Label
+                        htmlFor="acknowledge"
+                        className="text-sm font-medium leading-relaxed text-[#535862] cursor-pointer"
+                    >
+                        {checkboxLabel}
+                    </Label>
+                </div>
                 <DialogFooter className="sm:justify-start w-full mt-4">
                     <Button
                         type="button"
-                        className="w-full bg-[#EAAA08] text-white font-semibold text-[18px]"
+                        className="w-full bg-[#EAAA08] hover:bg-[#EAAA08]/90 text-white font-semibold text-[18px] h-[60px]"
                         onClick={() => {
                             if (isNaira) {
                                 router.push("/wallet/withdraw/naira");
@@ -83,7 +141,7 @@ export const StripeStatusModal = ({
                                 mutate();
                             }
                         }}
-                        disabled={isPending}
+                        disabled={isPending || !checked}
                     >
                         {isPending ? "Redirecting..." : buttonText}
                     </Button>

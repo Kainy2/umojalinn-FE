@@ -16,7 +16,7 @@ export const getLabel = (status: MilestoneTimelineItem["status"], isDesigner?: b
     case MilestoneStatus.COMPLETED:
       return "Paid"
     case MilestoneStatus.PROCESSING:
-      return "Processing transfer"
+      return "Awaiting fund"
     case MilestoneStatus.INACTIVE:
     default:
       return null;
