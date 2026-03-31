@@ -65,6 +65,7 @@ const RequestMeasurementsPage = () => {
       ukStandardSize={sizingTemplate?.ukStandardSize}
       height={sizingTemplate?.height}
       template={template}
+      isProjectLive={project.status === "LIVE"}
       onSuccess={() => {
         // Navigate back to the active job page after successful submission
         router.push(`/bids/${id}`);

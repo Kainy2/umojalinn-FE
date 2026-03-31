@@ -241,6 +241,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
         height={typeof value?.height === "number" ? value.height : null}
         template={TEMPLATE}
         hasTemplate={!!sizingTemplateId}
+        isProjectLive={isProjectLive}
         prefilledPoints={requestedMeasurementPoints}
         onSuccess={() => {
           if (props.handleSuccess) {

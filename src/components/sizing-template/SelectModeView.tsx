@@ -43,6 +43,7 @@ type SelectModeViewProps = {
   unit: UmojaLinnSizingTemplate["unit"];
   ukStandardSize?: UmojalinnStandardSize | null;
   height?: number | null;
+  isProjectLive: boolean;
   template: Array<{ name: string; prop: string; img: string }>;
   hasTemplate?: boolean; // Whether a sizing template exists for this project
   onSuccess?: () => void;
@@ -59,6 +60,7 @@ const SelectModeView = ({
   ukStandardSize,
   height,
   template,
+  isProjectLive,
   hasTemplate = true,
   prefilledPoints = [],
   onSuccess,
@@ -168,7 +170,7 @@ const SelectModeView = ({
                 </div>
 
                 {/* Info Banner */}
-                <div className="bg-[#fcfcfd] border border-gray-300 rounded-lg p-4 flex items-start gap-3">
+                {!isProjectLive && (<div className="bg-[#fcfcfd] border border-gray-300 rounded-lg p-4 flex items-start gap-3">
                   <HelpCircle className="size-5 text-gray-500 shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-semibold text-foreground-body">Height and Standard Size!</p>
@@ -176,7 +178,8 @@ const SelectModeView = ({
                       In the bidding phase, only Height and Standard size will be shown. Buyers can access other measurements once the project is live.
                     </p>
                   </div>
-                </div>
+                </div>)}
+
               </div>
             </div>
 
@@ -204,7 +207,7 @@ const SelectModeView = ({
                         <HelpCircle className="size-4 text-gray-400" />
                       </div>
                       {ukStandardSize && (
-                        <span className="text-muted-foreground">
+                        <span className="text-gray-500">
                           {ukStandardSize}
                         </span>
                       )}
@@ -212,7 +215,7 @@ const SelectModeView = ({
                     <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg text-sm">
                       <span className="font-medium">Height</span>
                       {height !== null && height !== undefined && (
-                        <span className="text-muted-foreground">
+                        <span className="text-gray-500">
                           {height} {unit}
                         </span>
                       )}

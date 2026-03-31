@@ -23,6 +23,7 @@ type RequestMeasurementPointsPageProps = {
   unit: UmojaLinnSizingTemplate["unit"];
   prefilledPoints?: string[];
   buyerName?: string;
+  isProjectLive: boolean;
 };
 
 const RequestMeasurementPointsPage = ({
@@ -32,6 +33,7 @@ const RequestMeasurementPointsPage = ({
   template,
   ukStandardSize,
   height,
+  isProjectLive,
   unit,
   prefilledPoints = [],
   buyerName = "the buyer",
@@ -64,13 +66,13 @@ const RequestMeasurementPointsPage = ({
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl">
         {/* Info Banner */}
-        <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+        {!isProjectLive && (<div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
           <Info className="size-5 text-amber-600 shrink-0 mt-0.5" />
           <div>
             <p className="font-semibold text-foreground-body">Height and Standard Size!</p>
             <p className="text-sm text-muted-foreground">In the bidding phase, only Height and Standard size will be shown. Buyers can access other measurements once the project is live.</p>
           </div>
-        </div>
+        </div>)}
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           {/* Left Column */}

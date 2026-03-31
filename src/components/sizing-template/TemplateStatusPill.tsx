@@ -170,8 +170,8 @@ export const getDesignerStatus = (
 		template?.metadata?.reviews &&
 		!!Object.keys(template.metadata.reviews).length;
 	const hasRepliedRecommendations =
-		template?.metadata?.reviews &&
-		Object.values(template.metadata.reviews).some((review) => review);
+		!template?.metadata?.reviews ||
+		Object.keys(template.metadata.reviews).length === 0;
 	const isChangesUpdated = template?.isChangesUpdated;
 
 	// Priority 1: Template is in use but no measurement points requested yet

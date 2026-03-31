@@ -56,7 +56,7 @@ export function UKStandardSizeRow({
           highlighted
             ? "bg-primary text-white border-primary"
             : disabled
-              ? "text-gray-400 border-gray-200 opacity-80 cursor-not-allowed"
+              ? "text-gray-600 border-gray-200 opacity-80 cursor-not-allowed"
               : "text-foreground-body border-gray-200 hover:border-gray-300 hover:shadow-sm hover:scale-[1.01]",
           className
         )}
@@ -67,7 +67,7 @@ export function UKStandardSizeRow({
             onClick={handleHelpClick}
             className={cn(
               "p-0.5 rounded-full transition-colors",
-              highlighted ? "text-white/80 hover:text-white" : "text-gray-400 hover:text-gray-600"
+              highlighted ? "text-white/80 hover:text-white" : "text-gray-500 hover:text-gray-600"
             )}
           >
             <HelpCircle className="size-4" />

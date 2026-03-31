@@ -295,7 +295,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                       </time>
                     )}
                     <MilestonePill currency={currency} escrowBalance={escrowBalance} isDesigner={isDesigner} {...milestone} />
-                    {isAwaitingFunding && latestSubmission?.status !== "PENDING" &&
+                    {(isAwaitingFunding || milestone?.status === MilestoneStatus.PROCESSING) && latestSubmission?.status !== "PENDING" &&
                       !isDesigner && (
 
                         <button className="text-sm underline text-primary"

@@ -48,9 +48,9 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
   >([]);
 
   useMemo(() => {
-    if (isAds && !!projectFormDetails.gallery?.length){
+    if (isAds && !!projectFormDetails.gallery?.length) {
       setValues(projectFormDetails.gallery)
-      return 
+      return
     }
 
     if (data?.data?.data?.Gallery) {
@@ -60,7 +60,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
         fileName: gallery.imageUrl,
         isCoverImage: gallery.isCoverImage,
         image: gallery.imageUrl,
-      }) ) || []);
+      })) || []);
     }
   }, [data?.data?.data?.Gallery, projectFormDetails.gallery, isAds]);
 
@@ -94,7 +94,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
       } else {
         toast({
           title: "File error",
-          description: `Maximum file size is ${MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES/(1024 * 1024)}MB, this file is ${(
+          description: `Maximum file size is ${MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES / (1024 * 1024)}MB, this file is ${(
             fileObject.size /
             (1024 * 1024)
           ).toFixed(2)}MB. . You can compress the image using an image editor and try uploading again.`,
@@ -124,7 +124,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
   const handleCoverImageToggle =
     (index: number) => (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       e.preventDefault();
-      
+
       setValues((prev) =>
         prev.map((val, i) =>
           i === index
@@ -142,8 +142,8 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
         e.preventDefault();
         setSubmittingButtonType(mode)
 
-        if (isAds){
-          setProjectFormDetails( prev => ({...prev, gallery: values }))
+        if (isAds) {
+          setProjectFormDetails(prev => ({ ...prev, gallery: values }))
           router.push(`/project/${uuidToBase62Safe(props?.id)}/requirements-and-budget`);
           return
         }
@@ -173,11 +173,10 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
               router.push(
                 mode === "DRAFT"
                   ? "/projects/drafts"
-                  : `${
-                      !!props.isOnboarding ? "/onboard" : ""
-                    }/project/${uuidToBase62Safe(
-                      props?.id
-                    )}/requirements-and-budget`
+                  : `${!!props.isOnboarding ? "/onboard" : ""
+                  }/project/${uuidToBase62Safe(
+                    props?.id
+                  )}/requirements-and-budget`
               );
             },
           }
@@ -206,7 +205,6 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
       </FormItemWrapper>
     );
   }
-console.log(preview, "preview");
 
   return (
     <>
@@ -257,7 +255,7 @@ console.log(preview, "preview");
               </div>
             </div>
           ))}
-          
+
           <div
             className={cn(
               "flex flex-col gap-4",
@@ -290,7 +288,7 @@ console.log(preview, "preview");
 
 
       <ProjectEditFooter
-        leftButtonProps={{ 
+        leftButtonProps={{
           onClick: (e) => {
             if (isAds) handleSubmit("SAVE")(e);
             else handleSubmit("DRAFT")(e);
@@ -298,11 +296,11 @@ console.log(preview, "preview");
           }
         }}
         rightSecondaryButtonProps={{
-          text: isAds ? "Cancel" : "Save & Exit", 
+          text: isAds ? "Cancel" : "Save & Exit",
           loading: isUpdating && submittingButtonType === "DRAFT",
           onClick: (e) => {
-              if (isAds) router.push(`/projects/ads/${uuidToBase62Safe(props?.id)}`);
-              else handleSubmit("DRAFT")(e);
+            if (isAds) router.push(`/projects/ads/${uuidToBase62Safe(props?.id)}`);
+            else handleSubmit("DRAFT")(e);
           },
         }}
         rightPrimaryButtonProps={{
