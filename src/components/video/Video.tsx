@@ -48,7 +48,7 @@ const Video = ( { mode, callId, setPage }: VideoProp ) => {
 			<button
 				onClick={hangUp}
 				disabled={!webcamActive}
-				className="mr-12 p-6 rounded-full bg-[#ff694f] text-white transition duration-500 ease border-2 border-transparent hover:shadow-lg disabled:opacity-50"
+				className="mr-12 p-6 rounded-full bg-[#ff694f] text-white transition duration-500 ease border-2 border-transparent hover:shadow-lg disabled:opacity-50 2xl"
 			>
 				<PhoneMissed />
 			</button>
