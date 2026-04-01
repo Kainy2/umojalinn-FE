@@ -19,8 +19,10 @@ import useClipboard from "@/hooks/useClipboard";
 import { useGetProjectById } from "@/tanstack/hooks/useProject";
 import { useGetMe } from "@/tanstack/hooks/useUser";
 import { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
-import { sendChatInProject } from "@/actions/project";
-import { jsonToFormData } from "@/lib/utils";
+import { database } from "@/lib/firebase";
+import { ref, push } from "firebase/database";
+import { base62ToUuidSafe } from "@/lib/uuid";
+import { formatDate } from "date-fns";
 
 type AgoraVideoProps = {
   channelId: string;
@@ -50,6 +52,10 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
   const [isJoining, setIsJoining] = useState(false);
   const [error, setError] = useState<string | null>(null); // Blocking errors (mic)
   const [cameraWarning, setCameraWarning] = useState<string | null>(null); // Non-blocking warnings
+
+  // Call timing state
+  const [callStartTime, setCallStartTime] = useState<Date | null>(null);
+  const [callDuration, setCallDuration] = useState<number>(0); // in seconds
 
   // Fetch project data to get other participant info
   const { data: projectData } = useGetProjectById(channelId);
@@ -326,6 +332,19 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
     };
   }, [isInCall, localVideoTrack]);
 
+  // Update call duration every second when in call
+  useEffect(() => {
+    if (!isInCall || !callStartTime) return;
+
+    const intervalId = setInterval(() => {
+      const now = new Date();
+      const seconds = Math.floor((now.getTime() - callStartTime.getTime()) / 1000);
+      setCallDuration(seconds);
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [isInCall, callStartTime]);
+
   // Join call handler
   const handleJoinCall = async () => {
     // Only audio track is required - video is optional
@@ -412,23 +431,29 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
         console.error("Failed to stop preview video:", err);
       }
 
-      // Send call join notification to chat BEFORE transitioning to call view
+      // Send call join notification directly to Firebase BEFORE transitioning to call view
       try {
-        await sendChatInProject(
-          channelId,
-          jsonToFormData({
-            message: channelId, // Store channelId in message field for Join Call button
-            type: "CALL_JOIN"
-          })
-        );
-        console.log("Call join notification sent");
+        const messagesRef = ref(database, `chats/${base62ToUuidSafe(channelId)}/messages`);
+        await push(messagesRef, {
+          message: channelId, // Store channelId in message field for Join Call button
+          type: "CALL_JOIN",
+          user: {
+            id: session?.user?.id || '',
+            firstName: me?.firstName || 'User',
+            lastName: me?.lastName || '',
+            profilePhotoUri: me?.profilePhotoUri || null
+          },
+          createdAt: new Date().toISOString()
+        });
+        console.log("Call join notification sent directly to Firebase");
       } catch (notificationErr) {
-        console.error("Failed to send call join notification:", notificationErr);
+        console.error("Failed to send call join notification to Firebase:", notificationErr);
         // Don't block call join if notification fails
       }
 
       // Transition to call view
       setIsInCall(true);
+      setCallStartTime(new Date()); // Track when call started
 
       // Note: Local video will be played by useEffect when DOM is ready
 
@@ -527,6 +552,18 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
   const handleCopyMeetingLink = () => {
     const meetingUrl = `${process.env.NEXT_PUBLIC_WEB_URL}/video/${channelId}`;
     handleCopy(meetingUrl);
+  };
+
+  // Format call duration as HH:MM:SS or MM:SS
+  const formatDuration = (seconds: number): string => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+
+    if (hours > 0) {
+      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+    return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
@@ -704,66 +741,76 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
       {isInCall && (
         <div
           className="relative w-full bg-background flex flex-col"
-          style={{ height: 'calc(100vh - 150px)' }}
+          style={{ height: 'calc(100vh - var(--topbar-height, 64px))' }}
         >
           {/* Header Section */}
-          <div className="flex-none border-b border-border bg-background px-6 py-4">
+          <div className="flex-none border-b border-border bg-background px-4 md:px-6 py-3 md:py-4">
             <div className="flex items-center justify-between gap-4">
-              {/* Left: Back Button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => router.back()}
-                className="rounded-full"
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
+              {/* Left: Call Info */}
+              <div className="flex items-center gap-3 ">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => router.back()}
+                  className="rounded-full"
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
 
-              {/* Center: Avatars and Call Info */}
-              <div className="flex-1 flex items-center gap-3">
-                {/* Current User Avatar */}
-                <Avatar className="h-10 w-10 border-2 border-primary">
-                  <AvatarImage
-                    className="object-cover"
-                    src={me?.profilePhotoUri || ""}
-                    alt={me?.firstName}
-                  />
-                  <AvatarFallback>
-                    {me?.firstName?.[0]?.toLocaleUpperCase?.()}
-                    {me?.lastName?.[0]?.toLocaleUpperCase?.()}
-                  </AvatarFallback>
-                </Avatar>
-
-                {/* Remote Users Avatars (max 3 shown) */}
-                {remoteUsers.slice(0, 3).map((user, index) => (
-                  <Avatar
-                    key={user.uid}
-                    className="h-10 w-10 border-2 border-secondary"
-                    style={{ marginLeft: index > 0 ? '-8px' : '0' }}
-                  >
-                    <AvatarFallback>
-                      {String(user.uid).charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                ))}
-
-                {remoteUsers.length > 3 && (
-                  <div className="h-10 w-10 rounded-full bg-muted border-2 border-border flex items-center justify-center text-xs font-semibold ml-[-8px]">
-                    +{remoteUsers.length - 3}
-                  </div>
-                )}
+                <div className="flex flex-col gap-4">
+                  <p className="text-sm md:text-base font-semibold text-foreground">
+                    Call with {participantName}
+                  </p>
+                  {callStartTime && (
+                    <p className="text-xs text-foreground-body">
+                      Started at {formatDate(callStartTime, "hh:mm aa")}
+                    </p>
+                  )}
+                </div>
               </div>
 
-              {/* Right: Copy Meeting Link Button */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleCopyMeetingLink}
-                className="hidden md:flex gap-2"
-              >
-                <Copy className="h-4 w-4" />
-                Copy Link
-              </Button>
+              {/* Right: Avatars and Duration */}
+              <div className="flex flex-col items-end gap-2">
+                {/* Avatars Row */}
+                <div className="flex items-center gap-1">
+                  {/* Current User Avatar */}
+                  <Avatar className="h-8 w-8 md:h-10 md:w-10 border-2 border-primary">
+                    <AvatarImage
+                      className="object-cover"
+                      src={me?.profilePhotoUri || ""}
+                      alt={me?.firstName}
+                    />
+                    <AvatarFallback className="text-xs">
+                      {me?.firstName?.[0]?.toLocaleUpperCase?.()}
+                      {me?.lastName?.[0]?.toLocaleUpperCase?.()}
+                    </AvatarFallback>
+                  </Avatar>
+
+                  {/* Remote Users Avatars (max 3 shown) */}
+                  {remoteUsers.slice(0, 3).map((user) => (
+                    <Avatar
+                      key={user.uid}
+                      className="h-8 w-8 md:h-10 md:w-10 border-2 border-secondary"
+                      style={{ marginLeft: '-4px' }}
+                    >
+                      <AvatarFallback className="text-xs">
+                        {String(user.uid).charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  ))}
+
+                  {remoteUsers.length > 3 && (
+                    <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-muted border-2 border-border flex items-center justify-center text-xs font-semibold ml-[-4px]">
+                      +{remoteUsers.length - 3}
+                    </div>
+                  )}
+                </div>
+
+                {/* Duration Counter */}
+                <p className="text-xs text-foreground-body font-mono">
+                  Call Duration - {formatDuration(callDuration)}
+                </p>
+              </div>
             </div>
           </div>
 
@@ -795,19 +842,19 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
                 </div>
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center bg-muted">
-                  <div className="text-center">
-                    <p className="text-lg font-semibold text-foreground mb-2">
-                      Waiting for others to join...
+                  <div className="text-center px-4">
+                    <p className="text-sm md:text-lg font-semibold text-foreground mb-2">
+                      Waiting for {otherParticipant?.firstName ?? 'User'} to join...
                     </p>
-                    <p className="text-sm text-foreground-body">
-                      Share the call ID: <span className="font-mono">{channelId}</span>
+                    <p className="text-xs md:text-sm text-foreground-body">
+                      Share the call ID: <span className="font-mono text-xs md:text-sm">{channelId}</span>
                     </p>
                   </div>
                 </div>
               )}
 
               {/* Local Video - PiP (Bottom Left) */}
-              <div className="absolute bottom-36 left-6 w-[200px] h-[150px] rounded-lg overflow-hidden z-10 border-2 border-border bg-gray-900 shadow-lg">
+              <div className="absolute bottom-28 md:bottom-36 left-3 md:left-6 w-[120px] h-[90px] md:w-[200px] md:h-[150px] rounded-lg overflow-hidden z-10 border-2 border-border bg-gray-900 shadow-lg ">
                 <div
                   id="local-video-call"
                   className="w-full h-full"
@@ -815,7 +862,7 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
                 />
                 {isVideoMuted && (
                   <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
-                    <Avatar className="h-16 w-16">
+                    <Avatar className="h-10 w-10 md:h-16 md:w-16">
                       <AvatarImage
                         className="object-cover"
                         src={me?.profilePhotoUri || ""}
@@ -831,41 +878,42 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
               </div>
 
               {/* Call Controls - Bottom Bar */}
-              <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 max-w-5xl w-[90%]">
+              <div className="absolute bottom-4 md:bottom-10 left-1/2 -translate-x-1/2 z-10 max-w-5xl w-[95%] md:w-[90%]">
                 <div
-                  className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0 px-4 md:px-8 py-4 md:py-5 rounded-3xl"
+                  className="flex flex-row items-center justify-between gap-2 md:gap-4 px-3 md:px-8 py-2 md:py-5 rounded-2xl md:rounded-3xl"
                   style={{ backgroundColor: '#1F1F1F60' }}
                 >
                   {/* Left: End Meeting Button */}
                   <button
                     onClick={handleLeaveCall}
-                    className="flex items-center gap-3 px-6 py-3 rounded-full text-white font-semibold transition-opacity hover:opacity-90"
+                    className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-full text-white text-sm md:text-base font-semibold transition-opacity hover:opacity-90"
                     style={{ backgroundColor: '#FF6B6B' }}
                   >
-                    <ArrowLeft className="h-5 w-5" />
-                    <span>End Meeting</span>
+                    <ArrowLeft className="h-4 w-4 md:h-5 md:w-5" />
+                    <span className="hidden sm:inline">End Meeting</span>
+                    <span className="sm:hidden">End</span>
                   </button>
 
                   {/* Center: Media Controls */}
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 md:gap-3">
                     {/* Microphone Button */}
                     <button
                       onClick={toggleAudioMute}
-                      className="rounded-full h-14 w-14 flex items-center justify-center transition-colors"
+                      className="rounded-full h-10 w-10 md:h-14 md:w-14 flex items-center justify-center transition-colors"
                       style={{
                         backgroundColor: isAudioMuted ? '#EF4444' : 'white',
                         color: isAudioMuted ? 'white' : 'black'
                       }}
                       title={isAudioMuted ? "Unmute microphone" : "Mute microphone"}
                     >
-                      {isAudioMuted ? <MicOff className="h-6 w-6" /> : <Mic className="h-6 w-6" />}
+                      {isAudioMuted ? <MicOff className="h-5 w-5 md:h-6 md:w-6" /> : <Mic className="h-5 w-5 md:h-6 md:w-6" />}
                     </button>
 
                     {/* Video Button */}
                     <button
                       onClick={toggleVideoMute}
                       disabled={!localVideoTrack}
-                      className="rounded-full h-14 w-14 flex items-center justify-center transition-colors disabled:cursor-not-allowed"
+                      className="rounded-full h-10 w-10 md:h-14 md:w-14 flex items-center justify-center transition-colors disabled:cursor-not-allowed"
                       style={{
                         backgroundColor: isVideoMuted || !localVideoTrack ? '#EF4444' : '#F59E0B',
                         color: 'white',
@@ -873,27 +921,27 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
                       }}
                       title={!localVideoTrack ? "Camera unavailable" : isVideoMuted ? "Turn on camera" : "Turn off camera"}
                     >
-                      {isVideoMuted || !localVideoTrack ? <VideoOff className="h-6 w-6" /> : <VideoIcon className="h-6 w-6" />}
+                      {isVideoMuted || !localVideoTrack ? <VideoOff className="h-5 w-5 md:h-6 md:w-6" /> : <VideoIcon className="h-5 w-5 md:h-6 md:w-6" />}
                     </button>
                   </div>
 
                   {/* Right: Call ID with Copy */}
                   <button
                     onClick={handleCopyMeetingLink}
-                    className="flex items-center gap-3 px-5 py-3 rounded-full font-mono text-sm transition-opacity hover:opacity-80"
+                    className="flex items-center gap-2 px-3 py-2 md:px-5 md:py-3 rounded-full font-mono text-xs md:text-sm transition-opacity hover:opacity-80"
                     style={{ backgroundColor: '#E5E7EB', color: '#1F2937' }}
                     title="Copy meeting link"
                   >
                     <span className="hidden sm:inline">{channelId}</span>
-                    <span className="sm:hidden">{channelId.substring(0, 12)}...</span>
-                    <Copy className="h-4 w-4" />
+                    <span className="sm:hidden">{channelId.substring(0, 8)}...</span>
+                    <Copy className="h-3 w-3 md:h-4 md:w-4" />
                   </button>
                 </div>
               </div>
             </div>
 
             {/* Chat Panel */}
-            <div className="w-full lg:w-[400px] lg:flex-none border-t lg:border-t-0 lg:border-l border-border bg-background">
+            <div className="hidden sm:block w-full lg:w-[400px] lg:flex-none border-t lg:border-t-0 lg:border-l border-border bg-background">
               <ChatWindow
                 projectId={channelId}
                 className="h-full max-h-none"
@@ -902,6 +950,13 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
           </div>
         </div>
       )}
+
+        <div className="sm:hidden w-full lg:w-[400px] lg:flex-none border-t lg:border-t-0 lg:border-l border-border bg-background">
+          <ChatWindow
+            projectId={channelId}
+            className="h-full max-h-none"
+          />
+        </div>
     </>
   );
 }
