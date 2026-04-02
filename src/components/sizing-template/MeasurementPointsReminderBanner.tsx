@@ -21,7 +21,8 @@ type MeasurementPointsReminderBannerProps = {
   isBuyer: boolean;
   className?: string;
   isAwaitingMeasurementPointsValues?: boolean;
-  isProjectLive: boolean
+  isProjectLive: boolean;
+  lastReminderSentBy?: string;
 };
 
 const MeasurementPointsReminderBanner = ({
@@ -32,26 +33,33 @@ const MeasurementPointsReminderBanner = ({
   className,
   isAwaitingMeasurementPointsValues,
   isProjectLive,
+  lastReminderSentBy,
 }: MeasurementPointsReminderBannerProps) => {
+  const isCorrectActorOnCooldown = lastReminderSentBy === (isBuyer ? SIZING_TEMPLATE_REMINDER_TYPE.DESIGNER_REMINDER : SIZING_TEMPLATE_REMINDER_TYPE.BUYER_REMINDER);
+
   const [remainingTime, setRemainingTime] = useState<string | null>(
-    getRemainingReminderTime(lastReminderSentAt)
+    isCorrectActorOnCooldown ? getRemainingReminderTime(lastReminderSentAt) : null
   );
-  const [canSend, setCanSend] = useState(canSendReminder(lastReminderSentAt));
+  const [canSend, setCanSend] = useState(
+    isCorrectActorOnCooldown ? canSendReminder(lastReminderSentAt) : true
+  );
 
   // Update remaining time every minute
   useEffect(() => {
     const interval = setInterval(() => {
-      setRemainingTime(getRemainingReminderTime(lastReminderSentAt));
-      setCanSend(canSendReminder(lastReminderSentAt));
+      const isStillOnCooldown = lastReminderSentBy === (isBuyer ? SIZING_TEMPLATE_REMINDER_TYPE.DESIGNER_REMINDER : SIZING_TEMPLATE_REMINDER_TYPE.BUYER_REMINDER);
+      setRemainingTime(isStillOnCooldown ? getRemainingReminderTime(lastReminderSentAt) : null);
+      setCanSend(isStillOnCooldown ? canSendReminder(lastReminderSentAt) : true);
     }, 60000);
     return () => clearInterval(interval);
-  }, [lastReminderSentAt]);
+  }, [lastReminderSentAt, lastReminderSentBy, isBuyer]);
 
   // Update immediately when lastReminderSentAt changes
   useEffect(() => {
-    setRemainingTime(getRemainingReminderTime(lastReminderSentAt));
-    setCanSend(canSendReminder(lastReminderSentAt));
-  }, [lastReminderSentAt]);
+    const isStillOnCooldown = lastReminderSentBy === (isBuyer ? SIZING_TEMPLATE_REMINDER_TYPE.DESIGNER_REMINDER : SIZING_TEMPLATE_REMINDER_TYPE.BUYER_REMINDER);
+    setRemainingTime(isStillOnCooldown ? getRemainingReminderTime(lastReminderSentAt) : null);
+    setCanSend(isStillOnCooldown ? canSendReminder(lastReminderSentAt) : true);
+  }, [lastReminderSentAt, lastReminderSentBy, isBuyer]);
 
   const { mutate: sendReminder, isPending } = useSendSizingTemplateReminder(templateId, {
     onSuccess: () => {

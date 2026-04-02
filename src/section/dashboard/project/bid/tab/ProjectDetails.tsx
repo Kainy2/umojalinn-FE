@@ -71,7 +71,7 @@ const BidTabProjectDetailsSection = () => {
           {formatCurrencyValue(project?.budget)}
         </p>
       </div>
-      <p className="mb-2">{project?.about}</p>
+      <p className="mb-2 break-words">{project?.about}</p>
       <LabelValue
         label="Delivery location"
         value={[

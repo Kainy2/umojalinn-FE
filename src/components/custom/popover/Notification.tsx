@@ -5,14 +5,12 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-// import { useGetInfiniteNotifications } from "@/tanstack/hooks/useUser";
-// import { useInfiniteData } from "@/hooks/use-infinite-data";
 import { PopoverClose } from "@radix-ui/react-popover";
 import { Bell, X } from "lucide-react";
-import React, { 
+import React, {
 	useEffect,
-	// useEffect,
-	 useMemo, useState } from "react";
+	useMemo, useState
+} from "react";
 import NotificationCard from "../card/Notification";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
@@ -22,28 +20,12 @@ import { useMarkAllNotificationsAsRead } from "@/tanstack/hooks/useUser";
 const NotificationPopover = () => {
 	const [open, setOpen] = useState(false);
 
-	// const {
-	// 	data: infiniteNotificationData,
-	// 	isPending: loadingNotification,
-	// 	isFetchingNextPage,
-	// 	fetchNextPage,
-	// 	hasNextPage,
-	// } = useGetInfiniteNotifications();
-
-	// const allNotifications = useInfiniteData(infiniteNotificationData);
-
-	// const loadMore = () => {
-	// 	if (hasNextPage)
-	// 		fetchNextPage()
-	// };
-
-
 	const {
 		data: allNotifications,
 		// handleRead
 	} = useGetFirebaseNotifications();
-		const { mutate: markAllNotificationsRead } = useMarkAllNotificationsAsRead();
-	
+	const { mutate: markAllNotificationsRead } = useMarkAllNotificationsAsRead();
+
 	const loadingNotification = false
 
 	const unreadNotifications = useMemo(() => {
@@ -53,10 +35,10 @@ const NotificationPopover = () => {
 	}, [allNotifications]);
 
 	useEffect(() => {
-		if (open && unreadNotifications?.length) {			
+		if (open && unreadNotifications?.length) {
 			markAllNotificationsRead({
 				ids: unreadNotifications
-				.map((notification) => notification.id)
+					.map((notification) => notification.id)
 			});
 		}
 	}, [open, unreadNotifications, markAllNotificationsRead]);

@@ -4,7 +4,7 @@ import { CurrencyCarousel } from "@/components/custom/card/CurrencyCarousel";
 import { Separator } from "@/components/ui/separator";
 import { useGetInfiniteTransactions, useGetWallet, useGetPaymentAccountInfo } from "@/tanstack/hooks/useProject";
 import { useConnectStripeAccount } from "@/tanstack/hooks/useProject";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 import { capitalizeFirstLetter, getCurrencySymbol } from "@/lib/string";
 import { formatCurrencyValue } from "@/lib/number";
@@ -13,6 +13,8 @@ import { useSession } from "next-auth/react";
 import {
   getTransactionIcon,
   getTransactionStatus,
+  getDefaultCurrencyFromCountry,
+  getCurrencyCarouselOrder,
 } from "@/components/util/wallet";
 import { cn } from "@/lib/utils";
 import { useInfiniteData } from "@/hooks/use-infinite-data";
@@ -25,10 +27,23 @@ const WithdrawalPage = () => {
   const { data: walletData } = useGetWallet();
   const { data: paymentAccountData } = useGetPaymentAccountInfo();
 
-  const [selectedCurrency, setSelectedCurrency] = useState<UmojaLinnCurrency>("NAIRA");
+  const defaultCurrency = getDefaultCurrencyFromCountry(session?.user?.address?.country);
+
+  const [selectedCurrency, setSelectedCurrency] = useState<UmojaLinnCurrency>("EURO");
   const [hideBalance, setHideBalance] = useState(true);
   const [isVerified, setIsVerified] = useState(false);
   const router = useRouter();
+
+  // Once session loads set the correct default (session is async so we can't rely on useState initial value)
+  const hasSetDefault = useRef(false);
+  useEffect(() => {
+    if (!hasSetDefault.current && session !== null && session !== undefined) {
+      setSelectedCurrency(defaultCurrency);
+      hasSetDefault.current = true;
+    }
+  }, [session, defaultCurrency]);
+
+  const currencyOrder = getCurrencyCarouselOrder(defaultCurrency);
 
   const {
     data: allTransactions,
@@ -95,46 +110,26 @@ const WithdrawalPage = () => {
                 onCurrencyChange={setSelectedCurrency}
               />
               <CurrencyCarousel>
-                <CurrencyCard
-                  currency="NAIRA"
-                  amount={wallet?.ngnBalance || 0}
-                  hideBalance={hideBalance}
-                  isSelected={selectedCurrency === "NAIRA"}
-                  stripeStatusLabel={getActionLabel("NAIRA")}
-                  onClick={() => setSelectedCurrency("NAIRA")}
-                />
-                <CurrencyCard
-                  currency="EURO"
-                  amount={wallet?.eurBalance || 0}
-                  hideBalance={hideBalance}
-                  isSelected={selectedCurrency === "EURO"}
-                  stripeStatusLabel={getActionLabel("EURO")}
-                  onClick={() => setSelectedCurrency("EURO")}
-                />
-                <CurrencyCard
-                  currency="USD"
-                  amount={wallet?.usdBalance || 0}
-                  hideBalance={hideBalance}
-                  isSelected={selectedCurrency === "USD"}
-                  stripeStatusLabel={getActionLabel("USD")}
-                  onClick={() => setSelectedCurrency("USD")}
-                />
-                <CurrencyCard
-                  currency="GBP"
-                  amount={wallet?.gbpBalance || 0}
-                  hideBalance={hideBalance}
-                  isSelected={selectedCurrency === "GBP"}
-                  stripeStatusLabel={getActionLabel("GBP")}
-                  onClick={() => setSelectedCurrency("GBP")}
-                />
-                <CurrencyCard
-                  currency="CAD"
-                  amount={wallet?.cadBalance || 0}
-                  hideBalance={hideBalance}
-                  isSelected={selectedCurrency === "CAD"}
-                  stripeStatusLabel={getActionLabel("CAD")}
-                  onClick={() => setSelectedCurrency("CAD")}
-                />
+                {currencyOrder.map((currency) => {
+                  const amountMap: Record<string, number> = {
+                    NAIRA: wallet?.ngnBalance || 0,
+                    EURO: wallet?.eurBalance || 0,
+                    USD: wallet?.usdBalance || 0,
+                    GBP: wallet?.gbpBalance || 0,
+                    CAD: wallet?.cadBalance || 0,
+                  };
+                  return (
+                    <CurrencyCard
+                      key={currency}
+                      currency={currency}
+                      amount={amountMap[currency]}
+                      hideBalance={hideBalance}
+                      isSelected={selectedCurrency === currency}
+                      stripeStatusLabel={getActionLabel(currency)}
+                      onClick={() => setSelectedCurrency(currency)}
+                    />
+                  );
+                })}
               </CurrencyCarousel>
             </div>
             {isDesigner && <EscrowCard wallet={wallet!} />}

@@ -28,7 +28,10 @@ export const useGetFirebaseNotifications = () => {
 			const notifications: UmojaLinnNotification[] = [];
 
 			snapshot.forEach((child) => {
-				notifications.push(child.val());
+				 notifications.push({
+    id: child.key,
+    ...child.val(),
+  });
 			});
 
 			setData(notifications.toReversed()); // DESC

@@ -59,10 +59,37 @@ const FillModeView = ({
     requestedMeasurementPoints.includes(item.prop)
   );
 
-  // Sync with current values when they change
+  // Sync with current values ONLY when the component mounts if values were somehow empty,
+  // but generally avoid blindly syncing with currentValues to avoid wiping out user's unsaved inputs.
   useEffect(() => {
-    setValues(currentValues);
+    if (Object.keys(values).length === 0 && Object.keys(currentValues).length > 0) {
+      setValues(currentValues);
+    }
   }, [currentValues]);
+
+  // Handle unit conversion locally so inputs aren't cleared
+  const prevUnitRef = useRef(unit);
+  useEffect(() => {
+    if (unit !== prevUnitRef.current) {
+      const conversionFactor = prevUnitRef.current === "CM" ? 0.393701 : 2.54;
+      setValues((prev) => {
+        const newValue: MeasurementValues = { ...prev };
+        Object.keys(newValue).forEach((key) => {
+          const typedKey = key as keyof MeasurementValues;
+          const currentValue = newValue[typedKey];
+          if (typeof currentValue === "number") {
+            const convertedValue = currentValue * conversionFactor;
+            // @ts-expect-error dynamic assignment
+            newValue[typedKey] = Number.isInteger(convertedValue)
+              ? convertedValue
+              : parseFloat(convertedValue.toFixed(2));
+          }
+        });
+        return newValue;
+      });
+      prevUnitRef.current = unit;
+    }
+  }, [unit]);
 
   const { mutate: submitPoints, isPending: isSubmitting } = useSubmitMeasurementPoints(templateId, {
     onSuccess: () => onSuccess?.(),
@@ -269,15 +296,7 @@ const FillModeView = ({
 
               {/* Desktop Actions */}
               <div className="hidden lg:flex justify-end gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                {/* <Button
-                  variant="outline"
-                  onClick={handleSave}
-                  disabled={isLoading}
-                  loading={isSaving}
-                  className="max-w-40 h-10 rounded-md hover:scale-[1.02] transition-transform"
-                >
-                  Save
-                </Button> */}
+
                 <Button
                   onClick={handleSubmit}
                   disabled={isLoading || isSubmitDisabled}
