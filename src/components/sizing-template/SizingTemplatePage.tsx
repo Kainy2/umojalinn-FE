@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { SizingTemplateDialogProps, useSizingTemplateDialog } from "@/hooks/use-sizing-template";
-import { TEMPLATE_MODE } from "@/types/constants";
+import { TEMPLATE_MODE, SIZING_TEMPLATE_REMINDER_TYPE } from "@/types/constants";
 import MeasurementGuide from "./MeasurementGuide";
 import SuccessMessage from "./SuccessMessage";
 import ActionButtons from "./ActionButtons";
@@ -185,8 +185,12 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
 
   // Computed values
   const hasSavedMeasurements = sizingTemplateResult?.metadata?.reviews ? Object.values(sizingTemplateResult.metadata.reviews).some(Boolean) : false;
-  const canSendReminderNow = canSendReminder(sizingTemplateResult?.lastReminderSentAt);
-  const remainingReminderTime = getRemainingReminderTime(sizingTemplateResult?.lastReminderSentAt);
+  const canSendReminderNow = sizingTemplateResult?.lastReminderSentBy === (isDesigner ? SIZING_TEMPLATE_REMINDER_TYPE.BUYER_REMINDER : SIZING_TEMPLATE_REMINDER_TYPE.DESIGNER_REMINDER)
+    ? canSendReminder(sizingTemplateResult?.lastReminderSentAt)
+    : true;
+  const remainingReminderTime = sizingTemplateResult?.lastReminderSentBy === (isDesigner ? SIZING_TEMPLATE_REMINDER_TYPE.BUYER_REMINDER : SIZING_TEMPLATE_REMINDER_TYPE.DESIGNER_REMINDER)
+    ? getRemainingReminderTime(sizingTemplateResult?.lastReminderSentAt)
+    : undefined;
   const hasRequiredFields = !!(value?.height && value?.ukStandardSize && unit);
   const isCreatingNew = !sizingTemplateId;
   const isEditable = !isInUse && (templateMode === TEMPLATE_MODE.EDIT || isCreatingNew);

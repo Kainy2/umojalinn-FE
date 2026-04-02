@@ -74,6 +74,7 @@ const ActiveProjectPage = () => {
           templateId={sizingTemplateId}
           projectId={project?.id || ""}
           lastReminderSentAt={sizingTemplate?.lastReminderSentAt}
+          lastReminderSentBy={sizingTemplate?.lastReminderSentBy}
           isBuyer={!isDesigner}
           isProjectLive={project?.status === "LIVE"}
           isAwaitingMeasurementPointsValues={isAwaitingMeasurementPointsValues}
