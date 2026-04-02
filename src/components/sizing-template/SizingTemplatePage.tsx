@@ -141,7 +141,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     setShowUKSizeChart(true);
     setHighlighted(null);
   };
-  console.log(templateMode)
+
 
   const handleSendReminder = () => {
     if (!effectiveProjectId) return;
