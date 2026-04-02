@@ -121,7 +121,7 @@ const { id } = useParams<{ id: string }>();
       const { paymentAccountConnected, paymentAccountOnboarded } =
         data.data.data || {};
 
-      if (!paymentAccountConnected || !paymentAccountOnboarded) {
+      if (!paymentAccountConnected && !paymentAccountOnboarded) {
         setPaymentStatus({ paymentAccountConnected, paymentAccountOnboarded });
         setShowStripeModal(true);
         return;

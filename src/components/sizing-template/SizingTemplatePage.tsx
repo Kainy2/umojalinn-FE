@@ -128,10 +128,8 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   };
 
   const handleUnitChange = (newUnit: UmojaLinnSizingTemplate["unit"]) => {
-    setUnit((prevUnit) => {
-      handleChangeValuesByUnit(prevUnit, newUnit);
-      return newUnit;
-    });
+    handleChangeValuesByUnit(unit, newUnit);
+    setUnit(newUnit);
   };
 
   const handleUKSizeChange = (ukSize: UmojalinnStandardSize) => {
@@ -195,9 +193,6 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   const canEditGender = isEditable && !isInUse;
   const isProjectLive = project?.status === "LIVE";
   const isChangesUpdated = sizingTemplateResult?.isChangesUpdated;
-  // const hasRepliedRecommendations =
-  //   !sizingTemplateResult?.metadata?.reviews ||
-  //   Object.keys(sizingTemplateResult.metadata.reviews).length === 0;
 
   // Page title and description based on mode
   const getPageTitle = () => {

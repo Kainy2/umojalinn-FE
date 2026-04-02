@@ -80,9 +80,7 @@ const UpdateModeView = ({
     setValues(currentValues);
   }, [currentValues]);
 
-  // const { mutate: updateTemplate, isPending: isUpdating } = useUpdateSizingTemplate(templateId, {
-  //   onSuccess: () => onSuccess?.(),
-  // });
+
   const { mutate: updateTemplate, isPending: isUpdating } = useSubmitMeasurementPoints(templateId, {
     onSuccess: () => onSuccess?.(),
   });

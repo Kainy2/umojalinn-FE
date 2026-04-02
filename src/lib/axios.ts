@@ -32,9 +32,18 @@ export const customAxios = axios.create({
 export const setBearerToken = async (req: NextRequest) => {
   const session = await getToken({ req });
 
-  console.log(session?.accessToken, session, "SESSION >>>");
 
   customAxios.defaults.headers.common.Authorization = `Bearer ${session?.accessToken}`;
+
+  const xForwardedFor = req.headers.get("x-forwarded-for");
+  if (xForwardedFor) {
+    customAxios.defaults.headers.common["x-forwarded-for"] = xForwardedFor;
+  }
+  
+  const xForwardedPath = req.headers.get("x-forwarded-path");
+  if (xForwardedPath) {
+    customAxios.defaults.headers.common["x-forwarded-path"] = xForwardedPath;
+  }
 
 
   return session;
@@ -79,10 +88,31 @@ export const handleAPIError = (error: unknown) => {
 export const getServerAxiosWithToken = async () => {
   const token = await auth();
   const axios = customAxios;
-  console.log(token, "TOKEN >>>");
   if (token?.accessToken) {
     axios.defaults.headers.common.Authorization = `Bearer ${token?.accessToken}`;
   }
+
+  // Forward client IP headers to the backend
+  if (typeof window === "undefined") {
+    try {
+      const { headers } = await import("next/headers");
+      const headersList = await headers();
+      
+      const xForwardedFor = headersList.get("x-forwarded-for");
+      if (xForwardedFor) {
+        axios.defaults.headers.common["x-forwarded-for"] = xForwardedFor;
+      }
+      
+      const xForwardedPath = headersList.get("x-forwarded-path");
+      if (xForwardedPath) {
+        axios.defaults.headers.common["x-forwarded-path"] = xForwardedPath;
+      }
+    } catch (e) {
+      console.log(e, "ERROR >>>");
+      // Ignore if headers() is not available (e.g. outside server context)
+    }
+  }
+
   return axios;
 };
 

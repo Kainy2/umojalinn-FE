@@ -150,7 +150,7 @@ const JobPage = () => {
       </div>
       <div className="description-section">
         <h3>About Job</h3>
-        <p>{project?.about || "None"}</p>
+        <p className="text-wrap">{project?.about || "None"}</p>
       </div>
       <div className="bg-gray-50 p-8 gap-8 gap-y-12 grid grid-cols-1 md:grid-cols-3">
         <LabelValue

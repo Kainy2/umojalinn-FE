@@ -269,15 +269,7 @@ const FillModeView = ({
 
               {/* Desktop Actions */}
               <div className="hidden lg:flex justify-end gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                {/* <Button
-                  variant="outline"
-                  onClick={handleSave}
-                  disabled={isLoading}
-                  loading={isSaving}
-                  className="max-w-40 h-10 rounded-md hover:scale-[1.02] transition-transform"
-                >
-                  Save
-                </Button> */}
+
                 <Button
                   onClick={handleSubmit}
                   disabled={isLoading || isSubmitDisabled}
