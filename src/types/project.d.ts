@@ -388,7 +388,7 @@ export type UmojaLinnChat = {
     UmojaLinnUser,
     "firstName" | "lastName" | "profilePhotoUri" | "id"
   >;
-  type: "MESSAGE" | "NOTIFICATION";
+  type: "MESSAGE" | "NOTIFICATION" | "CALL_JOIN";
   severity?: "ERROR" | "SUCCESS";
   createdAt: string | Date;
 };
