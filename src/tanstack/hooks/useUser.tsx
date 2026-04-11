@@ -8,6 +8,7 @@ import {
   updateUserDetails,
   verifyWalletPassword,
   getAppConfig,
+  sendCallNotification,
 } from "@/actions/user";
 import { queryClient } from "@/components/provider/TanstackQueryClient";
 import {
@@ -225,6 +226,20 @@ export const useVerifyWalletPassword = (
       queryClient.invalidateQueries({ queryKey: [USER, ME] }); // if needed
       options?.onSuccess?.(data, variables, context);
     },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useSendCallNotification = (
+  options?: GenericUseMutationProps<SingleApiResponse, { receiverId: string; callId: string }>
+) => {
+  const { handleError } = useHandleError("Call Notification");
+  return useMutation({
+    ...options,
+    mutationFn: (variables) => sendCallNotification(variables),
     onError: (error, variables, context) => {
       handleError(error);
       options?.onError?.(error, variables, context);

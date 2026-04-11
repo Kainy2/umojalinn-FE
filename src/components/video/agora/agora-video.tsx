@@ -16,6 +16,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 // import { cn } from "@/lib/utils";
 import { createAgoraConfig, validateAgoraConfig } from "./config";
 import { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
+import { useGetProjectById } from "@/tanstack/hooks/useProject";
+import { useSendCallNotification } from "@/tanstack/hooks/useUser";
 
 type AgoraVideoProps = {
   channelId: string;
@@ -30,6 +32,9 @@ type RemoteUser = {
 export function AgoraVideo({ channelId }: AgoraVideoProps) {
   const router = useRouter();
   const { data: session } = useSession();
+
+  const { data: projectData } = useGetProjectById(channelId);
+  const { mutate: sendNotification } = useSendCallNotification();
 
   // Agora state
   const [client, setClient] = useState<IAgoraRTCClient | null>(null);
@@ -236,6 +241,21 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
 
       // Transition to call view
       setIsInCall(true);
+
+      // Send notification to the other party
+      if (projectData?.data) {
+        const project = projectData.data;
+        const receiverId = session?.user?.id === project.data.buyer.userId
+          ? project.data.designer.userId
+          : project.data.buyer.userId;
+
+        if (receiverId) {
+          sendNotification({
+            receiverId,
+            callId: channelId
+          });
+        }
+      }
 
       // Note: Local video will be played by useEffect when DOM is ready
 
