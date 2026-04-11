@@ -12,6 +12,7 @@ import {
   submitBid,
   updateBid,
   updateMilestone,
+  getProjectAccountConnectionStatus,
 } from "@/actions/bid";
 import { queryClient } from "@/components/provider/TanstackQueryClient";
 import useHandleError from "@/hooks/useHandleError";
@@ -316,6 +317,20 @@ export const useAcceptOrRejectBid = (
       queryClient.invalidateQueries({ queryKey: [BID] });
       options?.onSuccess?.(data, variables, context);
     },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useGetProjectAccountConnectionStatus = (
+  options?: GenericUseMutationProps<SingleApiResponse<UmojaLinnSubmitBidResponse>, string>
+) => {
+  const { handleError } = useHandleError("Check Account Connection Status");
+  return useMutation({
+    ...options,
+    mutationFn: (projectId: string) => getProjectAccountConnectionStatus(projectId),
     onError: (error, variables, context) => {
       handleError(error);
       options?.onError?.(error, variables, context);

@@ -42,7 +42,7 @@ export function UKStandardSizeRow({
 
   const handleHelpClick = (event: React.MouseEvent) => {
     event.stopPropagation();
-    // setIsChartOpen(true);
+    setIsChartOpen(true);
     onShowChart();
   };
 

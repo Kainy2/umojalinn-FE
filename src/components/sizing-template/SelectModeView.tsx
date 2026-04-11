@@ -159,7 +159,7 @@ const SelectModeView = ({
                     Request Sizing template
                   </h1>
                   <p className="text-sm text-muted-foreground">
-                    Send measurements point to <b>&quot;{buyerName}&quot;</b>
+                    Send measurements points to <b>&quot;{buyerName}&quot;</b>
                     {projectName && (
                       <>
                         {" "}
