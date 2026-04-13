@@ -62,7 +62,7 @@ const MeasurementPointRow = forwardRef<HTMLInputElement, MeasurementPointRowProp
 
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center">
       <div
         role="button"
         onClick={props.onClick}

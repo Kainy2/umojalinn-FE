@@ -40,7 +40,7 @@ const AddCommentModal = ({
         <DialogHeader>
           <DialogTitle className="animate-in fade-in-0 slide-in-from-top-1 duration-300">{measurementName}</DialogTitle>
           <DialogDescription className="animate-in fade-in-0 slide-in-from-top-2 duration-300 delay-75">
-            Share your rationale for adding this Measurement Point
+            Share your rationale for requested changes
           </DialogDescription>
         </DialogHeader>
         <div className="py-4 animate-in fade-in-0 slide-in-from-bottom-2 duration-300 delay-100">
