@@ -34,6 +34,7 @@ const BidPage = () => {
     handleToggle,
     handleSave,
     handleUpdate,
+    handleFinalSubmit,
     milestones,
     totalPrice,
     addNote,
@@ -251,6 +252,7 @@ const BidPage = () => {
           currency={project?.currency || "USD"}
           open={showStripeModal}
           onOpenChange={setShowStripeModal}
+          onProceed={handleFinalSubmit}
           {...paymentStatus}
         />
       </div>

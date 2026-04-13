@@ -10,6 +10,7 @@ import {
   useSubmitBid,
   useUpdateBid,
   useUpdateMilestone,
+  useGetProjectAccountConnectionStatus,
 } from "@/tanstack/hooks/useBid";
 import { UmojaLinnDeliveryMethod } from "@/types/project";
 import { EDeliveryMileStoneType } from "@/types/enum";
@@ -118,15 +119,7 @@ const { id } = useParams<{ id: string }>();
   // Called after last update
   const { mutate: submitBid, isPending: isSubmittingBid } = useSubmitBid(id, {
     onSuccess(data: AxiosResponse<SingleApiResponse<UmojaLinnSubmitBidResponse>>) {
-      const { paymentAccountConnected, paymentAccountOnboarded } =
-        data.data.data || {};
-
-      if (!paymentAccountConnected && !paymentAccountOnboarded) {
-        setPaymentStatus({ paymentAccountConnected, paymentAccountOnboarded });
-        setShowStripeModal(true);
-        return;
-      }
-
+      console.log(data)
       toast({
         title: "Bid Live",
         description: "Your bid has been published successfully.",
@@ -141,6 +134,33 @@ const { id } = useParams<{ id: string }>();
       submitBid();
     },
   });
+
+  const { mutate: getAccountStatus, isPending: isCheckingAccountStatus } = useGetProjectAccountConnectionStatus({
+    onSuccess: (data) => {
+      const { paymentAccountConnected, paymentAccountOnboarded } = data.data.data || {};
+      if (!paymentAccountConnected || !paymentAccountOnboarded) {
+        setPaymentStatus({ paymentAccountConnected, paymentAccountOnboarded });
+        setShowStripeModal(true);
+      } else {
+        updateToSubmit({
+          additionalNote: addNote ? note : undefined,
+          deliveryAmount: deliveryMilestonePrice,
+          deliveryMethod: deliveryMethod || undefined,
+          deliveryMileStoneType: selectedDeliveryMethodType
+        });
+      }
+    }
+  });
+
+  const handleFinalSubmit = () => {
+    updateToSubmit({
+      additionalNote: addNote ? note : undefined,
+      deliveryAmount: deliveryMilestonePrice,
+      deliveryMethod: deliveryMethod || undefined,
+      deliveryMileStoneType: selectedDeliveryMethodType
+    });
+    setShowStripeModal(false);
+  };
 
   const handleSave =
     (index: number) =>
@@ -177,12 +197,7 @@ const { id } = useParams<{ id: string }>();
         });
         break;
       case "LIVE":
-        updateToSubmit({
-          additionalNote: addNote ? note : undefined,
-          deliveryAmount: deliveryMilestonePrice,
-          deliveryMethod: deliveryMethod || undefined,
-          deliveryMileStoneType: selectedDeliveryMethodType
-        });
+        getAccountStatus(project?.id || "");
         break;
       default:
         break;
@@ -310,5 +325,7 @@ const { id } = useParams<{ id: string }>();
     showStripeModal,
     setShowStripeModal,
     paymentStatus,
+    isCheckingAccountStatus,
+    handleFinalSubmit,
 	}
 }

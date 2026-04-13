@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { UmojaLinnCurrency } from "@/types/project";
-import { useRouter } from "next/navigation";
 import { CircleHelp } from "lucide-react";
 import { useConnectStripeAccount } from "@/tanstack/hooks/useProject";
 
@@ -22,6 +21,7 @@ interface IStripeStatusModalProps {
     onOpenChange: (open: boolean) => void;
     paymentAccountConnected?: boolean;
     paymentAccountOnboarded?: boolean;
+    onProceed?: () => void;
 }
 
 export const StripeStatusModal = ({
@@ -30,8 +30,9 @@ export const StripeStatusModal = ({
     onOpenChange,
     paymentAccountConnected,
     paymentAccountOnboarded,
+    onProceed,
 }: IStripeStatusModalProps) => {
-    const router = useRouter();
+
     const [checked, setChecked] = React.useState(false);
 
     useEffect(() => {
@@ -65,13 +66,9 @@ export const StripeStatusModal = ({
 
     let title = `${displayCurrency} payout setup incomplete`;
     let description = `You can accept ${displayCurrency} projects, but funds will be held securely until you add a ${displayCurrency}-receiving account. Umoja linn does not convert currencies.`;
-    let buttonText = isNaira ? "Add Account" : "Create Bid (Set up Payout later in wallet)";
+    let buttonText = "Create Bid (Set up Payout later in wallet)";
 
-    if (isNaira) {
-        title = "Add a bank account to accept Naira projects";
-        description = "To receive Naira payments, you must connect a bank account";
-        buttonText = "Add Account";
-    } else if (!paymentAccountConnected && !paymentAccountOnboarded) {
+    if (!isNaira && !paymentAccountConnected && !paymentAccountOnboarded) {
         title = `Connect Stripe to accept ${displayCurrency} projects`;
         description = `To receive ${displayCurrency} payments, you must connect a Stripe account`;
         buttonText = "Connect Stripe";
@@ -83,12 +80,6 @@ export const StripeStatusModal = ({
         ? `I understand ${displayCurrency} payouts require an international ${displayCurrency} account - funds will be held until I complete my ${displayCurrency} payout setup.`
         : `I understand I cannot withdraw ${displayCurrency} until payout setup is complete.`;
 
-    if (isNaira) {
-        // Image 1 shows "NGN payout setup incomplete" for Naira state
-        title = `${displayCurrency} payout setup incomplete`;
-        description = `You can accept ${displayCurrency} projects, but funds will be held securely until you add a ${displayCurrency}-receiving account. Umoja linn does not convert currencies.`;
-        buttonText = "Create Bid (Set up Payout later in wallet)";
-    }
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -135,10 +126,10 @@ export const StripeStatusModal = ({
                         type="button"
                         className="w-full bg-[#EAAA08] hover:bg-[#EAAA08]/90 text-white font-semibold text-[18px] h-[60px]"
                         onClick={() => {
-                            if (isNaira) {
-                                router.push("/wallet/withdraw/naira");
-                            } else {
+                            if (isConnectStripe) {
                                 mutate();
+                            } else {
+                                onProceed?.();
                             }
                         }}
                         disabled={isPending || !checked}

@@ -4,12 +4,12 @@ import { CurrencyCarousel } from "@/components/custom/card/CurrencyCarousel";
 import { Separator } from "@/components/ui/separator";
 import { useGetInfiniteTransactions, useGetWallet, useGetPaymentAccountInfo } from "@/tanstack/hooks/useProject";
 import { useConnectStripeAccount } from "@/tanstack/hooks/useProject";
+import { useGetMe } from "@/tanstack/hooks/useUser";
 import React, { useState, useEffect, useRef } from "react";
-
+import { useSession } from "next-auth/react";
 import { capitalizeFirstLetter, getCurrencySymbol } from "@/lib/string";
 import { formatCurrencyValue } from "@/lib/number";
-import { formatDate } from "date-fns";
-import { useSession } from "next-auth/react";
+import { formatDate } from "date-fns"
 import {
   getTransactionIcon,
   getTransactionStatus,
@@ -23,25 +23,28 @@ import VerifyPasswordDialog from "@/components/custom/dialog/VerifyPasswordDialo
 import { useRouter } from "next/navigation";
 
 const WithdrawalPage = () => {
+
+  const { data: userData } = useGetMe();
   const { data: session } = useSession();
   const { data: walletData } = useGetWallet();
   const { data: paymentAccountData } = useGetPaymentAccountInfo();
 
-  const defaultCurrency = getDefaultCurrencyFromCountry(session?.user?.address?.country);
+  const user = userData?.data?.data;
+  const defaultCurrency = getDefaultCurrencyFromCountry(user?.address?.country);
 
   const [selectedCurrency, setSelectedCurrency] = useState<UmojaLinnCurrency>("EURO");
   const [hideBalance, setHideBalance] = useState(true);
   const [isVerified, setIsVerified] = useState(false);
   const router = useRouter();
 
-  // Once session loads set the correct default (session is async so we can't rely on useState initial value)
+
   const hasSetDefault = useRef(false);
   useEffect(() => {
-    if (!hasSetDefault.current && session !== null && session !== undefined) {
+    if (!hasSetDefault.current && user) {
       setSelectedCurrency(defaultCurrency);
       hasSetDefault.current = true;
     }
-  }, [session, defaultCurrency]);
+  }, [user, defaultCurrency]);
 
   const currencyOrder = getCurrencyCarouselOrder(defaultCurrency);
 

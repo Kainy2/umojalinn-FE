@@ -143,3 +143,17 @@ export const verifyWalletPassword = async (
     body,
   );
 };
+
+export const sendCallNotification = async (
+  body: { receiverId: string; callId: string },
+  options?: ServerActionOption,
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    "/user/send-call-notification",
+    body,
+  );
+};

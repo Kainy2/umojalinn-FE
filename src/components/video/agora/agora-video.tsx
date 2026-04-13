@@ -19,6 +19,8 @@ import useClipboard from "@/hooks/useClipboard";
 import { useGetProjectById } from "@/tanstack/hooks/useProject";
 import { useGetMe } from "@/tanstack/hooks/useUser";
 import { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
+
+import { useSendCallNotification } from "@/tanstack/hooks/useUser";
 import { database } from "@/lib/firebase";
 import { ref, push } from "firebase/database";
 import { base62ToUuidSafe } from "@/lib/uuid";
@@ -37,6 +39,9 @@ type RemoteUser = {
 export function AgoraVideo({ channelId }: AgoraVideoProps) {
   const router = useRouter();
   const { data: session } = useSession();
+
+  const { data: projectData } = useGetProjectById(channelId);
+  const { mutate: sendNotification } = useSendCallNotification();
 
   // Agora state
   const [client, setClient] = useState<IAgoraRTCClient | null>(null);
@@ -58,7 +63,6 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
   const [callDuration, setCallDuration] = useState<number>(0); // in seconds
 
   // Fetch project data to get other participant info
-  const { data: projectData } = useGetProjectById(channelId);
   const project = projectData?.data?.data;
 
   // Get current user data (same pattern as topbar)
@@ -99,16 +103,16 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
     const errorMessage = error.message;
 
     const isNotAllowed = errorName === 'NotAllowedError' ||
-                         errorMessage.includes('NotAllowedError') ||
-                         errorMessage.includes('Permission denied');
+      errorMessage.includes('NotAllowedError') ||
+      errorMessage.includes('Permission denied');
 
     const isNotFound = errorName === 'NotFoundError' ||
-                       errorMessage.includes('NotFoundError') ||
-                       errorMessage.includes('not found');
+      errorMessage.includes('NotFoundError') ||
+      errorMessage.includes('not found');
 
     const isNotReadable = errorName === 'NotReadableError' ||
-                          errorMessage.includes('NotReadableError') ||
-                          errorMessage.includes('already in use');
+      errorMessage.includes('NotReadableError') ||
+      errorMessage.includes('already in use');
 
     if (deviceType === 'camera') {
       if (isNotAllowed) {
@@ -454,6 +458,21 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
       // Transition to call view
       setIsInCall(true);
       setCallStartTime(new Date()); // Track when call started
+
+      // Send notification to the other party
+      if (projectData?.data) {
+        const project = projectData.data;
+        const receiverId = session?.user?.id === project.data.buyer.userId
+          ? project.data.designer.userId
+          : project.data.buyer.userId;
+
+        if (receiverId) {
+          sendNotification({
+            receiverId,
+            callId: channelId
+          });
+        }
+      }
 
       // Note: Local video will be played by useEffect when DOM is ready
 
@@ -951,12 +970,12 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
         </div>
       )}
 
-        <div className="sm:hidden w-full lg:w-[400px] lg:flex-none border-t lg:border-t-0 lg:border-l border-border bg-background">
-          <ChatWindow
-            projectId={channelId}
-            className="h-full max-h-none"
-          />
-        </div>
+      <div className="sm:hidden w-full lg:w-[400px] lg:flex-none border-t lg:border-t-0 lg:border-l border-border bg-background">
+        <ChatWindow
+          projectId={channelId}
+          className="h-full max-h-none"
+        />
+      </div>
     </>
   );
 }

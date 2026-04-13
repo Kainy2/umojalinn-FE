@@ -562,7 +562,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
             </div>
 
             {/* Measurement Points (including Height as first item from TEMPLATE) */}
-            {((sizingTemplateId && (!isInUse || (isInUse && hasRequestedPoints || hasSubmittedPoints && isProjectLive))) || isNewTemplate || isDraft) && (
+            {((sizingTemplateId && (!isInUse || ((hasRequestedPoints || hasSubmittedPoints) && isProjectLive))) || isNewTemplate || isDraft) && (
               <div className="flex flex-col gap-2">
                 {TEMPLATE
                   .filter((templateItem) => {

@@ -90,7 +90,7 @@ const MeasurementPointsReminderBanner = ({
           <Bell className="size-5 text-amber-600 shrink-0" />
           <div className="flex- flex gap-2 flex-col lg:flex-row items-start lg:items-center  ">
             <p className="text-sm font-medium text-foreground-body">
-              Designer has not sent the measurement point
+              Designer has not sent the measurement points
             </p>
             <button
               onClick={handleSendReminder}
@@ -163,7 +163,7 @@ const MeasurementPointsReminderBanner = ({
         <Bell className="size-5 text-amber-600 shrink-0 mt-0.5" />
         <div className="flex gap-2 justify-center">
           <p className="text-sm font-medium text-foreground-body">
-            Set up your Measurement Point to trigger milestones.
+            Set up your Measurement Points to trigger milestones.
           </p>
           <Link
             href={`/sizing-templates/${uuidToBase62Safe(templateId)}?projectId=${uuidToBase62Safe(projectId)}`}

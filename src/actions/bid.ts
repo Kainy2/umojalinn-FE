@@ -223,3 +223,15 @@ export const acceptOrRejectBid = async (
     body
   );
 };
+export const getProjectAccountConnectionStatus = async (
+  projectId: string,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.get<unknown, AxiosResponse<SingleApiResponse<UmojaLinnSubmitBidResponse>>>(
+    `/project/account-connection-status/${base62ToUuidSafe(projectId)}`
+  );
+};

@@ -80,7 +80,7 @@ const RequestMeasurementPointsPage = ({
             <div className="flex flex-col gap-6">
               <div className="animate-in fade-in duration-300">
                 <h1 className="text-2xl font-bold text-foreground-body mb-2">Request Sizing template</h1>
-                <p className="text-sm text-muted-foreground">Send measurements point to &quot;{buyerName}&quot; for &quot;{projectName}&quot; Project</p>
+                <p className="text-sm text-muted-foreground">Send measurement points to &quot;{buyerName}&quot; for &quot;{projectName}&quot; Project</p>
               </div>
 
               {/* Default Fields */}
