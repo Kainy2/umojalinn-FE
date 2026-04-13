@@ -46,6 +46,7 @@ export const getDefaultCurrencyFromCountry = (
   return "EURO"; // fallback
 };
 
+
 /**
  * Returns a sorted currency order with the default currency first.
  */
