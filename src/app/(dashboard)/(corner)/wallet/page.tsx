@@ -37,7 +37,7 @@ const WithdrawalPage = () => {
   const [isVerified, setIsVerified] = useState(false);
   const router = useRouter();
 
-  // Once session loads set the correct default (session is async so we can't rely on useState initial value)
+
   const hasSetDefault = useRef(false);
   useEffect(() => {
     if (!hasSetDefault.current && user) {
