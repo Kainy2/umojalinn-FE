@@ -608,7 +608,7 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
 
                   {/* Video muted overlay - show user avatar */}
                   {isVideoMuted && (
-                    <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-black flex items-center justify-center">
                       <Avatar className="h-32 w-32">
                         <AvatarImage
                           className="object-cover"
