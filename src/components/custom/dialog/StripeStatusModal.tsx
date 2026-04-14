@@ -68,13 +68,13 @@ export const StripeStatusModal = ({
     let description = `You can accept ${displayCurrency} projects, but funds will be held securely until you add a ${displayCurrency}-receiving account. Umoja linn does not convert currencies.`;
     let buttonText = "Create Bid (Set up Payout later in wallet)";
 
-    if (!isNaira && !paymentAccountConnected && !paymentAccountOnboarded) {
+    if (!isNaira && (paymentAccountConnected === false || paymentAccountOnboarded === false)) {
         title = `Connect Stripe to accept ${displayCurrency} projects`;
         description = `To receive ${displayCurrency} payments, you must connect a Stripe account`;
         buttonText = "Connect Stripe";
     }
 
-    const isConnectStripe = !isNaira && !paymentAccountConnected && !paymentAccountOnboarded;
+    const isConnectStripe = !isNaira && (paymentAccountConnected === false || paymentAccountOnboarded === false);
 
     const checkboxLabel = isConnectStripe
         ? `I understand ${displayCurrency} payouts require an international ${displayCurrency} account - funds will be held until I complete my ${displayCurrency} payout setup.`

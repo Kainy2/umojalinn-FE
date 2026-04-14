@@ -138,7 +138,7 @@ const { id } = useParams<{ id: string }>();
   const { mutate: getAccountStatus, isPending: isCheckingAccountStatus } = useGetProjectAccountConnectionStatus({
     onSuccess: (data) => {
       const { paymentAccountConnected, paymentAccountOnboarded } = data.data.data || {};
-      if (!paymentAccountConnected || !paymentAccountOnboarded) {
+      if (paymentAccountConnected === false || paymentAccountOnboarded === false) {
         setPaymentStatus({ paymentAccountConnected, paymentAccountOnboarded });
         setShowStripeModal(true);
       } else {
