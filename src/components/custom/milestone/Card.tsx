@@ -86,7 +86,7 @@ export const MileStoneCardFooter = (
               <input
                 value={numberToCommaString(price || "")}
                 onChange={changeHandler}
-                className="pl-4 transition shrink-0 w-fit block disabled:bg-background ring-ring placeholder:text-subtitle-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="pl-4 ml-2.5 transition shrink-0 w-fit block disabled:bg-background ring-ring placeholder:text-subtitle-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 placeholder="0"
                 disabled={view}
                 type="text"
@@ -142,18 +142,18 @@ const MileStoneCard = (props: MileStoneCardProps) => {
 
   const handleEdit =
     (value: "title" | "description" | "price") =>
-    (
-      e:
-        | React.ChangeEvent<HTMLInputElement>
-        | React.ChangeEvent<HTMLTextAreaElement>
-        | number
-    ) => {
-      setEditedValues((prev) => ({
-        ...prev,
-        [value]:
-          value === "price" || typeof e === "number" ? e : e.target.value,
-      }));
-    };
+      (
+        e:
+          | React.ChangeEvent<HTMLInputElement>
+          | React.ChangeEvent<HTMLTextAreaElement>
+          | number
+      ) => {
+        setEditedValues((prev) => ({
+          ...prev,
+          [value]:
+            value === "price" || typeof e === "number" ? e : e.target.value,
+        }));
+      };
 
   const footer = (
     <MileStoneCardFooter

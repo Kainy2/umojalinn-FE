@@ -860,12 +860,12 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
                   ))}
                 </div>
               ) : (
-                <div className="absolute inset-0 flex items-center justify-center bg-muted">
+                <div className="absolute inset-0 flex items-center justify-center bg-black rounded-lg">
                   <div className="text-center px-4">
-                    <p className="text-sm md:text-lg font-semibold text-foreground mb-2">
+                    <p className="text-sm md:text-lg font-semibold text-white mb-2">
                       Waiting for {otherParticipant?.firstName ?? 'User'} to join...
                     </p>
-                    <p className="text-xs md:text-sm text-foreground-body">
+                    <p className="text-xs md:text-sm text-white">
                       Share the call ID: <span className="font-mono text-xs md:text-sm">{channelId}</span>
                     </p>
                   </div>
@@ -899,8 +899,8 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
               {/* Call Controls - Bottom Bar */}
               <div className="absolute bottom-4 md:bottom-10 left-1/2 -translate-x-1/2 z-10 max-w-5xl w-[95%] md:w-[90%]">
                 <div
-                  className="flex flex-row items-center justify-between gap-2 md:gap-4 px-3 md:px-8 py-2 md:py-5 rounded-2xl md:rounded-3xl"
-                  style={{ backgroundColor: '#1F1F1F60' }}
+                  className="flex flex-row items-center justify-between gap-2 md:gap-4 px-3 md:px-8 py-2 md:py-5 rounded-2xl md:rounded-full"
+                  style={{ backgroundColor: '#FFFFFF33' }}
                 >
                   {/* Left: End Meeting Button */}
                   <button

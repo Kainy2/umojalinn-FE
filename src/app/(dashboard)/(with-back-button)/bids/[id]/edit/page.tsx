@@ -246,6 +246,8 @@ const BidPage = () => {
           currency={bid?.project?.currency}
           onConfirm={() => {
             handleUpdateAction(mode);
+            setShowExcessDialog(false);
+
           }}
         />
         <StripeStatusModal
