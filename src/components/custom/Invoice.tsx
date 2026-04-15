@@ -145,6 +145,7 @@ const styles = StyleSheet.create({
 type InvoiceProps = {
   project?: UmojaLinnProject;
   milestones?: UmojaLinnMilestone[];
+  isDesigner?: boolean;
 };
 
 // Create Document Component
@@ -259,8 +260,12 @@ const Invoice = (props: InvoiceProps) => {
               Milestone description
             </Text>
             <Text style={[styles.column, styles.column2]}>Date</Text>
-            <Text style={[styles.column, styles.column3]}>Price</Text>
-            <Text style={[styles.column, styles.column4Header]}>Commission</Text>
+            {props.isDesigner && (
+              <>
+                <Text style={[styles.column, styles.column3]}>Price</Text>
+                <Text style={[styles.column, styles.column4Header]}>Commission</Text>
+              </>
+            )}
             <Text style={[styles.column, styles.column5, styles.alignRight]}>
               TOTAL
             </Text>
@@ -286,16 +291,20 @@ const Invoice = (props: InvoiceProps) => {
                       ? formatDate(milestone?.paidOutDate, "dd/MM/YYY")
                       : "-"}
                   </Text>
-                  <Text style={[styles.column, styles.column3]}>
-                    {currency}
-                    {formatCurrencyValue(price)}
-                  </Text>
-                  <Text
-                    style={[styles.column, styles.column4, styles.successText]}
-                  >
-                    {currency}
-                    {formatCurrencyValue(commission)}
-                  </Text>
+                  {props.isDesigner && (
+                    <>
+                      <Text style={[styles.column, styles.column3]}>
+                        {currency}
+                        {formatCurrencyValue(price)}
+                      </Text>
+                      <Text
+                        style={[styles.column, styles.column4, styles.successText]}
+                      >
+                        {currency}
+                        {formatCurrencyValue(commission)}
+                      </Text>
+                    </>
+                  )}
                   <Text style={[styles.column, styles.column5]}>
                     {currency}
                     {formatCurrencyValue(total)}
@@ -310,20 +319,24 @@ const Invoice = (props: InvoiceProps) => {
               { alignSelf: "flex-end", maxWidth: 300, gap: 12 },
             ]}
           >
-            <View style={styles.dateWrapper}>
-              <Text>COMMISSION (17%)</Text>
-              <Text>
-                {currency}
-                {formatCurrencyValue(totalCommission)}
-              </Text>
-            </View>
-            <View style={styles.dateWrapper}>
-              <Text>SUB TOTAL</Text>
-              <Text>
-                {currency}
-                {formatCurrencyValue(baseSubTotal)}
-              </Text>
-            </View>
+            {props.isDesigner && (
+              <>
+                <View style={styles.dateWrapper}>
+                  <Text>COMMISSION (17%)</Text>
+                  <Text>
+                    {currency}
+                    {formatCurrencyValue(totalCommission)}
+                  </Text>
+                </View>
+                <View style={styles.dateWrapper}>
+                  <Text>SUB TOTAL</Text>
+                  <Text>
+                    {currency}
+                    {formatCurrencyValue(baseSubTotal)}
+                  </Text>
+                </View>
+              </>
+            )}
             <View
               style={[
                 styles.alignRight,
