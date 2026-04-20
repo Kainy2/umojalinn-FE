@@ -11,8 +11,8 @@ import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-const ChatBubble = (props: UmojaLinnChat) => {
-  const { user, createdAt, message: rawMessage, type, imageMeta, imageUrl, severity } =
+const ChatBubble = (props: UmojaLinnChat & { isCallActive?: boolean, isUserInCall?: boolean }) => {
+  const { user, createdAt, message: rawMessage, type, imageMeta, imageUrl, severity, isCallActive, isUserInCall } =
     props;
   const { data: session } = useSession();
   const isMe = user?.id === session?.user?.id;
@@ -46,6 +46,7 @@ const ChatBubble = (props: UmojaLinnChat) => {
   }
 
   if (type === "CALL_JOIN") {
+    if (isMe || isUserInCall) return null;
     return (
       <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex flex-col gap-3">
         <div className="flex items-center gap-3">
@@ -72,13 +73,13 @@ const ChatBubble = (props: UmojaLinnChat) => {
             </p>
           </div>
         </div>
-        <Link href={`/video/${message}`}>
+        <Link href={isCallActive ? `/video/${message}` : "#"} className={cn(!isCallActive && "cursor-not-allowed")}>
           <Button
             className="w-full rounded-md"
             size="sm"
-            disabled={session?.user?.id && message ? undefined : true}
+            disabled={!(session?.user?.id && message && isCallActive)}
           >
-            Join Call
+            {isCallActive ? "Join Call" : "Call Ended"}
           </Button>
         </Link>
       </div>

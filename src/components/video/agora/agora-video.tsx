@@ -22,7 +22,7 @@ import { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
 
 import { useSendCallNotification } from "@/tanstack/hooks/useUser";
 import { database } from "@/lib/firebase";
-import { ref, push } from "firebase/database";
+import { ref, push, set, remove, onDisconnect } from "firebase/database";
 import { base62ToUuidSafe } from "@/lib/uuid";
 import { formatDate } from "date-fns";
 
@@ -212,6 +212,12 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
       }
       if (client) {
         void client.leave();
+      }
+
+      // Cleanup participant from Firebase if unmounting while in call
+      if (session?.user?.id && channelId) {
+        const participantRef = ref(database, `chats/${base62ToUuidSafe(channelId)}/active_call/participants/${session.user.id}`);
+        void remove(participantRef);
       }
     };
   }, []);
@@ -474,6 +480,19 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
         }
       }
 
+      // Track participant in Firebase
+      if (session?.user?.id) {
+        const participantRef = ref(database, `chats/${base62ToUuidSafe(channelId)}/active_call/participants/${session.user.id}`);
+        await set(participantRef, {
+          id: session.user.id,
+          firstName: me?.firstName || 'User',
+          lastName: me?.lastName || '',
+          profilePhotoUri: me?.profilePhotoUri || null,
+          joinedAt: new Date().toISOString()
+        });
+        onDisconnect(participantRef).remove();
+      }
+
       // Note: Local video will be played by useEffect when DOM is ready
 
       console.log("Joined channel:", config.channelName);
@@ -506,10 +525,21 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
       // Leave channel
       await client.leave();
 
+      // Remove participant from Firebase
+      if (session?.user?.id) {
+        const participantRef = ref(database, `chats/${base62ToUuidSafe(channelId)}/active_call/participants/${session.user.id}`);
+        await remove(participantRef);
+      }
+
       // Navigate back
       router.back();
     } catch (err) {
       console.error("Failed to leave call:", err);
+      // Remove participant even on error
+      if (session?.user?.id) {
+        const participantRef = ref(database, `chats/${base62ToUuidSafe(channelId)}/active_call/participants/${session.user.id}`);
+        void remove(participantRef);
+      }
       // Navigate back anyway
       router.back();
     }
