@@ -5,8 +5,10 @@ import TextField from "@/components/custom/input/TextField";
 import CustomReactSelect from "@/components/custom/ReactSelect";
 import Bank from "@/icons/Bank";
 import NairaSign from "@/icons/NairaSign";
+import GbpSign from "@/icons/GbpSign";
+import CadSign from "@/icons/CadSign";
 import { UmojaLinnCurrency } from "@/types/project";
-import { Euro, MessageSquareWarning } from "lucide-react";
+import { Euro, MessageSquareWarning, DollarSign } from "lucide-react";
 import React, { useMemo, useState } from "react";
 import {
   useGetListNgnBanks,
@@ -163,10 +165,16 @@ const WithdrawalAmountForm = (props: {
           }}
           startAdornment={
             currency === "EURO" ? (
-              <Euro className="size-4 text-foreground-body" />
-            ) : (
-              <NairaSign className="size-4 text-foreground-body" />
-            )
+              <Euro />
+            ) : currency === "NAIRA" ? (
+              <NairaSign />
+            ) : currency === "USD" ? (
+              <DollarSign />
+            ) : currency === "GBP" ? (
+              <GbpSign width={20} height={20} color="#000" />
+            ) : currency === "CAD" ? (
+              <CadSign width={20} height={20} color="#000" />
+            ) : null
           }
         />
       )}
@@ -199,6 +207,12 @@ const WithdrawalAmountForm = (props: {
                   <p className="text-sm text-gray-600">
                     {paymentAccount?.stripeIban || "N/A"}
                   </p>
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="text-primary font-semibold text-sm mt-2 hover:underline p-0 h-auto"
+                  >
+                    Edit
+                  </button>
                 </>
               )}
             </div>

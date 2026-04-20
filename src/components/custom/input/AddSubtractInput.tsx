@@ -15,7 +15,7 @@ export const AddSubtractInput = ({ amount, currency, onAmountChange }: AddSubtra
 	const [width, setWidth] = useState<number | undefined>();
 	const span = useRef<HTMLSpanElement>(null);
 	const [content, setContent] = useState(amount);
-	
+
 
 	const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.value.length > 27) return
@@ -53,7 +53,7 @@ export const AddSubtractInput = ({ amount, currency, onAmountChange }: AddSubtra
 				<input
 					value={numberToCommaString(amount || "")}
 					onChange={changeHandler}
-					className="pl-4 transition shrink-0 w-fit block disabled:bg-background ring-ring placeholder:text-subtitle-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+					className="pl-4 ml-2 transition shrink-0 w-fit block disabled:bg-background ring-ring placeholder:text-subtitle-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
 					placeholder="0"
 					type="text"
 					min={0}
@@ -67,7 +67,7 @@ export const AddSubtractInput = ({ amount, currency, onAmountChange }: AddSubtra
 			>
 				<Plus />
 			</Button>
-          </div>	
+		</div>
 	)
 }
 

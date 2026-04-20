@@ -10,9 +10,12 @@ import {
 } from "@/tanstack/hooks/useProject";
 import Image from "next/image";
 import { useParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import React from "react";
 
 const EscrowPage = () => {
+  const { data: me } = useSession();
+  const isDesigner = me?.user?.profileRole === "DESIGNER";
   const { id } = useParams<{ id: string }>();
   const { data: projectMilestonesData, isPending: isLoadingProjectMilestones } =
     useGetProjectMilestones(id);
@@ -117,6 +120,7 @@ const EscrowPage = () => {
               project={projectData?.data?.data}
               noFullWidth
               className="absolute bottom-4 left-1/2 -translate-x-1/2"
+              isDesigner={isDesigner}
             />
           </div>
         </div>

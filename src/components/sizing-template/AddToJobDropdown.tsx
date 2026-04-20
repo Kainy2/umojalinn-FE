@@ -29,7 +29,7 @@ const AddToJobDropdown = ({
   className,
 }: AddToJobDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  
+
   const { mutate: addToProject, isPending: isAttaching } = useAddSizingTemplateToProject({
     onSuccess: () => {
       setIsOpen(false);
@@ -56,14 +56,14 @@ const AddToJobDropdown = ({
               <><span>Add to Job</span><ChevronDown className={cn("size-4 transition-transform duration-200", isOpen && "rotate-180")} /></>
             )}
           </Button>
-          {(disabled || !templateId) && (
+          {/* {(disabled || !templateId) && (
             <small className="text-xs mt-2 text-red-400">
             Standard Size and Height not submitted yet
           </small>
-          )}
+          )} */}
         </div>
       </DropdownMenuTrigger>
-      
+
       <DropdownMenuContent align="end" className="w-[220px] animate-in fade-in-0 zoom-in-95 duration-200">
         {isLoadingProjects && (
           <div className="flex items-center justify-center py-4">
@@ -71,7 +71,7 @@ const AddToJobDropdown = ({
             <span className="ml-2 text-sm text-muted-foreground">Loading projects...</span>
           </div>
         )}
-        
+
         {!isLoadingProjects && hasNoProjects && (
           <div className="py-4 px-2 text-center">
             <Briefcase className="size-8 mx-auto text-muted-foreground mb-2" />
@@ -79,7 +79,7 @@ const AddToJobDropdown = ({
             <p className="text-xs text-muted-foreground mt-1">Create a project first to attach this template</p>
           </div>
         )}
-        
+
         {!isLoadingProjects && !hasNoProjects && (
           <>
             <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground border-b">Select a project</div>

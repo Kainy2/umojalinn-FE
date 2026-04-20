@@ -131,6 +131,7 @@ export const getBuyerStatus = (
 	const hasReviews =
 		template?.metadata?.reviews &&
 		!!Object.keys(template.metadata.reviews).length;
+	const isProjectLive = template?.projects?.some((p) => p.status === "LIVE");
 
 
 	// Priority 1: Designer has recommended changes
@@ -140,7 +141,7 @@ export const getBuyerStatus = (
 
 	// Priority 2: Designer requested measurements but buyer hasn't submitted all
 	if (
-		template?.status === "IN_USE" &&
+		isProjectLive && template?.status === "IN_USE" &&
 		!!requestedMeasurementPoints.length &&
 		!submittedMeasurementPoints.length
 	) {

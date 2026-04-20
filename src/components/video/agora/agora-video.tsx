@@ -22,7 +22,7 @@ import { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
 
 import { useSendCallNotification } from "@/tanstack/hooks/useUser";
 import { database } from "@/lib/firebase";
-import { ref, push } from "firebase/database";
+import { ref, push, set, remove, onDisconnect } from "firebase/database";
 import { base62ToUuidSafe } from "@/lib/uuid";
 import { formatDate } from "date-fns";
 
@@ -212,6 +212,12 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
       }
       if (client) {
         void client.leave();
+      }
+
+      // Cleanup participant from Firebase if unmounting while in call
+      if (session?.user?.id && channelId) {
+        const participantRef = ref(database, `chats/${base62ToUuidSafe(channelId)}/active_call/participants/${session.user.id}`);
+        void remove(participantRef);
       }
     };
   }, []);
@@ -474,6 +480,19 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
         }
       }
 
+      // Track participant in Firebase
+      if (session?.user?.id) {
+        const participantRef = ref(database, `chats/${base62ToUuidSafe(channelId)}/active_call/participants/${session.user.id}`);
+        await set(participantRef, {
+          id: session.user.id,
+          firstName: me?.firstName || 'User',
+          lastName: me?.lastName || '',
+          profilePhotoUri: me?.profilePhotoUri || null,
+          joinedAt: new Date().toISOString()
+        });
+        onDisconnect(participantRef).remove();
+      }
+
       // Note: Local video will be played by useEffect when DOM is ready
 
       console.log("Joined channel:", config.channelName);
@@ -506,10 +525,21 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
       // Leave channel
       await client.leave();
 
+      // Remove participant from Firebase
+      if (session?.user?.id) {
+        const participantRef = ref(database, `chats/${base62ToUuidSafe(channelId)}/active_call/participants/${session.user.id}`);
+        await remove(participantRef);
+      }
+
       // Navigate back
       router.back();
     } catch (err) {
       console.error("Failed to leave call:", err);
+      // Remove participant even on error
+      if (session?.user?.id) {
+        const participantRef = ref(database, `chats/${base62ToUuidSafe(channelId)}/active_call/participants/${session.user.id}`);
+        void remove(participantRef);
+      }
       // Navigate back anyway
       router.back();
     }
@@ -608,7 +638,7 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
 
                   {/* Video muted overlay - show user avatar */}
                   {isVideoMuted && (
-                    <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-black flex items-center justify-center">
                       <Avatar className="h-32 w-32">
                         <AvatarImage
                           className="object-cover"
@@ -860,12 +890,12 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
                   ))}
                 </div>
               ) : (
-                <div className="absolute inset-0 flex items-center justify-center bg-muted">
+                <div className="absolute inset-0 flex items-center justify-center bg-black rounded-lg">
                   <div className="text-center px-4">
-                    <p className="text-sm md:text-lg font-semibold text-foreground mb-2">
+                    <p className="text-sm md:text-lg font-semibold text-white mb-2">
                       Waiting for {otherParticipant?.firstName ?? 'User'} to join...
                     </p>
-                    <p className="text-xs md:text-sm text-foreground-body">
+                    <p className="text-xs md:text-sm text-white">
                       Share the call ID: <span className="font-mono text-xs md:text-sm">{channelId}</span>
                     </p>
                   </div>
@@ -899,8 +929,8 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
               {/* Call Controls - Bottom Bar */}
               <div className="absolute bottom-4 md:bottom-10 left-1/2 -translate-x-1/2 z-10 max-w-5xl w-[95%] md:w-[90%]">
                 <div
-                  className="flex flex-row items-center justify-between gap-2 md:gap-4 px-3 md:px-8 py-2 md:py-5 rounded-2xl md:rounded-3xl"
-                  style={{ backgroundColor: '#1F1F1F60' }}
+                  className="flex flex-row items-center justify-between gap-2 md:gap-4 px-3 md:px-8 py-2 md:py-5 rounded-2xl md:rounded-full"
+                  style={{ backgroundColor: '#FFFFFF33' }}
                 >
                   {/* Left: End Meeting Button */}
                   <button

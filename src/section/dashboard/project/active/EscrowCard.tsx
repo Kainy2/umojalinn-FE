@@ -9,6 +9,7 @@ import React, { useMemo } from "react";
 import EscrowCardReviews from "./EscrowCardReviews";
 import { Separator } from "@radix-ui/react-select";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { useSession } from "next-auth/react";
 
 type EscrowCardProps = {
   milestones: UmojaLinnMilestone[];
@@ -21,6 +22,8 @@ type EscrowCardProps = {
 };
 
 const EscrowCard = (props: EscrowCardProps) => {
+  const { data: me } = useSession();
+  const isDesigner = me?.user?.profileRole === "DESIGNER";
   const isDesktop = useMediaQuery('md');
   const totalReleased = useMemo(() => props?.milestones?.reduce?.(
     (acc, milestone) => {
@@ -89,7 +92,11 @@ const EscrowCard = (props: EscrowCardProps) => {
             {formatCurrencyValue(props.projectPrice)}
           </p>
         </div>
-          <InvoiceButton project={props.project} milestones={props.milestones} />
+          <InvoiceButton
+            project={props.project}
+            milestones={props.milestones}
+            isDesigner={isDesigner}
+          />
         <div className="flex gap-2 items-center mt-2">
           <span className="h-6 w-6 shrink-0 bg-error-100 rounded-full flex items-center justify-center text-error">
             <CircleAlert className="h-4 w-4" />

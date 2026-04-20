@@ -145,22 +145,26 @@ const styles = StyleSheet.create({
 type InvoiceProps = {
   project?: UmojaLinnProject;
   milestones?: UmojaLinnMilestone[];
+  isDesigner?: boolean;
 };
 
 // Create Document Component
 const Invoice = (props: InvoiceProps) => {
-  const subTotal = 
-  props?.milestones?.reduce(
-    (amount, milestone) => amount + (milestone?.amount || 0),
-    0
-  )
+  const totalAmount =
+    props?.milestones?.reduce(
+      (amount, milestone) => amount + (milestone?.amount || 0),
+      0
+    ) || 0;
+
+  const totalCommission = totalAmount * 0.17;
+  const baseSubTotal = totalAmount - totalCommission;
 
   const deliveryMilestone = props?.milestones?.[props?.milestones?.length - 1];
-  const currency = 
-  // "N"
-  getCurrencySymbol(props.project?.currency) === "₦" 
-  ? "N" 
-  : getCurrencySymbol(props.project?.currency);
+  const currency =
+    // "N"
+    getCurrencySymbol(props.project?.currency) === "₦"
+      ? "N"
+      : getCurrencySymbol(props.project?.currency);
 
   return (
     <Document>
@@ -256,42 +260,58 @@ const Invoice = (props: InvoiceProps) => {
               Milestone description
             </Text>
             <Text style={[styles.column, styles.column2]}>Date</Text>
-            <Text style={[styles.column, styles.column3]}>Price</Text>
-            <Text style={[styles.column, styles.column4Header]}>Service charge</Text>
+            {props.isDesigner && (
+              <>
+                <Text style={[styles.column, styles.column3]}>Price</Text>
+                <Text style={[styles.column, styles.column4Header]}>Commission</Text>
+              </>
+            )}
             <Text style={[styles.column, styles.column5, styles.alignRight]}>
               TOTAL
             </Text>
           </View>
           <View style={styles.tableBody}>
-            {props?.milestones?.map((milestone, index) => (
-              <View key={milestone?.id} style={[styles.tableRow, styles.row]}>
-                <View style={[styles.column, styles.column1]}>
-                  <Text style={styles.fontBold}>
-                    {milestone?.deliveryMethod
-                      ? "Delivery milestone"
-                      : `Milestone ${index + 1}`}
+            {props?.milestones?.map((milestone, index) => {
+              const total = milestone?.amount || 0;
+              const commission = total * 0.17;
+              const price = total - commission;
+
+              return (
+                <View key={milestone?.id} style={[styles.tableRow, styles.row]}>
+                  <View style={[styles.column, styles.column1]}>
+                    <Text style={styles.fontBold}>
+                      {milestone?.deliveryMethod
+                        ? "Delivery milestone"
+                        : `Milestone ${index + 1}`}
+                    </Text>
+                    <Text style={styles.bodyText}>{milestone?.title}</Text>
+                  </View>
+                  <Text style={[styles.column, styles.column2]}>
+                    {milestone?.paidOutDate
+                      ? formatDate(milestone?.paidOutDate, "dd/MM/YYY")
+                      : "-"}
                   </Text>
-                  <Text style={styles.bodyText}>{milestone?.title}</Text>
+                  {props.isDesigner && (
+                    <>
+                      <Text style={[styles.column, styles.column3]}>
+                        {currency}
+                        {formatCurrencyValue(price)}
+                      </Text>
+                      <Text
+                        style={[styles.column, styles.column4, styles.successText]}
+                      >
+                        {currency}
+                        {formatCurrencyValue(commission)}
+                      </Text>
+                    </>
+                  )}
+                  <Text style={[styles.column, styles.column5]}>
+                    {currency}
+                    {formatCurrencyValue(total)}
+                  </Text>
                 </View>
-                <Text style={[styles.column, styles.column2]}>
-                  {milestone?.paidOutDate
-                    ? formatDate(milestone?.paidOutDate, "dd/MM/YYY")
-                    : "-"}
-                </Text>
-                <Text style={[styles.column, styles.column3]}>
-                  {currency}
-                  {formatCurrencyValue(milestone?.amount)}
-                </Text>
-                <Text style={[styles.column, styles.column4, styles.successText]}>
-                  {currency}
-                  {0}
-                </Text>
-                <Text style={[styles.column, styles.column5]}>
-                  {currency}
-                  {formatCurrencyValue((milestone?.amount ?? 0))}
-                </Text>
-              </View>
-            ))}
+              );
+            })}
           </View>
           <View
             style={[
@@ -299,20 +319,24 @@ const Invoice = (props: InvoiceProps) => {
               { alignSelf: "flex-end", maxWidth: 300, gap: 12 },
             ]}
           >
-            <View style={styles.dateWrapper}>
-              <Text>SERVICE CHARGE (0%)</Text>
-              <Text>
-                {currency}
-                {0}
-              </Text>
-            </View>
-            <View style={styles.dateWrapper}>
-              <Text>SUB TOTAL</Text>
-              <Text>
-                {currency}
-                {formatCurrencyValue(subTotal)}
-              </Text>
-            </View>
+            {props.isDesigner && (
+              <>
+                <View style={styles.dateWrapper}>
+                  <Text>COMMISSION (17%)</Text>
+                  <Text>
+                    {currency}
+                    {formatCurrencyValue(totalCommission)}
+                  </Text>
+                </View>
+                <View style={styles.dateWrapper}>
+                  <Text>SUB TOTAL</Text>
+                  <Text>
+                    {currency}
+                    {formatCurrencyValue(baseSubTotal)}
+                  </Text>
+                </View>
+              </>
+            )}
             <View
               style={[
                 styles.alignRight,
