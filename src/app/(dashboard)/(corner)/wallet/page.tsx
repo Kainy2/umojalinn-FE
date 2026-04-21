@@ -1,15 +1,22 @@
 "use client";
-import WalletCard, { EscrowCard, CurrencyCard } from "@/components/custom/card/Wallet";
+import WalletCard, {
+  EscrowCard,
+  CurrencyCard,
+} from "@/components/custom/card/Wallet";
 import { CurrencyCarousel } from "@/components/custom/card/CurrencyCarousel";
 import { Separator } from "@/components/ui/separator";
-import { useGetInfiniteTransactions, useGetWallet, useGetPaymentAccountInfo } from "@/tanstack/hooks/useProject";
+import {
+  useGetInfiniteTransactions,
+  useGetWallet,
+  useGetPaymentAccountInfo,
+} from "@/tanstack/hooks/useProject";
 import { useConnectStripeAccount } from "@/tanstack/hooks/useProject";
 import { useGetMe } from "@/tanstack/hooks/useUser";
 import React, { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { capitalizeFirstLetter, getCurrencySymbol } from "@/lib/string";
 import { formatCurrencyValue } from "@/lib/number";
-import { formatDate } from "date-fns"
+import { formatDate } from "date-fns";
 import {
   getTransactionIcon,
   getTransactionStatus,
@@ -19,11 +26,10 @@ import {
 import { cn } from "@/lib/utils";
 import { useInfiniteData } from "@/hooks/use-infinite-data";
 import { UmojaLinnCurrency } from "@/types/project";
-import VerifyPasswordDialog from "@/components/custom/dialog/VerifyPasswordDialog";
-import { useRouter } from "next/navigation";
+// import VerifyPasswordDialog from "@/components/custom/dialog/VerifyPasswordDialog";
+// import { useRouter } from "next/navigation";
 
 const WithdrawalPage = () => {
-
   const { data: userData } = useGetMe();
   const { data: session } = useSession();
   const { data: walletData } = useGetWallet();
@@ -32,11 +38,11 @@ const WithdrawalPage = () => {
   const user = userData?.data?.data;
   const defaultCurrency = getDefaultCurrencyFromCountry(user?.address?.country);
 
-  const [selectedCurrency, setSelectedCurrency] = useState<UmojaLinnCurrency>("EURO");
+  const [selectedCurrency, setSelectedCurrency] =
+    useState<UmojaLinnCurrency>("EURO");
   const [hideBalance, setHideBalance] = useState(true);
-  const [isVerified, setIsVerified] = useState(false);
-  const router = useRouter();
-
+  // const [isVerified, setIsVerified] = useState(false);
+  // const router = useRouter();
 
   const hasSetDefault = useRef(false);
   useEffect(() => {
@@ -55,39 +61,49 @@ const WithdrawalPage = () => {
     fetchNextPage,
     hasNextPage,
   } = useGetInfiniteTransactions();
-  const transactions = useInfiniteData(allTransactions)
+  const transactions = useInfiniteData(allTransactions);
 
   const wallet = walletData?.data?.data;
   const paymentAccount = paymentAccountData?.data?.data?.[0];
 
   const isDesigner = session?.user?.profileRole === "DESIGNER";
 
-  const { mutate: connectStripeAccount, isPending: isLinkingStripe } = useConnectStripeAccount({
-    onSuccess: (data) => {
-      if (data.data.data.onboardingUrl) {
-        window.location.href = data.data.data.onboardingUrl;
-      }
-    },
-  });
+  const { mutate: connectStripeAccount, isPending: isLinkingStripe } =
+    useConnectStripeAccount({
+      onSuccess: (data) => {
+        if (data.data.data.onboardingUrl) {
+          window.location.href = data.data.data.onboardingUrl;
+        }
+      },
+    });
 
   const getActionLabel = (currency: UmojaLinnCurrency): string | null => {
     if (currency === "NAIRA") {
-      return paymentAccount?.paystackStatus !== "ENABLED" ? "Action required" : null;
+      return paymentAccount?.paystackStatus !== "ENABLED"
+        ? "Action required"
+        : null;
     }
     switch (paymentAccount?.stripeStatus) {
-      case "NOT_CONNECTED": return "Not connected";
-      case "ONBOARDING_STARTED": return "Setup incomplete";
-      case "ACTION_REQUIRED": return "Action required";
-      case "BANK_DETAILS_MISSING": return "Bank details missing";
-      case "RESTRICTED": return "Action required";
-      case "ENABLED": return null;
-      default: return "Action required";
+      case "NOT_CONNECTED":
+        return "Not connected";
+      case "ONBOARDING_STARTED":
+        return "Setup incomplete";
+      case "ACTION_REQUIRED":
+        return "Action required";
+      case "BANK_DETAILS_MISSING":
+        return "Bank details missing";
+      case "RESTRICTED":
+        return "Action required";
+      case "ENABLED":
+        return null;
+      default:
+        return "Action required";
     }
   };
 
   return (
     <>
-      <VerifyPasswordDialog
+      {/* <VerifyPasswordDialog
         open={!isVerified}
         onCancel={() => {
           router.back();
@@ -95,7 +111,7 @@ const WithdrawalPage = () => {
         onSuccess={() => {
           setIsVerified(true);
         }}
-      />
+      /> */}
       <h1 className="text-subtitle-1 font-bold mb-8">Wallet</h1>
       <div className="flex h-full flex-col lg:flex-row gap-4">
         <div className="shrink-0 w-full lg:w-8/12">
@@ -146,9 +162,9 @@ const WithdrawalPage = () => {
               !!session?.user?.profileRole &&
               getTransactionStatus(
                 trans?.transactionType,
-                session?.user?.profileRole
+                session?.user?.profileRole,
               );
-            const transactionSign = isCredit ? "+" : "-"
+            const transactionSign = isCredit ? "+" : "-";
             const getColorClass = () => {
               if (trans?.transactionType === "MILESTONE_COMPLETED") {
                 return "text-success";
@@ -161,7 +177,7 @@ const WithdrawalPage = () => {
               } else {
                 return "text-warning";
               }
-            }
+            };
 
             const getTrxStatusText = () => {
               switch (trans?.status) {
@@ -190,41 +206,44 @@ const WithdrawalPage = () => {
                   <div className="flex justify-between items-center">
                     <p className="font-semibold">
                       {capitalizeFirstLetter(
-                        trans?.transactionType
-                          ?.replace(/_|REQUEST|COMPLETED/g, match =>
-                            match === '_' ? ' ' :
-                              match === 'REQUEST' ? '' :
-                                match === 'COMPLETED' ? 'approved ' :
-                                  match
-                          )
+                        trans?.transactionType?.replace(
+                          /_|REQUEST|COMPLETED/g,
+                          (match) =>
+                            match === "_"
+                              ? " "
+                              : match === "REQUEST"
+                                ? ""
+                                : match === "COMPLETED"
+                                  ? "approved "
+                                  : match,
+                        ),
                       )}
-                      {
-                        trans?.transactionType ===
-                          "WITHDRAWAL_REQUEST"
-                          ? getTrxStatusText()
-                          : ""
-                      }
+                      {trans?.transactionType === "WITHDRAWAL_REQUEST"
+                        ? getTrxStatusText()
+                        : ""}
                     </p>
                     <p className={getColorClass()}>
-                      {`${trans?.transactionType !==
-                        "WITHDRAWAL_REQUEST"
-                        ? transactionSign
-                        : ""
-                        }                
+                      {`${
+                        trans?.transactionType !== "WITHDRAWAL_REQUEST"
+                          ? transactionSign
+                          : ""
+                      }                
                       ${getCurrencySymbol(
-                          trans?.currency
-                        )}${formatCurrencyValue(trans?.amount)}`}
+                        trans?.currency,
+                      )}${formatCurrencyValue(trans?.amount)}`}
                     </p>
                   </div>
                   <div className="flex justify-between">
-                    <p className={cn(
-                      "text-sm text-foreground-body",
-                      !trans.withdrawalMethod?.paypalEmail && "capitalize"
-                    )}>
-                      {trans.withdrawalMethod?.paypalEmail
-                        || trans?.project?.title
-                        || trans?.paymentChannel.replace("_", " ").toLowerCase()
-                        || ""}
+                    <p
+                      className={cn(
+                        "text-sm text-foreground-body",
+                        !trans.withdrawalMethod?.paypalEmail && "capitalize",
+                      )}
+                    >
+                      {trans.withdrawalMethod?.paypalEmail ||
+                        trans?.project?.title ||
+                        trans?.paymentChannel.replace("_", " ").toLowerCase() ||
+                        ""}
                     </p>
                     <p className="text-sm">
                       {formatDate(trans?.createdAt, "dd/MM/yy")}
@@ -240,9 +259,7 @@ const WithdrawalPage = () => {
               onClick={() => hasNextPage && fetchNextPage()}
               className="text-primary text-sm text-right block w-full mt-4 py-2 hover:text-primary/70 transition"
             >
-              {isFetchingNextPage
-                ? "loading more..."
-                : "Show more"}
+              {isFetchingNextPage ? "loading more..." : "Show more"}
             </button>
           )}
 

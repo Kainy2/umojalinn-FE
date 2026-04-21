@@ -15,7 +15,6 @@ import { useForm } from "react-hook-form";
 import CustomSelectCountry from "@/components/custom/SelectCountry";
 import { useStrictClientAxios } from "@/hooks/use-strict-client-axios";
 
-
 const OnboardAddressForm = (props: { role: UmojaLinnUserRole }) => {
   const router = useRouter();
   useStrictClientAxios();
@@ -35,9 +34,7 @@ const OnboardAddressForm = (props: { role: UmojaLinnUserRole }) => {
 
   const onboardMe: OnboardingProps = useMemo(() => {
     const data = sessionStorage.getItem("ONBOARD_INFO");
-    return data
-      ? JSON.parse(data)
-      : {};
+    return data ? JSON.parse(data) : {};
   }, []);
   useEffect(() => {
     if (Object.values(onboardMe)) {
@@ -61,9 +58,7 @@ const OnboardAddressForm = (props: { role: UmojaLinnUserRole }) => {
     // ✅ This will be type-safe and validated.
     // setItem("ONBOARD_INFO", { ...onboardMe, address: { ...values } });
 
-    const data = JSON.stringify(
-      { ...onboardMe, address: { ...values } }
-    )
+    const data = JSON.stringify({ ...onboardMe, address: { ...values } });
     sessionStorage.setItem("ONBOARD_INFO", data);
     router.push(nextUrl);
   }
@@ -75,11 +70,6 @@ const OnboardAddressForm = (props: { role: UmojaLinnUserRole }) => {
         className="flex flex-col gap-8"
         autoComplete="off"
       >
-        <FormField
-          control={form.control}
-          name="address"
-          render={({ field }) => <TextField {...field} label="Home address" />}
-        />
         <FormField
           control={form.control}
           name="country"
@@ -113,7 +103,11 @@ const OnboardAddressForm = (props: { role: UmojaLinnUserRole }) => {
           name="zipCode"
           render={({ field }) => <TextField {...field} label="Zip Code" />}
         />
-
+        <FormField
+          control={form.control}
+          name="address"
+          render={({ field }) => <TextField {...field} label="Home address" />}
+        />
         <OnboardActionButtons skipHref={nextUrl} />
       </form>
     </Form>

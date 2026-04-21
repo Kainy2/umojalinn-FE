@@ -22,6 +22,7 @@ export type UmojaLinnUserRoleProfile = {
   isAvailable: boolean;
   projectInvitations: UmojaLinnProjectInvitation[];
   user: null | UmojaLinnUser;
+  numberOfTemplates?: number;
 } & UmojaLinnTimestamp;
 
 export type UmojaLinnUserDesignerAddonProfile = {
