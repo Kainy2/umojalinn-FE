@@ -9,10 +9,6 @@
  * - View template (both)
  */
 
-
-
-
-
 // view sizing template takes to height size modal only when project is not live
 
 import React, { useState } from "react";
@@ -22,7 +18,10 @@ import { cn } from "@/lib/utils";
 import { uuidToBase62Safe } from "@/lib/uuid";
 // import { canSendReminder } from "@/lib/sizing-template-utils";
 import { DEFAULT_HEIGHT, DEFAULT_UNIT } from "@/types/constants";
-import { UmojaLinnSizingTemplate, UmojalinnStandardSize } from "@/types/project";
+import {
+  UmojaLinnSizingTemplate,
+  UmojalinnStandardSize,
+} from "@/types/project";
 
 import { useGetMe } from "@/tanstack/hooks/useUser";
 import { useGetBidById } from "@/tanstack/hooks/useBid";
@@ -69,9 +68,6 @@ type PillState =
   | "VIEW_PDF"
   | "UPDATED";
 
-
-
-
 export const CustomFileQuestion = createLucideIcon("DocumentAlert", [
   [
     "path",
@@ -94,27 +90,40 @@ const SizingTemplatePill = ({
   // Data fetching
   const { data: meData, isLoading: isLoadingProfile } = useGetMe();
   const { data: session } = useSession();
-  const { data: bidData, refetch: refetchBid, isLoading: isLoadingBid } = useGetBidById(bidId || "", {
+  const {
+    data: bidData,
+    refetch: refetchBid,
+    isLoading: isLoadingBid,
+  } = useGetBidById(bidId || "", {
     enabled: !!bidId,
   });
-  const { data: projectData, refetch: refetchProject, isLoading: isLoadingProject } = useGetProjectById(projectId);
+  const {
+    data: projectData,
+    refetch: refetchProject,
+    isLoading: isLoadingProject,
+  } = useGetProjectById(projectId);
   const queryclient = useQueryClient();
 
   const project = projectData?.data?.data;
   const bid = bidData?.data?.data;
   const sizingTemplateId = project?.sizingTemplateId;
-
+  console.log(bidId);
+  console.log(bid?.id);
   // For non-bid contexts (like active projects), sizingTemplateRequested might be on the project level
   // If bid exists, use bid.sizingTemplateRequested, otherwise assume true if template exists or project is LIVE
-  const isProjectLive = project?.status === "LIVE"
+  const isProjectLive = project?.status === "LIVE";
 
-  const sizingTemplateRequested = bid?.sizingTemplateRequested ??
-    (isProjectLive || !!sizingTemplateId);
+  const sizingTemplateRequested =
+    bid?.sizingTemplateRequested ?? (isProjectLive || !!sizingTemplateId);
 
-  const { data: templateData, refetch: refetchTemplate, isLoading: isLoadingTemplate } = useGetSizingTemplateById(
-    sizingTemplateId || undefined,
-    { enabled: !!sizingTemplateId, view: false }
-  );
+  const {
+    data: templateData,
+    refetch: refetchTemplate,
+    isLoading: isLoadingTemplate,
+  } = useGetSizingTemplateById(sizingTemplateId || undefined, {
+    enabled: !!sizingTemplateId,
+    view: false,
+  });
   const { data: allTemplatesData } = useGetAllSizingTemplates();
 
   const sizingTemplate = templateData?.data?.data;
@@ -124,7 +133,8 @@ const SizingTemplatePill = ({
   // State for modals
   const [selectModalOpen, setSelectModalOpen] = useState(false);
   const [showHeightModal, setShowHeightModal] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<UmojaLinnSizingTemplate | null>(null);
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<UmojaLinnSizingTemplate | null>(null);
   const [isCreatingNew, setIsCreatingNew] = useState(false);
   const [pendingFillNavigation, setPendingFillNavigation] = useState(false);
   // const [reminderPopoverOpen, setReminderPopoverOpen] = useState(false);
@@ -141,17 +151,18 @@ const SizingTemplatePill = ({
   // }, [sizingTemplate?.lastReminderSentAt]);
 
   // Mutations
-  const { mutate: addTemplateToProject, isPending: isAddingTemplate } = useAddSizingTemplateToProject({
-    onSuccess: () => {
-      setShowHeightModal(false);
-      setSelectModalOpen(false);
-      setSelectedTemplate(null);
-      setIsCreatingNew(false);
-      refetchBid();
-      refetchProject();
-      refetchTemplate();
-    },
-  });
+  const { mutate: addTemplateToProject, isPending: isAddingTemplate } =
+    useAddSizingTemplateToProject({
+      onSuccess: () => {
+        setShowHeightModal(false);
+        setSelectModalOpen(false);
+        setSelectedTemplate(null);
+        setIsCreatingNew(false);
+        refetchBid();
+        refetchProject();
+        refetchTemplate();
+      },
+    });
 
   // Designer: Request sizing template mutation
   const {
@@ -159,16 +170,17 @@ const SizingTemplatePill = ({
     // isPending: isRequestingTemplate,
   } = useRequestSizingTemplateInProject({
     onSuccess: () => {
-      queryclient.invalidateQueries({ queryKey: [BID, { id: bid?.id, role: session?.user.profileRole }] });
+      queryclient.invalidateQueries({
+        queryKey: [BID, { id: bid?.id, role: session?.user.profileRole }],
+      });
 
       // Navigate to measurement points selection page after successful request
-      navigateToRequestPage()
+      navigateToRequestPage();
     },
   });
 
-  const { mutate: updateTemplate, isPending: isUpdatingTemplate } = useUpdateSizingTemplate(
-    selectedTemplate?.id,
-    {
+  const { mutate: updateTemplate, isPending: isUpdatingTemplate } =
+    useUpdateSizingTemplate(selectedTemplate?.id, {
       onSuccess: () => {
         if (selectedTemplate && project?.id) {
           addTemplateToProject({
@@ -177,35 +189,35 @@ const SizingTemplatePill = ({
           });
         }
       },
-    }
-  );
+    });
 
-  const { mutate: createTemplate, isPending: isCreatingTemplate } = useCreateSizingTemplate({
-    onSuccess: (data) => {
-      const newTemplateId = data?.data?.data?.id;
-      if (newTemplateId && project?.id) {
-        if (pendingFillNavigation) {
-          // Navigate to fill page after adding template
-          addTemplateToProject(
-            { projectId: project.id, sizingTemplateId: newTemplateId },
-            {
-              onSuccess: () => {
-                setPendingFillNavigation(false);
-                router.push(
-                  `/sizing-templates/${uuidToBase62Safe(newTemplateId)}?projectId=${uuidToBase62Safe(project.id)}`
-                );
+  const { mutate: createTemplate, isPending: isCreatingTemplate } =
+    useCreateSizingTemplate({
+      onSuccess: (data) => {
+        const newTemplateId = data?.data?.data?.id;
+        if (newTemplateId && project?.id) {
+          if (pendingFillNavigation) {
+            // Navigate to fill page after adding template
+            addTemplateToProject(
+              { projectId: project.id, sizingTemplateId: newTemplateId },
+              {
+                onSuccess: () => {
+                  setPendingFillNavigation(false);
+                  router.push(
+                    `/sizing-templates/${uuidToBase62Safe(newTemplateId)}?projectId=${uuidToBase62Safe(project.id)}`,
+                  );
+                },
               },
-            }
-          );
-        } else {
-          addTemplateToProject({
-            projectId: project.id,
-            sizingTemplateId: newTemplateId,
-          });
+            );
+          } else {
+            addTemplateToProject({
+              projectId: project.id,
+              sizingTemplateId: newTemplateId,
+            });
+          }
         }
-      }
-    },
-  });
+      },
+    });
 
   // const { mutate: sendReminder, isPending: isSendingReminder } = useSendSizingTemplateReminder(
   //   sizingTemplateId || "",
@@ -218,44 +230,75 @@ const SizingTemplatePill = ({
   //   }
   // );
 
-  const isHeightModalLoading = isAddingTemplate || isCreatingTemplate || isUpdatingTemplate;
+  const isHeightModalLoading =
+    isAddingTemplate || isCreatingTemplate || isUpdatingTemplate;
 
   // Determine pill state
   const getPillState = (): PillState | null => {
-    const requestedMeasurementPoints = sizingTemplate?.requestedMeasurementPoints || bid?.requestedMeasurementPoints;
-    const submittedMeasurementPoints = sizingTemplate?.submittedMeasurementPoints
+    const requestedMeasurementPoints =
+      sizingTemplate?.requestedMeasurementPoints ||
+      bid?.requestedMeasurementPoints;
+    const submittedMeasurementPoints =
+      sizingTemplate?.submittedMeasurementPoints;
 
+    if (
+      isLoadingTemplate ||
+      isLoadingBid ||
+      isLoadingProject ||
+      isLoadingProfile
+    )
+      return null;
 
-    if (isLoadingTemplate || isLoadingBid || isLoadingProject || isLoadingProfile) return null;
-
-    const hasDesignerRecommendations = sizingTemplate?.metadata?.reviews && !!Object.keys(sizingTemplate.metadata.reviews).length;
+    const hasDesignerRecommendations =
+      sizingTemplate?.metadata?.reviews &&
+      !!Object.keys(sizingTemplate.metadata.reviews).length;
     const hasRepliedRecommendations =
       !sizingTemplate?.metadata?.reviews ||
       Object.keys(sizingTemplate.metadata.reviews).length === 0;
 
     if (isDesigner) {
-      if (project?.sizingTemplatePdfUrl && project.status === "COMPLETED") return "VIEW_PDF";
+      if (project?.sizingTemplatePdfUrl && project.status === "COMPLETED")
+        return "VIEW_PDF";
 
       // 7. Buyer updates measurement points after changes recommended, but designer has not viewed them yet
-      if (sizingTemplateId && hasRepliedRecommendations && sizingTemplate?.isChangesUpdated)
+      if (
+        sizingTemplateId &&
+        hasRepliedRecommendations &&
+        sizingTemplate?.isChangesUpdated
+      )
         return "UPDATED";
 
       // 6. Designer requests changes to measurement points
-      if (sizingTemplateId && hasDesignerRecommendations && !hasRepliedRecommendations) return "CHANGES_RECOMMENDED";
+      if (
+        sizingTemplateId &&
+        hasDesignerRecommendations &&
+        !hasRepliedRecommendations
+      )
+        return "CHANGES_RECOMMENDED";
 
       // 5. Template added AND measurement points filled
-      if (sizingTemplateId && submittedMeasurementPoints?.length) return "VIEW_TEMPLATE";
+      if (sizingTemplateId && submittedMeasurementPoints?.length)
+        return "VIEW_TEMPLATE";
 
       // 3 & 4. Template and measurement points requested but buyer has not added / filled them
-      if (requestedMeasurementPoints?.length && (!sizingTemplateId || !submittedMeasurementPoints?.length)) return "MEASUREMENT_REQUESTED";
+      if (
+        requestedMeasurementPoints?.length &&
+        (!sizingTemplateId || !submittedMeasurementPoints?.length)
+      )
+        return "MEASUREMENT_REQUESTED";
 
       // 2. Sizing template requested but measurement points not defined
-      if ((sizingTemplateRequested || sizingTemplateId) && !requestedMeasurementPoints?.length) return "REQUEST_MEASUREMENT_POINTS";
+      if (
+        (sizingTemplateRequested || sizingTemplateId) &&
+        !requestedMeasurementPoints?.length
+      )
+        return "REQUEST_MEASUREMENT_POINTS";
 
       // 1. No sizing template attached
       return "REQUEST_SIZING_TEMPLATE";
     } else {
-      if (project?.sizingTemplatePdfUrl && project.status === "COMPLETED") return "VIEW_PDF";
+      if (project?.sizingTemplatePdfUrl && project.status === "COMPLETED")
+        return "VIEW_PDF";
 
       if (!isProjectLive) {
         if (sizingTemplateId) return "VIEW_TEMPLATE";
@@ -264,13 +307,23 @@ const SizingTemplatePill = ({
 
       // Live project
       // 2. Designer recommended changes and buyer has not made them
-      if (sizingTemplateId && hasDesignerRecommendations && !hasRepliedRecommendations) return "VIEW_SIZING_RECOMMENDATIONS";
+      if (
+        sizingTemplateId &&
+        hasDesignerRecommendations &&
+        !hasRepliedRecommendations
+      )
+        return "VIEW_SIZING_RECOMMENDATIONS";
 
       // 1. Designer requested measurement points and they are not filled
-      if (requestedMeasurementPoints?.length && (!sizingTemplateId || !submittedMeasurementPoints?.length)) return "ADD_REQUESTED_MEASUREMENTS";
+      if (
+        requestedMeasurementPoints?.length &&
+        (!sizingTemplateId || !submittedMeasurementPoints?.length)
+      )
+        return "ADD_REQUESTED_MEASUREMENTS";
 
       // 3. Buyer completes requested measurements or changes
-      if (sizingTemplateId && submittedMeasurementPoints?.length) return "VIEW_TEMPLATE";
+      if (sizingTemplateId && submittedMeasurementPoints?.length)
+        return "VIEW_TEMPLATE";
 
       // Default for Buyer (should add template if no template attached)
       if (!sizingTemplateId) return "ADD_TEMPLATE";
@@ -283,9 +336,12 @@ const SizingTemplatePill = ({
 
   // Handlers
   const handleSelectTemplate = (templateId: string) => {
-
-    const fullTemplate = allTemplatesData?.data?.data?.find((t) => t.id === templateId);
-    setSelectedTemplate(fullTemplate || ({ id: templateId } as UmojaLinnSizingTemplate));
+    const fullTemplate = allTemplatesData?.data?.data?.find(
+      (t) => t.id === templateId,
+    );
+    setSelectedTemplate(
+      fullTemplate || ({ id: templateId } as UmojaLinnSizingTemplate),
+    );
     setIsCreatingNew(false);
     setSelectModalOpen(false);
     setShowHeightModal(true);
@@ -301,7 +357,7 @@ const SizingTemplatePill = ({
   const handleHeightSubmit = (
     height: number,
     ukSize: UmojalinnStandardSize,
-    unit: UmojaLinnSizingTemplate["unit"]
+    unit: UmojaLinnSizingTemplate["unit"],
   ) => {
     if (isCreatingNew && project?.gender) {
       createTemplate({
@@ -339,15 +395,15 @@ const SizingTemplatePill = ({
     // setShowHeightModal(true);
     if (sizingTemplate && project?.id) {
       router.push(
-        `/sizing-templates/${uuidToBase62Safe(sizingTemplate.id)}?projectId=${uuidToBase62Safe(project.id)}`
-      )
+        `/sizing-templates/${uuidToBase62Safe(sizingTemplate.id)}?projectId=${uuidToBase62Safe(project.id)}`,
+      );
     }
   };
 
   const handleFillHeightSubmit = (
     height: number,
     ukSize: UmojalinnStandardSize,
-    unit: UmojaLinnSizingTemplate["unit"]
+    unit: UmojaLinnSizingTemplate["unit"],
   ) => {
     if (sizingTemplate && project?.id) {
       // Update template first, then navigate
@@ -358,10 +414,10 @@ const SizingTemplatePill = ({
             setShowHeightModal(false);
             setPendingFillNavigation(false);
             router.push(
-              `/sizing-templates/${uuidToBase62Safe(sizingTemplate.id)}?projectId=${uuidToBase62Safe(project.id)}`
+              `/sizing-templates/${uuidToBase62Safe(sizingTemplate.id)}?projectId=${uuidToBase62Safe(project.id)}`,
             );
           },
-        }
+        },
       );
     }
   };
@@ -382,9 +438,15 @@ const SizingTemplatePill = ({
     const query = `?projectId=${uuidToBase62Safe(project.id)}`;
 
     if (sizingTemplateId) {
-      router.push(`/sizing-templates/request/${uuidToBase62Safe(sizingTemplateId)}${query}`);
+      console.log("sizingTemplateId", sizingTemplateId);
+      router.push(
+        `/sizing-templates/request/${uuidToBase62Safe(sizingTemplateId)}${query}`,
+      );
     } else if (bid?.id) {
-      router.push(`/sizing-templates/request/${uuidToBase62Safe(bid.id)}${query}`);
+      console.log("bid?.id", bid?.id);
+      router.push(
+        `/sizing-templates/request/${uuidToBase62Safe(bid.id)}${query}`,
+      );
     }
   };
 
@@ -392,18 +454,16 @@ const SizingTemplatePill = ({
     if (!project?.id) return;
 
     if (sizingTemplateRequested) {
-      navigateToRequestPage()
+      navigateToRequestPage();
     } else {
-      requestSizingTemplate(project?.id)
+      requestSizingTemplate(project?.id);
     }
-  }
-
-
+  };
 
   const navigateToViewPage = (view?: boolean) => {
     if (sizingTemplateId && project?.id) {
       router.push(
-        `/sizing-templates/${uuidToBase62Safe(sizingTemplateId)}?projectId=${uuidToBase62Safe(project.id)}${view ? "&view=true" : ""}`
+        `/sizing-templates/${uuidToBase62Safe(sizingTemplateId)}?projectId=${uuidToBase62Safe(project.id)}${view ? "&view=true" : ""}`,
       );
     }
   };
@@ -411,7 +471,7 @@ const SizingTemplatePill = ({
   const navigateToViewSizingRecommendationsPage = () => {
     if (sizingTemplateId && project?.id) {
       router.push(
-        `/sizing-templates/${uuidToBase62Safe(sizingTemplateId)}?projectId=${uuidToBase62Safe(project.id)}`
+        `/sizing-templates/${uuidToBase62Safe(sizingTemplateId)}?projectId=${uuidToBase62Safe(project.id)}`,
       );
     }
   };
@@ -425,7 +485,11 @@ const SizingTemplatePill = ({
   // Get modal values
   const getModalValues = () => {
     if (isCreatingNew) {
-      return { height: DEFAULT_HEIGHT, unit: DEFAULT_UNIT, gender: project?.gender };
+      return {
+        height: DEFAULT_HEIGHT,
+        unit: DEFAULT_UNIT,
+        gender: project?.gender,
+      };
     }
     if (pendingFillNavigation && sizingTemplate) {
       return {
@@ -485,7 +549,10 @@ const SizingTemplatePill = ({
                   <Plus />
                 </span>
               }
-              className={cn("bg-red-50 border text-red-500 border-dashed border-red-500 ", className)}
+              className={cn(
+                "bg-red-50 border text-red-500 border-dashed border-red-500 ",
+                className,
+              )}
             />
           </div>
         );
@@ -505,7 +572,10 @@ const SizingTemplatePill = ({
                   <Plus />
                 </span>
               }
-              className={cn("bg-red-50 border text-red-500 border-dashed border-red-500 ", className)}
+              className={cn(
+                "bg-red-50 border text-red-500 border-dashed border-red-500 ",
+                className,
+              )}
             />
           </div>
         );
@@ -525,7 +595,10 @@ const SizingTemplatePill = ({
                   <Plus />
                 </span>
               }
-              className={cn("border border-green-500 border-dashed cursor-pointer", className)}
+              className={cn(
+                "border border-green-500 border-dashed cursor-pointer",
+                className,
+              )}
             />
           </div>
         );
@@ -596,7 +669,7 @@ const SizingTemplatePill = ({
             className="cursor-pointer transition-transform hover:scale-[1.02]"
             onClick={() => {
               if (!project?.sizingTemplateId) return;
-              navigateToViewPage()
+              navigateToViewPage();
             }}
           >
             <AvatarIconTag
@@ -629,14 +702,17 @@ const SizingTemplatePill = ({
             className="cursor-pointer transition-transform hover:scale-[1.02]"
             onClick={() => {
               if (!project?.sizingTemplateId) return;
-              navigateToViewPage(true)
+              navigateToViewPage(true);
             }}
           >
             <AvatarIconTag
               label="Updated"
               icon={<CheckCircle className="text-red-500" />}
               disabled={!project?.sizingTemplateId}
-              className={cn("bg-red-50 border border-red-500 text-red-600", className)}
+              className={cn(
+                "bg-red-50 border border-red-500 text-red-600",
+                className,
+              )}
             />
           </div>
         );
@@ -648,13 +724,13 @@ const SizingTemplatePill = ({
             onClick={() => {
               if (!project?.sizingTemplateId) return;
               if (project.status === "ADS") {
-                handleSelectTemplate(project?.sizingTemplateId)
-                return
+                handleSelectTemplate(project?.sizingTemplateId);
+                return;
               }
 
               if (project.status === "LIVE") {
-                navigateToViewPage()
-                return
+                navigateToViewPage();
+                return;
               }
             }}
           >
@@ -665,7 +741,10 @@ const SizingTemplatePill = ({
                   <CustomFileQuestion />
                 </span>
               }
-              className={cn("bg-gray-50 border border-gray-400 text-gray-600", className)}
+              className={cn(
+                "bg-gray-50 border border-gray-400 text-gray-600",
+                className,
+              )}
             />
           </div>
         );
@@ -679,8 +758,6 @@ const SizingTemplatePill = ({
         );
     }
   };
-
-
 
   return (
     <>
@@ -701,7 +778,9 @@ const SizingTemplatePill = ({
         height={modalValues.height}
         ukSize={modalValues.ukSize}
         unit={modalValues.unit}
-        onSubmit={pendingFillNavigation ? handleFillHeightSubmit : handleHeightSubmit}
+        onSubmit={
+          pendingFillNavigation ? handleFillHeightSubmit : handleHeightSubmit
+        }
         disabled={false}
         triggerOpen={showHeightModal}
         onOpenChange={handleHeightModalChange}
@@ -713,4 +792,3 @@ const SizingTemplatePill = ({
 };
 
 export default SizingTemplatePill;
-
