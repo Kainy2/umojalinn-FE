@@ -1,13 +1,41 @@
-import { UmojaLinnSizingTemplate, UmojalinnMaleStandardSize, UmojalinnFemaleStandardSize } from "./project";
+import {
+  UmojaLinnSizingTemplate,
+  UmojalinnMaleStandardSize,
+  UmojalinnFemaleStandardSize,
+} from "./project";
 
 // Male standard sizes array (letter-based)
 export const MALE_STANDARD_SIZES: UmojalinnMaleStandardSize[] = [
-  "XXS", "XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL", "6XL"
+  "XXS",
+  "XS",
+  "S",
+  "M",
+  "L",
+  "XL",
+  "XXL",
+  "3XL",
+  "4XL",
+  "5XL",
+  "6XL",
 ];
 
 // Female standard sizes array (UK number-based)
 export const FEMALE_STANDARD_SIZES: UmojalinnFemaleStandardSize[] = [
- "4", "6", "8", "10", "12", "14", "16", "18", "20", "22", "24", "26", "28", "30", "32"
+  "4",
+  "6",
+  "8",
+  "10",
+  "12",
+  "14",
+  "16",
+  "18",
+  "20",
+  "22",
+  "24",
+  "26",
+  "28",
+  "30",
+  "32",
 ];
 
 // UK Size Chart data for males
@@ -43,10 +71,14 @@ export const UK_SIZE_CHART_FEMALE = [
   { ukSize: "24", usSize: "20", euSize: "52", frSize: "52", letterSize: "4XL" },
   { ukSize: "26", usSize: "22", euSize: "54", frSize: "56", letterSize: "5XL" },
   { ukSize: "28", usSize: "24", euSize: "56", frSize: "58", letterSize: "5XL" },
-  { ukSize: "30", usSize: "26", euSize: "6XL", frSize: "6XL", letterSize: "6XL" },
+  {
+    ukSize: "30",
+    usSize: "26",
+    euSize: "6XL",
+    frSize: "6XL",
+    letterSize: "6XL",
+  },
   { ukSize: "32", usSize: "28", euSize: "60", frSize: "62", letterSize: "6XL" },
-
-
 ];
 
 /** Reminder types for sizing template reminders */
@@ -55,7 +87,8 @@ export const SIZING_TEMPLATE_REMINDER_TYPE = {
   DESIGNER_REMINDER: "DESIGNER_REMINDER",
 } as const;
 
-export type SizingTemplateReminderType = typeof SIZING_TEMPLATE_REMINDER_TYPE[keyof typeof SIZING_TEMPLATE_REMINDER_TYPE];
+export type SizingTemplateReminderType =
+  (typeof SIZING_TEMPLATE_REMINDER_TYPE)[keyof typeof SIZING_TEMPLATE_REMINDER_TYPE];
 
 /** Default cooldown period for reminders in minutes */
 export const REMINDER_COOLDOWN_MINUTES = 30;
@@ -80,8 +113,7 @@ export const TEMPLATE_MODE = {
   VIEW_ONLY: "VIEW_ONLY",
 } as const;
 
-export type TemplateMode = typeof TEMPLATE_MODE[keyof typeof TEMPLATE_MODE];
-
+export type TemplateMode = (typeof TEMPLATE_MODE)[keyof typeof TEMPLATE_MODE];
 
 export const DEFAULT_HEIGHT = 0;
 export const DEFAULT_UNIT: UmojaLinnSizingTemplate["unit"] = "CM";

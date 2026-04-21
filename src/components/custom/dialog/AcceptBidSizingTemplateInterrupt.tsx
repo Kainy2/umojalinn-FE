@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetAllSizingTemplates } from "@/tanstack/hooks/useSizingTemplates";
+import { useGetMe } from "@/tanstack/hooks/useUser";
 import {
   DialogDescription,
   DialogProps,
@@ -21,13 +22,13 @@ import { cn } from "@/lib/utils";
 
 type ButtonOnClickProp = React.ComponentProps<"button">["onClick"];
 
-const MAX_TEMPLATES = 3;
+const FREE_TEMPLATE_LIMIT = 3;
 
 const AcceptBidSizingTemplateInterrupt = (
   props: DialogProps & {
     onConfirm?: ButtonOnClickProp;
     pendingConfirm: boolean;
-  }
+  },
 ) => {
   const [open, setOpen] = useState(false);
   return (
@@ -50,7 +51,11 @@ const AcceptBidSizingTemplateInterrupt = (
           </div>
         </DialogHeader>
         <DialogFooter>
-          <Button onClick={props?.onConfirm} loading={props.pendingConfirm} fullWidth>
+          <Button
+            onClick={props?.onConfirm}
+            loading={props.pendingConfirm}
+            fullWidth
+          >
             Select sizing template
           </Button>
         </DialogFooter>
@@ -65,7 +70,7 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
     loadingCreate: boolean;
     handleCreateNewSizingTemplate: ButtonOnClickProp;
     handleAddSizingTemplateToProject: (templateId: string) => void;
-  }
+  },
 ) => {
   const [open, setOpen] = useState(false);
   const [stage, setStage] = useState<"SELECT" | "CONFIRM">("SELECT");
@@ -74,14 +79,17 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
     useGetAllSizingTemplates({
       sizingTemplateStatus: ["LIVE", "DRAFT"],
     });
+  const { data: me } = useGetMe();
 
   // Get total template count to check limit
   const { data: allTemplatesData } = useGetAllSizingTemplates();
   const totalTemplateCount = allTemplatesData?.data?.data?.length ?? 0;
-  const canCreateNewTemplate = totalTemplateCount < MAX_TEMPLATES;
+  const maxTemplates =
+    me?.data?.data?.buyerProfile?.numberOfTemplates ?? FREE_TEMPLATE_LIMIT;
+  const canCreateNewTemplate = totalTemplateCount < maxTemplates;
 
   const [sizingTemplateId, selectSizingTemplateId] = useState<null | string>(
-    null
+    null,
   );
 
   if (stage === "CONFIRM" && sizingTemplateId) {
@@ -108,7 +116,7 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
             <span>
               {
                 liveSizingTemplates?.data?.data?.find(
-                  (template) => template?.id === sizingTemplateId
+                  (template) => template?.id === sizingTemplateId,
                 )?.name
               }
             </span>
@@ -199,8 +207,10 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
             loading={props.loadingCreate}
             disabled={
               loadingLivesizingTemplates ||
-              (!sizingTemplateId && !!liveSizingTemplates?.data?.data?.length) ||
-              (!liveSizingTemplates?.data?.data?.length && !canCreateNewTemplate)
+              (!sizingTemplateId &&
+                !!liveSizingTemplates?.data?.data?.length) ||
+              (!liveSizingTemplates?.data?.data?.length &&
+                !canCreateNewTemplate)
             }
           >
             {liveSizingTemplates?.data?.data?.length ||
@@ -208,23 +218,27 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
               ? "Confirm"
               : canCreateNewTemplate
                 ? "Create New Sizing Template"
-                : `Max ${MAX_TEMPLATES} Templates Reached`}
+                : `Max ${maxTemplates} Templates Reached`}
           </Button>
         </DialogFooter>
         <div className="flex -mt-4">
-          {!!liveSizingTemplates?.data?.data?.length && (
-            canCreateNewTemplate ? (
+          {!!liveSizingTemplates?.data?.data?.length &&
+            (canCreateNewTemplate ? (
               <button
-              onClick={props?.handleCreateNewSizingTemplate}
-            className="text-primary font-semibold cursor-pointer flex-1">
-                  Create a new sizing template
-                </button>
+                onClick={props?.handleCreateNewSizingTemplate}
+                className="text-primary font-semibold cursor-pointer flex-1"
+              >
+                Create a new sizing template
+              </button>
             ) : (
-              <span className={cn("text-muted-foreground text-sm flex-1 text-center")}>
-                Maximum {MAX_TEMPLATES} templates reached
+              <span
+                className={cn(
+                  "text-muted-foreground text-sm flex-1 text-center",
+                )}
+              >
+                Maximum {maxTemplates} templates reached
               </span>
-            )
-          )}
+            ))}
         </div>
       </DialogContent>
     </Dialog>
