@@ -3,8 +3,14 @@
 import React, { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { SizingTemplateDialogProps, useSizingTemplateDialog } from "@/hooks/use-sizing-template";
-import { TEMPLATE_MODE, SIZING_TEMPLATE_REMINDER_TYPE } from "@/types/constants";
+import {
+  SizingTemplateDialogProps,
+  useSizingTemplateDialog,
+} from "@/hooks/use-sizing-template";
+import {
+  TEMPLATE_MODE,
+  SIZING_TEMPLATE_REMINDER_TYPE,
+} from "@/types/constants";
 import MeasurementGuide from "./MeasurementGuide";
 import SuccessMessage from "./SuccessMessage";
 import ActionButtons from "./ActionButtons";
@@ -20,26 +26,37 @@ import FillModeView from "./FillModeView";
 import UpdateModeView from "./UpdateModeView";
 import UKStandardSizeRow from "./UKStandardSizeRow";
 import UKSizeChartTable from "./UKSizeChartTable";
-import { UmojaLinnSizingTemplate, UmojalinnStandardSize } from "@/types/project";
-import { UmojaLinnFemaleSizingTemplateProps, UmojaLinnMaleSizingTemplateProps } from "@/types/project";
-import { canSendReminder, getRemainingReminderTime } from "@/lib/sizing-template-utils";
-import { useSendSizingTemplateReminder, useRequestMeasurementPoints } from "@/tanstack/hooks/useSizingTemplates";
+import {
+  UmojaLinnSizingTemplate,
+  UmojalinnStandardSize,
+} from "@/types/project";
+import {
+  UmojaLinnFemaleSizingTemplateProps,
+  UmojaLinnMaleSizingTemplateProps,
+} from "@/types/project";
+import {
+  canSendReminder,
+  getRemainingReminderTime,
+} from "@/lib/sizing-template-utils";
+import {
+  useSendSizingTemplateReminder,
+  useRequestMeasurementPoints,
+} from "@/tanstack/hooks/useSizingTemplates";
 import { useGetAllBuyerProject } from "@/tanstack/hooks/useProject";
 import TextField from "../custom/input/TextField";
 import DisabledTemplateItems from "./DisabledTemplateItems";
 
-type BothGenderSizingTemplateProps = keyof (UmojaLinnFemaleSizingTemplateProps | UmojaLinnMaleSizingTemplateProps);
+type BothGenderSizingTemplateProps = keyof (
+  | UmojaLinnFemaleSizingTemplateProps
+  | UmojaLinnMaleSizingTemplateProps
+);
 
 type SizingTemplatePageProps = Omit<SizingTemplateDialogProps, "children"> & {
   projectId?: string;
-  bidId?: string
+  bidId?: string;
 };
 
 const SizingTemplatePage = (props: SizingTemplatePageProps) => {
-
-
-
-
   const {
     loading,
     highlightedSizingName,
@@ -101,27 +118,41 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   });
 
   // Fetch available projects for "Add to Job" dropdown (LIVE projects without a sizing template)
-  const { data: buyerProjectsData, isLoading: isLoadingProjects } = useGetAllBuyerProject({
-    projectStatus: "ADS",
-  });
+  const { data: buyerProjectsData, isLoading: isLoadingProjects } =
+    useGetAllBuyerProject({
+      projectStatus: "ADS",
+    });
   const availableProjects = (buyerProjectsData?.data?.data || []).filter(
-    (proj) => !proj.sizingTemplate?.id
+    (proj) => !proj.sizingTemplate?.id,
   );
 
   // State for showing UK size chart in preview panel
   const [showUKSizeChart, setShowUKSizeChart] = useState(false);
 
   // Designer recommendation mode state
-  const [selectedMeasurements, setSelectedMeasurements] = React.useState<string[]>([]);
-  const [measurementComments, setMeasurementComments] = React.useState<Record<string, string>>({});
+  const [selectedMeasurements, setSelectedMeasurements] = React.useState<
+    string[]
+  >([]);
+  const [measurementComments, setMeasurementComments] = React.useState<
+    Record<string, string>
+  >({});
 
   // Reminder mutation
-  const { mutate: sendReminder } = useSendSizingTemplateReminder(sizingTemplateResult?.id || "");
+  const { mutate: sendReminder } = useSendSizingTemplateReminder(
+    sizingTemplateResult?.id || "",
+  );
 
   // Handlers
-  const handleSubmit = (shouldGoLive?: true) => originalHandleSubmit(shouldGoLive);
+  const handleSubmit = (shouldGoLive?: true) =>
+    originalHandleSubmit(shouldGoLive);
 
-  const handleMeasurementClick = (img: string, prop: keyof (UmojaLinnFemaleSizingTemplateProps | UmojaLinnMaleSizingTemplateProps)) => {
+  const handleMeasurementClick = (
+    img: string,
+    prop: keyof (
+      | UmojaLinnFemaleSizingTemplateProps
+      | UmojaLinnMaleSizingTemplateProps
+    ),
+  ) => {
     setShowUKSizeChart(false);
     setPreviewImage(img);
     setHighlighted(prop);
@@ -133,7 +164,9 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   };
 
   const handleUKSizeChange = (ukSize: UmojalinnStandardSize) => {
-    const event = { target: { value: ukSize } } as React.ChangeEvent<HTMLInputElement>;
+    const event = {
+      target: { value: ukSize },
+    } as React.ChangeEvent<HTMLInputElement>;
     handleChange("ukStandardSize" as BothGenderSizingTemplateProps)(event);
   };
 
@@ -142,33 +175,52 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     setHighlighted(null);
   };
 
-
   const handleSendReminder = () => {
     if (!effectiveProjectId) return;
-    sendReminder({ projectId: effectiveProjectId, reminderType: isDesigner ? "BUYER_REMINDER" : "DESIGNER_REMINDER" });
+    sendReminder({
+      projectId: effectiveProjectId,
+      reminderType: isDesigner ? "BUYER_REMINDER" : "DESIGNER_REMINDER",
+    });
   };
 
   // Designer recommend mode handlers
   const handleSelectMeasurement = (prop: string) => {
-    setSelectedMeasurements((prev) => prev.includes(prop) ? prev.filter((p) => p !== prop) : [...prev, prop]);
-    setHighlighted(prop as keyof (UmojaLinnFemaleSizingTemplateProps & UmojaLinnMaleSizingTemplateProps));
+    setSelectedMeasurements((prev) =>
+      prev.includes(prop) ? prev.filter((p) => p !== prop) : [...prev, prop],
+    );
+    setHighlighted(
+      prop as keyof (UmojaLinnFemaleSizingTemplateProps &
+        UmojaLinnMaleSizingTemplateProps),
+    );
   };
 
-  const handleAddComment = (prop: string, comment: string) => setMeasurementComments((prev) => ({ ...prev, [prop]: comment }));
-  const handleDeleteComment = (prop: string) => setMeasurementComments((prev) => { const c = { ...prev }; delete c[prop]; return c; });
+  const handleAddComment = (prop: string, comment: string) =>
+    setMeasurementComments((prev) => ({ ...prev, [prop]: comment }));
+  const handleDeleteComment = (prop: string) =>
+    setMeasurementComments((prev) => {
+      const c = { ...prev };
+      delete c[prop];
+      return c;
+    });
 
-  const { mutateAsync: requestMeasurementPointsAsync, isPending: isPendingNewRequests } = useRequestMeasurementPoints();
+  const {
+    mutateAsync: requestMeasurementPointsAsync,
+    isPending: isPendingNewRequests,
+  } = useRequestMeasurementPoints();
 
   const handleSubmitRecommendations = async () => {
     // If the designer selected any NEW measurement points
     const newRequestedPoints = selectedMeasurements.filter(
-      (prop) => !requestedMeasurementPoints.includes(prop)
+      (prop) => !requestedMeasurementPoints.includes(prop),
     );
 
     if (newRequestedPoints.length > 0 && effectiveProjectId) {
       await requestMeasurementPointsAsync({
         projectId: effectiveProjectId,
-        requestedMeasurementPoints: [...requestedMeasurementPoints, ...newRequestedPoints],
+        requestedMeasurementPoints: [
+          ...requestedMeasurementPoints,
+          ...newRequestedPoints,
+        ],
       });
     }
 
@@ -184,16 +236,27 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   };
 
   // Computed values
-  const hasSavedMeasurements = sizingTemplateResult?.metadata?.reviews ? Object.values(sizingTemplateResult.metadata.reviews).some(Boolean) : false;
-  const canSendReminderNow = sizingTemplateResult?.lastReminderSentBy === (isDesigner ? SIZING_TEMPLATE_REMINDER_TYPE.BUYER_REMINDER : SIZING_TEMPLATE_REMINDER_TYPE.DESIGNER_REMINDER)
-    ? canSendReminder(sizingTemplateResult?.lastReminderSentAt)
-    : true;
-  const remainingReminderTime = sizingTemplateResult?.lastReminderSentBy === (isDesigner ? SIZING_TEMPLATE_REMINDER_TYPE.BUYER_REMINDER : SIZING_TEMPLATE_REMINDER_TYPE.DESIGNER_REMINDER)
-    ? getRemainingReminderTime(sizingTemplateResult?.lastReminderSentAt)
-    : undefined;
+  const hasSavedMeasurements = sizingTemplateResult?.metadata?.reviews
+    ? Object.values(sizingTemplateResult.metadata.reviews).some(Boolean)
+    : false;
+  const canSendReminderNow =
+    sizingTemplateResult?.lastReminderSentBy ===
+    (isDesigner
+      ? SIZING_TEMPLATE_REMINDER_TYPE.BUYER_REMINDER
+      : SIZING_TEMPLATE_REMINDER_TYPE.DESIGNER_REMINDER)
+      ? canSendReminder(sizingTemplateResult?.lastReminderSentAt)
+      : true;
+  const remainingReminderTime =
+    sizingTemplateResult?.lastReminderSentBy ===
+    (isDesigner
+      ? SIZING_TEMPLATE_REMINDER_TYPE.BUYER_REMINDER
+      : SIZING_TEMPLATE_REMINDER_TYPE.DESIGNER_REMINDER)
+      ? getRemainingReminderTime(sizingTemplateResult?.lastReminderSentAt)
+      : undefined;
   const hasRequiredFields = !!(value?.height && value?.ukStandardSize && unit);
   const isCreatingNew = !sizingTemplateId;
-  const isEditable = !isInUse && (templateMode === TEMPLATE_MODE.EDIT || isCreatingNew);
+  const isEditable =
+    !isInUse && (templateMode === TEMPLATE_MODE.EDIT || isCreatingNew);
   const canEditGender = isEditable && !isInUse;
   const isProjectLive = project?.status === "LIVE";
   const isChangesUpdated = sizingTemplateResult?.isChangesUpdated;
@@ -213,10 +276,11 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     return "View and manage your sizing template";
   };
 
-
-
   // Loading state
-  if (props?.id && (isLoadingSizingTemplate || loadingMe || !sizingTemplateResult)) {
+  if (
+    props?.id &&
+    (isLoadingSizingTemplate || loadingMe || !sizingTemplateResult)
+  ) {
     return (
       <div className="container mx-auto px-4 py-6">
         <Skeleton className="h-[50vh] animate-pulse" />
@@ -227,7 +291,10 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   // === MODE-BASED RENDERING ===
 
   // SELECT MODE - Designer selects measurement points to request from buyer
-  if (templateMode === TEMPLATE_MODE.SELECT && (effectiveProjectId || props?.bidId)) {
+  if (
+    templateMode === TEMPLATE_MODE.SELECT &&
+    (effectiveProjectId || props?.bidId)
+  ) {
     return (
       <SelectModeView
         projectId={effectiveProjectId}
@@ -253,8 +320,11 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   }
 
   // FILL MODE - Buyer fills in requested measurement points
-  if (templateMode === TEMPLATE_MODE.FILL && sizingTemplateResult?.id && effectiveProjectId) {
-
+  if (
+    templateMode === TEMPLATE_MODE.FILL &&
+    sizingTemplateResult?.id &&
+    effectiveProjectId
+  ) {
     return (
       <FillModeView
         key={gender}
@@ -275,7 +345,11 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   }
 
   // UPDATE MODE - Buyer updates fields with recommendations
-  if (templateMode === TEMPLATE_MODE.UPDATE && sizingTemplateResult?.id && effectiveProjectId) {
+  if (
+    templateMode === TEMPLATE_MODE.UPDATE &&
+    sizingTemplateResult?.id &&
+    effectiveProjectId
+  ) {
     return (
       <UpdateModeView
         templateId={sizingTemplateResult.id}
@@ -296,27 +370,39 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   }
 
   // VIEW MODE - Designer views the template (read-only, with recommend button)
-  if (templateMode === TEMPLATE_MODE.VIEW || templateMode === TEMPLATE_MODE.RECOMMEND) {
+  if (
+    templateMode === TEMPLATE_MODE.VIEW ||
+    templateMode === TEMPLATE_MODE.RECOMMEND
+  ) {
     return (
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-6 max-w-7xl">
-
           {/* Banners */}
-          {hasRequestedPoints && !hasSubmittedPoints && isProjectLive && effectiveProjectId && (
-            <ReminderBanner
-              message={sizingTemplateId ? "Awaiting Measurements" : "Buyer has not attached a template yet"}
-              onSendReminder={handleSendReminder}
-              lastReminderSentAt={sizingTemplateResult?.lastReminderSentAt}
-              canSendReminder={canSendReminderNow}
-              remainingTime={remainingReminderTime ?? undefined}
-              className="mb-6"
-            />
-          )}
+          {hasRequestedPoints &&
+            !hasSubmittedPoints &&
+            isProjectLive &&
+            effectiveProjectId && (
+              <ReminderBanner
+                message={
+                  sizingTemplateId
+                    ? "Awaiting Measurements"
+                    : "Buyer has not attached a template yet"
+                }
+                onSendReminder={handleSendReminder}
+                lastReminderSentAt={sizingTemplateResult?.lastReminderSentAt}
+                canSendReminder={canSendReminderNow}
+                remainingTime={remainingReminderTime ?? undefined}
+                className="mb-6"
+              />
+            )}
 
           {recommendationMode && (
             <div className="text-sm text-foreground-body bg-amber-50 border border-amber-200 mb-6 p-4 rounded-lg animate-in fade-in slide-in-from-top-2 duration-300">
               <p className="font-bold mb-1">Recommendation mode</p>
-              <p>Select measurement points and add comments to recommend changes to the buyer.</p>
+              <p>
+                Select measurement points and add comments to recommend changes
+                to the buyer.
+              </p>
             </div>
           )}
 
@@ -324,32 +410,32 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
             <div>
               <div className="flex flex-col gap-6">
                 <div className="animate-in fade-in duration-300">
-                  <h1 className="text-lg font-bold text-foreground-body mb-6">{name}</h1>
+                  <h1 className="text-lg font-bold text-foreground-body mb-6">
+                    {name}
+                  </h1>
                   <div className="space-y-10 items-start sm:items-center mb-6">
                     {/* <GenderTabs gender={gender} onChange={() => {}} disabled /> */}
                     <div className="flex justify-between items-center">
-                      <h3 className="text-md font-semibold text-foreground-body">Units</h3>
+                      <h3 className="text-md font-semibold text-foreground-body">
+                        Units
+                      </h3>
                       <UnitSelector unit={unit} onChange={handleUnitChange} />
                     </div>
                   </div>
                 </div>
 
-
-
                 <div className="flex flex-col gap-2">
-                  <DisabledTemplateItems
-                    title={gender}
-                  />
+                  <DisabledTemplateItems title={gender} />
 
                   {/* UK Standard Size Row */}
                   <UKStandardSizeRow
                     gender={gender}
                     value={value?.ukStandardSize ?? null}
-                    onChange={() => { }}
-                    onShowChart={() => { }}
+                    onChange={() => {}}
+                    onShowChart={() => {}}
                     highlighted={false}
                     disabled
-                  // isDesigner={isDesigner}
+                    // isDesigner={isDesigner}
                   />
 
                   <DisabledTemplateItems
@@ -358,25 +444,39 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                   />
 
                   {/* Measurement Points */}
-                  {(recommendationMode ? TEMPLATE.filter(item => item.prop !== "height") : (hasRequestedPoints ? TEMPLATE.filter(item => requestedMeasurementPoints.includes(item.prop)) : TEMPLATE))
+                  {(recommendationMode
+                    ? TEMPLATE.filter((item) => item.prop !== "height")
+                    : hasRequestedPoints
+                      ? TEMPLATE.filter((item) =>
+                          requestedMeasurementPoints.includes(item.prop),
+                        )
+                      : TEMPLATE
+                  )
                     .sort((a, b) => {
                       // Prioritize fields with reviews to appear at the top
-                      const aHasReview = !!sizingTemplateResult?.metadata?.reviews?.[a.prop];
-                      const bHasReview = !!sizingTemplateResult?.metadata?.reviews?.[b.prop];
+                      const aHasReview =
+                        !!sizingTemplateResult?.metadata?.reviews?.[a.prop];
+                      const bHasReview =
+                        !!sizingTemplateResult?.metadata?.reviews?.[b.prop];
                       if (aHasReview && !bHasReview) return -1;
                       if (!aHasReview && bHasReview) return 1;
                       return 0;
                     })
                     .map((item, index) => {
                       const itemValue = value?.[item.prop];
-                      const isRequested = requestedMeasurementPoints.includes(item.prop);
-                      const hasReview = !!sizingTemplateResult?.metadata?.reviews?.[item.prop];
+                      const isRequested = requestedMeasurementPoints.includes(
+                        item.prop,
+                      );
+                      const hasReview =
+                        !!sizingTemplateResult?.metadata?.reviews?.[item.prop];
 
-
-                      const isPendingBuyerReply = !recommendationMode && hasReview;
-                      const isNewlyUpdated = !recommendationMode && !hasReview && isChangesUpdated && submittedMeasurementPoints.includes(item.prop);
-
-
+                      const isPendingBuyerReply =
+                        !recommendationMode && hasReview;
+                      const isNewlyUpdated =
+                        !recommendationMode &&
+                        !hasReview &&
+                        isChangesUpdated &&
+                        submittedMeasurementPoints.includes(item.prop);
 
                       return (
                         <MeasurementPointRow
@@ -387,25 +487,41 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                           unit={unit}
                           label={item.name}
                           highlighted={highlighted === item.prop}
-                          metadata={{ review: sizingTemplateResult?.metadata?.reviews?.[item.prop], img: item?.img }}
+                          metadata={{
+                            review:
+                              sizingTemplateResult?.metadata?.reviews?.[
+                                item.prop
+                              ],
+                            img: item?.img,
+                          }}
                           isPendingBuyerReply={isPendingBuyerReply}
                           isNewlyUpdated={isNewlyUpdated}
                           onClick={() => {
-                            handleSelectMeasurement(item.prop)
-                            handleMeasurementClick(item.img, item.prop as keyof (UmojaLinnFemaleSizingTemplateProps | UmojaLinnMaleSizingTemplateProps))
+                            handleSelectMeasurement(item.prop);
+                            handleMeasurementClick(
+                              item.img,
+                              item.prop as keyof (
+                                | UmojaLinnFemaleSizingTemplateProps
+                                | UmojaLinnMaleSizingTemplateProps
+                              ),
+                            );
                           }}
                           isDesigner={isDesigner}
                           onKeyDown={(e) => handleKeyPress(index, e)}
-                          ref={(el) => { inputRefs.current[index] = el; }}
+                          ref={(el) => {
+                            inputRefs.current[index] = el;
+                          }}
                           {...(recommendationMode && {
                             recommendMode: true,
                             selected: selectedMeasurements.includes(item.prop),
                             onSelect: () => handleSelectMeasurement(item.prop),
                             hasComment: !!measurementComments[item.prop],
                             comment: measurementComments[item.prop],
-                            onAddComment: (comment: string) => handleAddComment(item.prop, comment),
-                            onDeleteComment: () => handleDeleteComment(item.prop),
-                            isNewRequest: !isRequested // Pass flag to indicate this is a new measurement request
+                            onAddComment: (comment: string) =>
+                              handleAddComment(item.prop, comment),
+                            onDeleteComment: () =>
+                              handleDeleteComment(item.prop),
+                            isNewRequest: !isRequested, // Pass flag to indicate this is a new measurement request
                           })}
                         />
                       );
@@ -416,13 +532,38 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
               {/* Mobile Actions - Recommend Changes only shows after buyer submits */}
               {recommendationMode ? (
                 <div className="lg:hidden mt-6 flex gap-3">
-                  <Button variant="outline" onClick={() => setRecommendationMode(false)} className="flex-1">Cancel</Button>
-                  <Button onClick={handleSubmitRecommendations} disabled={loading || isPendingNewRequests || (Object.keys(measurementComments).length === 0 && selectedMeasurements.length === 0)} className="flex-1">Submit</Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setRecommendationMode(false)}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleSubmitRecommendations}
+                    disabled={
+                      loading ||
+                      isPendingNewRequests ||
+                      (Object.keys(measurementComments).length === 0 &&
+                        selectedMeasurements.length === 0)
+                    }
+                    className="flex-1"
+                  >
+                    Submit
+                  </Button>
                 </div>
-              ) : hasSubmittedPoints && (
-                <div className="lg:hidden mt-6">
-                  <Button fullWidth disabled={loading} onClick={() => setRecommendationMode(true)}>Recommend Changes</Button>
-                </div>
+              ) : (
+                hasSubmittedPoints && (
+                  <div className="lg:hidden mt-6">
+                    <Button
+                      fullWidth
+                      disabled={loading}
+                      onClick={() => setRecommendationMode(true)}
+                    >
+                      Recommend Changes
+                    </Button>
+                  </div>
+                )
               )}
             </div>
 
@@ -432,7 +573,17 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                 <MeasurementGuide
                   previewImage={previewImage}
                   highlightedMeasurementName={highlightedSizingName}
-                  review={highlighted && (measurementComments[highlighted] || sizingTemplateResult?.metadata?.reviews?.[highlighted]) ? measurementComments[highlighted] || sizingTemplateResult?.metadata?.reviews?.[highlighted] || "" : undefined}
+                  review={
+                    highlighted &&
+                    (measurementComments[highlighted] ||
+                      sizingTemplateResult?.metadata?.reviews?.[highlighted])
+                      ? measurementComments[highlighted] ||
+                        sizingTemplateResult?.metadata?.reviews?.[
+                          highlighted
+                        ] ||
+                        ""
+                      : undefined
+                  }
                   className=""
                 />
 
@@ -449,17 +600,28 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                     <Button
                       onClick={handleSubmitRecommendations}
                       disabled={
-                        loading || isPendingNewRequests || (Object.keys(measurementComments).length === 0 && selectedMeasurements.length === 0)
+                        loading ||
+                        isPendingNewRequests ||
+                        (Object.keys(measurementComments).length === 0 &&
+                          selectedMeasurements.length === 0)
                       }
                       className="h-8 rounded-md"
                     >
                       Submit Changes
                     </Button>
                   </div>
-                ) : hasSubmittedPoints && (
-                  <div className="hidden lg:flex justify-end mt-6">
-                    <Button disabled={loading} onClick={() => setRecommendationMode(true)} className="h-8 rounded-md bg-primary-600">Recommend Changes</Button>
-                  </div>
+                ) : (
+                  hasSubmittedPoints && (
+                    <div className="hidden lg:flex justify-end mt-6">
+                      <Button
+                        disabled={loading}
+                        onClick={() => setRecommendationMode(true)}
+                        className="h-8 rounded-md bg-primary-600"
+                      >
+                        Recommend Changes
+                      </Button>
+                    </div>
+                  )
                 )}
               </div>
             </div>
@@ -474,7 +636,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl">
         {/* Banners */}
-        {!hasRequestedPoints && isProjectLive && (effectiveProjectId) && (
+        {!hasRequestedPoints && isProjectLive && effectiveProjectId && (
           <ReminderBanner
             message="Designer has not sent the measurement points"
             onSendReminder={handleSendReminder}
@@ -486,7 +648,11 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
         )}
 
         {hasSavedMeasurements && templateMode === TEMPLATE_MODE.VIEW_ONLY && (
-          <SavedMeasurementsNotice variant="saved" onSubmit={() => handleSubmit()} className="mb-6" />
+          <SavedMeasurementsNotice
+            variant="saved"
+            onSubmit={() => handleSubmit()}
+            className="mb-6"
+          />
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -494,8 +660,12 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
           <div className="flex flex-col gap-6">
             {/* Header Section */}
             <div className="animate-in fade-in duration-300">
-              <h1 className="text-lg font-bold text-foreground-body">{getPageTitle()}</h1>
-              <p className="text-sm text-gray-500 mt-1">{getPageDescription()}</p>
+              <h1 className="text-lg font-bold text-foreground-body">
+                {getPageTitle()}
+              </h1>
+              <p className="text-sm text-gray-500 mt-1">
+                {getPageDescription()}
+              </p>
             </div>
 
             {/* Gender Tabs */}
@@ -521,11 +691,13 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
 
             {/* Units Row */}
             <div className="flex justify-between items-center animate-in fade-in duration-300 delay-125">
-              <h3 className="text-md font-semibold text-foreground-body">Units</h3>
+              <h3 className="text-md font-semibold text-foreground-body">
+                Units
+              </h3>
               <UnitSelector
                 unit={unit}
                 onChange={handleUnitChange}
-              // disabled={!isEditable}
+                // disabled={!isEditable}
               />
             </div>
 
@@ -537,9 +709,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
 
             <div className="flex flex-col gap-2">
               {!isNewTemplate && !isDraft && (
-                <DisabledTemplateItems
-                  title={gender}
-                />
+                <DisabledTemplateItems title={gender} />
               )}
 
               {/* UK Standard Size Row */}
@@ -550,7 +720,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                 onShowChart={handleShowUKSizeChart}
                 highlighted={showUKSizeChart}
                 disabled={!isEditable}
-              // isDesigner={isDesigner}
+                // isDesigner={isDesigner}
               />
 
               {!isNewTemplate && !isDraft && (
@@ -562,45 +732,67 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
             </div>
 
             {/* Measurement Points (including Height as first item from TEMPLATE) */}
-            {((sizingTemplateId && (!isInUse || ((hasRequestedPoints || hasSubmittedPoints) && isProjectLive))) || isNewTemplate || isDraft) && (
+            {((sizingTemplateId &&
+              (!isInUse ||
+                ((hasRequestedPoints || hasSubmittedPoints) &&
+                  isProjectLive))) ||
+              isNewTemplate ||
+              isDraft) && (
               <div className="flex flex-col gap-2">
-                {TEMPLATE
-                  .filter((templateItem) => {
-                    // For new templates or drafts, show all measurements
-                    if (isNewTemplate || isDraft) return true;
+                {TEMPLATE.filter((templateItem) => {
+                  // For new templates or drafts, show all measurements
+                  if (isNewTemplate || isDraft) return true;
 
-                    // For in-use templates, only show requested measurement points
-                    if (isInUse && hasRequestedPoints) {
-                      return requestedMeasurementPoints.includes(templateItem.prop);
-                    }
-
-                    // Default: show all
-                    return true;
-                  })
-                  .map((templateItem, index) => {
-                    const isDisabled = !isEditable;
-                    const itemValue = value?.[templateItem.prop as keyof typeof value];
-                    const reviews = sizingTemplateResult?.metadata?.reviews as Record<string, string> | undefined;
-                    const reviewValue = reviews?.[templateItem.prop];
-
-                    return (
-                      <MeasurementPointRow
-                        key={templateItem.prop}
-                        disabled={isDisabled}
-                        onValueChange={handleChange(templateItem.prop as BothGenderSizingTemplateProps)}
-                        value={typeof itemValue === "number" ? itemValue : 0}
-                        unit={unit}
-                        label={templateItem.name}
-                        onFocus={() => handleMeasurementClick(templateItem.img, templateItem.prop as BothGenderSizingTemplateProps)}
-                        highlighted={highlighted === templateItem.prop}
-                        hasLiveProject={false}
-                        metadata={{ review: reviewValue, img: templateItem?.img }}
-                        onClick={() => handleMeasurementClick(templateItem.img, templateItem.prop as BothGenderSizingTemplateProps)}
-                        onKeyDown={(e) => handleKeyPress(index, e)}
-                        ref={(el) => { inputRefs.current[index] = el; }}
-                      />
+                  // For in-use templates, only show requested measurement points
+                  if (isInUse && hasRequestedPoints) {
+                    return requestedMeasurementPoints.includes(
+                      templateItem.prop,
                     );
-                  })}
+                  }
+
+                  // Default: show all
+                  return true;
+                }).map((templateItem, index) => {
+                  const isDisabled = !isEditable;
+                  const itemValue =
+                    value?.[templateItem.prop as keyof typeof value];
+                  const reviews = sizingTemplateResult?.metadata?.reviews as
+                    | Record<string, string>
+                    | undefined;
+                  const reviewValue = reviews?.[templateItem.prop];
+
+                  return (
+                    <MeasurementPointRow
+                      key={templateItem.prop}
+                      disabled={isDisabled}
+                      onValueChange={handleChange(
+                        templateItem.prop as BothGenderSizingTemplateProps,
+                      )}
+                      value={typeof itemValue === "number" ? itemValue : 0}
+                      unit={unit}
+                      label={templateItem.name}
+                      onFocus={() =>
+                        handleMeasurementClick(
+                          templateItem.img,
+                          templateItem.prop as BothGenderSizingTemplateProps,
+                        )
+                      }
+                      highlighted={highlighted === templateItem.prop}
+                      hasLiveProject={false}
+                      metadata={{ review: reviewValue, img: templateItem?.img }}
+                      onClick={() =>
+                        handleMeasurementClick(
+                          templateItem.img,
+                          templateItem.prop as BothGenderSizingTemplateProps,
+                        )
+                      }
+                      onKeyDown={(e) => handleKeyPress(index, e)}
+                      ref={(el) => {
+                        inputRefs.current[index] = el;
+                      }}
+                    />
+                  );
+                })}
               </div>
             )}
             {/* Mobile Actions */}
@@ -637,7 +829,12 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                 <MeasurementGuide
                   previewImage={previewImage}
                   highlightedMeasurementName={highlightedSizingName}
-                  review={highlighted && sizingTemplateResult?.metadata?.reviews?.[highlighted] ? sizingTemplateResult.metadata.reviews[highlighted] : undefined}
+                  review={
+                    highlighted &&
+                    sizingTemplateResult?.metadata?.reviews?.[highlighted]
+                      ? sizingTemplateResult.metadata.reviews[highlighted]
+                      : undefined
+                  }
                 />
               )}
 
