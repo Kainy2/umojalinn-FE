@@ -1,16 +1,23 @@
-"use client"
+"use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import AgoraRTC, {
   IAgoraRTCClient,
   ICameraVideoTrack,
   IMicrophoneAudioTrack,
   IRemoteVideoTrack,
-  IRemoteAudioTrack
+  IRemoteAudioTrack,
 } from "agora-rtc-sdk-ng";
-import { Mic, MicOff, Video as VideoIcon, VideoOff, ArrowLeft, Copy } from "lucide-react";
+import {
+  Mic,
+  MicOff,
+  Video as VideoIcon,
+  VideoOff,
+  ArrowLeft,
+  Copy,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { createAgoraConfig, validateAgoraConfig } from "./config";
@@ -22,7 +29,15 @@ import { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
 
 import { useSendCallNotification } from "@/tanstack/hooks/useUser";
 import { database } from "@/lib/firebase";
-import { ref, push, set, remove, onDisconnect } from "firebase/database";
+import {
+  ref,
+  push,
+  set,
+  remove,
+  onDisconnect,
+  onValue,
+  get,
+} from "firebase/database";
 import { base62ToUuidSafe } from "@/lib/uuid";
 import { formatDate } from "date-fns";
 
@@ -38,6 +53,7 @@ type RemoteUser = {
 
 export function AgoraVideo({ channelId }: AgoraVideoProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session } = useSession();
 
   const { data: projectData } = useGetProjectById(channelId);
@@ -45,8 +61,10 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
 
   // Agora state
   const [client, setClient] = useState<IAgoraRTCClient | null>(null);
-  const [localVideoTrack, setLocalVideoTrack] = useState<ICameraVideoTrack | null>(null);
-  const [localAudioTrack, setLocalAudioTrack] = useState<IMicrophoneAudioTrack | null>(null);
+  const [localVideoTrack, setLocalVideoTrack] =
+    useState<ICameraVideoTrack | null>(null);
+  const [localAudioTrack, setLocalAudioTrack] =
+    useState<IMicrophoneAudioTrack | null>(null);
   const [remoteUsers, setRemoteUsers] = useState<RemoteUser[]>([]);
 
   // UI state
@@ -57,6 +75,9 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
   const [isJoining, setIsJoining] = useState(false);
   const [error, setError] = useState<string | null>(null); // Blocking errors (mic)
   const [cameraWarning, setCameraWarning] = useState<string | null>(null); // Non-blocking warnings
+  const [activeCallSessionId, setActiveCallSessionId] = useState<string | null>(
+    null,
+  );
 
   // Call timing state
   const [callStartTime, setCallStartTime] = useState<Date | null>(null);
@@ -81,40 +102,62 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
     ? `${otherParticipant.firstName} ${otherParticipant.lastName}`
     : "User";
   const participantAvatar = otherParticipant?.profilePhotoUri;
+  const chatPath = base62ToUuidSafe(channelId);
+  const isJoiningExistingCall = !!activeCallSessionId;
+  const hasJoinIntent = searchParams.get("intent") === "join";
+  const shouldShowJoinCta = hasJoinIntent || isJoiningExistingCall;
 
   // Set CSS variable for topbar height
   useEffect(() => {
-    const topbar = document.querySelector('[data-topbar]') || document.querySelector('header');
+    const topbar =
+      document.querySelector("[data-topbar]") ||
+      document.querySelector("header");
     if (topbar) {
       const height = topbar.getBoundingClientRect().height;
-      document.documentElement.style.setProperty('--topbar-height', `${height}px`);
+      document.documentElement.style.setProperty(
+        "--topbar-height",
+        `${height}px`,
+      );
     } else {
       // Fallback if topbar not found
-      document.documentElement.style.setProperty('--topbar-height', '64px');
+      document.documentElement.style.setProperty("--topbar-height", "64px");
     }
   }, []);
+
+  useEffect(() => {
+    const activeCallRef = ref(database, `chats/${chatPath}/active_call`);
+    const unsubscribe = onValue(activeCallRef, (snapshot) => {
+      const activeCall = snapshot.val();
+      setActiveCallSessionId(activeCall?.sessionId ?? null);
+    });
+
+    return () => unsubscribe();
+  }, [chatPath]);
 
   // Helper function to get user-friendly error messages
   const getDeviceErrorMessage = (
     error: Error,
-    deviceType: 'camera' | 'microphone'
+    deviceType: "camera" | "microphone",
   ): string => {
     const errorName = error.name;
     const errorMessage = error.message;
 
-    const isNotAllowed = errorName === 'NotAllowedError' ||
-      errorMessage.includes('NotAllowedError') ||
-      errorMessage.includes('Permission denied');
+    const isNotAllowed =
+      errorName === "NotAllowedError" ||
+      errorMessage.includes("NotAllowedError") ||
+      errorMessage.includes("Permission denied");
 
-    const isNotFound = errorName === 'NotFoundError' ||
-      errorMessage.includes('NotFoundError') ||
-      errorMessage.includes('not found');
+    const isNotFound =
+      errorName === "NotFoundError" ||
+      errorMessage.includes("NotFoundError") ||
+      errorMessage.includes("not found");
 
-    const isNotReadable = errorName === 'NotReadableError' ||
-      errorMessage.includes('NotReadableError') ||
-      errorMessage.includes('already in use');
+    const isNotReadable =
+      errorName === "NotReadableError" ||
+      errorMessage.includes("NotReadableError") ||
+      errorMessage.includes("already in use");
 
-    if (deviceType === 'camera') {
+    if (deviceType === "camera") {
       if (isNotAllowed) {
         return "Camera access denied. You'll join with audio only. To enable camera, click the camera icon in your browser's address bar.";
       }
@@ -150,7 +193,7 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
         // Create Agora client
         const agoraClient = AgoraRTC.createClient({
           mode: "rtc",
-          codec: "vp8"
+          codec: "vp8",
         });
         setClient(agoraClient);
 
@@ -163,7 +206,10 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
           console.log("Camera initialized successfully");
         } catch (cameraError) {
           console.warn("Camera initialization failed:", cameraError);
-          const cameraErrorMessage = getDeviceErrorMessage(cameraError as Error, 'camera');
+          const cameraErrorMessage = getDeviceErrorMessage(
+            cameraError as Error,
+            "camera",
+          );
           setCameraWarning(cameraErrorMessage);
           // Don't throw - allow user to continue with audio only
         }
@@ -176,7 +222,10 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
           console.log("Microphone initialized successfully");
         } catch (micError) {
           console.error("Microphone initialization failed:", micError);
-          const micErrorMessage = getDeviceErrorMessage(micError as Error, 'microphone');
+          const micErrorMessage = getDeviceErrorMessage(
+            micError as Error,
+            "microphone",
+          );
           setError(micErrorMessage);
 
           // Clean up camera track if it was initialized
@@ -193,7 +242,9 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
         setIsInitializing(false);
       } catch (err) {
         console.error("Failed to initialize Agora:", err);
-        setError("Failed to initialize video call. Please refresh and try again.");
+        setError(
+          "Failed to initialize video call. Please refresh and try again.",
+        );
         setIsInitializing(false);
       }
     };
@@ -215,12 +266,73 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
       }
 
       // Cleanup participant from Firebase if unmounting while in call
-      if (session?.user?.id && channelId) {
-        const participantRef = ref(database, `chats/${base62ToUuidSafe(channelId)}/active_call/participants/${session.user.id}`);
-        void remove(participantRef);
-      }
+      // if (session?.user?.id && channelId) {
+      //   const participantRef = ref(database, `chats/${chatPath}/active_call/participants/${session.user.id}`);
+      //   void (async () => {
+      //     await remove(participantRef);
+      //     await finalizeCallIfLastParticipant();
+      //   })();
+      // }
     };
   }, []);
+
+  const finalizeCallIfLastParticipant = async () => {
+    if (!session?.user?.id) return;
+
+    const activeCallRef = ref(database, `chats/${chatPath}/active_call`);
+    const activeCallSnapshot = await get(activeCallRef);
+    const activeCallData = activeCallSnapshot.val();
+    const sessionId = activeCallData?.sessionId;
+    const startedAt = activeCallData?.startedAt;
+    const participantIds = Object.keys(activeCallData?.participants || {});
+
+    if (!sessionId || participantIds.length > 0) return;
+
+    const messagesRef = ref(database, `chats/${chatPath}/messages`);
+    const messagesSnapshot = await get(messagesRef);
+    const messages = Object.values(
+      (messagesSnapshot.val() || {}) as Record<
+        string,
+        {
+          type?: string;
+          sessionId?: string;
+        }
+      >,
+    );
+
+    const hasCallEndMessage = messages.some(
+      (chatMessage) =>
+        chatMessage.type === "CALL_END" && chatMessage.sessionId === sessionId,
+    );
+
+    if (!hasCallEndMessage) {
+      const timestamp = new Date().toISOString();
+      const durationSeconds = startedAt
+        ? Math.max(
+            0,
+            Math.floor(
+              (new Date(timestamp).getTime() - new Date(startedAt).getTime()) /
+                1000,
+            ),
+          )
+        : undefined;
+      await push(messagesRef, {
+        type: "CALL_END",
+        sessionId,
+        endedAt: timestamp,
+        callDurationSeconds: durationSeconds,
+        createdAt: timestamp,
+        user: {
+          id: session.user.id,
+          firstName: me?.firstName || "User",
+          lastName: me?.lastName || "",
+          profilePhotoUri: me?.profilePhotoUri || null,
+        },
+      });
+    }
+
+    await remove(activeCallRef);
+  };
 
   // Retry camera initialization
   const retryCamera = async () => {
@@ -244,7 +356,10 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
       console.log("Camera retry successful");
     } catch (cameraError) {
       console.warn("Camera retry failed:", cameraError);
-      const cameraErrorMessage = getDeviceErrorMessage(cameraError as Error, 'camera');
+      const cameraErrorMessage = getDeviceErrorMessage(
+        cameraError as Error,
+        "camera",
+      );
       setCameraWarning(cameraErrorMessage);
     }
   };
@@ -256,26 +371,27 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
     // User joined
     const handleUserJoined = (user: IAgoraRTCRemoteUser) => {
       console.log("User joined:", user.uid);
-      setRemoteUsers(prev => [...prev, { uid: user.uid }]);
+      setRemoteUsers((prev) => [...prev, { uid: user.uid }]);
     };
 
     // User left
     const handleUserLeft = (user: IAgoraRTCRemoteUser) => {
       console.log("User left:", user.uid);
-      setRemoteUsers(prev => prev.filter(u => u.uid !== user.uid));
+      setRemoteUsers((prev) => prev.filter((u) => u.uid !== user.uid));
     };
 
     // User published (video/audio)
-    const handleUserPublished = async (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
+    const handleUserPublished = async (
+      user: IAgoraRTCRemoteUser,
+      mediaType: "video" | "audio",
+    ) => {
       console.log("User published:", user.uid, mediaType);
       await client.subscribe(user, mediaType);
 
       if (mediaType === "video") {
         const videoTrack = user.videoTrack;
-        setRemoteUsers(prev =>
-          prev.map(u =>
-            u.uid === user.uid ? { ...u, videoTrack } : u
-          )
+        setRemoteUsers((prev) =>
+          prev.map((u) => (u.uid === user.uid ? { ...u, videoTrack } : u)),
         );
         // Play remote video
         videoTrack?.play(`remote-video-${user.uid}`);
@@ -283,10 +399,8 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
 
       if (mediaType === "audio") {
         const audioTrack = user.audioTrack;
-        setRemoteUsers(prev =>
-          prev.map(u =>
-            u.uid === user.uid ? { ...u, audioTrack } : u
-          )
+        setRemoteUsers((prev) =>
+          prev.map((u) => (u.uid === user.uid ? { ...u, audioTrack } : u)),
         );
         // Play remote audio automatically
         audioTrack?.play();
@@ -294,13 +408,16 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
     };
 
     // User unpublished
-    const handleUserUnpublished = (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
+    const handleUserUnpublished = (
+      user: IAgoraRTCRemoteUser,
+      mediaType: "video" | "audio",
+    ) => {
       console.log("User unpublished:", user.uid, mediaType);
       if (mediaType === "video") {
-        setRemoteUsers(prev =>
-          prev.map(u =>
-            u.uid === user.uid ? { ...u, videoTrack: undefined } : u
-          )
+        setRemoteUsers((prev) =>
+          prev.map((u) =>
+            u.uid === user.uid ? { ...u, videoTrack: undefined } : u,
+          ),
         );
       }
     };
@@ -348,7 +465,9 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
 
     const intervalId = setInterval(() => {
       const now = new Date();
-      const seconds = Math.floor((now.getTime() - callStartTime.getTime()) / 1000);
+      const seconds = Math.floor(
+        (now.getTime() - callStartTime.getTime()) / 1000,
+      );
       setCallDuration(seconds);
     }, 1000);
 
@@ -357,9 +476,18 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
 
   // Join call handler
   const handleJoinCall = async () => {
+    if (hasJoinIntent && !activeCallSessionId) {
+      setError(
+        "This call is no longer active. Please ask the other participant to start a new call.",
+      );
+      return;
+    }
+
     // Only audio track is required - video is optional
     if (!client || !localAudioTrack) {
-      setError("Audio is required to join the call. Please check your microphone and try again.");
+      setError(
+        "Audio is required to join the call. Please check your microphone and try again.",
+      );
       return;
     }
 
@@ -384,7 +512,7 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
         config.appId,
         config.channelName,
         config.rtcToken,
-        config.uid
+        config.uid,
       );
 
       // CRITICAL FIX: Ensure tracks are enabled before publishing
@@ -441,54 +569,75 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
         console.error("Failed to stop preview video:", err);
       }
 
-      // Send call join notification directly to Firebase BEFORE transitioning to call view
-      try {
-        const messagesRef = ref(database, `chats/${base62ToUuidSafe(channelId)}/messages`);
-        await push(messagesRef, {
-          message: channelId, // Store channelId in message field for Join Call button
-          type: "CALL_JOIN",
-          user: {
-            id: session?.user?.id || '',
-            firstName: me?.firstName || 'User',
-            lastName: me?.lastName || '',
-            profilePhotoUri: me?.profilePhotoUri || null
-          },
-          createdAt: new Date().toISOString()
+      const sessionId = activeCallSessionId || crypto.randomUUID();
+
+      if (!activeCallSessionId && !hasJoinIntent) {
+        const activeCallRef = ref(database, `chats/${chatPath}/active_call`);
+        await set(activeCallRef, {
+          sessionId,
+          initiatorId: session?.user?.id || "",
+          startedAt: new Date().toISOString(),
         });
-        console.log("Call join notification sent directly to Firebase");
-      } catch (notificationErr) {
-        console.error("Failed to send call join notification to Firebase:", notificationErr);
-        // Don't block call join if notification fails
+      }
+
+      // Send call started notification only for new calls.
+      if (!activeCallSessionId && !hasJoinIntent) {
+        try {
+          const messagesRef = ref(database, `chats/${chatPath}/messages`);
+          await push(messagesRef, {
+            message: channelId, // Store channelId in message field for Join Call button
+            sessionId,
+            type: "CALL_JOIN",
+            user: {
+              id: session?.user?.id || "",
+              firstName: me?.firstName || "User",
+              lastName: me?.lastName || "",
+              profilePhotoUri: me?.profilePhotoUri || null,
+            },
+            createdAt: new Date().toISOString(),
+          });
+          console.log("Call start notification sent to Firebase");
+        } catch (notificationErr) {
+          console.error(
+            "Failed to send call start notification to Firebase:",
+            notificationErr,
+          );
+          // Don't block call join if notification fails
+        }
       }
 
       // Transition to call view
       setIsInCall(true);
       setCallStartTime(new Date()); // Track when call started
 
-      // Send notification to the other party
-      if (projectData?.data) {
+      // Send notification to the other party only when initiating a new call
+      if (!activeCallSessionId && !hasJoinIntent && projectData?.data) {
         const project = projectData.data;
-        const receiverId = session?.user?.id === project.data.buyer.userId
-          ? project.data.designer.userId
-          : project.data.buyer.userId;
+        const receiverId =
+          session?.user?.id === project.data.buyer.userId
+            ? project.data.designer.userId
+            : project.data.buyer.userId;
 
         if (receiverId) {
           sendNotification({
             receiverId,
-            callId: channelId
+            callId: channelId,
           });
         }
       }
 
       // Track participant in Firebase
       if (session?.user?.id) {
-        const participantRef = ref(database, `chats/${base62ToUuidSafe(channelId)}/active_call/participants/${session.user.id}`);
+        const participantRef = ref(
+          database,
+          `chats/${chatPath}/active_call/participants/${session.user.id}`,
+        );
         await set(participantRef, {
           id: session.user.id,
-          firstName: me?.firstName || 'User',
-          lastName: me?.lastName || '',
+          firstName: me?.firstName || "User",
+          lastName: me?.lastName || "",
           profilePhotoUri: me?.profilePhotoUri || null,
-          joinedAt: new Date().toISOString()
+          joinedAt: new Date().toISOString(),
         });
         onDisconnect(participantRef).remove();
       }
@@ -527,8 +676,12 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
 
       // Remove participant from Firebase
       if (session?.user?.id) {
-        const participantRef = ref(database, `chats/${base62ToUuidSafe(channelId)}/active_call/participants/${session.user.id}`);
+        const participantRef = ref(
+          database,
+          `chats/${chatPath}/active_call/participants/${session.user.id}`,
+        );
         await remove(participantRef);
+        await finalizeCallIfLastParticipant();
       }
 
       // Navigate back
@@ -537,8 +690,12 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
       console.error("Failed to leave call:", err);
       // Remove participant even on error
       if (session?.user?.id) {
-        const participantRef = ref(database, `chats/${base62ToUuidSafe(channelId)}/active_call/participants/${session.user.id}`);
-        void remove(participantRef);
+        const participantRef = ref(
+          database,
+          `chats/${chatPath}/active_call/participants/${session.user.id}`,
+        );
+        await remove(participantRef);
+        await finalizeCallIfLastParticipant();
       }
       // Navigate back anyway
       router.back();
@@ -610,9 +767,9 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
     const secs = seconds % 60;
 
     if (hours > 0) {
-      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     }
-    return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -621,7 +778,7 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
       {!isInCall && (
         <div
           className="w-full bg-background flex items-center justify-center"
-          style={{ height: 'calc(100vh - 100px)' }}
+          style={{ height: "calc(100vh - 100px)" }}
         >
           <div className="w-full max-w-6xl mx-auto px-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -633,7 +790,9 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
                   <div
                     id="local-video-preview"
                     className="w-full h-full"
-                    style={{ background: isVideoMuted ? "#000" : "transparent" }}
+                    style={{
+                      background: isVideoMuted ? "#000" : "transparent",
+                    }}
                   />
 
                   {/* Video muted overlay - show user avatar */}
@@ -657,13 +816,23 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
                   {error && (
                     <div className="absolute inset-0 bg-black/80 flex items-center justify-center p-6">
                       <div className="bg-background rounded-lg p-6 max-w-md text-center">
-                        <h3 className="text-lg font-semibold text-destructive mb-2">Error</h3>
-                        <p className="text-sm text-foreground-body mb-4">{error}</p>
+                        <h3 className="text-lg font-semibold text-destructive mb-2">
+                          Error
+                        </h3>
+                        <p className="text-sm text-foreground-body mb-4">
+                          {error}
+                        </p>
                         <div className="flex gap-2 justify-center">
-                          <Button variant="outline" onClick={() => router.back()}>
+                          <Button
+                            variant="outline"
+                            onClick={() => router.back()}
+                          >
                             Go Back
                           </Button>
-                          <Button variant="default" onClick={() => window && window.location.reload()}>
+                          <Button
+                            variant="default"
+                            onClick={() => window && window.location.reload()}
+                          >
                             Try Again
                           </Button>
                         </div>
@@ -689,13 +858,29 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
                     disabled={!localVideoTrack}
                     className="rounded-full h-12 w-12 flex items-center justify-center transition-colors"
                     style={{
-                      backgroundColor: isVideoMuted || !localVideoTrack ? '#E7A808' : '#FFFFFF',
-                      color: isVideoMuted || !localVideoTrack ? '#FFFFFF' : '#000000',
-                      opacity: !localVideoTrack ? 0.5 : 1
+                      backgroundColor:
+                        isVideoMuted || !localVideoTrack
+                          ? "#E7A808"
+                          : "#FFFFFF",
+                      color:
+                        isVideoMuted || !localVideoTrack
+                          ? "#FFFFFF"
+                          : "#000000",
+                      opacity: !localVideoTrack ? 0.5 : 1,
                     }}
-                    title={!localVideoTrack ? "Camera unavailable" : isVideoMuted ? "Turn on camera" : "Turn off camera"}
+                    title={
+                      !localVideoTrack
+                        ? "Camera unavailable"
+                        : isVideoMuted
+                          ? "Turn on camera"
+                          : "Turn off camera"
+                    }
                   >
-                    {isVideoMuted || !localVideoTrack ? <VideoOff className="h-6 w-6" /> : <VideoIcon className="h-6 w-6" />}
+                    {isVideoMuted || !localVideoTrack ? (
+                      <VideoOff className="h-6 w-6" />
+                    ) : (
+                      <VideoIcon className="h-6 w-6" />
+                    )}
                   </button>
 
                   {/* Audio Toggle */}
@@ -704,14 +889,20 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
                     disabled={!localAudioTrack}
                     className="rounded-full h-12 w-12 flex items-center justify-center transition-colors"
                     style={{
-                      backgroundColor: isAudioMuted ? '#E7A808' : '#FFFFFF',
-                      color: isAudioMuted ? '#FFFFFF' : '#000000'
+                      backgroundColor: isAudioMuted ? "#E7A808" : "#FFFFFF",
+                      color: isAudioMuted ? "#FFFFFF" : "#000000",
                       // backgroundColor: isAudioMuted ? '#6B7280' : '#FFFFFF',
                       // color: isAudioMuted ? '#FFFFFF' : '#000000'
                     }}
-                    title={isAudioMuted ? "Unmute microphone" : "Mute microphone"}
+                    title={
+                      isAudioMuted ? "Unmute microphone" : "Mute microphone"
+                    }
                   >
-                    {isAudioMuted ? <MicOff className="h-6 w-6" /> : <Mic className="h-6 w-6" />}
+                    {isAudioMuted ? (
+                      <MicOff className="h-6 w-6" />
+                    ) : (
+                      <Mic className="h-6 w-6" />
+                    )}
                   </button>
                 </div>
 
@@ -720,7 +911,9 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
                   <div className="mx-4 mb-4 bg-warning-50 border border-warning-200 rounded-lg p-3">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <p className="text-sm text-warning-700">{cameraWarning}</p>
+                        <p className="text-sm text-warning-700">
+                          {cameraWarning}
+                        </p>
                       </div>
                       <Button
                         size="sm"
@@ -742,7 +935,8 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
                 <Avatar className="h-32 w-32 mb-6 hidden md:flex">
                   <AvatarImage src={participantAvatar || undefined} />
                   <AvatarFallback className="text-4xl">
-                    {otherParticipant?.firstName?.charAt(0).toUpperCase() || "U"}
+                    {otherParticipant?.firstName?.charAt(0).toUpperCase() ||
+                      "U"}
                   </AvatarFallback>
                 </Avatar>
 
@@ -752,7 +946,9 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
                 </h2>
 
                 {/* Ready to call text */}
-                <p className="text-foreground-body mb-8 hidden md:block">Ready to call?</p>
+                <p className="text-foreground-body mb-8 hidden md:block">
+                  Ready to call?
+                </p>
 
                 {/* Start Call Button */}
                 <Button
@@ -763,7 +959,13 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
                   loading={isJoining}
                   className="rounded-full px-8"
                 >
-                  {isJoining ? 'Starting...' : 'Start Call'}
+                  {isJoining
+                    ? shouldShowJoinCta
+                      ? "Joining..."
+                      : "Starting..."
+                    : shouldShowJoinCta
+                      ? "Join Call"
+                      : "Start Call"}
                 </Button>
 
                 {/* Cancel Button */}
@@ -790,7 +992,7 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
       {isInCall && (
         <div
           className="relative w-full bg-background flex flex-col"
-          style={{ height: 'calc(100vh - var(--topbar-height, 64px))' }}
+          style={{ height: "calc(100vh - var(--topbar-height, 64px))" }}
         >
           {/* Header Section */}
           <div className="flex-none border-b border-border bg-background px-4 md:px-6 py-3 md:py-4">
@@ -840,7 +1042,7 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
                     <Avatar
                       key={user.uid}
                       className="h-8 w-8 md:h-10 md:w-10 border-2 border-secondary"
-                      style={{ marginLeft: '-4px' }}
+                      style={{ marginLeft: "-4px" }}
                     >
                       <AvatarFallback className="text-xs">
                         {String(user.uid).charAt(0).toUpperCase()}
@@ -875,7 +1077,7 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
                       key={user.uid}
                       id={`remote-video-${user.uid}`}
                       className="relative w-full h-full bg-gray-900 rounded-lg overflow-hidden"
-                      style={{ aspectRatio: '16/9', objectFit: 'cover' }}
+                      style={{ aspectRatio: "16/9", objectFit: "cover" }}
                     >
                       {!user.videoTrack && (
                         <div className="absolute inset-0 flex items-center justify-center">
@@ -893,10 +1095,14 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
                 <div className="absolute inset-0 flex items-center justify-center bg-black rounded-lg">
                   <div className="text-center px-4">
                     <p className="text-sm md:text-lg font-semibold text-white mb-2">
-                      Waiting for {otherParticipant?.firstName ?? 'User'} to join...
+                      Waiting for {otherParticipant?.firstName ?? "User"} to
+                      join...
                     </p>
                     <p className="text-xs md:text-sm text-white">
-                      Share the call ID: <span className="font-mono text-xs md:text-sm">{channelId}</span>
+                      Share the call ID:{" "}
+                      <span className="font-mono text-xs md:text-sm">
+                        {channelId}
+                      </span>
                     </p>
                   </div>
                 </div>
@@ -930,13 +1136,13 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
               <div className="absolute bottom-4 md:bottom-10 left-1/2 -translate-x-1/2 z-10 max-w-5xl w-[95%] md:w-[90%]">
                 <div
                   className="flex flex-row items-center justify-between gap-2 md:gap-4 px-3 md:px-8 py-2 md:py-5 rounded-2xl md:rounded-full"
-                  style={{ backgroundColor: '#FFFFFF33' }}
+                  style={{ backgroundColor: "#FFFFFF33" }}
                 >
                   {/* Left: End Meeting Button */}
                   <button
                     onClick={handleLeaveCall}
                     className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-full text-white text-sm md:text-base font-semibold transition-opacity hover:opacity-90"
-                    style={{ backgroundColor: '#FF6B6B' }}
+                    style={{ backgroundColor: "#FF6B6B" }}
                   >
                     <ArrowLeft className="h-4 w-4 md:h-5 md:w-5" />
                     <span className="hidden sm:inline">End Meeting</span>
@@ -950,12 +1156,18 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
                       onClick={toggleAudioMute}
                       className="rounded-full h-10 w-10 md:h-14 md:w-14 flex items-center justify-center transition-colors"
                       style={{
-                        backgroundColor: isAudioMuted ? '#EF4444' : 'white',
-                        color: isAudioMuted ? 'white' : 'black'
+                        backgroundColor: isAudioMuted ? "#EF4444" : "white",
+                        color: isAudioMuted ? "white" : "black",
                       }}
-                      title={isAudioMuted ? "Unmute microphone" : "Mute microphone"}
+                      title={
+                        isAudioMuted ? "Unmute microphone" : "Mute microphone"
+                      }
                     >
-                      {isAudioMuted ? <MicOff className="h-5 w-5 md:h-6 md:w-6" /> : <Mic className="h-5 w-5 md:h-6 md:w-6" />}
+                      {isAudioMuted ? (
+                        <MicOff className="h-5 w-5 md:h-6 md:w-6" />
+                      ) : (
+                        <Mic className="h-5 w-5 md:h-6 md:w-6" />
+                      )}
                     </button>
 
                     {/* Video Button */}
@@ -964,13 +1176,26 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
                       disabled={!localVideoTrack}
                       className="rounded-full h-10 w-10 md:h-14 md:w-14 flex items-center justify-center transition-colors disabled:cursor-not-allowed"
                       style={{
-                        backgroundColor: isVideoMuted || !localVideoTrack ? '#EF4444' : '#F59E0B',
-                        color: 'white',
-                        opacity: !localVideoTrack ? 0.5 : 1
+                        backgroundColor:
+                          isVideoMuted || !localVideoTrack
+                            ? "#EF4444"
+                            : "#F59E0B",
+                        color: "white",
+                        opacity: !localVideoTrack ? 0.5 : 1,
                       }}
-                      title={!localVideoTrack ? "Camera unavailable" : isVideoMuted ? "Turn on camera" : "Turn off camera"}
+                      title={
+                        !localVideoTrack
+                          ? "Camera unavailable"
+                          : isVideoMuted
+                            ? "Turn on camera"
+                            : "Turn off camera"
+                      }
                     >
-                      {isVideoMuted || !localVideoTrack ? <VideoOff className="h-5 w-5 md:h-6 md:w-6" /> : <VideoIcon className="h-5 w-5 md:h-6 md:w-6" />}
+                      {isVideoMuted || !localVideoTrack ? (
+                        <VideoOff className="h-5 w-5 md:h-6 md:w-6" />
+                      ) : (
+                        <VideoIcon className="h-5 w-5 md:h-6 md:w-6" />
+                      )}
                     </button>
                   </div>
 
@@ -978,11 +1203,13 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
                   <button
                     onClick={handleCopyMeetingLink}
                     className="flex items-center gap-2 px-3 py-2 md:px-5 md:py-3 rounded-full font-mono text-xs md:text-sm transition-opacity hover:opacity-80"
-                    style={{ backgroundColor: '#E5E7EB', color: '#1F2937' }}
+                    style={{ backgroundColor: "#E5E7EB", color: "#1F2937" }}
                     title="Copy meeting link"
                   >
                     <span className="hidden sm:inline">{channelId}</span>
-                    <span className="sm:hidden">{channelId.substring(0, 8)}...</span>
+                    <span className="sm:hidden">
+                      {channelId.substring(0, 8)}...
+                    </span>
                     <Copy className="h-3 w-3 md:h-4 md:w-4" />
                   </button>
                 </div>
@@ -991,20 +1218,14 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
 
             {/* Chat Panel */}
             <div className="hidden sm:block w-full lg:w-[400px] lg:flex-none border-t lg:border-t-0 lg:border-l border-border bg-background">
-              <ChatWindow
-                projectId={channelId}
-                className="h-full max-h-none"
-              />
+              <ChatWindow projectId={channelId} className="h-full max-h-none" />
             </div>
           </div>
         </div>
       )}
 
       <div className="sm:hidden w-full lg:w-[400px] lg:flex-none border-t lg:border-t-0 lg:border-l border-border bg-background">
-        <ChatWindow
-          projectId={channelId}
-          className="h-full max-h-none"
-        />
+        <ChatWindow projectId={channelId} className="h-full max-h-none" />
       </div>
     </>
   );

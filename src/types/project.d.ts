@@ -379,6 +379,9 @@ export type UmojalinnWallet = {
 
 export type UmojaLinnChat = {
   message?: string;
+  sessionId?: string;
+  endedAt?: string | Date;
+  callDurationSeconds?: number;
   imageUrl?: string;
   imageMeta?: {
     fileName: string;
@@ -388,7 +391,7 @@ export type UmojaLinnChat = {
     UmojaLinnUser,
     "firstName" | "lastName" | "profilePhotoUri" | "id"
   >;
-  type: "MESSAGE" | "NOTIFICATION" | "CALL_JOIN";
+  type: "MESSAGE" | "NOTIFICATION" | "CALL_JOIN" | "CALL_END";
   severity?: "ERROR" | "SUCCESS";
   createdAt: string | Date;
 };

@@ -57,7 +57,8 @@ const ChatWindow = (props: ChatWindowProps) => {
     images,
     setImages,
     isCallActive,
-    isUserInCall
+    isUserInCall,
+    activeCallSessionId
   } = useChat(props.projectId);
 
   useEffect(() => {
@@ -82,7 +83,12 @@ const ChatWindow = (props: ChatWindowProps) => {
                 categorizeDate(d?.createdAt)) && (
                   <ChatTimeDivider date={d?.createdAt} />
                 )}
-              <ChatBubble {...d} isCallActive={isCallActive} isUserInCall={isUserInCall} />
+              <ChatBubble
+                {...d}
+                isCallActive={isCallActive}
+                isUserInCall={isUserInCall}
+                activeCallSessionId={activeCallSessionId}
+              />
             </React.Fragment>
           );
         })}
