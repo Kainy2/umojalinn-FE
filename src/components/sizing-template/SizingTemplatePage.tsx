@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import {
@@ -136,6 +136,14 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   const [measurementComments, setMeasurementComments] = React.useState<
     Record<string, string>
   >({});
+
+  useEffect(() => {
+    if (!recommendationMode) return;
+    setSelectedMeasurements((prev) => {
+      const merged = new Set([...requestedMeasurementPoints, ...prev]);
+      return Array.from(merged);
+    });
+  }, [recommendationMode, requestedMeasurementPoints]);
 
   // Reminder mutation
   const { mutate: sendReminder } = useSendSizingTemplateReminder(
@@ -497,7 +505,6 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                           isPendingBuyerReply={isPendingBuyerReply}
                           isNewlyUpdated={isNewlyUpdated}
                           onClick={() => {
-                            handleSelectMeasurement(item.prop);
                             handleMeasurementClick(
                               item.img,
                               item.prop as keyof (
