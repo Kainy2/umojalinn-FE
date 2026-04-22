@@ -461,14 +461,28 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                       : TEMPLATE
                   )
                     .sort((a, b) => {
-                      // Prioritize fields with reviews to appear at the top
-                      const aHasReview =
-                        !!sizingTemplateResult?.metadata?.reviews?.[a.prop];
-                      const bHasReview =
-                        !!sizingTemplateResult?.metadata?.reviews?.[b.prop];
-                      if (aHasReview && !bHasReview) return -1;
-                      if (!aHasReview && bHasReview) return 1;
-                      return 0;
+                      const getSortPriority = (
+                        prop: BothGenderSizingTemplateProps,
+                      ) => {
+                        const hasReview =
+                          !!sizingTemplateResult?.metadata?.reviews?.[prop];
+                        if (hasReview) return 0;
+
+                        const isNewRequestedPoint =
+                          recommendationMode &&
+                          selectedMeasurements.includes(prop) &&
+                          !requestedMeasurementPoints.includes(prop);
+                        if (isNewRequestedPoint) return 1;
+
+                        return 2;
+                      };
+
+                      return (
+                        getSortPriority(
+                          a.prop as BothGenderSizingTemplateProps,
+                        ) -
+                        getSortPriority(b.prop as BothGenderSizingTemplateProps)
+                      );
                     })
                     .map((item, index) => {
                       const itemValue = value?.[item.prop];

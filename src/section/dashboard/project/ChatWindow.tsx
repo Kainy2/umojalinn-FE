@@ -58,7 +58,8 @@ const ChatWindow = (props: ChatWindowProps) => {
     setImages,
     isCallActive,
     isUserInCall,
-    activeCallSessionId
+    activeCallSessionId,
+    endedCallDurations
   } = useChat(props.projectId);
 
   useEffect(() => {
@@ -88,6 +89,7 @@ const ChatWindow = (props: ChatWindowProps) => {
                 isCallActive={isCallActive}
                 isUserInCall={isUserInCall}
                 activeCallSessionId={activeCallSessionId}
+                endedCallDurations={endedCallDurations}
               />
             </React.Fragment>
           );

@@ -264,16 +264,7 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
       if (client) {
         void client.leave();
       }
-
-      // Cleanup participant from Firebase if unmounting while in call
-      // if (session?.user?.id && channelId) {
-      //   const participantRef = ref(database, `chats/${chatPath}/active_call/participants/${session.user.id}`);
-      //   void (async () => {
-      //     await remove(participantRef);
-      //     await finalizeCallIfLastParticipant();
-      //   })();
-      // }
-    };
+    }; // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const finalizeCallIfLastParticipant = async () => {
@@ -288,10 +279,10 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
 
     if (!sessionId || participantIds.length > 0) return;
 
-    const messagesRef = ref(database, `chats/${chatPath}/messages`);
-    const messagesSnapshot = await get(messagesRef);
-    const messages = Object.values(
-      (messagesSnapshot.val() || {}) as Record<
+    const callEventsRef = ref(database, `chats/${chatPath}/call_events`);
+    const callEventsSnapshot = await get(callEventsRef);
+    const callEvents = Object.values(
+      (callEventsSnapshot.val() || {}) as Record<
         string,
         {
           type?: string;
@@ -300,7 +291,7 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
       >,
     );
 
-    const hasCallEndMessage = messages.some(
+    const hasCallEndMessage = callEvents.some(
       (chatMessage) =>
         chatMessage.type === "CALL_END" && chatMessage.sessionId === sessionId,
     );
@@ -316,7 +307,7 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
             ),
           )
         : undefined;
-      await push(messagesRef, {
+      await push(callEventsRef, {
         type: "CALL_END",
         sessionId,
         endedAt: timestamp,
@@ -583,8 +574,8 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
       // Send call started notification only for new calls.
       if (!activeCallSessionId && !hasJoinIntent) {
         try {
-          const messagesRef = ref(database, `chats/${chatPath}/messages`);
-          await push(messagesRef, {
+          const callEventsRef = ref(database, `chats/${chatPath}/call_events`);
+          await push(callEventsRef, {
             message: channelId, // Store channelId in message field for Join Call button
             sessionId,
             type: "CALL_JOIN",
