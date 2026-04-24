@@ -6,18 +6,22 @@ import { Separator } from "@/components/ui/separator";
 import {
   useGetPaymentAccountInfo,
   useGetListNgnBanks,
-  useConnectStripeAccount,
 } from "@/tanstack/hooks/useProject";
+import { paymentAccountHasStoredPayoutAddress } from "@/components/util/wallet";
 import Bank from "@/icons/Bank";
 import { Button } from "@/components/ui/button";
-import TextField from "@/components/custom/input/TextField";
-import CustomSelectCountry from "@/components/custom/SelectCountry";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
+import LinkStripeAddressDialog from "@/components/custom/dialog/LinkStripeAddressDialog";
+import DisconnectStripeDialog from "@/components/custom/dialog/DisconnectStripeDialog/index";
+import TextField from "@/components/custom/input/TextField";
 import { Label } from "@/components/ui/label";
 
 const PaymentSettingsForm = () => {
   const [currency, setCurrency] = useState<UmojaLinnCurrency>("EURO");
+  const [stripeAddressDialogOpen, setStripeAddressDialogOpen] = useState(false);
+  const [disconnectStripeDialogOpen, setDisconnectStripeDialogOpen] =
+    useState(false);
   const router = useRouter();
 
   const {
@@ -27,24 +31,6 @@ const PaymentSettingsForm = () => {
   } = useGetPaymentAccountInfo();
   const { data: ngnBanksData } = useGetListNgnBanks({
     enabled: currency === "NAIRA",
-  });
-
-  const { mutate: connectStripe, isPending: isConnectingStripe } =
-    useConnectStripeAccount({
-      onSuccess: (data) => {
-        if (data.data.data.onboardingUrl) {
-          window.location.href = data.data.data.onboardingUrl;
-        }
-      },
-    });
-
-  // State for Address (UI only for now as requested/planned)
-  const [address, setAddress] = useState({
-    country: "IE", // Default to Nigeria in image but Ireland in placeholder? Image shows Nigeria.
-    state: "Dublin",
-    city: "Lagos",
-    zipCode: "505121",
-    street: "24 Dublin ireland",
   });
 
   const paymentAccount = useMemo(() => {
@@ -66,6 +52,18 @@ const PaymentSettingsForm = () => {
 
   const getBankName = (code: string) => {
     return ngnBanksData?.data?.data?.find((b) => b.code === code)?.name || code;
+  };
+
+  const handleConnectStripeClick = () => {
+    if (!paymentAccountHasStoredPayoutAddress(paymentAccount)) {
+      setStripeAddressDialogOpen(true);
+      return;
+    }
+    const url = paymentAccount?.stripeOnboardingUrl;
+    if (url) {
+      window.location.href = url;
+      return;
+    }
   };
 
   const StripeIcon = () => (
@@ -169,7 +167,14 @@ const PaymentSettingsForm = () => {
         <CustomSelectField
           label="Currency"
           value={currency}
-          onValueChange={(value) => setCurrency(value as UmojaLinnCurrency)}
+          onValueChange={(value) => {
+            const next = value as UmojaLinnCurrency;
+            setCurrency(next);
+            if (next === "NAIRA") {
+              setStripeAddressDialogOpen(false);
+              setDisconnectStripeDialogOpen(false);
+            }
+          }}
           options={[
             { children: "Euro", value: "EURO" },
             { children: "Naira", value: "NAIRA" },
@@ -215,35 +220,32 @@ const PaymentSettingsForm = () => {
                   ? `${getBankName(paymentAccount?.paystackBankCode || "")} • ${paymentAccount?.paystackAccountNumber}`
                   : paymentAccount?.stripeIban || "Connected"}
               </p>
-              <button
-                onClick={() => {
-                  if (currency !== "NAIRA") {
-                    connectStripe();
-                  } else {
+              {currency === "NAIRA" ? (
+                <button
+                  type="button"
+                  onClick={() => {
                     // Logic to edit NGN account could go here
-                  }
-                }}
-                className="text-primary font-bold text-sm mt-2 hover:underline text-left w-fit"
-              >
-                Edit
-              </button>
+                  }}
+                  className="text-primary font-bold text-sm mt-2 hover:underline text-left w-fit"
+                >
+                  Edit
+                </button>
+              ) : (
+                <p className="text-sm text-gray-500 mt-3 max-w-md">
+                  Payout address cannot be changed here while Stripe is
+                  connected. Use Disconnect Stripe below if you need to update
+                  it, then connect again.
+                </p>
+              )}
             </div>
           </div>
         ) : (
           <div className="border border-dashed border-gray-300 rounded-lg p-8 flex flex-col items-center justify-center gap-4 bg-gray-50/50">
-            <p className="text-gray-500 text-sm">
-              No payout account connected for this currency.
+            <p className="text-gray-500 text-sm text-center">
+              {currency === "NAIRA"
+                ? "No payout account connected for this currency."
+                : "No Stripe account linked for this currency. Use Connect Stripe below to link your account."}
             </p>
-            {currency !== "NAIRA" && (
-              <Button
-                onClick={() => connectStripe()}
-                disabled={isConnectingStripe}
-                className="bg-[#EAAA08] hover:bg-[#EAAA08]/90 text-white font-bold h-11 px-6 flex items-center gap-2"
-              >
-                <StripeIcon />
-                {isConnectingStripe ? "Connecting..." : "Connect Stripe"}
-              </Button>
-            )}
           </div>
         )}
       </div>
@@ -251,10 +253,8 @@ const PaymentSettingsForm = () => {
         Payments are processed by Stripe. Payout fees, if any, are set by Stripe
         and not by Umoja linn.
       </p>
-      <Separator className="bg-gray-100" />
 
-      {/* Stripe Address Section (Only for non-NAIRA as per standard Stripe flows) */}
-      {currency !== "NAIRA" && (
+      {currency !== "NAIRA" && paymentAccount?.address && (
         <div className="flex flex-col gap-6">
           <div>
             <h3 className="text-base font-medium text-gray-900">
@@ -268,79 +268,95 @@ const PaymentSettingsForm = () => {
           <div className="flex flex-col gap-4">
             <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] items-center gap-4">
               <Label className="text-gray-900">Country</Label>
-              <CustomSelectCountry
-                value={address.country}
-                onChange={(val: unknown) => {
-                  const typedVal = val as { value: string };
-                  setAddress((prev) => ({ ...prev, country: typedVal.value }));
-                }}
+              <TextField
+                value={paymentAccount.address.country?.toWellFormed() || ""}
+                disabled
+                readOnly
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] items-center gap-4">
               <Label className="text-gray-900">State / Province</Label>
               <TextField
-                placeholder="Dublin"
-                value={address.state}
-                onChange={(e) =>
-                  setAddress((prev) => ({ ...prev, state: e.target.value }))
-                }
+                value={paymentAccount.address.state || ""}
+                disabled
+                readOnly
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] items-center gap-4">
               <Label className="text-gray-900">City</Label>
               <TextField
-                placeholder="Lagos"
-                value={address.city}
-                onChange={(e) =>
-                  setAddress((prev) => ({ ...prev, city: e.target.value }))
-                }
+                value={paymentAccount.address.city || ""}
+                disabled
+                readOnly
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] items-center gap-4">
               <Label className="text-gray-900">Zip code/ Postal code</Label>
               <TextField
-                placeholder="505121"
-                value={address.zipCode}
-                onChange={(e) =>
-                  setAddress((prev) => ({ ...prev, zipCode: e.target.value }))
-                }
+                value={paymentAccount.address.zipCode || ""}
+                disabled
+                readOnly
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] items-center gap-4">
               <Label className="text-gray-900">Address</Label>
               <TextField
-                placeholder="24 Dublin ireland"
-                value={address.street}
-                onChange={(e) =>
-                  setAddress((prev) => ({ ...prev, street: e.target.value }))
-                }
+                value={paymentAccount.address.address || ""}
+                disabled
+                readOnly
               />
             </div>
           </div>
         </div>
       )}
+
+      <LinkStripeAddressDialog
+        open={stripeAddressDialogOpen}
+        onOpenChange={setStripeAddressDialogOpen}
+      />
+
+      <DisconnectStripeDialog
+        open={disconnectStripeDialogOpen}
+        onOpenChange={setDisconnectStripeDialogOpen}
+      />
+
       <Separator className="bg-gray-100" />
 
       {/* Footer Info */}
       <div className="flex flex-col gap-6 pt-6">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-wrap justify-between items-center gap-4">
           <button
+            type="button"
             onClick={() => router.back()}
             className="text-gray-600 font-bold hover:text-gray-900"
           >
             Back
           </button>
 
-          {hasActiveAccount && currency !== "NAIRA" && (
-            <Button className="bg-[#EAAA08] hover:bg-[#EAAA08]/90 text-white font-bold h-12 px-8 flex items-center gap-3 rounded-md">
-              <StripeIcon />
-              Disconnect Stripe
-            </Button>
-          )}
+          {currency !== "NAIRA" &&
+            (hasActiveAccount ? (
+              <Button
+                type="button"
+                onClick={() => setDisconnectStripeDialogOpen(true)}
+                className="bg-[#EAAA08] hover:bg-[#EAAA08]/90 text-white font-bold h-12 px-8 flex items-center gap-3 rounded-md"
+              >
+                <StripeIcon />
+                Disconnect Stripe
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                onClick={handleConnectStripeClick}
+                className="bg-[#EAAA08] hover:bg-[#EAAA08]/90 text-white font-bold h-12 px-8 flex items-center gap-3 rounded-md"
+              >
+                <StripeIcon />
+                Connect Stripe
+              </Button>
+            ))}
         </div>
       </div>
     </div>
