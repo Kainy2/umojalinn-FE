@@ -30,7 +30,10 @@ import {
   getPaymentAccountInfo,
   verifyNgnAccount,
   addNgnBankAccount,
-  connectStripeAccount
+  addPaymentAddress,
+  connectStripeAccount,
+  requestDeleteStripeAccountOtp,
+  deleteStripeConnectedAccount,
 } from "@/actions/project";
 import { queryClient } from "@/components/provider/TanstackQueryClient";
 import useHandleError from "@/hooks/useHandleError";
@@ -47,7 +50,9 @@ import {
   UmojaLinnNgnBank,
   UmojaLinnPaymentAccountInfo,
   UmojaLinnBankVerified,
-  UmojaLinnConnectStripeAccount
+  UmojaLinnConnectStripeAccount,
+  TAddPaymentAddressPayload,
+  TDeleteStripeConnectedAccountPayload,
 } from "@/types/project";
 import {
   GenericUseMutationProps,
@@ -536,6 +541,29 @@ export const useAddNgnAccount = (
 //     },
 //   });
 // };
+export const useAddPaymentAddress = (
+  options?: GenericUseMutationProps<SingleApiResponse, TAddPaymentAddressPayload>,
+) => {
+  const { handleError } = useHandleError("Add payment address");
+  return useMutation({
+    ...options,
+    mutationFn: (variables) => addPaymentAddress(variables),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: [PROJECT, WALLET, PAYMENT_ACCOUNT_INFO],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [PROJECT, WALLET, WITHDRAWAL_METHODS],
+      });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
 export const useConnectStripeAccount = (
   options?: GenericUseMutationProps<SingleApiResponse<UmojaLinnConnectStripeAccount>>
 ) => {
@@ -554,7 +582,54 @@ export const useConnectStripeAccount = (
       options?.onError?.(error, variables, context);
     },
   });
-}
+};
+
+export const useRequestDeleteStripeAccountOtp = (
+  options?: GenericUseMutationProps<SingleApiResponse>,
+) => {
+  const { handleError } = useHandleError("Request Stripe disconnect code");
+  return useMutation({
+    ...options,
+    mutationFn: () => requestDeleteStripeAccountOtp(),
+    onSuccess: (data, variables, context) => {
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useDeleteStripeConnectedAccount = (
+  options?: GenericUseMutationProps<
+    SingleApiResponse,
+    TDeleteStripeConnectedAccountPayload
+  >,
+) => {
+  const { handleError } = useHandleError("Disconnect Stripe");
+  return useMutation({
+    ...options,
+    mutationFn: (variables) => deleteStripeConnectedAccount(variables),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: [PROJECT, WALLET, PAYMENT_ACCOUNT_INFO],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [PROJECT, WALLET, WITHDRAWAL_METHODS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [PROJECT, WALLET],
+      });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
 export const useDeleteWithdrawalMethod = (
   id: string,
   options?: GenericUseMutationProps<SingleApiResponse>

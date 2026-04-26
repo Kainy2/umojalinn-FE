@@ -17,7 +17,12 @@ import { cn } from "@/lib/utils";
 
 type TemplateItem = {
   name: string;
-  prop: string | keyof (UmojaLinnFemaleSizingTemplateProps | UmojaLinnMaleSizingTemplateProps);
+  prop:
+    | string
+    | keyof (
+        | UmojaLinnFemaleSizingTemplateProps
+        | UmojaLinnMaleSizingTemplateProps
+      );
   img: string;
 };
 
@@ -26,7 +31,9 @@ type MeasurementFormProps = {
   gender: UmojaLinnSizingTemplate["gender"];
   unit: UmojaLinnSizingTemplate["unit"];
   template: TemplateItem[];
-  value: Partial<UmojaLinnFemaleSizingTemplateProps & UmojaLinnMaleSizingTemplateProps>;
+  value: Partial<
+    UmojaLinnFemaleSizingTemplateProps & UmojaLinnMaleSizingTemplateProps
+  >;
   highlighted: string | null;
   sizingTemplateResult?: {
     metadata?: { reviews?: Partial<Record<string, string>> };
@@ -35,12 +42,35 @@ type MeasurementFormProps = {
     defaultFieldsLocked?: boolean;
   };
   recommendationMode?: boolean;
-  reviewsEdit?: Partial<Record<keyof (UmojaLinnFemaleSizingTemplateProps | UmojaLinnMaleSizingTemplateProps), string>>;
+  reviewsEdit?: Partial<
+    Record<
+      keyof (
+        | UmojaLinnFemaleSizingTemplateProps
+        | UmojaLinnMaleSizingTemplateProps
+      ),
+      string
+    >
+  >;
   modalType: "EDIT" | "RECOMMEND" | "VIEW-ONLY";
   onGenderChange: (value: UmojaLinnSizingTemplate["gender"]) => void;
   onUnitChange: (value: UmojaLinnSizingTemplate["unit"]) => void;
-  onValueChange: (prop: string | keyof (UmojaLinnFemaleSizingTemplateProps | UmojaLinnMaleSizingTemplateProps)) => (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onMeasurementClick: (img: string, prop: string | keyof (UmojaLinnFemaleSizingTemplateProps | UmojaLinnMaleSizingTemplateProps)) => void;
+  onValueChange: (
+    prop:
+      | string
+      | keyof (
+          | UmojaLinnFemaleSizingTemplateProps
+          | UmojaLinnMaleSizingTemplateProps
+        ),
+  ) => (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onMeasurementClick: (
+    img: string,
+    prop:
+      | string
+      | keyof (
+          | UmojaLinnFemaleSizingTemplateProps
+          | UmojaLinnMaleSizingTemplateProps
+        ),
+  ) => void;
   onKeyPress: (index: number, e: React.KeyboardEvent<HTMLInputElement>) => void;
   onHeightAndSizeChange?: (height: number, ukSize: string) => void;
   inputRefs: React.MutableRefObject<(HTMLInputElement | null)[]>;
@@ -67,7 +97,8 @@ const MeasurementForm = ({
   className,
 }: MeasurementFormProps) => {
   const isEditable = modalType === "EDIT";
-  const areDefaultFieldsLocked = sizingTemplateResult?.defaultFieldsLocked ?? false;
+  const areDefaultFieldsLocked =
+    sizingTemplateResult?.defaultFieldsLocked ?? false;
   // const submittedPoints = sizingTemplateResult?.submittedMeasurementPoints ?? [];
 
   return (
@@ -104,33 +135,54 @@ const MeasurementForm = ({
           disabled={!isEditable || areDefaultFieldsLocked}
         />
 
-        {template.filter((item) => item.prop !== "height").map((templateItem, index) => {
-          const isNotEdit = modalType !== "EDIT";
-          const reviewValue =
-            (recommendationMode ? reviewsEdit?.[templateItem.prop as keyof typeof reviewsEdit] : undefined) ??
-            sizingTemplateResult?.metadata?.reviews?.[templateItem.prop as string];
-          // const isSubmitted = submittedPoints.includes(templateItem.prop);
+        {template
+          .filter((item) => item.prop !== "height")
+          .map((templateItem, index) => {
+            const isNotEdit = modalType !== "EDIT";
+            const reviewValue =
+              (recommendationMode
+                ? reviewsEdit?.[templateItem.prop as keyof typeof reviewsEdit]
+                : undefined) ??
+              sizingTemplateResult?.metadata?.reviews?.[
+                templateItem.prop as string
+              ];
+            // const isSubmitted = submittedPoints.includes(templateItem.prop);
 
-          return (
-            <MeasurementPointRow
-              key={templateItem.prop}
-              disabled={isNotEdit && !reviewValue}
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              onValueChange={onValueChange(templateItem.prop as any)}
-              value={(value?.[templateItem.prop as keyof typeof value] ?? 0) as number}
-              unit={unit}
-              label={templateItem.name}
-              onFocus={() => onMeasurementClick(templateItem.img, templateItem.prop as string)}
-              highlighted={highlighted === templateItem.prop}
-              hasLiveProject={false}
-              metadata={{ review: reviewValue, img: templateItem?.img }}
-              onClick={() => onMeasurementClick(templateItem.img, templateItem.prop as string)}
-              onKeyDown={(e) => onKeyPress(index, e)}
-              // isSubmitted={isSubmitted}
-              ref={(el) => { inputRefs.current[index] = el; }}
-            />
-          );
-        })}
+            return (
+              <MeasurementPointRow
+                key={templateItem.prop}
+                disabled={isNotEdit && !reviewValue}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                onValueChange={onValueChange(templateItem.prop as any)}
+                value={
+                  (value?.[templateItem.prop as keyof typeof value] ??
+                    0) as number
+                }
+                unit={unit}
+                label={templateItem.name}
+                onFocus={() =>
+                  onMeasurementClick(
+                    templateItem.img,
+                    templateItem.prop as string,
+                  )
+                }
+                highlighted={highlighted === templateItem.prop}
+                hasLiveProject={false}
+                metadata={{ review: reviewValue, img: templateItem?.img }}
+                onClick={() => {
+                  onMeasurementClick(
+                    templateItem.img,
+                    templateItem.prop as string,
+                  );
+                }}
+                onKeyDown={(e) => onKeyPress(index, e)}
+                // isSubmitted={isSubmitted}
+                ref={(el) => {
+                  inputRefs.current[index] = el;
+                }}
+              />
+            );
+          })}
       </div>
     </div>
   );

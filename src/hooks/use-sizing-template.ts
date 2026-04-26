@@ -1,10 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  useRef,
-} from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import {
   ALL_SIZING_TEMPLATES,
   FEMALE_SIZING_TEMPLATE,
@@ -31,31 +25,29 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useGetProjectById } from "@/tanstack/hooks/useProject";
 import { useGetBidById } from "@/tanstack/hooks/useBid";
 
-type TemplateModalType = "EDIT" | "RECOMMEND" | "VIEW-ONLY"
+type TemplateModalType = "EDIT" | "RECOMMEND" | "VIEW-ONLY";
 
- export type SizingTemplateDialogProps = DialogProps & {
+export type SizingTemplateDialogProps = DialogProps & {
   id?: string;
   handleSuccess?: (template?: UmojaLinnSizingTemplate) => void;
   disableSaving?: boolean;
   // type?: "CREATE" | "DRAFT-EDIT" | "DESIGNER-VIEW" | "BUYER-VIEW";
 };
 
-
 export const useSizingTemplateDialog = (
   props: SizingTemplateDialogProps & {
     bidId?: string;
     projectId?: string;
-  }
+  },
 ) => {
-
- const [previewImage, setPreviewImage] = useState<string | null>(null);
- const [editMode, setEditMode] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [editMode, setEditMode] = useState(false);
   const [open, setOpen] = useState(false);
   const [highlighted, setHighlighted] = useState<
     | keyof (UmojaLinnFemaleSizingTemplateProps &
         UmojaLinnMaleSizingTemplateProps)
     | null
-  >('height');
+  >("height");
   const [value, setValue] = useState<
     Partial<
       UmojaLinnFemaleSizingTemplateProps & UmojaLinnMaleSizingTemplateProps
@@ -63,7 +55,7 @@ export const useSizingTemplateDialog = (
   >({});
   const [gender, setGender] =
     useState<UmojaLinnSizingTemplate["gender"]>("MALE");
-  const [unit, setUnit] = useState<UmojaLinnSizingTemplate["unit"]>("INCH");
+  const [unit, setUnit] = useState<UmojaLinnSizingTemplate["unit"]>("CM");
   const [name, setName] = useState<string>("");
   const [recommendationMode, setRecommendationMode] = useState(false);
   const [openRequestChangesDialog, setOpenRequestChangesDialog] =
@@ -87,33 +79,39 @@ export const useSizingTemplateDialog = (
 
   const { data: sizingTemplateData, isPending: isLoadingSizingTemplate } =
     useGetSizingTemplateById(props?.id, { view: viewParam });
-    const {
-      mutate: requestChangeOnSizingTemplate,
-      isPending: isRequestingChangeOnSizingTemplate,
-    } = useRequestChangeSizingTemplate(props?.id, {
-      onSuccess() {
-        setReviewsEdit({});
-        setRecommendationMode(false);
-      },
-    });
-    const router = useRouter();
-    const urlProjectId = searchParams.get("projectId");
-    const sizingTemplateId = props.id;
-    const sizingTemplateResult = sizingTemplateData?.data.data;
+  const {
+    mutate: requestChangeOnSizingTemplate,
+    isPending: isRequestingChangeOnSizingTemplate,
+  } = useRequestChangeSizingTemplate(props?.id, {
+    onSuccess() {
+      setReviewsEdit({});
+      setRecommendationMode(false);
+    },
+  });
+  const router = useRouter();
+  const urlProjectId = searchParams.get("projectId");
+  const sizingTemplateId = props.id;
+  const sizingTemplateResult = sizingTemplateData?.data.data;
 
-    const effectiveProjectId = props.projectId || urlProjectId || sizingTemplateResult?.projects?.[0]?.id || undefined;
-  
-    // Fetch project data if we have a project ID
-    const { data: projectData } = useGetProjectById(effectiveProjectId);
-    const project = projectData?.data?.data;
+  const effectiveProjectId =
+    props.projectId ||
+    urlProjectId ||
+    sizingTemplateResult?.projects?.[0]?.id ||
+    undefined;
 
-    const { data: bidData } = useGetBidById(props.bidId || "", { enabled: !!props.bidId });
-    const bid = bidData?.data?.data;
-		
-		const isDesigner = session?.user?.profileRole === "DESIGNER";
-		const TEMPLATE = gender === "FEMALE" ? FEMALE_SIZING_TEMPLATE : MALE_SIZING_TEMPLATE;
-		const noOfInputs = TEMPLATE?.length;
+  // Fetch project data if we have a project ID
+  const { data: projectData } = useGetProjectById(effectiveProjectId);
+  const project = projectData?.data?.data;
 
+  const { data: bidData } = useGetBidById(props.bidId || "", {
+    enabled: !!props.bidId,
+  });
+  const bid = bidData?.data?.data;
+
+  const isDesigner = session?.user?.profileRole === "DESIGNER";
+  const TEMPLATE =
+    gender === "FEMALE" ? FEMALE_SIZING_TEMPLATE : MALE_SIZING_TEMPLATE;
+  const noOfInputs = TEMPLATE?.length;
 
   const [isTemplateHaveLiveProject, isDraft] = useMemo(() => {
     return [
@@ -130,18 +128,18 @@ export const useSizingTemplateDialog = (
     bid?.requestedMeasurementPoints ||
     project?.requestedMeasurementPoints ||
     [];
-  const submittedMeasurementPoints = sizingTemplateResult?.submittedMeasurementPoints || [];
+  const submittedMeasurementPoints =
+    sizingTemplateResult?.submittedMeasurementPoints || [];
   const hasRequestedPoints = requestedMeasurementPoints.length > 0;
   const hasSubmittedPoints = submittedMeasurementPoints.length > 0;
-  const hasReviews = sizingTemplateResult?.metadata?.reviews && 
+  const hasReviews =
+    sizingTemplateResult?.metadata?.reviews &&
     Object.values(sizingTemplateResult.metadata.reviews).some(Boolean);
   const isInUse = sizingTemplateResult?.status === "IN_USE";
   const isProjectLive = project?.status === "LIVE";
 
-
   // New templateMode with proper priority logic
   const templateMode: TemplateMode = useMemo(() => {
-
     // Designer modes (priority order)
     if (isDesigner) {
       // SELECT: Designer requesting measurement points on bid without template yet
@@ -197,15 +195,24 @@ export const useSizingTemplateDialog = (
   ]);
 
   // Legacy modalType for backward compatibility
-	const modalType: TemplateModalType = useMemo(() => {
-		if (isDesigner) {
-			return "RECOMMEND";
-		} else {
-			if (!props?.id) return "EDIT"
-			if (sizingTemplateResult?.status === "IN_USE" && isTemplateHaveLiveProject) return "VIEW-ONLY";
-			return "EDIT";
-		}
-	},[isDesigner, props?.id, sizingTemplateResult?.status, isTemplateHaveLiveProject]);
+  const modalType: TemplateModalType = useMemo(() => {
+    if (isDesigner) {
+      return "RECOMMEND";
+    } else {
+      if (!props?.id) return "EDIT";
+      if (
+        sizingTemplateResult?.status === "IN_USE" &&
+        isTemplateHaveLiveProject
+      )
+        return "VIEW-ONLY";
+      return "EDIT";
+    }
+  }, [
+    isDesigner,
+    props?.id,
+    sizingTemplateResult?.status,
+    isTemplateHaveLiveProject,
+  ]);
 
   const highlightedSizingName = useMemo(
     () =>
@@ -230,7 +237,6 @@ export const useSizingTemplateDialog = (
     }
   };
 
-
   const handleChangeValuesByUnit = (
     prevUnit: UmojaLinnSizingTemplate["unit"],
     finalUnit: UmojaLinnSizingTemplate["unit"],
@@ -238,7 +244,9 @@ export const useSizingTemplateDialog = (
     if (prevUnit !== finalUnit) {
       const conversionFactor = prevUnit === "CM" ? 0.393701 : 2.54;
       setValue((prev) => {
-        const newValue: Partial<UmojaLinnFemaleSizingTemplateProps & UmojaLinnMaleSizingTemplateProps> = {};
+        const newValue: Partial<
+          UmojaLinnFemaleSizingTemplateProps & UmojaLinnMaleSizingTemplateProps
+        > = {};
         Object.keys(prev).forEach((key) => {
           const typedKey = key as keyof Partial<
             UmojaLinnFemaleSizingTemplateProps &
@@ -264,11 +272,11 @@ export const useSizingTemplateDialog = (
 
   const handleReviewsEditChange = useCallback(
     (
-        props:
-          | keyof (UmojaLinnFemaleSizingTemplateProps &
-              UmojaLinnMaleSizingTemplateProps)
-          | null,
-      ) =>
+      props:
+        | keyof (UmojaLinnFemaleSizingTemplateProps &
+            UmojaLinnMaleSizingTemplateProps)
+        | null,
+    ) =>
       (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         if (props)
           setReviewsEdit((prev) => ({ ...prev, [props]: e?.target?.value }));
@@ -276,9 +284,8 @@ export const useSizingTemplateDialog = (
     [],
   );
 
-
   useEffect(() => {
-    if (sizingTemplateResult ) {
+    if (sizingTemplateResult) {
       const {
         name,
         unit,
@@ -302,25 +309,25 @@ export const useSizingTemplateDialog = (
         projects,
       };
       setValue(templateDetails);
-      setName(name);      
+      setName(name);
       if (unit) setUnit(unit);
     }
-    
-    
-    if (project){
+
+    if (project) {
       // const defaultTemplate = project.gender === "MALE" ? MALE_SIZING_TEMPLATE : FEMALE_SIZING_TEMPLATE
-      
+
       setGender(project.gender ?? sizingTemplateResult?.gender ?? "MALE");
       // setPreviewImage(defaultTemplate[0].img)
     }
   }, [sizingTemplateResult, project]);
-  
-  useEffect(()=>{
+
+  useEffect(() => {
     if (!gender) return;
 
-    const defaultTemplate = gender === "MALE" ? MALE_SIZING_TEMPLATE : FEMALE_SIZING_TEMPLATE
-    setPreviewImage(defaultTemplate[0].img)
-  }, [gender])
+    const defaultTemplate =
+      gender === "MALE" ? MALE_SIZING_TEMPLATE : FEMALE_SIZING_TEMPLATE;
+    setPreviewImage(defaultTemplate[0].img);
+  }, [gender]);
 
   const handleSuccess = (template: UmojaLinnSizingTemplate) => {
     setOpen(false);
@@ -342,8 +349,6 @@ export const useSizingTemplateDialog = (
       },
     });
 
-
-
   const handleChange =
     (
       prop: keyof Partial<
@@ -354,7 +359,10 @@ export const useSizingTemplateDialog = (
       e.preventDefault?.();
       setValue((prev) => ({
         ...prev,
-        [prop]: prop === "ukStandardSize" ? e.target.value : parseStringToNumber(e.target.value)?.value || 0,
+        [prop]:
+          prop === "ukStandardSize"
+            ? e.target.value
+            : parseStringToNumber(e.target.value)?.value || 0,
       }));
     };
 
@@ -369,7 +377,7 @@ export const useSizingTemplateDialog = (
       name,
       unit,
       shouldGoLive,
-      ukStandardSize: value.ukStandardSize
+      ukStandardSize: value.ukStandardSize,
     };
 
     (props?.id ? updateSizingTemplate : createSizingTemplate)(
@@ -381,15 +389,16 @@ export const useSizingTemplateDialog = (
     ? isUpdatingSizingTemplate || isRequestingChangeOnSizingTemplate
     : isCreatingSizingTemplate;
 
-
   const isNewTemplate =
-  !isDesigner && templateMode === 'EDIT' && !sizingTemplateId && !effectiveProjectId
+    !isDesigner &&
+    templateMode === "EDIT" &&
+    !sizingTemplateId &&
+    !effectiveProjectId;
 
-  console.log({templateMode})
+  console.log({ templateMode });
 
-
-  return{
-		loading,
+  return {
+    loading,
     isDesigner,
     highlightedSizingName,
     handleReviewsEditChange,
@@ -424,8 +433,8 @@ export const useSizingTemplateDialog = (
     previewImage,
     setPreviewImage,
     inputRefs,
-		modalType,
-    editMode, 
+    modalType,
+    editMode,
     setEditMode,
     // New mode-related exports
     templateMode,
@@ -443,5 +452,5 @@ export const useSizingTemplateDialog = (
     effectiveProjectId,
     projectData,
     project,
-	}
+  };
 };

@@ -1,4 +1,8 @@
-import { UmojaLinnCurrency, UmojalinnWalletTransaction } from "@/types/project";
+import {
+  UmojaLinnCurrency,
+  UmojaLinnPaymentAccountInfo,
+  UmojalinnWalletTransaction,
+} from "@/types/project";
 
 import Paypal from "@/icons/Paypal";
 import Bank from "@/icons/Bank";
@@ -69,6 +73,21 @@ export const getTransactionIcon = (
   }
 };
 
+
+/**
+ * True when payment-account-info includes a saved payout address (all fields present).
+ * Used to decide whether to show the Stripe address modal before connect vs. resume onboarding URL.
+ */
+export const paymentAccountHasStoredPayoutAddress = (
+  account: UmojaLinnPaymentAccountInfo | null | undefined,
+): boolean => {
+  const addr = account?.address;
+  if (!addr) return false;
+  const { address, city, state, country, zipCode } = addr;
+  return [address, city, state, country, zipCode].every(
+    (v) => typeof v === "string" && v.trim().length > 0,
+  );
+};
 
 export const getTransactionStatus = (
   type: UmojalinnWalletTransaction["transactionType"],

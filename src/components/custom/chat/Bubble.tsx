@@ -21,6 +21,10 @@ const ChatBubble = (
     isCallActive?: boolean;
     isUserInCall?: boolean;
     activeCallSessionId?: string | null;
+    endedCallDurations?: Record<
+      string,
+      { endedAt?: string | Date; callDurationSeconds?: number }
+    >;
   },
 ) => {
   const {
@@ -34,9 +38,8 @@ const ChatBubble = (
     // isCallActive,
     isUserInCall,
     activeCallSessionId,
+    endedCallDurations,
     sessionId,
-    endedAt,
-    callDurationSeconds,
   } = props;
   const { data: session } = useSession();
   const isMe = user?.id === session?.user?.id;
@@ -79,33 +82,13 @@ const ChatBubble = (
     );
   }
 
-  if (type === "CALL_END") {
-    const endedBy = isMe
-      ? "You"
-      : `${user?.firstName || ""} ${user?.lastName || ""}`.trim() || "User";
-    const durationText = formatCallDuration(callDurationSeconds);
-    return (
-      <div
-        className={cn(
-          "bg-gray-50 border rounded-lg p-3 text-sm text-foreground-body w-fit max-w-[70%]",
-          isMe ? "self-end" : "self-start",
-        )}
-      >
-        <p className="font-medium">{endedBy} ended the call</p>
-        <p className="text-xs mt-1">
-          {formatDate(endedAt ?? createdAt, "dd/MM/yy, hh:mmaa")}
-          {durationText ? ` · Duration: ${durationText}` : ""}
-        </p>
-      </div>
-    );
-  }
-
   if (type === "CALL_JOIN") {
     const isCallActiveForThisBubble =
       !!sessionId && sessionId === activeCallSessionId;
+    const endedMeta = sessionId ? endedCallDurations?.[sessionId] : undefined;
+    const durationText = formatCallDuration(endedMeta?.callDurationSeconds);
     const canJoinCall =
       !!(session?.user?.id && message && isCallActiveForThisBubble) &&
-      !isMe &&
       !isUserInCall;
     const isInCallState = !!isUserInCall;
     const isCallEndedState = !isCallActiveForThisBubble;
@@ -148,6 +131,7 @@ const ChatBubble = (
             </p>
             <p className="text-xs text-green-600">
               {formatDate(createdAt, "dd/MM/yy, hh:mmaa")}
+              {durationText ? ` · Duration: ${durationText}` : ""}
             </p>
           </div>
         </div>

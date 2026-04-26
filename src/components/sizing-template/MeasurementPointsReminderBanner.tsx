@@ -9,8 +9,14 @@ import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Bell, Clock } from "lucide-react";
 import { useSendSizingTemplateReminder } from "@/tanstack/hooks/useSizingTemplates";
-import { canSendReminder, getRemainingReminderTime } from "@/lib/sizing-template-utils";
-import { SIZING_TEMPLATE_REMINDER_TYPE, REMINDER_COOLDOWN_MINUTES } from "@/types/constants";
+import {
+  canSendReminder,
+  getRemainingReminderTime,
+} from "@/lib/sizing-template-utils";
+import {
+  SIZING_TEMPLATE_REMINDER_TYPE,
+  REMINDER_COOLDOWN_MINUTES,
+} from "@/types/constants";
 import Link from "next/link";
 import { uuidToBase62Safe } from "@/lib/uuid";
 
@@ -33,40 +39,37 @@ const MeasurementPointsReminderBanner = ({
   className,
   isAwaitingMeasurementPointsValues,
   isProjectLive,
-  lastReminderSentBy,
+  // lastReminderSentBy,
 }: MeasurementPointsReminderBannerProps) => {
-  const isCorrectActorOnCooldown = lastReminderSentBy === (isBuyer ? SIZING_TEMPLATE_REMINDER_TYPE.DESIGNER_REMINDER : SIZING_TEMPLATE_REMINDER_TYPE.BUYER_REMINDER);
-
   const [remainingTime, setRemainingTime] = useState<string | null>(
-    isCorrectActorOnCooldown ? getRemainingReminderTime(lastReminderSentAt) : null
+    getRemainingReminderTime(lastReminderSentAt),
   );
-  const [canSend, setCanSend] = useState(
-    isCorrectActorOnCooldown ? canSendReminder(lastReminderSentAt) : true
-  );
+  const [canSend, setCanSend] = useState(canSendReminder(lastReminderSentAt));
 
   // Update remaining time every minute
   useEffect(() => {
     const interval = setInterval(() => {
-      const isStillOnCooldown = lastReminderSentBy === (isBuyer ? SIZING_TEMPLATE_REMINDER_TYPE.DESIGNER_REMINDER : SIZING_TEMPLATE_REMINDER_TYPE.BUYER_REMINDER);
-      setRemainingTime(isStillOnCooldown ? getRemainingReminderTime(lastReminderSentAt) : null);
-      setCanSend(isStillOnCooldown ? canSendReminder(lastReminderSentAt) : true);
+      setRemainingTime(getRemainingReminderTime(lastReminderSentAt));
+      setCanSend(canSendReminder(lastReminderSentAt));
     }, 60000);
     return () => clearInterval(interval);
-  }, [lastReminderSentAt, lastReminderSentBy, isBuyer]);
+  }, [lastReminderSentAt]);
 
   // Update immediately when lastReminderSentAt changes
   useEffect(() => {
-    const isStillOnCooldown = lastReminderSentBy === (isBuyer ? SIZING_TEMPLATE_REMINDER_TYPE.DESIGNER_REMINDER : SIZING_TEMPLATE_REMINDER_TYPE.BUYER_REMINDER);
-    setRemainingTime(isStillOnCooldown ? getRemainingReminderTime(lastReminderSentAt) : null);
-    setCanSend(isStillOnCooldown ? canSendReminder(lastReminderSentAt) : true);
-  }, [lastReminderSentAt, lastReminderSentBy, isBuyer]);
+    setRemainingTime(getRemainingReminderTime(lastReminderSentAt));
+    setCanSend(canSendReminder(lastReminderSentAt));
+  }, [lastReminderSentAt]);
 
-  const { mutate: sendReminder, isPending } = useSendSizingTemplateReminder(templateId, {
-    onSuccess: () => {
-      setCanSend(false);
-      setRemainingTime(`${REMINDER_COOLDOWN_MINUTES} minutes`);
+  const { mutate: sendReminder, isPending } = useSendSizingTemplateReminder(
+    templateId,
+    {
+      onSuccess: () => {
+        setCanSend(false);
+        setRemainingTime(`${REMINDER_COOLDOWN_MINUTES} minutes`);
+      },
     },
-  });
+  );
 
   const handleSendReminder = () => {
     sendReminder({
@@ -83,7 +86,7 @@ const MeasurementPointsReminderBanner = ({
       <div
         className={cn(
           "bg-amber-50 border-b border-amber-200 p-2 animate-in fade-in duration-300",
-          className
+          className,
         )}
       >
         <div className="flex items:start lg:items-center gap-3 justify-center w-full ">
@@ -97,7 +100,7 @@ const MeasurementPointsReminderBanner = ({
               disabled={!canSend || isPending}
               className={cn(
                 "text-sm text-primary font-medium underline hover:no-underline transition-colors",
-                (!canSend || isPending) && "opacity-50 cursor-not-allowed"
+                (!canSend || isPending) && "opacity-50 cursor-not-allowed",
               )}
             >
               {isPending ? "Sending..." : "Send Reminder"}
@@ -105,7 +108,9 @@ const MeasurementPointsReminderBanner = ({
             {!canSend && remainingTime && (
               <div className="flex items-center gap-1 text-xs text-amber-700">
                 <Clock className="size-3" />
-                <span>Wait {remainingTime} before sending another reminder</span>
+                <span>
+                  Wait {remainingTime} before sending another reminder
+                </span>
               </div>
             )}
           </div>
@@ -120,7 +125,7 @@ const MeasurementPointsReminderBanner = ({
       <div
         className={cn(
           "bg-amber-50 border-b border-amber-200 p-2 animate-in fade-in duration-300",
-          className
+          className,
         )}
       >
         <div className="flex items-start lg:items-center gap-2 lg:gap-3 justify-center w-full">
@@ -134,7 +139,7 @@ const MeasurementPointsReminderBanner = ({
               disabled={!canSend || isPending}
               className={cn(
                 "text-sm text-primary font-medium underline hover:no-underline transition-colors",
-                (!canSend || isPending) && "opacity-50 cursor-not-allowed"
+                (!canSend || isPending) && "opacity-50 cursor-not-allowed",
               )}
             >
               {isPending ? "Sending..." : "Send Reminder"}
@@ -142,7 +147,9 @@ const MeasurementPointsReminderBanner = ({
             {!canSend && remainingTime && (
               <div className="flex items-center gap-1 text-xs text-amber-700">
                 <Clock className="size-3" />
-                <span>Wait {remainingTime} before sending another reminder</span>
+                <span>
+                  Wait {remainingTime} before sending another reminder
+                </span>
               </div>
             )}
           </div>
@@ -156,7 +163,7 @@ const MeasurementPointsReminderBanner = ({
     <div
       className={cn(
         "bg-amber-50 border-b border-amber-200 p-2 animate-in fade-in duration-300",
-        className
+        className,
       )}
     >
       <div className="flex items-center gap-3 justify-center w-full">
@@ -178,4 +185,3 @@ const MeasurementPointsReminderBanner = ({
 };
 
 export default MeasurementPointsReminderBanner;
-

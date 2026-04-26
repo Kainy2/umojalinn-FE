@@ -10,7 +10,6 @@ import {
   useGetWallet,
   useGetPaymentAccountInfo,
 } from "@/tanstack/hooks/useProject";
-import { useConnectStripeAccount } from "@/tanstack/hooks/useProject";
 import { useGetMe } from "@/tanstack/hooks/useUser";
 import React, { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
@@ -22,10 +21,12 @@ import {
   getTransactionStatus,
   getDefaultCurrencyFromCountry,
   getCurrencyCarouselOrder,
+  paymentAccountHasStoredPayoutAddress,
 } from "@/components/util/wallet";
 import { cn } from "@/lib/utils";
 import { useInfiniteData } from "@/hooks/use-infinite-data";
 import { UmojaLinnCurrency } from "@/types/project";
+import LinkStripeAddressDialog from "@/components/custom/dialog/LinkStripeAddressDialog";
 // import VerifyPasswordDialog from "@/components/custom/dialog/VerifyPasswordDialog";
 // import { useRouter } from "next/navigation";
 
@@ -41,6 +42,7 @@ const WithdrawalPage = () => {
   const [selectedCurrency, setSelectedCurrency] =
     useState<UmojaLinnCurrency>("EURO");
   const [hideBalance, setHideBalance] = useState(true);
+  const [linkStripeAddressOpen, setLinkStripeAddressOpen] = useState(false);
   // const [isVerified, setIsVerified] = useState(false);
   // const router = useRouter();
 
@@ -68,14 +70,17 @@ const WithdrawalPage = () => {
 
   const isDesigner = session?.user?.profileRole === "DESIGNER";
 
-  const { mutate: connectStripeAccount, isPending: isLinkingStripe } =
-    useConnectStripeAccount({
-      onSuccess: (data) => {
-        if (data.data.data.onboardingUrl) {
-          window.location.href = data.data.data.onboardingUrl;
-        }
-      },
-    });
+  const handleLinkStripe = () => {
+    if (!paymentAccountHasStoredPayoutAddress(paymentAccount)) {
+      setLinkStripeAddressOpen(true);
+      return;
+    }
+    const url = paymentAccount?.stripeOnboardingUrl;
+    if (url) {
+      window.location.href = url;
+      return;
+    }
+  };
 
   const getActionLabel = (currency: UmojaLinnCurrency): string | null => {
     if (currency === "NAIRA") {
@@ -103,6 +108,10 @@ const WithdrawalPage = () => {
 
   return (
     <>
+      <LinkStripeAddressDialog
+        open={linkStripeAddressOpen}
+        onOpenChange={setLinkStripeAddressOpen}
+      />
       {/* <VerifyPasswordDialog
         open={!isVerified}
         onCancel={() => {
@@ -121,8 +130,7 @@ const WithdrawalPage = () => {
                 wallet={wallet}
                 stripeStatus={paymentAccount?.stripeStatus}
                 paystackStatus={paymentAccount?.paystackStatus}
-                isLinkingStripe={isLinkingStripe}
-                onLinkStripe={() => connectStripeAccount()}
+                onLinkStripe={handleLinkStripe}
                 hideBalance={hideBalance}
                 onToggleBalance={() => setHideBalance((prev) => !prev)}
                 currency={selectedCurrency}

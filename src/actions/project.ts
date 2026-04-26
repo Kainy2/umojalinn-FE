@@ -22,7 +22,9 @@ import {
   UmojaLinnNgnBank,
   UmojaLinnPaymentAccountInfo,
   UmojaLinnBankVerified,
-  UmojaLinnConnectStripeAccount
+  UmojaLinnConnectStripeAccount,
+  TAddPaymentAddressPayload,
+  TDeleteStripeConnectedAccountPayload,
 } from "@/types/project";
 import { UmojaLinnTransaction } from "@/types/transaction";
 import { UmojaLinnNotification } from "@/types/user";
@@ -442,6 +444,20 @@ export const addNgnBankAccount = async(body: AddNgnBankAccounyPaylod, options?: 
 //   >(`/wallet/withdrawal-method/${id}`, body);
 // };
 
+export const addPaymentAddress = async (
+  body: TAddPaymentAddressPayload,
+  options?: ServerActionOption,
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/wallet/add-payment-address`,
+    body,
+  );
+};
+
 export const connectStripeAccount = async (options?: ServerActionOption) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -451,6 +467,33 @@ export const connectStripeAccount = async (options?: ServerActionOption) => {
     `/wallet/connect-stripe-account`
   );
 };
+
+export const requestDeleteStripeAccountOtp = async (
+  options?: ServerActionOption,
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/wallet/request-delete-stripe-account-otp`,
+  );
+};
+
+export const deleteStripeConnectedAccount = async (
+  body: TDeleteStripeConnectedAccountPayload,
+  options?: ServerActionOption,
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.delete<unknown, AxiosResponse<SingleApiResponse>>(
+    `/wallet/stripe-connected-account`,
+    { data: body },
+  );
+};
+
 export const deleteWithdrawalMethod = async (
   id: string,
   options?: ServerActionOption

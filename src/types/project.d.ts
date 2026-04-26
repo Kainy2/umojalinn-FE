@@ -434,7 +434,20 @@ export type UmojaLinnNgnBank = {
   id: string;
   name: string;
   code: string;
-}
+};
+
+/** Payout address on payment account from GET /wallet/payment-account-info */
+export type UmojaLinnPaymentAccountPayoutAddress = {
+  id: string;
+  userId: string | null;
+  address: string | null;
+  country: string | null;
+  city: string | null;
+  state: string | null;
+  zipCode: string | null;
+  projectId: string | null;
+  paymentAccountId: string | null;
+} & UmojaLinnTimestamp;
 
 export type UmojaLinnPaymentAccountInfo = {
   id: string;
@@ -452,7 +465,8 @@ export type UmojaLinnPaymentAccountInfo = {
   paystackBankCode: string;
   paystackAccountNumber: string;
   paystackAccountName: string;
-}
+  address?: UmojaLinnPaymentAccountPayoutAddress | null;
+};
 
 export type UmojaLinnBankVerified = {
   accountName: string;
@@ -461,4 +475,18 @@ export type UmojaLinnBankVerified = {
 export type UmojaLinnConnectStripeAccount = {
   onboardingUrl: string;
   accountId: string
-}
+};
+
+/** POST /wallet/add-payment-address */
+export type TAddPaymentAddressPayload = {
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+  zipCode: string;
+};
+
+/** DELETE /wallet/stripe-connected-account */
+export type TDeleteStripeConnectedAccountPayload = {
+  otp: string;
+};

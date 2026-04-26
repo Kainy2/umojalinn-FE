@@ -95,6 +95,24 @@ export const onboardingAddressFormSchema = z.object({
   zipCode: z.string().optional(),
 });
 
+/** OTP to confirm disconnecting Stripe from wallet settings */
+export const stripeDisconnectOtpFormSchema = z.object({
+  otp: z
+    .string()
+    .min(4, "Enter the verification code")
+    .max(12, "Invalid code")
+    .regex(/^\d+$/, "Code should only contain digits"),
+});
+
+/** Stripe payout / Connect onboarding address (matches payment settings Stripe Address fields) */
+export const stripeLinkAddressFormSchema = z.object({
+  country: z.string().min(1, "Country is required"),
+  state: z.string().min(1, "State / Province is required"),
+  city: z.string().min(1, "City is required"),
+  zipCode: z.string().min(1, "Zip / Postal code is required"),
+  address: z.string().min(1, "Address is required"),
+});
+
 const projectFormDetailsSchemaBase = z.object({
   firstName: z.string().optional(),
   lastName: z.string().optional(),
