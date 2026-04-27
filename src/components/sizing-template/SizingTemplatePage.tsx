@@ -217,18 +217,17 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   } = useRequestMeasurementPoints();
 
   const handleSubmitRecommendations = async () => {
-    // If the designer selected any NEW measurement points
-    const newRequestedPoints = selectedMeasurements.filter(
-      (prop) => !requestedMeasurementPoints.includes(prop),
-    );
+    const currentRequestedSet = new Set(requestedMeasurementPoints);
+    const selectedRequestedSet = new Set(selectedMeasurements);
+    const hasRequestedPointsChanged =
+      requestedMeasurementPoints.length !== selectedMeasurements.length ||
+      selectedMeasurements.some((prop) => !currentRequestedSet.has(prop));
 
-    if (newRequestedPoints.length > 0 && effectiveProjectId) {
+    // Sync requested points whenever the selection changed (additions or removals)
+    if (hasRequestedPointsChanged && effectiveProjectId) {
       await requestMeasurementPointsAsync({
         projectId: effectiveProjectId,
-        requestedMeasurementPoints: [
-          ...requestedMeasurementPoints,
-          ...newRequestedPoints,
-        ],
+        requestedMeasurementPoints: Array.from(selectedRequestedSet),
       });
     }
 

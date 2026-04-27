@@ -60,6 +60,7 @@ const MeasurementPointRow = forwardRef<
 
   const handleCommentClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+
     setShowAddCommentModal(true);
   };
 
@@ -95,7 +96,8 @@ const MeasurementPointRow = forwardRef<
               onCheckedChange={props.onSelect}
               className={cn(
                 "transition-all duration-200",
-                props.selected && "border-primary data-[state=checked]:bg-primary",
+                props.selected &&
+                  "border-primary data-[state=checked]:bg-primary",
               )}
             />
           )}
@@ -129,8 +131,8 @@ const MeasurementPointRow = forwardRef<
                     "text-right pr-10",
                     props.unit === "INCH" && "pr-14",
                     props.isPendingBuyerReply
-                        ? "text-gray-300"
-                        : "text-gray-500",
+                      ? "text-gray-300"
+                      : "text-gray-500",
                   )}
                 >
                   {props.value || 0}
@@ -160,9 +162,7 @@ const MeasurementPointRow = forwardRef<
               <div
                 className={cn(
                   "absolute inset-y-0 right-0 top-0.5 flex items-center pr-4 pointer-events-none text-xs",
-                  props.isPendingBuyerReply
-                      ? "text-gray-300"
-                      : "text-gray-500",
+                  props.isPendingBuyerReply ? "text-gray-300" : "text-gray-500",
                 )}
               >
                 {props.unit}
@@ -239,9 +239,7 @@ const MeasurementPointRow = forwardRef<
           <DialogTrigger asChild>
             <button
               className={cn(
-                props.isPendingBuyerReply
-                    ? "text-gray-300"
-                    : "text-primary",
+                props.isPendingBuyerReply ? "text-gray-300" : "text-primary",
               )}
             >
               {!!props.metadata.review ? (

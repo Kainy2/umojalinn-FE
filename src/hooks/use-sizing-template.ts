@@ -29,6 +29,7 @@ type TemplateModalType = "EDIT" | "RECOMMEND" | "VIEW-ONLY";
 
 export type SizingTemplateDialogProps = DialogProps & {
   id?: string;
+  projectId?: string;
   handleSuccess?: (template?: UmojaLinnSizingTemplate) => void;
   disableSaving?: boolean;
   // type?: "CREATE" | "DRAFT-EDIT" | "DESIGNER-VIEW" | "BUYER-VIEW";
@@ -123,11 +124,17 @@ export const useSizingTemplateDialog = (
   }, [sizingTemplateResult]);
 
   // Derived state for measurement points
+  const requestedMeasurementPointsFromTemplate =
+    sizingTemplateResult?.requestedMeasurementPoints ?? [];
+  const requestedMeasurementPointsFromBid = bid?.requestedMeasurementPoints ?? [];
+  const requestedMeasurementPointsFromProject =
+    project?.requestedMeasurementPoints ?? [];
   const requestedMeasurementPoints =
-    sizingTemplateResult?.requestedMeasurementPoints ||
-    bid?.requestedMeasurementPoints ||
-    project?.requestedMeasurementPoints ||
-    [];
+    requestedMeasurementPointsFromTemplate.length > 0
+      ? requestedMeasurementPointsFromTemplate
+      : requestedMeasurementPointsFromBid.length > 0
+        ? requestedMeasurementPointsFromBid
+        : requestedMeasurementPointsFromProject;
   const submittedMeasurementPoints =
     sizingTemplateResult?.submittedMeasurementPoints || [];
   const hasRequestedPoints = requestedMeasurementPoints.length > 0;

@@ -54,6 +54,8 @@ const PrivateJobPage = () => {
             isPrivate={bid.project?.projectType === "PRIVATE"}
             name={bid?.project?.title || "No title"}
             href={`/bids/${uuidToBase62Safe(bid?.id)}/edit`}
+            amount={bid?.amount}
+            currency={bid.project?.currency}
             progress={{
               value: 0,
               total: 1,
@@ -75,6 +77,8 @@ const PrivateJobPage = () => {
             isPrivate={bid.project?.projectType === "PRIVATE"}
             name={bid?.project?.title || "No title"}
             href={`/bids/${uuidToBase62Safe(bid?.id)}/edit`}
+            amount={bid?.amount}
+            currency={bid.project?.currency}
             progress={{
               value: 0,
               total: 1,
@@ -97,6 +101,8 @@ const PrivateJobPage = () => {
             isPrivate={job.projectType === "PRIVATE"}
             name={job?.title || "No title"}
             href={`/active-jobs/${uuidToBase62Safe(job?.id)}`}
+            amount={job.budget}
+            currency={job.currency}
             progress={{
               value: 0,
               total: 1,
@@ -119,6 +125,8 @@ const PrivateJobPage = () => {
             isPrivate={job.projectType === "PRIVATE"}
             name={job?.title || "No title"}
             href={`/jobs/${uuidToBase62Safe(job?.id)}`}
+            amount={job.budget}
+            currency={job.currency}
             progress={{
               value: 0,
               total: 1,
@@ -141,6 +149,8 @@ const PrivateJobPage = () => {
             isPrivate={job.projectType === "PRIVATE"}
             name={job?.title || "No title"}
             href={`/jobs/${uuidToBase62Safe(job?.id)}`}
+            amount={job.budget}
+            currency={job.currency}
             progress={{
               value: 0,
               total: 1,

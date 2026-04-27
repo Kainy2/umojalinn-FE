@@ -1216,7 +1216,7 @@ export function AgoraVideo({ channelId }: AgoraVideoProps) {
       )}
 
       <div className="sm:hidden w-full lg:w-[400px] lg:flex-none border-t lg:border-t-0 lg:border-l border-border bg-background">
-        <ChatWindow projectId={channelId} className="h-full max-h-none" />
+        <ChatWindow projectId={channelId} className="h-full max-h-none px-2" />
       </div>
     </>
   );

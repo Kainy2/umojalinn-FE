@@ -12,12 +12,15 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 const SizingTemplateDialog = ({
   children,
   id,
+  projectId,
 }: SizingTemplateDialogProps) => {
   const router = useRouter();
 
   const handleClick = () => {
+    const query = projectId ? `?projectId=${uuidToBase62Safe(projectId)}` : "";
+
     if (id) {
-      router.push(`/sizing-templates/${uuidToBase62Safe(id)}`);
+      router.push(`/sizing-templates/${uuidToBase62Safe(id)}${query}`);
     } else {
       router.push("/sizing-templates/new");
     }
@@ -27,13 +30,12 @@ const SizingTemplateDialog = ({
   if (children) {
     return (
       <Dialog>
-      <DialogTrigger asChild onClick={handleClick}>
-        {/* <div onClick={handleClick} className="cursor-pointer border rounded-lg"> */}
-        {children}
-      {/* </div> */}
-      </DialogTrigger>
+        <DialogTrigger asChild onClick={handleClick}>
+          {/* <div onClick={handleClick} className="cursor-pointer border rounded-lg"> */}
+          {children}
+          {/* </div> */}
+        </DialogTrigger>
       </Dialog>
-
     );
   }
 
@@ -42,5 +44,3 @@ const SizingTemplateDialog = ({
 };
 
 export default SizingTemplateDialog;
-
-

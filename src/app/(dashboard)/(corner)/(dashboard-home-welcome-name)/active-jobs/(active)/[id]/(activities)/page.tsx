@@ -88,7 +88,7 @@ const ActiveJobsPage = () => {
         />
       )}
 
-      <div className="flex flex-col md:flex-row gap-12 pt-4 lg:pt-8">
+      <div className="flex flex-col mt-8 md:mt-0  md:flex-row gap-12 pt-4 lg:pt-8">
         <MilestoneTimeline
           buyer={project?.buyer.user}
           designer={project?.designer.user}

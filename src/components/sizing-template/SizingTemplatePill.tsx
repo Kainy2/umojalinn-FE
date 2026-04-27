@@ -438,12 +438,10 @@ const SizingTemplatePill = ({
     const query = `?projectId=${uuidToBase62Safe(project.id)}`;
 
     if (sizingTemplateId) {
-      console.log("sizingTemplateId", sizingTemplateId);
       router.push(
-        `/sizing-templates/request/${uuidToBase62Safe(sizingTemplateId)}${query}`,
+        `/sizing-templates/${uuidToBase62Safe(sizingTemplateId)}${query}`,
       );
     } else if (bid?.id) {
-      console.log("bid?.id", bid?.id);
       router.push(
         `/sizing-templates/request/${uuidToBase62Safe(bid.id)}${query}`,
       );
