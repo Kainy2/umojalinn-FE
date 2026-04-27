@@ -1,4 +1,8 @@
-import { clientAxios, getAxiosToBeUsed, getServerAxiosWithToken } from "@/lib/axios";
+import {
+  clientAxios,
+  getAxiosToBeUsed,
+  getServerAxiosWithToken,
+} from "@/lib/axios";
 import { convertApiParams } from "@/lib/request";
 import { base62ToUuidSafe } from "@/lib/uuid";
 import {
@@ -8,7 +12,7 @@ import {
   RequestWithdrawalPayload,
   // SetDefaultWithdrawalMethodPayload,
   VerifyNgnAccountPayload,
-  AddNgnBankAccounyPaylod
+  AddNgnBankAccounyPaylod,
 } from "@/section/form/withdraw/WithdrawalAmount";
 import {
   UmojaLinnMediaLink,
@@ -38,7 +42,7 @@ import { AxiosResponse } from "axios";
 
 export const inviteBuyer = async (
   body: { emails: string[] },
-  options?: ServerActionOption
+  options?: ServerActionOption,
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -46,7 +50,7 @@ export const inviteBuyer = async (
   }
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
     "/project/invite-buyer",
-    body
+    body,
   );
 };
 
@@ -55,7 +59,7 @@ export const createProject = async (
     tag?: string;
     projectType: UmojaLinnProject["projectType"];
   },
-  options?: ServerActionOption
+  options?: ServerActionOption,
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -69,20 +73,20 @@ export const createProject = async (
 
 export const getProjectById = async (
   id: string,
-  options?: ServerActionOption
+  options?: ServerActionOption,
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
   return axios.get<unknown, AxiosResponse<SingleApiResponse<UmojaLinnProject>>>(
-    `/project/${base62ToUuidSafe(id)}`
+    `/project/${base62ToUuidSafe(id)}`,
   );
 };
 
 export const deleteProjectById = async (
   id: string,
-  options?: ServerActionOption
+  options?: ServerActionOption,
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -97,11 +101,11 @@ export const deleteProjectById = async (
 export const addProjectReview = async (
   id: string,
   review: FormData,
-  options?: ServerActionOption
+  options?: ServerActionOption,
 ) => {
-  const axios = await getAxiosToBeUsed({ 
-    body: review, 
-    isServerAction: options?.isServerAction 
+  const axios = await getAxiosToBeUsed({
+    body: review,
+    isServerAction: options?.isServerAction,
   });
 
   return axios.post<
@@ -124,29 +128,29 @@ export const getClothingTypes = async (options?: ServerActionOption) => {
 export const updateProjectById = async (
   id: string,
   body: FormData,
-  options?: ServerActionOption
+  options?: ServerActionOption,
 ) => {
   const axios = await getAxiosToBeUsed({
     body,
-    isServerAction: options?.isServerAction
-  })
+    isServerAction: options?.isServerAction,
+  });
 
   return axios.put<unknown, AxiosResponse<SingleApiResponse>>(
     `/project/update-project/${base62ToUuidSafe(id)}`,
-    body
+    body,
   );
 };
 
 export const postProjectLive = async (
   id: string,
-  options?: ServerActionOption
+  options?: ServerActionOption,
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
-    `/project/post-live/${base62ToUuidSafe(id)}`
+    `/project/post-live/${base62ToUuidSafe(id)}`,
   );
 };
 
@@ -156,14 +160,14 @@ export const getAllBuyerProjects = async (
     limit: number;
     bidStatus: UmojaLinnProject["status"] | Array<UmojaLinnProject["status"]>;
   }>,
-  options?: ServerActionOption
+  options?: ServerActionOption,
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
   return axios.get<unknown, AxiosResponse<ArrayApiResponse<UmojaLinnProject>>>(
-    `/project/all/buyer${apiParams ? convertApiParams(apiParams) : ""}`
+    `/project/all/buyer${apiParams ? convertApiParams(apiParams) : ""}`,
   );
 };
 
@@ -174,34 +178,34 @@ export const getAllDesignerProjects = async (
     bidStatus: UmojaLinnProject["status"] | Array<UmojaLinnProject["status"]>;
     hasBid?: boolean;
   }>,
-  options?: ServerActionOption
+  options?: ServerActionOption,
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
   return axios.get<unknown, AxiosResponse<ArrayApiResponse<UmojaLinnProject>>>(
-    `/project/all/designer${apiParams ? convertApiParams(apiParams) : ""}`
+    `/project/all/designer${apiParams ? convertApiParams(apiParams) : ""}`,
   );
 };
 
 export const requestSizingTemplateInProject = async (
   id: string,
-  options?: ServerActionOption
+  options?: ServerActionOption,
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
-    `/project/request-sizing-template/${base62ToUuidSafe(id)}`
+    `/project/request-sizing-template/${base62ToUuidSafe(id)}`,
   );
 };
 
 export const getProjectMilestones = async (
   projectId: string,
   apiParams?: Record<string, unknown>,
-  options?: ServerActionOption
+  options?: ServerActionOption,
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -213,39 +217,38 @@ export const getProjectMilestones = async (
   >(
     `/project/${base62ToUuidSafe(projectId)}/milestones${
       apiParams ? convertApiParams(apiParams) : ""
-    }`
+    }`,
   );
 };
 
-export const fundProject = async (
-  id: string,
-  options?: ServerActionOption
-) => {
+export const fundProject = async (id: string, options?: ServerActionOption) => {
   const axios = await getAxiosToBeUsed({
-    isServerAction: options?.isServerAction
-  })
+    isServerAction: options?.isServerAction,
+  });
 
-  return axios.post<unknown, AxiosResponse<SingleApiResponse<UmojaLinnPayment>>>(
-    `/project/fund-project/${base62ToUuidSafe(id)}`,
-  );
+  return axios.post<
+    unknown,
+    AxiosResponse<SingleApiResponse<UmojaLinnPayment>>
+  >(`/project/fund-project/${base62ToUuidSafe(id)}`);
 };
 
 export const fundMilestone = async (
   id: string,
-  options?: ServerActionOption
+  options?: ServerActionOption,
 ) => {
   const axios = await getAxiosToBeUsed({
-    isServerAction: options?.isServerAction
-  })
-  
-  return axios.post<unknown, AxiosResponse<SingleApiResponse<UmojaLinnPayment>>>(
-    `/project/fund-milestone/${base62ToUuidSafe(id)}`,
-  );
+    isServerAction: options?.isServerAction,
+  });
+
+  return axios.post<
+    unknown,
+    AxiosResponse<SingleApiResponse<UmojaLinnPayment>>
+  >(`/project/fund-milestone/${base62ToUuidSafe(id)}`);
 };
 
 export const getMilestoneById = async (
   id: string,
-  options?: ServerActionOption
+  options?: ServerActionOption,
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -259,7 +262,7 @@ export const getMilestoneById = async (
 
 export const getMilestoneSubmissions = async (
   id: string,
-  options?: ServerActionOption
+  options?: ServerActionOption,
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -273,7 +276,7 @@ export const getMilestoneSubmissions = async (
 
 export const getProjectMediaAndLinks = async (
   id: string,
-  options?: ServerActionOption
+  options?: ServerActionOption,
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -288,7 +291,7 @@ export const getProjectMediaAndLinks = async (
 export const approveOrRejectMilestone = async (
   id: string,
   body: Pick<UmojaLinnMilestoneSubmission, "status" | "rejectionReason">,
-  options?: ServerActionOption
+  options?: ServerActionOption,
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -296,23 +299,23 @@ export const approveOrRejectMilestone = async (
   }
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
     `/project/milestone/approve-or-reject/${base62ToUuidSafe(id)}`,
-    body
+    body,
   );
 };
 
 export const submitMilestone = async (
   id: string,
   body: FormData,
-  options?: ServerActionOption
+  options?: ServerActionOption,
 ) => {
   const axios = await getAxiosToBeUsed({
     body,
-    isServerAction: options?.isServerAction
-  })
-  
+    isServerAction: options?.isServerAction,
+  });
+
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
     `/project/milestone/submit/${base62ToUuidSafe(id)}`,
-    body
+    body,
   );
 };
 
@@ -322,29 +325,35 @@ export const getWallet = async (options?: ServerActionOption) => {
     axios = await getServerAxiosWithToken();
   }
   return axios.get<unknown, AxiosResponse<SingleApiResponse<UmojalinnWallet>>>(
-    `/wallet`
+    `/wallet`,
   );
 };
 
-export const getAllTransactions = async (params?: Record<string, unknown>, options?: ServerActionOption) => {
+export const getAllTransactions = async (
+  params?: Record<string, unknown>,
+  options?: ServerActionOption,
+) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
-  return axios.get<unknown, AxiosResponse<ArrayApiResponse<UmojaLinnTransaction>>>(
-    `/transaction/all`,
-    {params}
-  );
+  return axios.get<
+    unknown,
+    AxiosResponse<ArrayApiResponse<UmojaLinnTransaction>>
+  >(`/transaction/all`, { params });
 };
-export const getFundsReleasedTransactions = async (params?: Record<string, unknown>, options?: ServerActionOption) => {
+export const getFundsReleasedTransactions = async (
+  params?: Record<string, unknown>,
+  options?: ServerActionOption,
+) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
-  return axios.get<unknown, AxiosResponse<ArrayApiResponse<UmojaLinnTransaction>>>(
-    `/transaction/funds-released`,
-    {params}
-  );
+  return axios.get<
+    unknown,
+    AxiosResponse<ArrayApiResponse<UmojaLinnTransaction>>
+  >(`/transaction/funds-released`, { params });
 };
 
 export const getWithdrawalMethods = async (options?: ServerActionOption) => {
@@ -363,10 +372,9 @@ export const getListNgnBanks = async (options?: ServerActionOption) => {
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
-  return axios.get<
-    unknown,
-    AxiosResponse<ArrayApiResponse<UmojaLinnNgnBank>>
-  >(`/wallet/list-of-ngn-banks`);
+  return axios.get<unknown, AxiosResponse<ArrayApiResponse<UmojaLinnNgnBank>>>(
+    `/wallet/list-of-ngn-banks`,
+  );
 };
 export const getPaymentAccountInfo = async (options?: ServerActionOption) => {
   let axios = clientAxios;
@@ -379,27 +387,33 @@ export const getPaymentAccountInfo = async (options?: ServerActionOption) => {
   >(`/wallet/payment-account-info`);
 };
 
-export const verifyNgnAccount = async(body: VerifyNgnAccountPayload, options?: ServerActionOption) => {
+export const verifyNgnAccount = async (
+  body: VerifyNgnAccountPayload,
+  options?: ServerActionOption,
+) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
-  return axios.post<unknown, AxiosResponse<SingleApiResponse<UmojaLinnBankVerified>>>(
-    `/wallet/verify-ngn-bank-account-number`,
-    body
-  );
-}
+  return axios.post<
+    unknown,
+    AxiosResponse<SingleApiResponse<UmojaLinnBankVerified>>
+  >(`/wallet/verify-ngn-bank-account-number`, body);
+};
 
-export const addNgnBankAccount = async(body: AddNgnBankAccounyPaylod, options?: ServerActionOption )=>{
+export const addNgnBankAccount = async (
+  body: AddNgnBankAccounyPaylod,
+  options?: ServerActionOption,
+) => {
   let axios = clientAxios;
-    if (options?.isServerAction) {
+  if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
     `/wallet/add-ngn-bank-account`,
-    body
+    body,
   );
-}
+};
 
 // export const createWithdrawalMethod = async (
 //   body: CreateWithdrawalMethodPayload,
@@ -463,9 +477,10 @@ export const connectStripeAccount = async (options?: ServerActionOption) => {
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
-  return axios.post<unknown, AxiosResponse<SingleApiResponse<UmojaLinnConnectStripeAccount>>>(
-    `/wallet/connect-stripe-account`
-  );
+  return axios.post<
+    unknown,
+    AxiosResponse<SingleApiResponse<UmojaLinnConnectStripeAccount>>
+  >(`/wallet/connect-stripe-account`);
 };
 
 export const requestDeleteStripeAccountOtp = async (
@@ -477,6 +492,16 @@ export const requestDeleteStripeAccountOtp = async (
   }
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
     `/wallet/request-delete-stripe-account-otp`,
+  );
+};
+
+export const requestWithdrawOtp = async (options?: ServerActionOption) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/wallet/request-withdraw-otp`,
   );
 };
 
@@ -496,7 +521,7 @@ export const deleteStripeConnectedAccount = async (
 
 export const deleteWithdrawalMethod = async (
   id: string,
-  options?: ServerActionOption
+  options?: ServerActionOption,
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -510,7 +535,7 @@ export const deleteWithdrawalMethod = async (
 
 export const requestWithdrawal = async (
   body: RequestWithdrawalPayload,
-  options?: ServerActionOption
+  options?: ServerActionOption,
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -518,38 +543,41 @@ export const requestWithdrawal = async (
   }
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
     `/wallet/withdraw`,
-    body
+    body,
   );
 };
 export const markNotificationAsRead = async (
   id: string,
-  options?: ServerActionOption
+  options?: ServerActionOption,
 ) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
   return axios.put<unknown, AxiosResponse<SingleApiResponse>>(
-    `/notification/${id}/mark-as-read`
+    `/notification/${id}/mark-as-read`,
   );
 };
 
 export const markAllNotificationsAsRead = async (
-  body: { ids: string[]; },
-  options?: ServerActionOption
+  body: { ids: string[] },
+  options?: ServerActionOption,
 ) => {
   const axios = await getAxiosToBeUsed({
     body,
-    isServerAction: options?.isServerAction
-  })
+    isServerAction: options?.isServerAction,
+  });
 
   return axios.put<unknown, AxiosResponse<SingleApiResponse>>(
     `/notification/mark-as-read`,
-    body
+    body,
   );
 };
 
-export const getNotifications = async (lastId?: string, options?: ServerActionOption) => {
+export const getNotifications = async (
+  lastId?: string,
+  options?: ServerActionOption,
+) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
@@ -557,10 +585,10 @@ export const getNotifications = async (lastId?: string, options?: ServerActionOp
   return axios.get<
     unknown,
     AxiosResponse<ArrayApiResponse<UmojaLinnNotification>>
-  >(`/notification/all`,{
+  >(`/notification/all`, {
     params: {
-      lastId
-    }
+      lastId,
+    },
   });
 };
 
@@ -568,18 +596,18 @@ export const sendChatInProject = async (
   id: string,
   body: FormData,
   apiParams?: Record<string, unknown>,
-  options?: ServerActionOption
+  options?: ServerActionOption,
 ) => {
   const axios = await getAxiosToBeUsed({
     body,
-    isServerAction: options?.isServerAction
-  })
+    isServerAction: options?.isServerAction,
+  });
 
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
     `/project/chat/${base62ToUuidSafe(id)}${
       apiParams ? convertApiParams(apiParams) : ""
     }`,
-    body
+    body,
   );
 };
 
