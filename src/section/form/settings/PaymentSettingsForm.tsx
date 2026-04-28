@@ -6,6 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import {
   useGetPaymentAccountInfo,
   useGetListNgnBanks,
+  useConnectStripeAccount,
 } from "@/tanstack/hooks/useProject";
 import { paymentAccountHasStoredPayoutAddress } from "@/components/util/wallet";
 import Bank from "@/icons/Bank";
@@ -50,20 +51,61 @@ const PaymentSettingsForm = () => {
     return !!paymentAccount.stripePayoutsEnabled;
   }, [paymentAccount, currency]);
 
+  const hasStartedStripeOnboarding = useMemo(() => {
+    if (currency === "NAIRA") return false;
+    const hasStripeAccount = !!paymentAccount?.stripeAccountId;
+    if (!hasStripeAccount) return false;
+
+    // Stripe can be "in progress" even if payoutsEnabled is false,
+    // so include other status flags we already have in the response.
+    const needsSetup =
+      !paymentAccount?.stripeDetailsSubmitted ||
+      !paymentAccount?.stripeChargesEnabled ||
+      !paymentAccount?.stripePayoutsEnabled;
+
+    return needsSetup;
+  }, [
+    currency,
+    paymentAccount?.stripeAccountId,
+    paymentAccount?.stripeDetailsSubmitted,
+    paymentAccount?.stripeChargesEnabled,
+    paymentAccount?.stripePayoutsEnabled,
+  ]);
+  const { mutate: connectStripeAccount, isPending: isConnectingStripe } =
+    useConnectStripeAccount({
+      onSuccess: (data) => {
+        const onboardingUrl = data?.data?.data?.onboardingUrl;
+        if (onboardingUrl) {
+          window.location.href = onboardingUrl;
+        }
+      },
+    });
+
   const getBankName = (code: string) => {
     return ngnBanksData?.data?.data?.find((b) => b.code === code)?.name || code;
   };
 
   const handleConnectStripeClick = () => {
+    if (hasStartedStripeOnboarding) {
+      const onboardingUrl = paymentAccount?.stripeOnboardingUrl;
+      if (onboardingUrl) {
+        window.location.href = onboardingUrl;
+        return;
+      }
+      connectStripeAccount();
+      return;
+    }
+
     if (!paymentAccountHasStoredPayoutAddress(paymentAccount)) {
       setStripeAddressDialogOpen(true);
       return;
     }
-    const url = paymentAccount?.stripeOnboardingUrl;
-    if (url) {
-      window.location.href = url;
+    const onboardingUrl = paymentAccount?.stripeOnboardingUrl;
+    if (onboardingUrl) {
+      window.location.href = onboardingUrl;
       return;
     }
+    connectStripeAccount();
   };
 
   const StripeIcon = () => (
@@ -244,7 +286,9 @@ const PaymentSettingsForm = () => {
             <p className="text-gray-500 text-sm text-center">
               {currency === "NAIRA"
                 ? "No payout account connected for this currency."
-                : "No Stripe account linked for this currency. Use Connect Stripe below to link your account."}
+                : hasStartedStripeOnboarding
+                  ? "Your Stripe setup is in progress. Use Continue setup below to finish linking your account."
+                  : "No Stripe account linked for this currency. Use Connect Stripe below to link your account."}
             </p>
           </div>
         )}
@@ -351,10 +395,15 @@ const PaymentSettingsForm = () => {
               <Button
                 type="button"
                 onClick={handleConnectStripeClick}
+                disabled={isConnectingStripe}
                 className="bg-[#EAAA08] hover:bg-[#EAAA08]/90 text-white font-bold h-12 px-8 flex items-center gap-3 rounded-md"
               >
                 <StripeIcon />
-                Connect Stripe
+                {isConnectingStripe
+                  ? "Connecting..."
+                  : hasStartedStripeOnboarding
+                    ? "Continue setup"
+                    : "Connect Stripe"}
               </Button>
             ))}
         </div>

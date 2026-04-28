@@ -365,39 +365,55 @@ const UpdateModeView = ({
                           className="border border-error-300 p-2 min-w- rounded-lg transition-all flex items-center gap-2 animate-in fade-in slide-in-from-right-2 duration-300 bg-white"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <button
-                                type="button"
-                                aria-label={`Open measurement guide for ${point.name}`}
-                                className="size-8 rounded-full bg-error-50 flex items-center justify-center transition-all duration-200 hover:scale-110"
-                              >
-                                <MessageSquareText className="size-4 text-error-500" />
-                              </button>
-                            </DialogTrigger>
-                            <DialogContent className="w-[80vw] max-w-[425px] max-h-[80vh] h-[80vh]">
-                              <div className="flex h-full min-h-0 w-full flex-col">
-                                <DialogTitle className="text-lg font-semibold mb-4 shrink-0">
-                                  {point.name}
-                                </DialogTitle>
-                                <div className="relative min-h-0 flex-1">
-                                  <Image
-                                    src={point.img || ""}
-                                    fill
-                                    alt={`Guide for ${point.name}`}
-                                    className="object-contain"
-                                  />
-                                  {!!reviews[point.prop] && (
-                                    <RequestSizingTemplateViewCard
-                                      className="absolute top-0"
-                                      title={point.name}
-                                      review={reviews[point.prop] || ""}
+                          <div className="lg:hidden">
+                          <div className="lg:hidden">
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <button
+                                  type="button"
+                                  aria-label={`Open measurement guide for ${point.name}`}
+                                  className="size-8 rounded-full bg-error-50 flex items-center justify-center transition-all duration-200 hover:scale-110"
+                                >
+                                  <MessageSquareText className="size-4 text-error-500" />
+                                </button>
+                              </DialogTrigger>
+                              <DialogContent className="w-[80vw] max-w-[425px] max-h-[80vh] h-[80vh]">
+                                <div className="flex h-full min-h-0 w-full flex-col">
+                                  <DialogTitle className="text-lg font-semibold mb-4 shrink-0">
+                                    {point.name}
+                                  </DialogTitle>
+                                  <div className="relative min-h-0 flex-1">
+                                    <Image
+                                      src={point.img || ""}
+                                      fill
+                                      alt={`Guide for ${point.name}`}
+                                      className="object-contain"
                                     />
-                                  )}
+                                    {!!reviews[point.prop] && (
+                                      <RequestSizingTemplateViewCard
+                                        className="absolute top-0"
+                                        title={point.name}
+                                        review={reviews[point.prop] || ""}
+                                      />
+                                    )}
+                                  </div>
                                 </div>
-                              </div>
-                            </DialogContent>
-                          </Dialog>
+                              </DialogContent>
+                            </Dialog>
+                          </div>
+                          <div
+                            className="hidden size-8 rounded-full bg-error-50 lg:flex items-center justify-center"
+                            aria-hidden
+                          >
+                            <MessageSquareText className="size-4 text-error-500" />
+                          </div>
+                          </div>
+                          <div
+                            className="hidden size-8 rounded-full bg-error-50 lg:flex items-center justify-center"
+                            aria-hidden
+                          >
+                            <MessageSquareText className="size-4 text-error-500" />
+                          </div>
                         </div>
                       )}
                     </div>
