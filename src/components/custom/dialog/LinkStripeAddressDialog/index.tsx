@@ -127,7 +127,7 @@ export const LinkStripeAddressDialog = ({
               render={({ field }) => (
                 <div className="flex flex-col gap-2">
                   <Label className="text-foreground">State / Province</Label>
-                  <TextField placeholder="Dublin" {...field} />
+                  <TextField placeholder="State" {...field} />
                   <FormMessage />
                 </div>
               )}
@@ -139,7 +139,7 @@ export const LinkStripeAddressDialog = ({
               render={({ field }) => (
                 <div className="flex flex-col gap-2">
                   <Label className="text-foreground">City</Label>
-                  <TextField placeholder="Lagos" {...field} />
+                  <TextField placeholder="City" {...field} />
                   <FormMessage />
                 </div>
               )}
@@ -153,7 +153,7 @@ export const LinkStripeAddressDialog = ({
                   <Label className="text-foreground">
                     Zip code / Postal code
                   </Label>
-                  <TextField placeholder="505121" {...field} />
+                  <TextField placeholder="Postal Code" {...field} />
                   <FormMessage />
                 </div>
               )}
@@ -165,7 +165,7 @@ export const LinkStripeAddressDialog = ({
               render={({ field }) => (
                 <div className="flex flex-col gap-2">
                   <Label className="text-foreground">Address</Label>
-                  <TextField placeholder="24 Dublin Ireland" {...field} />
+                  <TextField placeholder="Address" {...field} />
                   <FormMessage />
                 </div>
               )}

@@ -320,12 +320,9 @@ export const useSizingTemplateDialog = (
       if (unit) setUnit(unit);
     }
 
-    if (project) {
-      // const defaultTemplate = project.gender === "MALE" ? MALE_SIZING_TEMPLATE : FEMALE_SIZING_TEMPLATE
-
-      setGender(project.gender ?? sizingTemplateResult?.gender ?? "MALE");
-      // setPreviewImage(defaultTemplate[0].img)
-    }
+    // Always prefer project gender when present, otherwise use template gender.
+    // This ensures standalone template editing doesn't fall back to the MALE default.
+    setGender(project?.gender ?? sizingTemplateResult?.gender ?? "MALE");
   }, [sizingTemplateResult, project]);
 
   useEffect(() => {

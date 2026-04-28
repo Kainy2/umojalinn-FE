@@ -28,6 +28,7 @@ import {
   FEMALE_SIZING_TEMPLATE,
   MALE_SIZING_TEMPLATE,
 } from "@/constant/sizingTemplate";
+import { useToast } from "@/hooks/use-toast";
 
 type MeasurementValues = Partial<
   UmojaLinnFemaleSizingTemplateProps & UmojaLinnMaleSizingTemplateProps
@@ -65,6 +66,7 @@ const UpdateModeView = ({
   onSuccess,
   onUnitChange,
 }: UpdateModeViewProps) => {
+  const { toast } = useToast();
   const defaultTemplate =
     gender === "MALE" ? MALE_SIZING_TEMPLATE : FEMALE_SIZING_TEMPLATE;
 
@@ -94,12 +96,21 @@ const UpdateModeView = ({
   const filteredTemplate = template
     .filter((item) => requestedMeasurementPoints.includes(item.prop))
     .sort((a, b) => {
-      // Prioritize fields with reviews to appear at the top
-      const aHasReview = !!reviews[a.prop as keyof ReviewsMap];
-      const bHasReview = !!reviews[b.prop as keyof ReviewsMap];
-      if (aHasReview && !bHasReview) return -1;
-      if (!aHasReview && bHasReview) return 1;
-      return 0;
+      const getSortPriority = (prop: string) => {
+        const hasReview = !!reviews[prop as keyof ReviewsMap];
+        if (hasReview) return 0;
+
+        const measurementValue = currentValues[prop as keyof MeasurementValues];
+        const isNewRequestedPoint =
+          measurementValue === null ||
+          measurementValue === undefined ||
+          measurementValue === 0;
+        if (isNewRequestedPoint) return 1;
+
+        return 2;
+      };
+
+      return getSortPriority(a.prop) - getSortPriority(b.prop);
     });
 
   // Sync with current values ONLY when the component mounts if values were somehow empty,
@@ -169,6 +180,19 @@ const UpdateModeView = ({
   };
 
   const handleSubmit = () => {
+    const hasMissingRequiredValues = editableFields.some((field) => {
+      const fieldValue = values[field as keyof MeasurementValues];
+      return typeof fieldValue !== "number" || fieldValue <= 0;
+    });
+
+    if (hasMissingRequiredValues) {
+      toast({
+        description: "Please provide values for the missing measurement points",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Only submit editable fields that were actually changed.
     const updatesToSubmit: Record<string, number> = {};
 
@@ -187,11 +211,6 @@ const UpdateModeView = ({
     updateTemplate({ projectId, measurements: updatesToSubmit });
   };
 
-  const hasAllEditableFieldsFilled = editableFields.every((field) => {
-    const fieldValue = values[field as keyof MeasurementValues];
-    return typeof fieldValue === "number" && fieldValue > 0;
-  });
-
   const hasChangedEditableMeasurements = editableFields.some((field) => {
     const nextValue = values[field as keyof MeasurementValues];
     const currentValue = currentValues[field as keyof MeasurementValues];
@@ -202,7 +221,6 @@ const UpdateModeView = ({
   const disableSubmit =
     isUpdating ||
     editableFields.length === 0 ||
-    !hasAllEditableFieldsFilled ||
     !hasChangedEditableMeasurements;
 
   const highlightedName =
