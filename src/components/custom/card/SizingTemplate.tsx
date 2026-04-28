@@ -30,6 +30,10 @@ const SizingTemplateCard = (props: { template: UmojaLinnSizingTemplate }) => {
 	const projectInUse = template?.projects?.find(
 		(project) => project?.status !== "COMPLETED"
 	);
+	const liveProjectInUse = template?.projects?.find(
+		(project) => project?.status === "LIVE"
+	);
+	const activeProjectForNavigation = liveProjectInUse || projectInUse;
 
 	// Delete confirmation modal state
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -86,7 +90,10 @@ const SizingTemplateCard = (props: { template: UmojaLinnSizingTemplate }) => {
 
 	return (
 		<>
-			<SizingTemplateDialog id={template?.id}>
+			<SizingTemplateDialog
+				id={template?.id}
+				projectId={activeProjectForNavigation?.id}
+			>
 				<button className="flex flex-col p-2 border  border-gray-200 gap-2 rounded-[16px]  text-left bg-white transition-shadow  group relative w-full lg:w-[300px]">
 					{/* Top Image Section */}
 					<div className="relative h-52 w-full border border-gray-200 rounded-[8px] overflow-hidden bg-[#f8f9fa] shrink-0">

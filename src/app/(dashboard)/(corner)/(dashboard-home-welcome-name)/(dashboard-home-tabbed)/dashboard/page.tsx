@@ -60,14 +60,21 @@ const DashboardPage = () => {
       bidStatus: ["REJECTED", "PENDING"],
     });
 
-    const totalBids = useMemo(() => {
-      if (
-        myBidsDataWithoutDraft?.data?.data?.length === undefined 
-        || draftBidData?.data?.data?.length === undefined
-      ) return 0
+  const totalBids = useMemo(() => {
+    if (
+      myBidsDataWithoutDraft?.data?.data?.length === undefined ||
+      draftBidData?.data?.data?.length === undefined
+    )
+      return 0;
 
-      return myBidsDataWithoutDraft?.data?.data?.length + draftBidData?.data?.data?.length;
-    }, [myBidsDataWithoutDraft?.data?.data?.length, draftBidData?.data?.data?.length]);
+    return (
+      myBidsDataWithoutDraft?.data?.data?.length +
+      draftBidData?.data?.data?.length
+    );
+  }, [
+    myBidsDataWithoutDraft?.data?.data?.length,
+    draftBidData?.data?.data?.length,
+  ]);
 
   const myBidsContent = useMemo(
     () => (
@@ -79,18 +86,26 @@ const DashboardPage = () => {
             isPrivate={bid.project?.projectType === "PRIVATE"}
             name={bid?.project?.title || "No title"}
             href={`/bids/${uuidToBase62Safe(bid?.id)}/edit`}
+            amount={bid?.amount}
+            currency={bid.project?.currency}
             progress={{
               value: 0,
               total: 1,
             }}
             // attachedFileCount={bid?.project?.cha}
             img={getCoverImage(bid.project)}
-            userImg={bid.project.buyer?.user?.profilePhotoUri ||  "/img/webp/user.webp"}
+            userImg={
+              bid.project.buyer?.user?.profilePhotoUri || "/img/webp/user.webp"
+            }
             dueDate={bid?.project?.dueDate}
-            status={bid?.status === "PENDING" || bid?.status === "REJECTED" ? {
-              color: bid?.status === "PENDING" ? "gold": "red",
-              value: bid?.status === "PENDING" ? "In Review" : "Rejected",
-            }: undefined}
+            status={
+              bid?.status === "PENDING" || bid?.status === "REJECTED"
+                ? {
+                    color: bid?.status === "PENDING" ? "gold" : "red",
+                    value: bid?.status === "PENDING" ? "In Review" : "Rejected",
+                  }
+                : undefined
+            }
           />
         ))}
         {!!draftBidData?.data?.data?.length && (
@@ -106,19 +121,23 @@ const DashboardPage = () => {
             isPrivate={bid.project?.projectType === "PRIVATE"}
             name={bid?.project?.title || "No title"}
             href={`/bids/${uuidToBase62Safe(bid?.id)}/edit`}
+            amount={bid?.amount}
+            currency={bid.project?.currency}
             progress={{
               value: 0,
               total: 1,
             }}
             img={getCoverImage(bid.project)}
-            userImg={bid.project.buyer?.user?.profilePhotoUri ||  "/img/webp/user.webp"}
+            userImg={
+              bid.project.buyer?.user?.profilePhotoUri || "/img/webp/user.webp"
+            }
             // img={getCoverImage(bid.project)}
             dueDate={bid?.project?.dueDate}
           />
         ))}
       </>
     ),
-    [draftBidData?.data?.data, myBidsDataWithoutDraft?.data?.data] 
+    [draftBidData?.data?.data, myBidsDataWithoutDraft?.data?.data],
   );
 
   const myActiveJobsContent = useMemo(
@@ -130,19 +149,21 @@ const DashboardPage = () => {
             isPrivate={job.projectType === "PRIVATE"}
             name={job?.title || "No title"}
             href={`/active-jobs/${uuidToBase62Safe(job?.id)}`}
+            amount={job.budget}
+            currency={job.currency}
             progress={{
               value: 0,
               total: 1,
             }}
             attachedFileCount={job.chatLinks?.length}
             img={getCoverImage(job)}
-            userImg={job.buyer.user?.profilePhotoUri ||  "/img/webp/user.webp"}
+            userImg={job.buyer.user?.profilePhotoUri || "/img/webp/user.webp"}
             dueDate={job.dueDate}
           />
         ))}
       </>
     ),
-    [liveProjectsData?.data?.data]
+    [liveProjectsData?.data?.data],
   );
 
   const myCompleteJobsContent = useMemo(
@@ -154,19 +175,21 @@ const DashboardPage = () => {
             isPrivate={job.projectType === "PRIVATE"}
             name={job?.title || "No title"}
             href={`/completed-jobs/${uuidToBase62Safe(job?.id)}`}
+            amount={job.budget}
+            currency={job.currency}
             progress={{
               value: 0,
               total: 1,
             }}
             attachedFileCount={job.chatLinks?.length}
             img={getCoverImage(job)}
-            userImg={job.buyer.user?.profilePhotoUri ||  "/img/webp/user.webp"}
+            userImg={job.buyer.user?.profilePhotoUri || "/img/webp/user.webp"}
             dueDate={job.dueDate}
           />
         ))}
       </>
     ),
-    [completedProjectsData?.data?.data]
+    [completedProjectsData?.data?.data],
   );
 
   const closedBidsContent = useMemo(
@@ -178,18 +201,22 @@ const DashboardPage = () => {
             isPrivate={bid?.project?.projectType === "PRIVATE"}
             name={bid?.project?.title || "No title"}
             href={`/bids/${uuidToBase62Safe(bid?.id)}`}
+            amount={bid?.amount}
+            currency={bid.project?.currency}
             progress={{
               value: 0,
               total: 1,
             }}
             img={getCoverImage(bid.project)}
-            userImg={bid.project.buyer?.user?.profilePhotoUri ||  "/img/webp/user.webp"}
+            userImg={
+              bid.project.buyer?.user?.profilePhotoUri || "/img/webp/user.webp"
+            }
             dueDate={bid.project?.dueDate}
           />
         ))}
       </>
     ),
-    [closedBids?.data?.data]
+    [closedBids?.data?.data],
   );
 
   const mobileSelectedContent = useMemo(() => {
@@ -246,9 +273,7 @@ const DashboardPage = () => {
           return {
             title: "My Bids",
             count: totalBids,
-            loading:
-              isLoadingDraftBidData ||
-              isLoadingMyBidsWithoutDraftData,
+            loading: isLoadingDraftBidData || isLoadingMyBidsWithoutDraftData,
             empty: !totalBids,
           };
       }
@@ -262,18 +287,17 @@ const DashboardPage = () => {
       isLoadingMyBidsWithoutDraftData,
       liveProjectsData?.data?.data?.length,
       totalBids,
-    ]
+    ],
   );
-  
+
   return (
     <>
-    {/* TODO: REDO THE WAY THESE PROPS ARE PASSED */}
+      {/* TODO: REDO THE WAY THESE PROPS ARE PASSED */}
       <div className="block md:hidden">
         <CustomCardHolder
           {...holderProps(mobileSelection)}
-
           optionKeys={[...options]}
-          options={options.map(option=>holderProps(option))}
+          options={options.map((option) => holderProps(option))}
           onSelect={(tab) => setMobileSelection(tab as OptionsType)}
         >
           {mobileSelectedContent}

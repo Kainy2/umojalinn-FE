@@ -10,10 +10,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { UmojaLinnCurrency } from "@/types/project";
 import { CircleHelp } from "lucide-react";
-import { useConnectStripeAccount } from "@/tanstack/hooks/useProject";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import LinkStripeAddressDialog from "./LinkStripeAddressDialog";
 
 interface IStripeStatusModalProps {
   currency: UmojaLinnCurrency;
@@ -33,20 +33,14 @@ export const StripeStatusModal = ({
   onProceed,
 }: IStripeStatusModalProps) => {
   const [checked, setChecked] = React.useState(false);
+  const [stripeAddressDialogOpen, setStripeAddressDialogOpen] =
+    React.useState(false);
 
   useEffect(() => {
     if (!open) {
       setChecked(false);
     }
   }, [open]);
-
-  const { mutate, isPending } = useConnectStripeAccount({
-    onSuccess: (data) => {
-      if (data.data.data.onboardingUrl) {
-        window.location.href = data.data.data.onboardingUrl;
-      }
-    },
-  });
 
   const isNaira = currency === "NAIRA";
 
@@ -83,64 +77,72 @@ export const StripeStatusModal = ({
     paymentAccountOnboarded === false;
 
   const checkboxLabel = isConnectStripe
-    ? `I understand ${displayCurrency} payouts require an international ${displayCurrency} account - funds will be held until I complete my ${displayCurrency} payout setup.`
+    ? `I understand ${displayCurrency} payouts require a receiving account - funds will be held until I complete my ${displayCurrency} payout setup.`
     : `I understand I cannot withdraw ${displayCurrency} until payout setup is complete.`;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[544px]">
-        <DialogHeader className="flex flex-col items-start gap-4">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <div className="icon-wrapper error mb-4">
-                <CircleHelp />
-              </div>
+    <>
+      <LinkStripeAddressDialog
+        open={stripeAddressDialogOpen}
+        onOpenChange={setStripeAddressDialogOpen}
+      />
 
-              <div>
-                <DialogTitle className="text-[18px] font-semibold text-[#181D27]">
-                  {title}
-                </DialogTitle>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[544px]">
+          <DialogHeader className="flex flex-col items-start gap-4">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <div className="icon-wrapper error mb-4">
+                  <CircleHelp />
+                </div>
 
-                {description && (
-                  <DialogDescription className="text-left text-[#535862]">
-                    {description}
-                  </DialogDescription>
-                )}
+                <div>
+                  <DialogTitle className="text-[18px] font-semibold text-[#181D27]">
+                    {title}
+                  </DialogTitle>
+
+                  {description && (
+                    <DialogDescription className="text-left text-[#535862]">
+                      {description}
+                    </DialogDescription>
+                  )}
+                </div>
               </div>
             </div>
+          </DialogHeader>
+          <div className="flex items-start space-x-3 mt-6 ">
+            <Checkbox
+              id="acknowledge"
+              checked={checked}
+              onCheckedChange={(val) => setChecked(!!val)}
+              className="mt-0.5 border-[#D0D5DD] data-[state=checked]:border-[#EAAA08] data-[state=checked]:bg-white data-[state=checked]:text-[#EAAA08]"
+            />
+            <Label
+              htmlFor="acknowledge"
+              className="text-sm font-medium leading-relaxed text-[#535862] cursor-pointer"
+            >
+              {checkboxLabel}
+            </Label>
           </div>
-        </DialogHeader>
-        <div className="flex items-start space-x-3 mt-6 ">
-          <Checkbox
-            id="acknowledge"
-            checked={checked}
-            onCheckedChange={(val) => setChecked(!!val)}
-            className="mt-0.5 border-[#D0D5DD] data-[state=checked]:border-[#EAAA08] data-[state=checked]:bg-white data-[state=checked]:text-[#EAAA08]"
-          />
-          <Label
-            htmlFor="acknowledge"
-            className="text-sm font-medium leading-relaxed text-[#535862] cursor-pointer"
-          >
-            {checkboxLabel}
-          </Label>
-        </div>
-        <DialogFooter className="sm:justify-start w-full mt-4">
-          <Button
-            type="button"
-            className="w-full bg-[#EAAA08] hover:bg-[#EAAA08]/90 text-white font-semibold text-[18px] h-[60px]"
-            onClick={() => {
-              if (isConnectStripe) {
-                mutate();
-              } else {
-                onProceed?.();
-              }
-            }}
-            disabled={isPending || !checked}
-          >
-            {isPending ? "Redirecting..." : buttonText}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          <DialogFooter className="sm:justify-start w-full mt-4">
+            <Button
+              type="button"
+              className="w-full bg-[#EAAA08] hover:bg-[#EAAA08]/90 text-white font-semibold text-[18px] h-[60px]"
+              onClick={() => {
+                if (isConnectStripe) {
+                  onOpenChange(false);
+                  setStripeAddressDialogOpen(true);
+                } else {
+                  onProceed?.();
+                }
+              }}
+              disabled={!checked}
+            >
+              {buttonText}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };

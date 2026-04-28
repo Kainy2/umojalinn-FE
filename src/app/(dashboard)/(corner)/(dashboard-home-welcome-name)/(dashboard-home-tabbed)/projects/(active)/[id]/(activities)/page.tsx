@@ -30,22 +30,30 @@ const ActiveProjectPage = () => {
   const sizingTemplateId = project?.sizingTemplateId;
 
   // Fetch sizing template to check if measurement points have been requested
-  const { data: templateData, isPending: isLoadingSizingTemplate } = useGetSizingTemplateById(
-    sizingTemplateId ? uuidToBase62Safe(sizingTemplateId) : undefined,
-    { enabled: !!sizingTemplateId }
-  );
+  const { data: templateData, isPending: isLoadingSizingTemplate } =
+    useGetSizingTemplateById(
+      sizingTemplateId ? uuidToBase62Safe(sizingTemplateId) : undefined,
+      { enabled: !!sizingTemplateId },
+    );
 
   const sizingTemplate = templateData?.data?.data;
   const isDesigner = session?.user?.profileRole === "DESIGNER";
 
   // Check if measurement points have NOT been requested (null or empty)
-  const hasMeasurementPointsRequested = sizingTemplate?.requestedMeasurementPoints &&
+  const hasMeasurementPointsRequested =
+    sizingTemplate?.requestedMeasurementPoints &&
     sizingTemplate.requestedMeasurementPoints.length > 0;
   // Check if measurement points have NOT been requested (null or empty)
-  const hasMeasurementPointsSubmitted = sizingTemplate?.submittedMeasurementPoints &&
+  const hasMeasurementPointsSubmitted =
+    sizingTemplate?.submittedMeasurementPoints &&
     sizingTemplate.submittedMeasurementPoints.length > 0;
 
-  if (isLoadingProjectMilestones || isLoadingProject || isLoadingMe || isLoadingSizingTemplate)
+  if (
+    isLoadingProjectMilestones ||
+    isLoadingProject ||
+    isLoadingMe ||
+    isLoadingSizingTemplate
+  )
     return (
       <div className="h-[30vh] flex items-center justify-center text-muted-foreground text-sm">
         <span>Loading...</span>
@@ -60,11 +68,19 @@ const ActiveProjectPage = () => {
 
   // for buyer, Show reminder to buyer to tell designer to send measurement point fields
   // for designer, Should go to send measurement points fields in sizing template page, if designer has not submitted measurement points values
-  const showRequestPointsBanner = !!sizingTemplateId && !!sizingTemplate && !hasMeasurementPointsRequested && !hasMeasurementPointsSubmitted;
+  const showRequestPointsBanner =
+    !!sizingTemplateId &&
+    !!sizingTemplate &&
+    !hasMeasurementPointsRequested &&
+    !hasMeasurementPointsSubmitted;
 
   // Show reminder to designer to tell buyer to send measurement points values
-  const isAwaitingMeasurementPointsValues = isDesigner && !!sizingTemplateId && !!sizingTemplate && hasMeasurementPointsRequested && !hasMeasurementPointsSubmitted;
-
+  const isAwaitingMeasurementPointsValues =
+    isDesigner &&
+    !!sizingTemplateId &&
+    !!sizingTemplate &&
+    hasMeasurementPointsRequested &&
+    !hasMeasurementPointsSubmitted;
 
   return (
     <div className="flex flex-col">
@@ -81,17 +97,19 @@ const ActiveProjectPage = () => {
           className="mb-2"
         />
       )}
-      <div className="flex flex-col md:flex-row gap-12 pt-4 lg:pt-8">
+      <div className="flex flex-col mt-8 md:mt-0  md:flex-row gap-12 pt-4 lg:pt-8">
         <MilestoneTimeline
           buyer={project?.buyer.user}
           designer={project?.designer.user}
           projectId={project?.id}
           currency={project?.currency || null}
           escrowBalance={project?.escrowBalance || 0}
-          isDesigner={project?.buyerId === meData?.data?.data?.designerProfile?.id}
+          isDesigner={
+            project?.buyerId === meData?.data?.data?.designerProfile?.id
+          }
           milestones={projectMilestonesData?.data?.data || []}
           className="flex-1"
-        // disabled={ showRequestPointsBanner || isAwaitingMeasurementPointsValues }
+          // disabled={ showRequestPointsBanner || isAwaitingMeasurementPointsValues }
         />
         <aside className="md:max-w-80 flex-1 w-full shrink-0">
           <EscrowCard

@@ -33,6 +33,7 @@ import {
   addPaymentAddress,
   connectStripeAccount,
   requestDeleteStripeAccountOtp,
+  requestWithdrawOtp,
   deleteStripeConnectedAccount,
 } from "@/actions/project";
 import { queryClient } from "@/components/provider/TanstackQueryClient";
@@ -73,7 +74,7 @@ import {
   TRANSACTION,
   WALLET,
   WITHDRAWAL_METHODS,
-  PAYMENT_ACCOUNT_INFO
+  PAYMENT_ACCOUNT_INFO,
 } from "../keys";
 import {
   // CreateWithdrawalMethodPayload,
@@ -82,13 +83,12 @@ import {
   RequestWithdrawalPayload,
   // SetDefaultWithdrawalMethodPayload,
   VerifyNgnAccountPayload,
-  AddNgnBankAccounyPaylod
+  AddNgnBankAccounyPaylod,
 } from "@/section/form/withdraw/WithdrawalAmount";
 import { getUserReviews, UserReviewsApiProps } from "@/actions/user";
 
-
 export const useInviteBuyer = (
-  options: GenericUseMutationProps<SingleApiResponse, { emails: string[] }>
+  options: GenericUseMutationProps<SingleApiResponse, { emails: string[] }>,
 ) => {
   const { handleError } = useHandleError("Invitation");
   return useMutation({
@@ -107,7 +107,7 @@ export const useInviteBuyer = (
 
 export const useGetProjectById = (
   id?: string,
-  options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnProject>>
+  options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnProject>>,
 ) => {
   const { data: me } = useSession();
   return useQuery({
@@ -120,7 +120,7 @@ export const useGetProjectById = (
 
 export const useUpdateProjectById = (
   id?: string,
-  options?: GenericUseMutationProps<SingleApiResponse, FormData>
+  options?: GenericUseMutationProps<SingleApiResponse, FormData>,
 ) => {
   const { handleError } = useHandleError("Update Project");
   return useMutation({
@@ -138,7 +138,7 @@ export const useUpdateProjectById = (
 };
 
 export const usePostProjectLive = (
-  options?: GenericUseMutationProps<SingleApiResponse, string>
+  options?: GenericUseMutationProps<SingleApiResponse, string>,
 ) => {
   const { handleError } = useHandleError("Update Project");
   return useMutation({
@@ -158,7 +158,7 @@ export const usePostProjectLive = (
 export const useGetClothingTypes = (
   options?: GenericUseQueryProps<
     SingleApiResponse<UmojaLinnProject["clothingTypes"]>
-  >
+  >,
 ) => {
   const { data: me } = useSession();
   return useQuery({
@@ -174,13 +174,13 @@ export const useGetAllBuyerProject = (
     lastId: string;
     limit: number;
     projectStatus:
-    | UmojaLinnProject["status"]
-    | Array<UmojaLinnProject["status"]>;
+      | UmojaLinnProject["status"]
+      | Array<UmojaLinnProject["status"]>;
     projectType:
-    | UmojaLinnProject["projectType"]
-    | Array<UmojaLinnProject["projectType"]>;
+      | UmojaLinnProject["projectType"]
+      | Array<UmojaLinnProject["projectType"]>;
   }>,
-  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnProject>>
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnProject>>,
 ) => {
   const { data: me } = useSession();
   return useQuery({
@@ -197,14 +197,14 @@ export const useGetAllDesignerProject = (
     lastId: string;
     limit: number;
     projectStatus:
-    | UmojaLinnProject["status"]
-    | Array<UmojaLinnProject["status"]>;
+      | UmojaLinnProject["status"]
+      | Array<UmojaLinnProject["status"]>;
     projectType:
-    | UmojaLinnProject["projectType"]
-    | Array<UmojaLinnProject["projectType"]>;
+      | UmojaLinnProject["projectType"]
+      | Array<UmojaLinnProject["projectType"]>;
     hasBid?: boolean;
   }>,
-  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnProject>>
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnProject>>,
 ) => {
   const { data: me } = useSession();
   return useQuery({
@@ -218,7 +218,7 @@ export const useGetAllDesignerProject = (
 
 export const useGetProjectMilestones = (
   projectId: string,
-  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnMilestone>>
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnMilestone>>,
 ) => {
   const { data: me } = useSession();
   return useQuery({
@@ -231,7 +231,7 @@ export const useGetProjectMilestones = (
 
 export const useFundProject = (
   id: string,
-  options?: GenericUseMutationProps<SingleApiResponse<UmojaLinnPayment>>
+  options?: GenericUseMutationProps<SingleApiResponse<UmojaLinnPayment>>,
 ) => {
   const { handleError } = useHandleError("Fund Project");
   return useMutation({
@@ -249,7 +249,10 @@ export const useFundProject = (
 };
 
 export const useFundMilestone = (
-  options?: GenericUseMutationProps<SingleApiResponse<UmojaLinnPayment>, string>
+  options?: GenericUseMutationProps<
+    SingleApiResponse<UmojaLinnPayment>,
+    string
+  >,
 ) => {
   const { handleError } = useHandleError("Fund Milestone");
   return useMutation({
@@ -268,7 +271,7 @@ export const useFundMilestone = (
 
 export const useGetMilestoneById = (
   id?: string,
-  options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnMilestone>>
+  options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnMilestone>>,
 ) => {
   const { data: me } = useSession();
   return useQuery({
@@ -281,7 +284,9 @@ export const useGetMilestoneById = (
 
 export const useGetMilestoneSubmissions = (
   id?: string,
-  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnMilestoneSubmission>>
+  options?: GenericUseQueryProps<
+    ArrayApiResponse<UmojaLinnMilestoneSubmission>
+  >,
 ) => {
   const { data: me } = useSession();
   return useQuery({
@@ -294,7 +299,7 @@ export const useGetMilestoneSubmissions = (
 
 export const useGetProjectMediaAndlinks = (
   id?: string,
-  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnMediaLink>>
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnMediaLink>>,
 ) => {
   const { data: me } = useSession();
   return useQuery({
@@ -310,7 +315,7 @@ export const useApproveOrRejectMilestone = (
   options?: GenericUseMutationProps<
     SingleApiResponse,
     Pick<UmojaLinnMilestoneSubmission, "status" | "rejectionReason">
-  >
+  >,
 ) => {
   const { handleError } = useHandleError("Submit Milestone");
   return useMutation({
@@ -329,7 +334,7 @@ export const useApproveOrRejectMilestone = (
 
 export const useSubmitMilestone = (
   id: string,
-  options?: GenericUseMutationProps<SingleApiResponse, FormData>
+  options?: GenericUseMutationProps<SingleApiResponse, FormData>,
 ) => {
   const { handleError } = useHandleError("Submit Milestone");
   return useMutation({
@@ -347,7 +352,7 @@ export const useSubmitMilestone = (
 };
 
 export const useGetWallet = (
-  options?: GenericUseQueryProps<SingleApiResponse<UmojalinnWallet>>
+  options?: GenericUseQueryProps<SingleApiResponse<UmojalinnWallet>>,
 ) => {
   const { data: me } = useSession();
   return useQuery({
@@ -358,9 +363,7 @@ export const useGetWallet = (
   });
 };
 
-export const useGetTransactions = (
-  params?: Record<string, unknown>,
-) => {
+export const useGetTransactions = (params?: Record<string, unknown>) => {
   const { data: me } = useSession();
   return useQuery({
     enabled: !!me?.user,
@@ -380,7 +383,8 @@ export const useGetInfiniteTransactions = (
     initialPageParam: lastId,
     enabled: !!me?.user,
     queryKey: [TRANSACTION, params],
-    queryFn: ({ pageParam: lastId }) => getAllTransactions({ lastId, ...params }),
+    queryFn: ({ pageParam: lastId }) =>
+      getAllTransactions({ lastId, ...params }),
     getNextPageParam: (lastPage) => lastPage?.data.lastId,
   });
 };
@@ -395,13 +399,14 @@ export const useGetInfiniteFundReleasedTransactions = (
     initialPageParam: lastId,
     enabled: !!me?.user,
     queryKey: [FUNDS_RELEASED, params],
-    queryFn: ({ pageParam: lastId }) => getFundsReleasedTransactions({ lastId, ...params }),
+    queryFn: ({ pageParam: lastId }) =>
+      getFundsReleasedTransactions({ lastId, ...params }),
     getNextPageParam: (lastPage) => lastPage?.data.lastId,
   });
 };
 
 export const useGetWithdrawalMethods = (
-  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnWithdrawalMethod>>
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnWithdrawalMethod>>,
 ) => {
   const { data: me } = useSession();
   return useQuery({
@@ -412,7 +417,7 @@ export const useGetWithdrawalMethods = (
   });
 };
 export const useGetListNgnBanks = (
-  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnNgnBank>>
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnNgnBank>>,
 ) => {
   const { data: me } = useSession();
   return useQuery({
@@ -423,7 +428,7 @@ export const useGetListNgnBanks = (
   });
 };
 export const useGetPaymentAccountInfo = (
-  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnPaymentAccountInfo>>
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnPaymentAccountInfo>>,
 ) => {
   const { data: me } = useSession();
   return useQuery({
@@ -480,7 +485,10 @@ export const useGetPaymentAccountInfo = (
 //   });
 // };
 export const useVerifyNgnAccount = (
-  options?: GenericUseMutationProps<SingleApiResponse<UmojaLinnBankVerified>, VerifyNgnAccountPayload>
+  options?: GenericUseMutationProps<
+    SingleApiResponse<UmojaLinnBankVerified>,
+    VerifyNgnAccountPayload
+  >,
 ) => {
   const { handleError } = useHandleError("Verify Ngn Account");
   return useMutation({
@@ -497,9 +505,9 @@ export const useVerifyNgnAccount = (
       options?.onError?.(error, variables, context);
     },
   });
-}
+};
 export const useAddNgnAccount = (
-  options?: GenericUseMutationProps<SingleApiResponse, AddNgnBankAccounyPaylod>
+  options?: GenericUseMutationProps<SingleApiResponse, AddNgnBankAccounyPaylod>,
 ) => {
   const { handleError } = useHandleError("Add Ngn Account");
   return useMutation({
@@ -516,7 +524,7 @@ export const useAddNgnAccount = (
       options?.onError?.(error, variables, context);
     },
   });
-}
+};
 
 // export const useEditWithdrawalMethod = (
 //   id: string,
@@ -542,7 +550,10 @@ export const useAddNgnAccount = (
 //   });
 // };
 export const useAddPaymentAddress = (
-  options?: GenericUseMutationProps<SingleApiResponse, TAddPaymentAddressPayload>,
+  options?: GenericUseMutationProps<
+    SingleApiResponse,
+    TAddPaymentAddressPayload
+  >,
 ) => {
   const { handleError } = useHandleError("Add payment address");
   return useMutation({
@@ -565,7 +576,9 @@ export const useAddPaymentAddress = (
 };
 
 export const useConnectStripeAccount = (
-  options?: GenericUseMutationProps<SingleApiResponse<UmojaLinnConnectStripeAccount>>
+  options?: GenericUseMutationProps<
+    SingleApiResponse<UmojaLinnConnectStripeAccount>
+  >,
 ) => {
   const { handleError } = useHandleError("Connect Stripe Account");
   return useMutation({
@@ -591,6 +604,23 @@ export const useRequestDeleteStripeAccountOtp = (
   return useMutation({
     ...options,
     mutationFn: () => requestDeleteStripeAccountOtp(),
+    onSuccess: (data, variables, context) => {
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useRequestWithdrawOtp = (
+  options?: GenericUseMutationProps<SingleApiResponse>,
+) => {
+  const { handleError } = useHandleError("Request withdrawal code");
+  return useMutation({
+    ...options,
+    mutationFn: () => requestWithdrawOtp(),
     onSuccess: (data, variables, context) => {
       options?.onSuccess?.(data, variables, context);
     },
@@ -632,7 +662,7 @@ export const useDeleteStripeConnectedAccount = (
 
 export const useDeleteWithdrawalMethod = (
   id: string,
-  options?: GenericUseMutationProps<SingleApiResponse>
+  options?: GenericUseMutationProps<SingleApiResponse>,
 ) => {
   const { handleError } = useHandleError("Delete Withdrawal Method");
   return useMutation({
@@ -652,7 +682,10 @@ export const useDeleteWithdrawalMethod = (
 };
 
 export const useRequestWithdrawal = (
-  options?: GenericUseMutationProps<SingleApiResponse, RequestWithdrawalPayload>
+  options?: GenericUseMutationProps<
+    SingleApiResponse,
+    RequestWithdrawalPayload
+  >,
 ) => {
   const { handleError } = useHandleError("Request Withdrawal");
   return useMutation({
@@ -672,7 +705,7 @@ export const useRequestWithdrawal = (
 };
 
 export const useDeleteProject = (
-  options?: GenericUseMutationProps<SingleApiResponse, string>
+  options?: GenericUseMutationProps<SingleApiResponse, string>,
 ) => {
   const { handleError } = useHandleError("Delete Project");
   return useMutation({
@@ -680,12 +713,16 @@ export const useDeleteProject = (
     mutationFn: (id) => deleteProjectById(id),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
-        queryKey: [PROJECT, BUYER, { apiParams: { projectStatus: "DRAFT", } }]
+        queryKey: [PROJECT, BUYER, { apiParams: { projectStatus: "DRAFT" } }],
       });
       queryClient.invalidateQueries({
-        queryKey: [PROJECT, BUYER, {
-          apiParams: { projectStatus: "ADS" }
-        }],
+        queryKey: [
+          PROJECT,
+          BUYER,
+          {
+            apiParams: { projectStatus: "ADS" },
+          },
+        ],
       });
       options?.onSuccess?.(data, variables, context);
     },
@@ -701,7 +738,7 @@ export const useAddProjectReview = (
   options?: GenericUseMutationProps<
     SingleApiResponse<UmojaLinnProject>,
     FormData
-  >
+  >,
 ) => {
   const { handleError } = useHandleError("Add Review");
   return useMutation({
@@ -722,7 +759,7 @@ export const useAddProjectReview = (
 
 export const useGetUserReviews = (
   apiParams: UserReviewsApiProps,
-  options?: GenericUseQueryProps<ArrayApiResponse<NewUmojaLinnProjectReview>>
+  options?: GenericUseQueryProps<ArrayApiResponse<NewUmojaLinnProjectReview>>,
 ) => {
   const { data: me } = useSession();
   return useQuery({
@@ -734,7 +771,7 @@ export const useGetUserReviews = (
 };
 
 export const useGetSpecialistTypes = (
-  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnSpecialistType>>
+  options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnSpecialistType>>,
 ) => {
   const { data: me } = useSession();
   return useQuery({

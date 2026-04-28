@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import {
   Dialog,
   DialogContent,
@@ -17,7 +17,7 @@ import { Form, FormField, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { stripeLinkAddressFormSchema } from "@/lib/schema";
-import { useGetMe } from "@/tanstack/hooks/useUser";
+// import { useGetMe } from "@/tanstack/hooks/useUser";
 import {
   useAddPaymentAddress,
   useConnectStripeAccount,
@@ -39,24 +39,24 @@ export const LinkStripeAddressDialog = ({
   open,
   onOpenChange,
 }: ILinkStripeAddressDialogProps) => {
-  const { data: meResponse } = useGetMe();
-  const user = meResponse?.data?.data;
+  // const { data: meResponse } = useGetMe();
+  // const user = meResponse?.data?.data;
 
   const form = useForm<TStripeLinkAddressFormValues>({
     resolver: zodResolver(stripeLinkAddressFormSchema),
     defaultValues,
   });
 
-  useEffect(() => {
-    if (!open || !user) return;
-    form.reset({
-      country: user.address?.country ?? "",
-      state: user.address?.state ?? "",
-      city: user.address?.city ?? "",
-      zipCode: user.address?.zipCode ?? "",
-      address: user.address?.address ?? "",
-    });
-  }, [open, user, form]);
+  // useEffect(() => {
+  //   if (!open || !user) return;
+  //   form.reset({
+  //     country:  "",
+  //     state: user.address?.state ?? "",
+  //     city: user.address?.city ?? "",
+  //     zipCode: user.address?.zipCode ?? "",
+  //     address: user.address?.address ?? "",
+  //   });
+  // }, [open, user, form]);
 
   const { mutate: connectStripeAccount, isPending: isConnectingStripe } =
     useConnectStripeAccount({

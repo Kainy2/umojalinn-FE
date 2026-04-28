@@ -73,7 +73,7 @@ const BidTabProjectDetailsSection = () => {
       </div>
 
       <div>
-        <p className="text-sm my-1">Project Owner</p>
+        <p className="text-sm my-1">Client</p>
         <p className="text-base font-semibold">
           {project?.buyer?.user?.firstName} {project?.buyer?.user?.lastName}
         </p>

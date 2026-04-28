@@ -10,9 +10,11 @@ import React from "react";
 
 const ActiveProjectChatPage = () => {
   const { id } = useParams<{ id: string }>();
-  const { data: projectMilestonesData, isPending: isLoadingProjectMilestones } = useGetProjectMilestones(id);
+  const { data: projectMilestonesData, isPending: isLoadingProjectMilestones } =
+    useGetProjectMilestones(id);
 
-  const { data: projectData, isPending: isLoadingProject } = useGetProjectById(id);
+  const { data: projectData, isPending: isLoadingProject } =
+    useGetProjectById(id);
 
   if (isLoadingProjectMilestones || isLoadingProject)
     return (
@@ -20,9 +22,9 @@ const ActiveProjectChatPage = () => {
         <span>Loading...</span>
       </div>
     );
-    
+
   return (
-    <div className="flex flex-col md:flex-row gap-12">
+    <div className="flex flex-col mt-8 md:mt-0  md:flex-row gap-12">
       <ChatWindow projectId={id} />
       <aside className="md:max-w-80 flex-1 w-full shrink-0">
         <EscrowCard

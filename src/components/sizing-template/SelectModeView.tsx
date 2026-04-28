@@ -31,6 +31,7 @@ import {
 } from "../ui/dialog";
 import { FEMALE_SIZING_TEMPLATE, MALE_SIZING_TEMPLATE } from "@/constant/sizingTemplate";
 import UKStandardSizeRow from "./UKStandardSizeRow";
+import UKSizeChartDrawer from "./UKSizeChartDrawer";
 import DisabledTemplateItems from "./DisabledTemplateItems";
 import { useRouter } from "next/navigation";
 
@@ -70,6 +71,7 @@ const SelectModeView = ({
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [previewName, setPreviewName] = useState<string | null>(null);
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
+  const [isUkChartOpen, setIsUkChartOpen] = useState(false);
   const router = useRouter()
 
   // Hook for template-based API (existing)
@@ -204,7 +206,14 @@ const SelectModeView = ({
                     <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg text-sm">
                       <div className="flex items-center gap-2">
                         <span className="font-medium">UK Standard Size</span>
-                        <HelpCircle className="size-4 text-gray-400" />
+                        <button
+                          type="button"
+                          onClick={() => setIsUkChartOpen(true)}
+                          className="p-0.5 rounded-full text-gray-400 hover:text-gray-500 transition-colors"
+                          aria-label="Show UK standard size chart"
+                        >
+                          <HelpCircle className="size-4" />
+                        </button>
                       </div>
                       {ukStandardSize && (
                         <span className="text-gray-500">
@@ -385,6 +394,11 @@ const SelectModeView = ({
           </div>
         </div>
       </div>
+      <UKSizeChartDrawer
+        gender={gender}
+        isOpen={isUkChartOpen}
+        onClose={() => setIsUkChartOpen(false)}
+      />
     </div>
   );
 };
