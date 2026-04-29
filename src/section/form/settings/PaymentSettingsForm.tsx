@@ -262,23 +262,19 @@ const PaymentSettingsForm = () => {
                   ? `${getBankName(paymentAccount?.paystackBankCode || "")} • ${paymentAccount?.paystackAccountNumber}`
                   : paymentAccount?.stripeIban || "Connected"}
               </p>
-              {currency === "NAIRA" ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    // Logic to edit NGN account could go here
-                  }}
-                  className="text-primary font-bold text-sm mt-2 hover:underline text-left w-fit"
-                >
-                  Edit
-                </button>
-              ) : (
-                <p className="text-sm text-gray-500 mt-3 max-w-md">
-                  Payout address cannot be changed here while Stripe is
-                  connected. Use Disconnect Stripe below if you need to update
-                  it, then connect again.
-                </p>
-              )}
+              {/* {currency === "NAIRA" ? ( */}
+              <button
+                type="button"
+                onClick={() => {
+                  // Logic to edit NGN account could go here
+                }}
+                className="text-primary font-bold text-sm mt-2 hover:underline text-left w-fit"
+              >
+                Edit
+              </button>
+              {/* ) : ( */}
+
+              {/* )} */}
             </div>
           </div>
         ) : (

@@ -20,4 +20,3 @@ const SizingTemplateViewPage = (props: PageProps) => {
 };
 
 export default SizingTemplateViewPage;
-

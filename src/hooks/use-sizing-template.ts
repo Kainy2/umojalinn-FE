@@ -126,7 +126,8 @@ export const useSizingTemplateDialog = (
   // Derived state for measurement points
   const requestedMeasurementPointsFromTemplate =
     sizingTemplateResult?.requestedMeasurementPoints ?? [];
-  const requestedMeasurementPointsFromBid = bid?.requestedMeasurementPoints ?? [];
+  const requestedMeasurementPointsFromBid =
+    bid?.requestedMeasurementPoints ?? [];
   const requestedMeasurementPointsFromProject =
     project?.requestedMeasurementPoints ?? [];
   const requestedMeasurementPoints =
@@ -151,7 +152,7 @@ export const useSizingTemplateDialog = (
     if (isDesigner) {
       // SELECT: Designer requesting measurement points on bid without template yet
       // This takes highest priority for designers when accessing via bidId with no template
-      if (props?.bidId && !props?.id) {
+      if (props?.bidId && !isProjectLive) {
         return TEMPLATE_MODE.SELECT;
       }
 

@@ -107,8 +107,7 @@ const SizingTemplatePill = ({
   const project = projectData?.data?.data;
   const bid = bidData?.data?.data;
   const sizingTemplateId = project?.sizingTemplateId;
-  console.log(bidId);
-  console.log(bid?.id);
+
   // For non-bid contexts (like active projects), sizingTemplateRequested might be on the project level
   // If bid exists, use bid.sizingTemplateRequested, otherwise assume true if template exists or project is LIVE
   const isProjectLive = project?.status === "LIVE";
@@ -308,6 +307,7 @@ const SizingTemplatePill = ({
       // Live project
       // 2. Designer recommended changes and buyer has not made them
       if (
+        isProjectLive &&
         sizingTemplateId &&
         hasDesignerRecommendations &&
         !hasRepliedRecommendations
@@ -437,7 +437,7 @@ const SizingTemplatePill = ({
 
     const query = `?projectId=${uuidToBase62Safe(project.id)}`;
 
-    if (sizingTemplateId) {
+    if (sizingTemplateId && isProjectLive) {
       router.push(
         `/sizing-templates/${uuidToBase62Safe(sizingTemplateId)}${query}`,
       );
