@@ -126,7 +126,8 @@ export const useSizingTemplateDialog = (
   // Derived state for measurement points
   const requestedMeasurementPointsFromTemplate =
     sizingTemplateResult?.requestedMeasurementPoints ?? [];
-  const requestedMeasurementPointsFromBid = bid?.requestedMeasurementPoints ?? [];
+  const requestedMeasurementPointsFromBid =
+    bid?.requestedMeasurementPoints ?? [];
   const requestedMeasurementPointsFromProject =
     project?.requestedMeasurementPoints ?? [];
   const requestedMeasurementPoints =
@@ -151,7 +152,7 @@ export const useSizingTemplateDialog = (
     if (isDesigner) {
       // SELECT: Designer requesting measurement points on bid without template yet
       // This takes highest priority for designers when accessing via bidId with no template
-      if (props?.bidId && !props?.id) {
+      if (props?.bidId && !isProjectLive) {
         return TEMPLATE_MODE.SELECT;
       }
 
@@ -320,12 +321,9 @@ export const useSizingTemplateDialog = (
       if (unit) setUnit(unit);
     }
 
-    if (project) {
-      // const defaultTemplate = project.gender === "MALE" ? MALE_SIZING_TEMPLATE : FEMALE_SIZING_TEMPLATE
-
-      setGender(project.gender ?? sizingTemplateResult?.gender ?? "MALE");
-      // setPreviewImage(defaultTemplate[0].img)
-    }
+    // Always prefer project gender when present, otherwise use template gender.
+    // This ensures standalone template editing doesn't fall back to the MALE default.
+    setGender(project?.gender ?? sizingTemplateResult?.gender ?? "MALE");
   }, [sizingTemplateResult, project]);
 
   useEffect(() => {

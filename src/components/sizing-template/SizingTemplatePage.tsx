@@ -217,6 +217,11 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   } = useRequestMeasurementPoints();
 
   const handleSubmitRecommendations = async () => {
+    const hasExistingReviews =
+      !!sizingTemplateResult?.metadata?.reviews &&
+      Object.values(sizingTemplateResult.metadata.reviews).some(Boolean);
+    const hasNewComments = Object.keys(measurementComments).length > 0;
+
     const currentRequestedSet = new Set(requestedMeasurementPoints);
     const selectedRequestedSet = new Set(selectedMeasurements);
     const hasRequestedPointsChanged =
@@ -231,8 +236,9 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
       });
     }
 
-    // Only hit request changes if there are comments
-    if (Object.keys(measurementComments).length > 0) {
+    // Send updated reviews when there are comments, or clear reviews by sending
+    // an empty object when all previously existing comments were removed.
+    if (hasNewComments || hasExistingReviews) {
       requestChangeOnSizingTemplate(measurementComments);
     } else {
       // If we only requested new points, we should still close the mode
@@ -467,10 +473,12 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                           !!sizingTemplateResult?.metadata?.reviews?.[prop];
                         if (hasReview) return 0;
 
+                        const measurementValue =
+                          value?.[prop as keyof typeof value];
+
                         const isNewRequestedPoint =
-                          recommendationMode &&
-                          selectedMeasurements.includes(prop) &&
-                          !requestedMeasurementPoints.includes(prop);
+                          !recommendationMode && measurementValue === null;
+
                         if (isNewRequestedPoint) return 1;
 
                         return 2;
