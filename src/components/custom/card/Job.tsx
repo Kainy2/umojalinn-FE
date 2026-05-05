@@ -47,7 +47,6 @@ type JobCardProps = {
   newMessage?: boolean;
   href?: string;
 };
-
 const JobCard = (props: JobCardProps) => {
   return (
     <CustomCard

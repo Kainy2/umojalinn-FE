@@ -6,15 +6,6 @@ import {
 import { convertApiParams } from "@/lib/request";
 import { base62ToUuidSafe } from "@/lib/uuid";
 import {
-  // CreateWithdrawalMethodPayload,
-  // DirectTransferPayload,
-  // PaypalPayload,
-  RequestWithdrawalPayload,
-  // SetDefaultWithdrawalMethodPayload,
-  VerifyNgnAccountPayload,
-  AddNgnBankAccounyPaylod,
-} from "@/section/form/withdraw/WithdrawalAmount";
-import {
   UmojaLinnMediaLink,
   UmojaLinnMilestone,
   UmojaLinnMilestoneSubmission,
@@ -28,7 +19,10 @@ import {
   UmojaLinnBankVerified,
   UmojaLinnConnectStripeAccount,
   TAddPaymentAddressPayload,
-  TDeleteStripeConnectedAccountPayload,
+  TDeletePaymentAccountPayload,
+  TRequestWithdrawalPayload,
+  TVerifyNgnAccountPayload,
+  TAddNgnBankAccountPayload,
 } from "@/types/project";
 import { UmojaLinnTransaction } from "@/types/transaction";
 import { UmojaLinnNotification } from "@/types/user";
@@ -388,7 +382,7 @@ export const getPaymentAccountInfo = async (options?: ServerActionOption) => {
 };
 
 export const verifyNgnAccount = async (
-  body: VerifyNgnAccountPayload,
+  body: TVerifyNgnAccountPayload,
   options?: ServerActionOption,
 ) => {
   let axios = clientAxios;
@@ -402,7 +396,7 @@ export const verifyNgnAccount = async (
 };
 
 export const addNgnBankAccount = async (
-  body: AddNgnBankAccounyPaylod,
+  body: TAddNgnBankAccountPayload,
   options?: ServerActionOption,
 ) => {
   let axios = clientAxios;
@@ -491,7 +485,7 @@ export const requestDeleteStripeAccountOtp = async (
     axios = await getServerAxiosWithToken();
   }
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
-    `/wallet/request-delete-stripe-account-otp`,
+    `/wallet/request-delete-payment-account-otp`,
   );
 };
 
@@ -506,7 +500,7 @@ export const requestWithdrawOtp = async (options?: ServerActionOption) => {
 };
 
 export const deleteStripeConnectedAccount = async (
-  body: TDeleteStripeConnectedAccountPayload,
+  body: TDeletePaymentAccountPayload,
   options?: ServerActionOption,
 ) => {
   let axios = clientAxios;
@@ -514,7 +508,7 @@ export const deleteStripeConnectedAccount = async (
     axios = await getServerAxiosWithToken();
   }
   return axios.delete<unknown, AxiosResponse<SingleApiResponse>>(
-    `/wallet/stripe-connected-account`,
+    `/wallet/payment-account`,
     { data: body },
   );
 };
@@ -534,7 +528,7 @@ export const deleteWithdrawalMethod = async (
 };
 
 export const requestWithdrawal = async (
-  body: RequestWithdrawalPayload,
+  body: TRequestWithdrawalPayload,
   options?: ServerActionOption,
 ) => {
   let axios = clientAxios;

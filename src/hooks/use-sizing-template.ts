@@ -381,9 +381,13 @@ export const useSizingTemplateDialog = (
       gender,
       name,
       unit,
-      shouldGoLive,
       ukStandardSize: value.ukStandardSize,
     };
+
+    const canPublish = !props?.id || sizingTemplateResult?.status === "DRAFT";
+    if (shouldGoLive === true && canPublish) {
+      sizingTemplateProps.shouldGoLive = true;
+    }
 
     (props?.id ? updateSizingTemplate : createSizingTemplate)(
       sizingTemplateProps,
@@ -399,8 +403,6 @@ export const useSizingTemplateDialog = (
     templateMode === "EDIT" &&
     !sizingTemplateId &&
     !effectiveProjectId;
-
-  console.log({ templateMode });
 
   return {
     loading,

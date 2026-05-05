@@ -7,7 +7,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { AlertTriangle, MessageSquareText } from "lucide-react";
+import {
+  AlertTriangle,
+  MessageCircleQuestion,
+  MessageSquareText,
+} from "lucide-react";
 import {
   UmojaLinnSizingTemplate,
   UmojaLinnFemaleSizingTemplateProps,
@@ -116,12 +120,13 @@ const UpdateModeView = ({
   // Sync with current values ONLY when the component mounts if values were somehow empty,
   // but generally avoid blindly syncing with currentValues to avoid wiping out user's unsaved inputs.
   useEffect(() => {
-    if (
-      Object.keys(values).length === 0 &&
-      Object.keys(currentValues).length > 0
-    ) {
-      setValues(currentValues);
-    }
+    setValues((prev) => {
+      if (Object.keys(prev).length === 0) {
+        return currentValues;
+      }
+
+      return prev;
+    });
   }, [currentValues]);
 
   // Handle unit conversion locally so inputs aren't cleared
@@ -378,62 +383,58 @@ const UpdateModeView = ({
                         </div>
                       </div>
 
-                      {hasReview && (
-                        <div
-                          className="border border-error-300 p-2 min-w- rounded-lg transition-all flex items-center gap-2 animate-in fade-in slide-in-from-right-2 duration-300 bg-white"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <div className="lg:hidden">
-                          <div className="lg:hidden">
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <button
-                                  type="button"
-                                  aria-label={`Open measurement guide for ${point.name}`}
-                                  className="size-8 rounded-full bg-error-50 flex items-center justify-center transition-all duration-200 hover:scale-110"
-                                >
-                                  <MessageSquareText className="size-4 text-error-500" />
-                                </button>
-                              </DialogTrigger>
-                              <DialogContent className="w-[80vw] max-w-[425px] max-h-[80vh] h-[80vh]">
-                                <div className="flex h-full min-h-0 w-full flex-col">
-                                  <DialogTitle className="text-lg font-semibold mb-4 shrink-0">
-                                    {point.name}
-                                  </DialogTitle>
-                                  <div className="relative min-h-0 flex-1">
-                                    <Image
-                                      src={point.img || ""}
-                                      fill
-                                      alt={`Guide for ${point.name}`}
-                                      className="object-contain"
-                                    />
-                                    {!!reviews[point.prop] && (
-                                      <RequestSizingTemplateViewCard
-                                        className="absolute top-0"
-                                        title={point.name}
-                                        review={reviews[point.prop] || ""}
-                                      />
-                                    )}
-                                  </div>
-                                </div>
-                              </DialogContent>
-                            </Dialog>
-                          </div>
-                          <div
-                            className="hidden size-8 rounded-full bg-error-50 lg:flex items-center justify-center"
-                            aria-hidden
-                          >
-                            <MessageSquareText className="size-4 text-error-500" />
-                          </div>
-                          </div>
-                          <div
-                            className="hidden size-8 rounded-full bg-error-50 lg:flex items-center justify-center"
-                            aria-hidden
-                          >
-                            <MessageSquareText className="size-4 text-error-500" />
-                          </div>
-                        </div>
-                      )}
+                      <div
+                        className={cn(
+                          "p-2 min-w-0 rounded-lg transition-all flex items-center gap-2 animate-in fade-in slide-in-from-right-2 duration-300 bg-white border",
+                          hasReview
+                            ? "border-error-300"
+                            : "lg:hidden border-none",
+                        )}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <button
+                              type="button"
+                              aria-label={`Open measurement guide for ${point.name}`}
+                              className={cn(
+                                "flex items-center justify-center transition-all duration-200 hover:scale-110 rounded-full",
+                                hasReview
+                                  ? "size-8 bg-error-50"
+                                  : "size-8 lg:hidden border border-gray-200 bg-white",
+                              )}
+                            >
+                              {hasReview ? (
+                                <MessageSquareText className="size-4 text-error-500" />
+                              ) : (
+                                <MessageCircleQuestion className="size-5 text-gray-400" />
+                              )}
+                            </button>
+                          </DialogTrigger>
+                          <DialogContent className="w-[80vw] max-w-[425px] max-h-[80vh] h-[80vh]">
+                            <div className="flex h-full min-h-0 w-full flex-col">
+                              <DialogTitle className="text-lg font-semibold mb-4 shrink-0">
+                                {point.name}
+                              </DialogTitle>
+                              <div className="relative min-h-0 flex-1">
+                                <Image
+                                  src={point.img || ""}
+                                  fill
+                                  alt={`Guide for ${point.name}`}
+                                  className="object-contain"
+                                />
+                                {!!reviews[point.prop] && (
+                                  <RequestSizingTemplateViewCard
+                                    className="absolute top-0"
+                                    title={point.name}
+                                    review={reviews[point.prop] || ""}
+                                  />
+                                )}
+                              </div>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
                     </div>
                   );
                 })}

@@ -150,14 +150,21 @@ type InvoiceProps = {
 
 // Create Document Component
 const Invoice = (props: InvoiceProps) => {
-  const totalAmount =
+  const totalFromMilestones =
     props?.milestones?.reduce(
       (amount, milestone) => amount + (milestone?.amount || 0),
-      0
+      0,
     ) || 0;
 
-  const totalCommission = totalAmount * 0.17;
-  const baseSubTotal = totalAmount - totalCommission;
+  // Footer "TOTAL PRICE" uses approvedBudget; commission/earnings must use the same
+  // gross total or they inflate when milestone.amount sums disagree (e.g. API scale).
+  const grossTotal =
+    props.isDesigner && props.project?.approvedBudget != null
+      ? props.project.approvedBudget
+      : totalFromMilestones;
+
+  const totalCommission = grossTotal * 0.17;
+  const baseSubTotal = grossTotal - totalCommission;
 
   const deliveryMilestone = props?.milestones?.[props?.milestones?.length - 1];
   const currency =
@@ -225,8 +232,11 @@ const Invoice = (props: InvoiceProps) => {
             <View style={styles.dateWrapper}>
               <Text style={styles.fontBold}>Completion date:</Text>
               <Text style={styles.bodyText}>
-                {deliveryMilestone?.lastMilestoneApprovedAt ?
-                  formatDate(deliveryMilestone?.lastMilestoneApprovedAt, "dd.MM.yyy")
+                {deliveryMilestone?.lastMilestoneApprovedAt
+                  ? formatDate(
+                      deliveryMilestone?.lastMilestoneApprovedAt,
+                      "dd.MM.yyy",
+                    )
                   : "N/A"}
               </Text>
             </View>
@@ -263,11 +273,13 @@ const Invoice = (props: InvoiceProps) => {
             {props.isDesigner && (
               <>
                 <Text style={[styles.column, styles.column3]}>Price</Text>
-                <Text style={[styles.column, styles.column4Header]}>Commission</Text>
+                <Text style={[styles.column, styles.column4Header]}>
+                  Commission
+                </Text>
               </>
             )}
             <Text style={[styles.column, styles.column5, styles.alignRight]}>
-              TOTAL
+              {props.isDesigner ? "Earnings" : "Total"}
             </Text>
           </View>
           <View style={styles.tableBody}>
@@ -291,24 +303,33 @@ const Invoice = (props: InvoiceProps) => {
                       ? formatDate(milestone?.paidOutDate, "dd/MM/YYY")
                       : "-"}
                   </Text>
-                  {props.isDesigner && (
-                    <>
-                      <Text style={[styles.column, styles.column3]}>
-                        {currency}
-                        {formatCurrencyValue(price)}
-                      </Text>
-                      <Text
-                        style={[styles.column, styles.column4, styles.successText]}
-                      >
-                        {currency}
-                        {formatCurrencyValue(commission)}
-                      </Text>
-                    </>
-                  )}
-                  <Text style={[styles.column, styles.column5]}>
+                  <Text
+                    style={[
+                      styles.column,
+                      props.isDesigner ? styles.column3 : styles.alignRight,
+                    ]}
+                  >
                     {currency}
                     {formatCurrencyValue(total)}
                   </Text>
+                  {props.isDesigner && (
+                    <>
+                      <Text style={[styles.column, styles.column4]}>
+                        {currency}
+                        {formatCurrencyValue(commission)}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.column,
+                          styles.column5,
+                          styles.successText,
+                        ]}
+                      >
+                        {currency}
+                        {formatCurrencyValue(price)}
+                      </Text>
+                    </>
+                  )}
                 </View>
               );
             })}
@@ -322,17 +343,18 @@ const Invoice = (props: InvoiceProps) => {
             {props.isDesigner && (
               <>
                 <View style={styles.dateWrapper}>
+                  <Text>TOTAL PRICE</Text>
+                  <Text>
+                    {currency}
+                    {formatCurrencyValue(props?.project?.approvedBudget)}
+                  </Text>
+                </View>
+
+                <View style={styles.dateWrapper}>
                   <Text>COMMISSION (17%)</Text>
                   <Text>
                     {currency}
                     {formatCurrencyValue(totalCommission)}
-                  </Text>
-                </View>
-                <View style={styles.dateWrapper}>
-                  <Text>SUB TOTAL</Text>
-                  <Text>
-                    {currency}
-                    {formatCurrencyValue(baseSubTotal)}
                   </Text>
                 </View>
               </>
@@ -346,11 +368,13 @@ const Invoice = (props: InvoiceProps) => {
               ]}
             >
               <Text style={[styles.fontBold, { marginBottom: 2 }]}>
-                TOTAL AMOUNT
+                {props.isDesigner ? "TOTAL EARNINGS" : "TOTAL AMOUNT"}
               </Text>
               <Text style={[styles.headerTitle, styles.primaryText]}>
                 {currency}
-                {formatCurrencyValue(props?.project?.approvedBudget)}
+                {props.isDesigner
+                  ? formatCurrencyValue(baseSubTotal)
+                  : formatCurrencyValue(props?.project?.approvedBudget)}
               </Text>
             </View>
           </View>
@@ -367,7 +391,7 @@ const Invoice = (props: InvoiceProps) => {
 };
 
 export const InvoiceButton = (
-  props: { className?: string; noFullWidth?: boolean } & InvoiceProps
+  props: { className?: string; noFullWidth?: boolean } & InvoiceProps,
 ) => {
   if (!props.project || !props.milestones)
     return <Skeleton className="h-12 w-full rounded-sm" />;
@@ -382,7 +406,7 @@ export const InvoiceButton = (
             className={cn(
               "h-12 rounded-sm",
               !props.noFullWidth && " w-full",
-              props.className
+              props.className,
             )}
           />
         ) : (

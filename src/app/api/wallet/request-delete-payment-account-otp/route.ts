@@ -10,7 +10,7 @@ export const POST = async (req: NextRequest) => {
     const response = await customAxios.post<
       unknown,
       AxiosResponse<SingleApiResponse, unknown>
-    >(`/wallet/request-delete-stripe-account-otp`);
+    >(`/wallet/request-delete-payment-account-otp`);
 
     return NextResponse.json(response.data);
   } catch (error) {

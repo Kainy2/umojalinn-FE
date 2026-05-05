@@ -53,7 +53,10 @@ import {
   UmojaLinnBankVerified,
   UmojaLinnConnectStripeAccount,
   TAddPaymentAddressPayload,
-  TDeleteStripeConnectedAccountPayload,
+  TDeletePaymentAccountPayload,
+  TVerifyNgnAccountPayload,
+  TAddNgnBankAccountPayload,
+  TRequestWithdrawalPayload,
 } from "@/types/project";
 import {
   GenericUseMutationProps,
@@ -76,15 +79,6 @@ import {
   WITHDRAWAL_METHODS,
   PAYMENT_ACCOUNT_INFO,
 } from "../keys";
-import {
-  // CreateWithdrawalMethodPayload,
-  // DirectTransferPayload,
-  // PaypalPayload,
-  RequestWithdrawalPayload,
-  // SetDefaultWithdrawalMethodPayload,
-  VerifyNgnAccountPayload,
-  AddNgnBankAccounyPaylod,
-} from "@/section/form/withdraw/WithdrawalAmount";
 import { getUserReviews, UserReviewsApiProps } from "@/actions/user";
 
 export const useInviteBuyer = (
@@ -487,7 +481,7 @@ export const useGetPaymentAccountInfo = (
 export const useVerifyNgnAccount = (
   options?: GenericUseMutationProps<
     SingleApiResponse<UmojaLinnBankVerified>,
-    VerifyNgnAccountPayload
+    TVerifyNgnAccountPayload
   >,
 ) => {
   const { handleError } = useHandleError("Verify Ngn Account");
@@ -507,7 +501,10 @@ export const useVerifyNgnAccount = (
   });
 };
 export const useAddNgnAccount = (
-  options?: GenericUseMutationProps<SingleApiResponse, AddNgnBankAccounyPaylod>,
+  options?: GenericUseMutationProps<
+    SingleApiResponse,
+    TAddNgnBankAccountPayload
+  >,
 ) => {
   const { handleError } = useHandleError("Add Ngn Account");
   return useMutation({
@@ -516,6 +513,9 @@ export const useAddNgnAccount = (
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: [PROJECT, WALLET, WITHDRAWAL_METHODS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [PROJECT, WALLET, PAYMENT_ACCOUNT_INFO],
       });
       options?.onSuccess?.(data, variables, context);
     },
@@ -634,10 +634,10 @@ export const useRequestWithdrawOtp = (
 export const useDeleteStripeConnectedAccount = (
   options?: GenericUseMutationProps<
     SingleApiResponse,
-    TDeleteStripeConnectedAccountPayload
+    TDeletePaymentAccountPayload
   >,
 ) => {
-  const { handleError } = useHandleError("Disconnect Stripe");
+  const { handleError } = useHandleError("Delete payment account");
   return useMutation({
     ...options,
     mutationFn: (variables) => deleteStripeConnectedAccount(variables),
@@ -684,7 +684,7 @@ export const useDeleteWithdrawalMethod = (
 export const useRequestWithdrawal = (
   options?: GenericUseMutationProps<
     SingleApiResponse,
-    RequestWithdrawalPayload
+    TRequestWithdrawalPayload
   >,
 ) => {
   const { handleError } = useHandleError("Request Withdrawal");

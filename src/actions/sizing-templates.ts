@@ -39,7 +39,7 @@ export const updateSizingTemplate = async (
   return axios.put<
     unknown,
     AxiosResponse<SingleApiResponse<UmojaLinnSizingTemplate>>
-  >(`/sizing-template/${id}/update`, body);
+  >(`/sizing-template/${base62ToUuidSafe(id)}/update`, body);
 };
 
 export const getSizingTemplates = async (

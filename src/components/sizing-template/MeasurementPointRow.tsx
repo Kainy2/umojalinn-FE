@@ -58,6 +58,14 @@ const MeasurementPointRow = forwardRef<
   const [showAddCommentModal, setShowAddCommentModal] = useState(false);
   const [showDeleteCommentModal, setShowDeleteCommentModal] = useState(false);
 
+  const isDesignerZeroRowDimmed =
+    props.isDesigner &&
+    !props.recommendMode &&
+    !props.isNewlyUpdated &&
+    (props.value ?? 0) === 0;
+
+  const isRowDimmed = !!props.isPendingBuyerReply || isDesignerZeroRowDimmed;
+
   const handleCommentClick = (e: React.MouseEvent) => {
     e.stopPropagation();
 
@@ -81,10 +89,10 @@ const MeasurementPointRow = forwardRef<
             : "cursor-pointer hover:scale-[1.01]",
           props.highlighted
             ? "bg-white border-primary shadow-sm scale-[1.01]"
-            : props.isPendingBuyerReply
-              ? "bg-gray-50/50  border-gray-200 opacity-60 cursor-default"
-              : props.isNewlyUpdated
-                ? "bg-green-50 border-green-200 shadow-sm"
+            : props.isNewlyUpdated
+              ? "bg-green-50 border-green-200 shadow-sm"
+              : isRowDimmed
+                ? "bg-gray-50/50  border-gray-200 opacity-60 cursor-default"
                 : "bg-white border border-gray-200 cursor-pointer hover:shadow-sm",
         )}
       >
@@ -130,9 +138,7 @@ const MeasurementPointRow = forwardRef<
                   className={cn(
                     "text-right pr-10",
                     props.unit === "INCH" && "pr-14",
-                    props.isPendingBuyerReply
-                      ? "text-gray-300"
-                      : "text-gray-500",
+                    isRowDimmed ? "text-gray-300" : "text-gray-500",
                   )}
                 >
                   {props.value || 0}
@@ -162,7 +168,7 @@ const MeasurementPointRow = forwardRef<
               <div
                 className={cn(
                   "absolute inset-y-0 right-0 top-0.5 flex items-center pr-4 pointer-events-none text-xs",
-                  props.isPendingBuyerReply ? "text-gray-300" : "text-gray-500",
+                  isRowDimmed ? "text-gray-300" : "text-gray-500",
                 )}
               >
                 {props.unit}
@@ -238,9 +244,7 @@ const MeasurementPointRow = forwardRef<
         <Dialog>
           <DialogTrigger asChild>
             <button
-              className={cn(
-                props.isPendingBuyerReply ? "text-gray-300" : "text-primary",
-              )}
+              className={cn(isRowDimmed ? "text-gray-300" : "text-primary")}
             >
               {!!props.metadata.review ? (
                 <div className="size-8 rounded-lg border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 transition-colors shadow-sm">

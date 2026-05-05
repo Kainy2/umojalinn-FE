@@ -12,7 +12,7 @@ export const DELETE = async (req: NextRequest) => {
     const response = await customAxios.delete<
       unknown,
       AxiosResponse<SingleApiResponse, unknown>
-    >(`/wallet/stripe-connected-account`, { data: body });
+    >(`/wallet/payment-account`, { data: body });
 
     return NextResponse.json(response.data);
   } catch (error) {

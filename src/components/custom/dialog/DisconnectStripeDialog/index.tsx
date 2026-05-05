@@ -33,6 +33,7 @@ const defaultValues: TStripeDisconnectOtpFormValues = {
 export const DisconnectStripeDialog = ({
   open,
   onOpenChange,
+  provider,
 }: IDisconnectStripeDialogProps) => {
   const { toast } = useToast();
   const otpRequestedForOpenCycleRef = useRef(false);
@@ -49,7 +50,10 @@ export const DisconnectStripeDialog = ({
     useDeleteStripeConnectedAccount({
       onSuccess: () => {
         toast({
-          description: "Your Stripe account has been disconnected.",
+          description:
+            provider === "STRIPE"
+              ? "Your Stripe account has been disconnected."
+              : "Your Paystack account has been disconnected.",
         });
         form.reset(defaultValues);
         otpRequestedForOpenCycleRef.current = false;
@@ -73,7 +77,7 @@ export const DisconnectStripeDialog = ({
   }, [open, form, requestOtp]);
 
   const onSubmit = (values: TStripeDisconnectOtpFormValues) => {
-    disconnectStripe({ otp: values.otp.trim() });
+    disconnectStripe({ otp: values.otp.trim(), provider });
   };
 
   const pending = isRequestingOtp || isDisconnecting;
@@ -82,11 +86,17 @@ export const DisconnectStripeDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-left">Disconnect Stripe</DialogTitle>
+          <DialogTitle className="text-left">
+            {provider === "STRIPE"
+              ? "Disconnect Stripe"
+              : "Disconnect Paystack"}
+          </DialogTitle>
           <DialogDescription className="text-left">
             {isRequestingOtp
               ? "Sending a verification code to your email…"
-              : "Enter the verification code we sent to confirm disconnecting your Stripe account."}
+              : provider === "STRIPE"
+                ? "Enter the verification code we sent to confirm disconnecting your Stripe account."
+                : "Enter the verification code we sent to confirm disconnecting your Paystack account."}
           </DialogDescription>
         </DialogHeader>
 
@@ -130,7 +140,11 @@ export const DisconnectStripeDialog = ({
                 variant="destructive"
                 disabled={pending || isRequestingOtp}
               >
-                {isDisconnecting ? "Disconnecting…" : "Disconnect Stripe"}
+                {isDisconnecting
+                  ? "Disconnecting…"
+                  : provider === "STRIPE"
+                    ? "Disconnect Stripe"
+                    : "Disconnect Paystack"}
               </Button>
             </DialogFooter>
           </form>

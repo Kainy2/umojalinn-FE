@@ -139,11 +139,26 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
 
   useEffect(() => {
     if (!recommendationMode) return;
+    const reviews = sizingTemplateResult?.metadata?.reviews;
+    const propsWithExistingReviews = reviews
+      ? Object.entries(reviews)
+          .filter(([, text]) => !!text)
+          .map(([key]) => key)
+      : [];
+
     setSelectedMeasurements((prev) => {
-      const merged = new Set([...requestedMeasurementPoints, ...prev]);
+      const merged = new Set([
+        ...requestedMeasurementPoints,
+        ...propsWithExistingReviews,
+        ...prev,
+      ]);
       return Array.from(merged);
     });
-  }, [recommendationMode, requestedMeasurementPoints]);
+  }, [
+    recommendationMode,
+    requestedMeasurementPoints,
+    sizingTemplateResult?.metadata?.reviews,
+  ]);
 
   // Reminder mutation
   const { mutate: sendReminder } = useSendSizingTemplateReminder(
@@ -204,12 +219,29 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
 
   const handleAddComment = (prop: string, comment: string) =>
     setMeasurementComments((prev) => ({ ...prev, [prop]: comment }));
+  /** Empty string = user removed a comment; merge logic treats that as overriding server state. */
   const handleDeleteComment = (prop: string) =>
-    setMeasurementComments((prev) => {
-      const c = { ...prev };
-      delete c[prop];
-      return c;
-    });
+    setMeasurementComments((prev) => ({ ...prev, [prop]: "" }));
+
+  const getEffectiveReviewForProp = (prop: string) =>
+    prop in measurementComments
+      ? measurementComments[prop]
+      : (sizingTemplateResult?.metadata?.reviews as Record<string, string> | undefined)?.[
+          prop
+        ] ?? "";
+
+  const buildMergedReviewsPayload = (): Record<string, string> => {
+    const server = (sizingTemplateResult?.metadata?.reviews ?? {}) as Record<
+      string,
+      string
+    >;
+    const merged: Record<string, string> = { ...server };
+    for (const [prop, text] of Object.entries(measurementComments)) {
+      if (text === "") delete merged[prop];
+      else merged[prop] = text;
+    }
+    return merged;
+  };
 
   const {
     mutateAsync: requestMeasurementPointsAsync,
@@ -236,10 +268,9 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
       });
     }
 
-    // Send updated reviews when there are comments, or clear reviews by sending
-    // an empty object when all previously existing comments were removed.
+    // Send merged reviews (server + local edits/deletes) so untouched comments persist.
     if (hasNewComments || hasExistingReviews) {
-      requestChangeOnSizingTemplate(measurementComments);
+      requestChangeOnSizingTemplate(buildMergedReviewsPayload());
     } else {
       // If we only requested new points, we should still close the mode
       setRecommendationMode(false);
@@ -543,8 +574,8 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                             recommendMode: true,
                             selected: selectedMeasurements.includes(item.prop),
                             onSelect: () => handleSelectMeasurement(item.prop),
-                            hasComment: !!measurementComments[item.prop],
-                            comment: measurementComments[item.prop],
+                            hasComment: !!getEffectiveReviewForProp(item.prop),
+                            comment: getEffectiveReviewForProp(item.prop),
                             onAddComment: (comment: string) =>
                               handleAddComment(item.prop, comment),
                             onDeleteComment: () =>
@@ -602,14 +633,8 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                   previewImage={previewImage}
                   highlightedMeasurementName={highlightedSizingName}
                   review={
-                    highlighted &&
-                    (measurementComments[highlighted] ||
-                      sizingTemplateResult?.metadata?.reviews?.[highlighted])
-                      ? measurementComments[highlighted] ||
-                        sizingTemplateResult?.metadata?.reviews?.[
-                          highlighted
-                        ] ||
-                        ""
+                    highlighted
+                      ? getEffectiveReviewForProp(highlighted) || undefined
                       : undefined
                   }
                   className=""
@@ -878,7 +903,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                   />
                 )}
                 <ActionButtons
-                  onSave={() => handleSubmit(true)}
+                  onSave={() => handleSubmit()}
                   onSubmit={() => handleSubmit(true)}
                   loading={loading}
                   showSave={isEditable && !props.disableSaving}
