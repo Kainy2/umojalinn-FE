@@ -1,20 +1,16 @@
 "use client";
-import CustomCheckbox from "@/components/custom/Checkbox";
-import FormItemWrapper from "@/components/custom/FormItemWrapper";
+import AddNairaAccountForm from "@/components/custom/wallet/AddNairaAccountForm";
 import TextField from "@/components/custom/input/TextField";
-import CustomReactSelect from "@/components/custom/ReactSelect";
 import Bank from "@/icons/Bank";
 import NairaSign from "@/icons/NairaSign";
 import GbpSign from "@/icons/GbpSign";
 import CadSign from "@/icons/CadSign";
 import { UmojaLinnCurrency } from "@/types/project";
-import { Euro, MessageSquareWarning, DollarSign } from "lucide-react";
+import { Euro, DollarSign } from "lucide-react";
 import React, { useMemo, useState } from "react";
 import {
   useGetListNgnBanks,
   useGetPaymentAccountInfo,
-  useVerifyNgnAccount,
-  useAddNgnAccount,
   useRequestWithdrawal,
   useConnectStripeAccount,
   useRequestWithdrawOtp,
@@ -35,22 +31,6 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 
-export type VerifyNgnAccountPayload = {
-  bankCode: string;
-  accountNumber: string;
-};
-export type AddNgnBankAccounyPaylod = {
-  accountNumber: string;
-  bankCode: string;
-  accountName: string;
-};
-
-export type RequestWithdrawalPayload = {
-  currency: UmojaLinnCurrency;
-  amount: number;
-  otp: string;
-};
-
 const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
   const { currency } = props;
   const router = useRouter();
@@ -65,21 +45,9 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
     isPending: isLoadingAccount,
     isFetching,
   } = useGetPaymentAccountInfo();
-  const { data: ngnBanksData, isPending: loadingNgnBanks } = useGetListNgnBanks(
-    {
-      enabled: currency === "NAIRA",
-    },
-  );
-  const { mutate: verifyNgnAccount, isPending: isVerifying } =
-    useVerifyNgnAccount();
-  const { mutate: addNgnAccount, isPending: isAddingAccount } =
-    useAddNgnAccount({
-      onSuccess: () => {
-        toast({ description: "Bank account added successfully!" });
-        router.push("/wallet");
-      },
-    });
-
+  const { data: ngnBanksData } = useGetListNgnBanks({
+    enabled: currency === "NAIRA",
+  });
   const { mutate: requestWithdrawal, isPending: isRequestingWithdrawal } =
     useRequestWithdrawal({
       onSuccess: () => {
@@ -107,12 +75,7 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
       },
     });
 
-  // State for NGN Form
-  const [bankCode, setBankCode] = useState<string>("");
-  const [accountNumber, setAccountNumber] = useState<string>("");
-  const [verifiedName, setVerifiedName] = useState<string>("");
   const [isEditing, setIsEditing] = useState(false);
-  const [agree, setAgree] = useState(false); // Checkbox agreement state
 
   // Find the account relevant to the current currency
   const paymentAccount = useMemo(() => {
@@ -124,11 +87,6 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
     return accounts.find((a) => !!a.stripeAccountId) ?? null;
   }, [paymentAccountData, currency]);
 
-  // Helper to find bank name from code
-  const getBankName = (code: string) => {
-    return ngnBanksData?.data?.data?.find((b) => b.code === code)?.name || code;
-  };
-
   const hasActiveAccount = useMemo(() => {
     if (!paymentAccount) return false;
     if (currency === "NAIRA") {
@@ -136,6 +94,10 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
     }
     return !!paymentAccount.stripePayoutsEnabled;
   }, [paymentAccount, currency]);
+
+  const getBankName = (code: string) => {
+    return ngnBanksData?.data?.data?.find((b) => b.code === code)?.name || code;
+  };
 
   const getCurrencyDisplay = (curr: UmojaLinnCurrency) => {
     switch (curr) {
@@ -146,36 +108,6 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
       default:
         return curr;
     }
-  };
-
-  const handleAutoVerify = (code: string, accNum: string) => {
-    if (!code || accNum.length !== 10) return;
-
-    verifyNgnAccount(
-      { bankCode: code, accountNumber: accNum },
-      {
-        onSuccess: (data) => {
-          setVerifiedName(data.data.data.accountName);
-          toast({ description: "Account verified!" });
-        },
-        onError: () => {
-          setVerifiedName("");
-          toast({
-            variant: "destructive",
-            description: "Could not verify account.",
-          });
-        },
-      },
-    );
-  };
-
-  const handleSaveAccount = () => {
-    if (!bankCode || !accountNumber || !verifiedName) return;
-    addNgnAccount({
-      bankCode,
-      accountNumber,
-      accountName: verifiedName,
-    });
   };
 
   // Logic to determine what to render
@@ -261,141 +193,13 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
           </p>
         </div>
       ) : currency === "NAIRA" ? (
-        <FormItemWrapper
-          title={isEditing ? "Edit Bank Details" : "Add Bank Details"}
-          description={`Add a ${capitalizeFirstLetter(currency.toLowerCase())} receiving account`}
-        >
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col space-y-2">
-              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                Account Holder
-              </label>
-              <TextField
-                placeholder="Account name"
-                value={verifiedName} // READ-ONLY: Populated by verification
-                readOnly
-                disabled
-                className="bg-gray-50 text-gray-500 cursor-not-allowed"
-              />
-            </div>
-
-            <div className="flex flex-col space-y-2">
-              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                Bank Name
-              </label>
-              <CustomReactSelect
-                placeholder="Name of bank"
-                options={
-                  ngnBanksData?.data?.data?.map((b) => ({
-                    label: b.name,
-                    value: b.code,
-                  })) || []
-                }
-                isLoading={loadingNgnBanks}
-                onChange={(opt: unknown) => {
-                  const typedValue = opt as {
-                    value: string;
-                    label: string;
-                  };
-                  setBankCode(typedValue?.value);
-                  setVerifiedName("");
-                  // Trigger verification if account number is already valid
-                  if (accountNumber.length === 10) {
-                    handleAutoVerify(typedValue?.value, accountNumber);
-                  }
-                }}
-                value={
-                  bankCode
-                    ? { label: getBankName(bankCode), value: bankCode }
-                    : null
-                }
-                startAdornment={<Bank className="size-5 text-gray-400" />}
-              />
-            </div>
-
-            <div className="flex flex-col space-y-2">
-              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                Account Number
-              </label>
-              <TextField
-                placeholder="Account number"
-                value={accountNumber}
-                disabled={isVerifying}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setAccountNumber(val);
-                  setVerifiedName(""); // Reset verification if number changes
-
-                  if (val.length === 10 && bankCode) {
-                    handleAutoVerify(bankCode, val);
-                  }
-                }}
-              />
-            </div>
-
-            {/* Hint Text */}
-            <p className="text-xs text-gray-500">
-              This is a hint text to help user.
-            </p>
-
-            {/* Verification Warning / Checkbox Zone */}
-            <div className="bg-error-50/70 border-2 border-error/50 rounded-lg p-4">
-              <div className="flex gap-2 mb-4">
-                <span className="icon-wrapper error text-error">
-                  <MessageSquareWarning className="size-5" />
-                </span>
-                <div className="text-error text-sm">
-                  <p className="font-semibold">
-                    Double check - your account details
-                  </p>
-                  <p>
-                    Incorrect and mismatched name and number can result in
-                    failed withdrawals and delays
-                  </p>
-                </div>
-              </div>
-
-              {/* Checkbox only enabled if verified? Or always there? 
-                                Legacy logic usually requires user to check this before saving.
-                            */}
-              {verifiedName && (
-                <div className="p-4 border-2 bg-gray-50 rounded-sm">
-                  <CustomCheckbox
-                    checked={agree}
-                    onCheckedChange={(e: boolean) => setAgree(e)}
-                    label={{
-                      children: (
-                        <span className="text-sm">
-                          I attest that i am the owner and i have full
-                          authorizations to this bank account
-                        </span>
-                      ),
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-2 justify-end mt-4">
-              {isEditing && (
-                <Button variant="ghost" onClick={() => setIsEditing(false)}>
-                  Cancel
-                </Button>
-              )}
-
-              {verifiedName && (
-                <Button
-                  disabled={!verifiedName || isAddingAccount || !agree} // Require agreement
-                  onClick={handleSaveAccount}
-                  className="w-full sm:w-auto"
-                >
-                  {isAddingAccount ? "Saving..." : "Save Bank Details"}
-                </Button>
-              )}
-            </div>
-          </div>
-        </FormItemWrapper>
+        <AddNairaAccountForm
+          formTitle={isEditing ? "Edit Bank Details" : "Add Bank Details"}
+          formDescription={`Add a ${capitalizeFirstLetter(currency.toLowerCase())} receiving account`}
+          showCancelButton={isEditing}
+          onCancel={() => setIsEditing(false)}
+          onAddSuccess={() => router.push("/wallet")}
+        />
       ) : (
         <div className="flex flex-col gap-6">
           <div>

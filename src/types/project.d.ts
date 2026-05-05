@@ -436,6 +436,25 @@ export type UmojaLinnNgnBank = {
   code: string;
 };
 
+/** POST verify NGN bank account */
+export type TVerifyNgnAccountPayload = {
+  bankCode: string;
+  accountNumber: string;
+};
+
+/** POST add NGN bank account */
+export type TAddNgnBankAccountPayload = {
+  accountNumber: string;
+  bankCode: string;
+  accountName: string;
+};
+
+export type TRequestWithdrawalPayload = {
+  currency: UmojaLinnCurrency;
+  amount: number;
+  otp: string;
+};
+
 /** Payout address on payment account from GET /wallet/payment-account-info */
 export type UmojaLinnPaymentAccountPayoutAddress = {
   id: string;
@@ -487,6 +506,13 @@ export type TAddPaymentAddressPayload = {
 };
 
 /** DELETE /wallet/stripe-connected-account */
-export type TDeleteStripeConnectedAccountPayload = {
+export type TPaymentAccountProvider = "STRIPE" | "PAYSTACK";
+
+/** DELETE /wallet/payment-account */
+export type TDeletePaymentAccountPayload = {
   otp: string;
+  provider: TPaymentAccountProvider;
 };
+
+/** @deprecated use TDeletePaymentAccountPayload */
+export type TDeleteStripeConnectedAccountPayload = TDeletePaymentAccountPayload;
