@@ -18,17 +18,14 @@ import { SingleApiResponse } from "@/types/util";
 import { UmojaLinnSubmitBidResponse } from "@/types/project";
 import { AxiosResponse } from "axios";
 
-
 const MILESTONE_TEMPLATE = {
-	title: "",
-	description: "",
-	price: 0,
+  title: "",
+  description: "",
+  price: 0,
 };
 
-
 export const useBidEdit = () => {
-	
-const { id } = useParams<{ id: string }>();
+  const { id } = useParams<{ id: string }>();
   const [milestones, setMilestones] = useState<
     {
       id?: string;
@@ -41,13 +38,14 @@ const { id } = useParams<{ id: string }>();
   const [deliveryMilestonePrice, setDeliveryMilestonePrice] = useState(0);
   const [deliveryMethod, setDeliveryMethod] =
     useState<UmojaLinnDeliveryMethod | null>(null);
-  const [selectedDeliveryMethodType, setSelectedDeliveryMethodType] = 
-  useState<EDeliveryMileStoneType>(EDeliveryMileStoneType.FIXED);
+  const [selectedDeliveryMethodType, setSelectedDeliveryMethodType] =
+    useState<EDeliveryMileStoneType>(EDeliveryMileStoneType.FIXED);
   const [showStripeModal, setShowStripeModal] = useState(false);
-  const [paymentStatus, setPaymentStatus] = useState<UmojaLinnSubmitBidResponse>({
-    paymentAccountConnected: false,
-    paymentAccountOnboarded: false,
-  });
+  const [paymentStatus, setPaymentStatus] =
+    useState<UmojaLinnSubmitBidResponse>({
+      paymentAccountConnected: false,
+      paymentAccountOnboarded: false,
+    });
 
   // const { data: meData } = useGetMe();
 
@@ -66,7 +64,7 @@ const { id } = useParams<{ id: string }>();
           description: milestone?.description || "",
           price: milestone?.amount || 0,
           id: milestone?.id,
-        }))
+        })),
       );
       setEditing(null);
     }
@@ -80,31 +78,36 @@ const { id } = useParams<{ id: string }>();
       setNote(bid?.additionalNotesToClient);
       setAddNote(true);
     }
-    if (bid?.deliveryMilestone.deliveryMileStoneType){
-      setSelectedDeliveryMethodType(bid.deliveryMilestone.deliveryMileStoneType);
+    if (bid?.deliveryMilestone.deliveryMileStoneType) {
+      setSelectedDeliveryMethodType(
+        bid.deliveryMilestone.deliveryMileStoneType,
+      );
     }
   }, [bid]);
 
-  const { mutate: createMilestone, isPending: isPendingCreateBid } = useCreateMilestone(id, {
-    onSuccess: () => {
-      setEditing(null);
-    },
-  });
+  const { mutate: createMilestone, isPending: isPendingCreateBid } =
+    useCreateMilestone(id, {
+      onSuccess: () => {
+        setEditing(null);
+      },
+    });
 
-  const { mutate: updateMilestone, isPending: isPendingUpdateBid } = useUpdateMilestone({
-    onSuccess: () => {
-      setEditing(null);
-    },
-  });
+  const { mutate: updateMilestone, isPending: isPendingUpdateBid } =
+    useUpdateMilestone({
+      onSuccess: () => {
+        setEditing(null);
+      },
+    });
 
-  const { mutate: deleteMilestone, isPending: isPendingDelete } = useDeleteMilestone({
-    onSuccess: () => {
-      setMilestones((milestones) =>
-        milestones?.length === 1 ? [] : milestones
-      );
-      setEditing(null);
-    },
-  });
+  const { mutate: deleteMilestone, isPending: isPendingDelete } =
+    useDeleteMilestone({
+      onSuccess: () => {
+        setMilestones((milestones) =>
+          milestones?.length === 1 ? [] : milestones,
+        );
+        setEditing(null);
+      },
+    });
 
   const { mutate: updateBid, isPending: isUpdatingBid } = useUpdateBid(id, {
     onSuccess() {
@@ -118,8 +121,10 @@ const { id } = useParams<{ id: string }>();
 
   // Called after last update
   const { mutate: submitBid, isPending: isSubmittingBid } = useSubmitBid(id, {
-    onSuccess(data: AxiosResponse<SingleApiResponse<UmojaLinnSubmitBidResponse>>) {
-      console.log(data)
+    onSuccess(
+      data: AxiosResponse<SingleApiResponse<UmojaLinnSubmitBidResponse>>,
+    ) {
+      console.log(data);
       toast({
         title: "Bid Live",
         description: "Your bid has been published successfully.",
@@ -135,29 +140,37 @@ const { id } = useParams<{ id: string }>();
     },
   });
 
-  const { mutate: getAccountStatus, isPending: isCheckingAccountStatus } = useGetProjectAccountConnectionStatus({
-    onSuccess: (data) => {
-      const { paymentAccountConnected, paymentAccountOnboarded } = data.data.data || {};
-      if (paymentAccountConnected === false || paymentAccountOnboarded === false) {
-        setPaymentStatus({ paymentAccountConnected, paymentAccountOnboarded });
-        setShowStripeModal(true);
-      } else {
-        updateToSubmit({
-          additionalNote: addNote ? note : undefined,
-          deliveryAmount: deliveryMilestonePrice,
-          deliveryMethod: deliveryMethod || undefined,
-          deliveryMileStoneType: selectedDeliveryMethodType
-        });
-      }
-    }
-  });
+  const { mutate: getAccountStatus, isPending: isCheckingAccountStatus } =
+    useGetProjectAccountConnectionStatus({
+      onSuccess: (data) => {
+        const { paymentAccountConnected, paymentAccountOnboarded } =
+          data.data.data || {};
+        if (
+          paymentAccountConnected === false ||
+          paymentAccountOnboarded === false
+        ) {
+          setPaymentStatus({
+            paymentAccountConnected,
+            paymentAccountOnboarded,
+          });
+          setShowStripeModal(true);
+        } else {
+          updateToSubmit({
+            additionalNote: addNote ? note : undefined,
+            deliveryAmount: Number(deliveryMilestonePrice),
+            deliveryMethod: deliveryMethod || undefined,
+            deliveryMileStoneType: selectedDeliveryMethodType,
+          });
+        }
+      },
+    });
 
   const handleFinalSubmit = () => {
     updateToSubmit({
       additionalNote: addNote ? note : undefined,
-      deliveryAmount: deliveryMilestonePrice,
+      deliveryAmount: Number(deliveryMilestonePrice),
       deliveryMethod: deliveryMethod || undefined,
-      deliveryMileStoneType: selectedDeliveryMethodType
+      deliveryMileStoneType: selectedDeliveryMethodType,
     });
     setShowStripeModal(false);
   };
@@ -191,9 +204,9 @@ const { id } = useParams<{ id: string }>();
       case "UPDATE":
         updateBid({
           additionalNote: addNote ? note : undefined,
-          deliveryAmount: deliveryMilestonePrice,
+          deliveryAmount: Number(deliveryMilestonePrice),
           deliveryMethod: deliveryMethod || undefined,
-          deliveryMileStoneType: selectedDeliveryMethodType
+          deliveryMileStoneType: selectedDeliveryMethodType,
         });
         break;
       case "LIVE":
@@ -205,31 +218,31 @@ const { id } = useParams<{ id: string }>();
   };
 
   const handleUpdate = (mode: "UPDATE" | "LIVE" | null) => {
-    const isCompleteForm = milestones.every((milestone) => (
-      milestone?.title &&
-      milestone?.description
-    ))
-    
+    const isCompleteForm = milestones.every(
+      (milestone) => milestone?.title && milestone?.description,
+    );
+
     if (!isCompleteForm) {
       toast({
         variant: "destructive",
         title: "Submission Error",
-        description: "you have unsaved edits to your milestone. Please review and save or cancel before submitting.",
-      })
-      return
+        description:
+          "you have unsaved edits to your milestone. Please review and save or cancel before submitting.",
+      });
+      return;
     }
 
-		// if (mode === "LIVE") {
-		// 	const canSubmit = isCompleteForm && deliveryMilestonePrice && deliveryMethod && milestones.length > 0
-		// 	if (!canSubmit) {
-		// 		toast({
-		// 			variant: "destructive",
-		// 			title: "Submission Error",
-		// 			description: "At least One Milestone + Delivery Method must be filled before submitting",
-		// 		})
-		// 		return
-		// 	}
-		// }
+    // if (mode === "LIVE") {
+    // 	const canSubmit = isCompleteForm && deliveryMilestonePrice && deliveryMethod && milestones.length > 0
+    // 	if (!canSubmit) {
+    // 		toast({
+    // 			variant: "destructive",
+    // 			title: "Submission Error",
+    // 			description: "At least One Milestone + Delivery Method must be filled before submitting",
+    // 		})
+    // 		return
+    // 	}
+    // }
 
     if (
       typeof bid?.project?.budget === "number" &&
@@ -244,29 +257,29 @@ const { id } = useParams<{ id: string }>();
     }
   };
 
-	const handleCancel = (index:number) => {
-		handleToggle(index)();
-		setMilestones((prev) => {
-			const currentMilestone = prev[index];
-			if (currentMilestone?.id) {
-				// if milestone has been saved on db already, get old milestone before edit and replace
-				const oldMilestone = bid?.milestones?.find(
-					(milestone) => milestone?.id === currentMilestone.id
-				);
-				return prev.map((milestone, i) =>
-					i === index
-						? {
-								...currentMilestone,
-								title: oldMilestone?.title ?? "",
-								description: oldMilestone?.description ?? "",
-								price: oldMilestone?.amount ?? 0,
-						  }
-						: milestone
-				);
-			}
-			return prev.filter((_, i) => i !== index);
-		});
-	}
+  const handleCancel = (index: number) => {
+    handleToggle(index)();
+    setMilestones((prev) => {
+      const currentMilestone = prev[index];
+      if (currentMilestone?.id) {
+        // if milestone has been saved on db already, get old milestone before edit and replace
+        const oldMilestone = bid?.milestones?.find(
+          (milestone) => milestone?.id === currentMilestone.id,
+        );
+        return prev.map((milestone, i) =>
+          i === index
+            ? {
+                ...currentMilestone,
+                title: oldMilestone?.title ?? "",
+                description: oldMilestone?.description ?? "",
+                price: oldMilestone?.amount ?? 0,
+              }
+            : milestone,
+        );
+      }
+      return prev.filter((_, i) => i !== index);
+    });
+  };
 
   const handleToggle = (index: number) => () =>
     setEditing((prev) => (prev === index ? null : index));
@@ -280,52 +293,53 @@ const { id } = useParams<{ id: string }>();
 
   const totalPrice = useMemo(
     () =>
-      milestones?.reduce((prev, curr) => prev + (curr?.price || 0), 0) +
-      deliveryMilestonePrice,
-    [deliveryMilestonePrice, milestones]
+      milestones?.reduce(
+        (prev, curr) => Number(prev) + (Number(curr?.price) || 0),
+        0,
+      ) + Number(deliveryMilestonePrice),
+    [deliveryMilestonePrice, milestones],
   );
 
   const editMode = ["DRAFT", "REJECTED"].includes(bid?.status || "");
 
-
-	return{
-		bid,
-		project,
-		handleCancel,
-		handleUpdateAction,
-		handleAdd,
-		handleToggle,
-		handleSave,
-		handleUpdate,
-		milestones,
-		totalPrice,
-		addNote,
-		setAddNote,
-		note,
-		setNote,
-		excess,
-		showExcessDialog,
-		setShowExcessDialog,
-		deliveryMethod,
-		setDeliveryMethod,
-		deliveryMilestonePrice,
-		setDeliveryMilestonePrice,
-		mode,
-		editMode,
-		editing,
-		isPending,
-		deleteMilestone,
+  return {
+    bid,
+    project,
+    handleCancel,
+    handleUpdateAction,
+    handleAdd,
+    handleToggle,
+    handleSave,
+    handleUpdate,
+    milestones,
+    totalPrice,
+    addNote,
+    setAddNote,
+    note,
+    setNote,
+    excess,
+    showExcessDialog,
+    setShowExcessDialog,
+    deliveryMethod,
+    setDeliveryMethod,
+    deliveryMilestonePrice,
+    setDeliveryMilestonePrice,
+    mode,
+    editMode,
+    editing,
+    isPending,
+    deleteMilestone,
     isUpdatingBid,
     isSubmittingBid,
     isPendingDelete,
     isPendingUpdateBid,
     isPendingCreateBid,
-    selectedDeliveryMethodType, 
+    selectedDeliveryMethodType,
     setSelectedDeliveryMethodType,
     showStripeModal,
     setShowStripeModal,
     paymentStatus,
     isCheckingAccountStatus,
     handleFinalSubmit,
-	}
-}
+  };
+};

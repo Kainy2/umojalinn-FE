@@ -24,14 +24,15 @@ type EscrowCardProps = {
 const EscrowCard = (props: EscrowCardProps) => {
   const { data: me } = useSession();
   const isDesigner = me?.user?.profileRole === "DESIGNER";
-  const isDesktop = useMediaQuery('md');
-  const totalReleased = useMemo(() => props?.milestones?.reduce?.(
-    (acc, milestone) => {
-      if (milestone?.transactionStatus !== "PAID") return acc;
-      return acc + (milestone?.amount ?? 0);
-    },
-    0
-  ), [props?.milestones]);
+  const isDesktop = useMediaQuery("md");
+  const totalReleased = useMemo(
+    () =>
+      props?.milestones?.reduce?.((acc, milestone) => {
+        if (milestone?.transactionStatus !== "PAID") return acc;
+        return acc + (Number(milestone?.amount) ?? 0);
+      }, 0),
+    [props?.milestones],
+  );
 
   return (
     <div
@@ -52,8 +53,8 @@ const EscrowCard = (props: EscrowCardProps) => {
           value={
             props?.milestones?.filter?.((milestone) =>
               ["PENDING", "ACTIVE", "IN_REVIEW", "APPROVED"].includes(
-                milestone?.status
-              )
+                milestone?.status,
+              ),
             )?.length
           }
         />
@@ -71,11 +72,11 @@ const EscrowCard = (props: EscrowCardProps) => {
               <p
                 className={cn(
                   ["FUNDED", "PAID"].includes(milestone?.transactionStatus) &&
-                    "line-through"
+                    "line-through",
                 )}
               >
                 {getCurrencySymbol(props?.currency)}
-                {formatCurrencyValue(milestone?.amount)}
+                {formatCurrencyValue(Number(milestone?.amount))}
               </p>
             </React.Fragment>
           ))}
@@ -84,19 +85,19 @@ const EscrowCard = (props: EscrowCardProps) => {
           <p className="text-md">Escrow Balance</p>
           <p className="text-md font-semibold">
             {getCurrencySymbol(props?.currency)}
-            {formatCurrencyValue(props.escrowBalance)}
+            {formatCurrencyValue(Number(props.escrowBalance))}
           </p>
           <p className="text-md">Project Price</p>
           <p className="text-md font-semibold">
             {getCurrencySymbol(props?.currency)}
-            {formatCurrencyValue(props.projectPrice)}
+            {formatCurrencyValue(Number(props.projectPrice))}
           </p>
         </div>
-          <InvoiceButton
-            project={props.project}
-            milestones={props.milestones}
-            isDesigner={isDesigner}
-          />
+        <InvoiceButton
+          project={props.project}
+          milestones={props.milestones}
+          isDesigner={isDesigner}
+        />
         <div className="flex gap-2 items-center mt-2">
           <span className="h-6 w-6 shrink-0 bg-error-100 rounded-full flex items-center justify-center text-error">
             <CircleAlert className="h-4 w-4" />
@@ -126,9 +127,8 @@ const EscrowCard = (props: EscrowCardProps) => {
 
 export default EscrowCard;
 
-
-
-{/*
+{
+  /*
 
 
                 <GalleryImages
@@ -210,5 +210,5 @@ export default EscrowCard;
           )}
       </div>   
 
-*/}
-   
+*/
+}

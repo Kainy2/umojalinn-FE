@@ -93,7 +93,7 @@ const PaymentSettingsForm = () => {
     if (hasStartedStripeOnboarding) {
       const onboardingUrl = paymentAccount?.stripeOnboardingUrl;
       if (onboardingUrl) {
-        window.location.href = onboardingUrl;
+        window.open(onboardingUrl, "_blank");
         return;
       }
       connectStripeAccount();
@@ -125,7 +125,7 @@ const PaymentSettingsForm = () => {
 
     const onboardingUrl = paymentAccount?.stripeOnboardingUrl;
     if (onboardingUrl) {
-      window.location.href = onboardingUrl;
+      window.open(onboardingUrl, "_blank");
       return;
     }
 
