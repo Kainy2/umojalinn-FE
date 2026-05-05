@@ -384,8 +384,7 @@ export const useSizingTemplateDialog = (
       ukStandardSize: value.ukStandardSize,
     };
 
-    const canPublish =
-      !props?.id || sizingTemplateResult?.status === "DRAFT";
+    const canPublish = !props?.id || sizingTemplateResult?.status === "DRAFT";
     if (shouldGoLive === true && canPublish) {
       sizingTemplateProps.shouldGoLive = true;
     }

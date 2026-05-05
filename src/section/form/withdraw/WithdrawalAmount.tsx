@@ -61,7 +61,9 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
   const { mutate: requestWithdrawOtp, isPending: isRequestingWithdrawOtp } =
     useRequestWithdrawOtp({
       onSuccess: () => {
-        toast({ description: "A verification code has been sent to your email." });
+        toast({
+          description: "A verification code has been sent to your email.",
+        });
         setWithdrawOtpModalOpen(true);
       },
     });
@@ -173,7 +175,8 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
                 <>
                   <p className="font-semibold">Stripe Account</p>
                   <p className="text-sm text-gray-600">
-                    {paymentAccount?.stripeIban || "N/A"}
+                    {paymentAccount?.stripeIban} •{" "}
+                    {paymentAccount?.stripeBankName}
                   </p>
                   <button
                     onClick={() => setIsEditing(true)}
@@ -214,7 +217,10 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
         </div>
       )}
 
-      <Dialog open={withdrawOtpModalOpen} onOpenChange={setWithdrawOtpModalOpen}>
+      <Dialog
+        open={withdrawOtpModalOpen}
+        onOpenChange={setWithdrawOtpModalOpen}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Confirm withdrawal</DialogTitle>

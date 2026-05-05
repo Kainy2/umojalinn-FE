@@ -2,16 +2,44 @@ import { EDeliveryMileStoneType } from "./enum";
 import { UmojaLinnUser, UmojaLinnUserRoleProfile } from "./user";
 import { UmojaLinnTimestamp } from "./util";
 
-export type UmojaLinnCurrency = "EURO" | "NAIRA" |"USD" | "GBP" | "CAD";
+export type UmojaLinnCurrency = "EURO" | "NAIRA" | "USD" | "GBP" | "CAD";
 
 // Male standard sizes (letter-based)
-export type UmojalinnMaleStandardSize = "XXS" | "XS" | "S" | "M" | "L" | "XL" | "XXL" | "3XL" | "4XL" | "5XL" | "6XL";
+export type UmojalinnMaleStandardSize =
+  | "XXS"
+  | "XS"
+  | "S"
+  | "M"
+  | "L"
+  | "XL"
+  | "XXL"
+  | "3XL"
+  | "4XL"
+  | "5XL"
+  | "6XL";
 
 // Female standard sizes (UK number-based)
-export type UmojalinnFemaleStandardSize = "4" | "6" | "8" | "10" | "12" | "14" | "16" | "18" | "20" | "22" | "24" | "26" | "28" | "30" | "32";
+export type UmojalinnFemaleStandardSize =
+  | "4"
+  | "6"
+  | "8"
+  | "10"
+  | "12"
+  | "14"
+  | "16"
+  | "18"
+  | "20"
+  | "22"
+  | "24"
+  | "26"
+  | "28"
+  | "30"
+  | "32";
 
 // Combined type for backward compatibility
-export type UmojalinnStandardSize = UmojalinnMaleStandardSize | UmojalinnFemaleStandardSize;
+export type UmojalinnStandardSize =
+  | UmojalinnMaleStandardSize
+  | UmojalinnFemaleStandardSize;
 
 export type UmojaLinnSizingTemplateUnit = "CM" | "INCH";
 
@@ -139,15 +167,21 @@ export type UmojaLinnMilestone = {
     | "REJECTED"
     | "APPROVED";
   transactionStatus: "AWAITING_FUND" | "PROCESSING" | "FUNDED" | "PAID";
-  project:{
+  project: {
     fundStatus: "AWAITING_FUND" | "PROCESSING" | "FUNDED";
     buyer: {
-      user: Pick<UmojaLinnUser, "firstName" | "lastName" | "profilePhotoUri" | "address">;
+      user: Pick<
+        UmojaLinnUser,
+        "firstName" | "lastName" | "profilePhotoUri" | "address"
+      >;
     };
     designer: {
-      user: Pick<UmojaLinnUser, "firstName" | "lastName" | "profilePhotoUri" | "address">
+      user: Pick<
+        UmojaLinnUser,
+        "firstName" | "lastName" | "profilePhotoUri" | "address"
+      >;
     };
-  } 
+  };
   projectId: string | null;
   paidOutDate: string | null;
 } & UmojaLinnTimestamp;
@@ -189,7 +223,7 @@ export type UmojaLinnBid = {
 export type UmojaLinnSubmitBidResponse = {
   paymentAccountConnected: boolean;
   paymentAccountOnboarded: boolean;
-}
+};
 
 export type UmojaLinnMaleSizingTemplateProps = {
   neck: number | null;
@@ -277,8 +311,11 @@ export type UmojaLinnSizingTemplate = {
 > &
   UmojaLinnTimestamp;
 
-export type UmojaLinnMilestoneSubmissionStatus = "PENDING" | "APPROVED" | "REJECTED";
-  
+export type UmojaLinnMilestoneSubmissionStatus =
+  | "PENDING"
+  | "APPROVED"
+  | "REJECTED";
+
 export type UmojaLinnMilestoneSubmission = {
   id: string;
   milestoneId: string;
@@ -286,9 +323,9 @@ export type UmojaLinnMilestoneSubmission = {
   images: Array<{
     url: string;
     meta: {
-      fileName: string // eg. "invite.png",
-      fileSize: string // eg. "46.31 KB"
-    }
+      fileName: string; // eg. "invite.png",
+      fileSize: string; // eg. "46.31 KB"
+    };
   }>;
   links: Array<string>;
   deliveryMilestoneId: null | string;
@@ -319,9 +356,9 @@ export type UmojaLinnMediaLink = {
   type: "link" | "media";
   url: string;
   meta: {
-    fileName: string // eg. "invite.png",
-    fileSize: string // eg. "46.31 KB"
-  }
+    fileName: string; // eg. "invite.png",
+    fileSize: string; // eg. "46.31 KB"
+  };
   createdAt: string;
 };
 
@@ -415,20 +452,18 @@ export type NewUmojaLinnProjectReview = {
   projectTitle: string;
   allReviewsSubmitted: boolean;
   reviews: Array<UmojaLinnProjectReview>;
-} 
+};
 
 export type UmojaLinnSpecialistType = {
   id: string;
   name: string;
 } & UmojaLinnTimestamp;
 
-
-export type UmojaLinnPayment ={
-  checkoutUrl: string
-  amount: number
-  currency: UmojaLinnCurrency
-
-}
+export type UmojaLinnPayment = {
+  checkoutUrl: string;
+  amount: number;
+  currency: UmojaLinnCurrency;
+};
 
 export type UmojaLinnNgnBank = {
   id: string;
@@ -479,6 +514,7 @@ export type UmojaLinnPaymentAccountInfo = {
   stripeDetailsSubmitted: boolean;
   stripeRequirements: string | null;
   stripeIban: string | null;
+  stripeBankName: string | null;
   paystackRecipientCode: string;
   paystackStatus: string;
   paystackBankCode: string;
@@ -489,11 +525,11 @@ export type UmojaLinnPaymentAccountInfo = {
 
 export type UmojaLinnBankVerified = {
   accountName: string;
-  accountNumber: string
-}
+  accountNumber: string;
+};
 export type UmojaLinnConnectStripeAccount = {
   onboardingUrl: string;
-  accountId: string
+  accountId: string;
 };
 
 /** POST /wallet/add-payment-address */

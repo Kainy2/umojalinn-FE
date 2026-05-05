@@ -117,6 +117,21 @@ const PaymentSettingsForm = () => {
     setDisconnectStripeDialogOpen(true);
   };
 
+  const handleEditPayoutAccount = () => {
+    if (currency === "NAIRA") {
+      handleOpenDisconnectDialog("PAYSTACK");
+      return;
+    }
+
+    const onboardingUrl = paymentAccount?.stripeOnboardingUrl;
+    if (onboardingUrl) {
+      window.location.href = onboardingUrl;
+      return;
+    }
+
+    handleConnectStripeClick();
+  };
+
   return (
     <div className="flex flex-col gap-10 max-w-7xl">
       {/* Currency Selection */}
@@ -175,23 +190,15 @@ const PaymentSettingsForm = () => {
               <p className="text-sm text-gray-600">
                 {currency === "NAIRA"
                   ? `${getBankName(paymentAccount?.paystackBankCode || "")} • ${paymentAccount?.paystackAccountNumber}`
-                  : paymentAccount?.stripeIban || "Connected"}
+                  : `${paymentAccount?.stripeIban}  • ${paymentAccount?.stripeBankName}`}
               </p>
-              {/* {currency === "NAIRA" ? ( */}
               <button
                 type="button"
-                onClick={() => {
-                  handleOpenDisconnectDialog(
-                    currency === "NAIRA" ? "PAYSTACK" : "STRIPE",
-                  );
-                }}
+                onClick={handleEditPayoutAccount}
                 className="text-primary font-bold text-sm mt-2 hover:underline text-left w-fit"
               >
                 Edit
               </button>
-              {/* ) : ( */}
-
-              {/* )} */}
             </div>
           </div>
         ) : currency === "NAIRA" ? (
@@ -286,6 +293,14 @@ const PaymentSettingsForm = () => {
       />
 
       <Separator className="bg-gray-100" />
+      {/* <Button
+        type="button"
+        onClick={() => handleOpenDisconnectDialog("STRIPE")}
+        className="bg-[#EAAA08] hover:bg-[#EAAA08]/90 text-white font-bold h-12 px-8 flex items-center gap-3 rounded-md"
+      >
+        <StripeIcon />
+        Disconnect Stripe
+      </Button> */}
 
       {/* Footer Info */}
       <div className="flex flex-col gap-6 pt-6">

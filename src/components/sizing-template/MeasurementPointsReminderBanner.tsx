@@ -85,7 +85,7 @@ const MeasurementPointsReminderBanner = ({
     return (
       <div
         className={cn(
-          "bg-amber-50 border-b border-amber-200 p-2 animate-in fade-in duration-300",
+          "bg-amber-50 border-b border-amber-200 p-2 animate-in fade-in duration-300 mt-2 lg:mt-0",
           className,
         )}
       >
@@ -124,7 +124,7 @@ const MeasurementPointsReminderBanner = ({
     return (
       <div
         className={cn(
-          "bg-amber-50 border-b border-amber-200 p-2 animate-in fade-in duration-300",
+          "bg-amber-50 border-b border-amber-200 p-2 animate-in fade-in duration-300 mt-2 lg:mt-0",
           className,
         )}
       >
@@ -162,7 +162,7 @@ const MeasurementPointsReminderBanner = ({
   return (
     <div
       className={cn(
-        "bg-amber-50 border-b border-amber-200 p-2 animate-in fade-in duration-300",
+        "bg-amber-50 border-b border-amber-200 p-2 animate-in fade-in duration-300 mt-2 lg:mt-0",
         className,
       )}
     >
