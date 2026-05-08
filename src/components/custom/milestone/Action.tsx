@@ -23,7 +23,10 @@ export enum MilestoneActionType {
 
 const MilestoneAction: React.FC<
   MilestoneTimelineItem &
-    Pick<MilestoneTimelineProps, "isDesigner" | "projectId"> & {
+    Pick<
+      MilestoneTimelineProps,
+      "isDesigner" | "projectId" | "disableDesignerSubmission"
+    > & {
       message: string;
       files: FileList | null;
       clear: () => void;
@@ -49,7 +52,8 @@ const MilestoneAction: React.FC<
   variableSubmissions,
   isVariableDelivery,
   editedVariablePrice,
-  selectedVariableDeliveryMethod
+  selectedVariableDeliveryMethod,
+  disableDesignerSubmission,
 }) => {
   const [isDecisionAccepting, setIsDecisionAccepting] = useState(false)
   const currentVariableSubmission = variableSubmissions?.[0]
@@ -149,6 +153,8 @@ const MilestoneAction: React.FC<
           <Button
             size="sm"
             onClick={() =>{
+              if (disableDesignerSubmission) return;
+
               if (isSubmittingVariableType) {
                 addVariableDeliveryMilestone({
                   amount: editedVariablePrice,
@@ -166,6 +172,7 @@ const MilestoneAction: React.FC<
             variant="success"
             fullWidth
             disabled={
+              disableDesignerSubmission ||
               (!isDelivery && !message)
             }
             loading={isSubmittingMilestone || isPendingAddVariableDelivery}

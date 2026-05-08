@@ -73,6 +73,7 @@ const ActiveProjectPage = () => {
     !!sizingTemplate &&
     !hasMeasurementPointsRequested &&
     !hasMeasurementPointsSubmitted;
+  const disableDesignerMilestoneSubmission = isDesigner && showRequestPointsBanner;
 
   // Show reminder to designer to tell buyer to send measurement points values
   const isAwaitingMeasurementPointsValues =
@@ -109,7 +110,7 @@ const ActiveProjectPage = () => {
           }
           milestones={projectMilestonesData?.data?.data || []}
           className="flex-1"
-          // disabled={ showRequestPointsBanner || isAwaitingMeasurementPointsValues }
+          disableDesignerSubmission={disableDesignerMilestoneSubmission}
         />
         <aside className="md:max-w-80 flex-1 w-full shrink-0">
           <EscrowCard

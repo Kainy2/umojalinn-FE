@@ -161,7 +161,7 @@ export const useSizingTemplateDialog = (
         return TEMPLATE_MODE.SELECT;
       }
       // RECOMMEND: Designer wants to add recommendations (toggle via recommendationMode state)
-      if (hasRequestedPoints && recommendationMode) {
+      if (hasRequestedPoints && recommendationMode && !isProjectLive) {
         return TEMPLATE_MODE.RECOMMEND;
       }
       // VIEW: Designer views the template (read-only)

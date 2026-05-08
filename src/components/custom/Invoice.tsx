@@ -315,8 +315,7 @@ const Invoice = (props: InvoiceProps) => {
                   {props.isDesigner && (
                     <>
                       <Text style={[styles.column, styles.column4]}>
-                        {currency}
-                        {formatCurrencyValue(commission)}
+                        ( {currency} {formatCurrencyValue(commission)})
                       </Text>
                       <Text
                         style={[
@@ -353,8 +352,8 @@ const Invoice = (props: InvoiceProps) => {
                 <View style={styles.dateWrapper}>
                   <Text>COMMISSION (17%)</Text>
                   <Text>
-                    {currency}
-                    {formatCurrencyValue(totalCommission)}
+                    ( {currency}
+                    {formatCurrencyValue(totalCommission)})
                   </Text>
                 </View>
               </>
