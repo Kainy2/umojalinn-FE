@@ -123,6 +123,8 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
         <TextField
           type="text"
           label="Withdrawal Amount"
+          hint="Stripe may charge a small payout fee depending on your bank and payout method."
+          hinticon
           placeholder="Amount to withdraw"
           value={numberToCommaString(amount || "")}
           onChange={(e) => {
@@ -145,55 +147,70 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
           }
         />
       )}
+      <p>
+        {" "}
+        <b>Estimated payout fee:</b> 
+        {currency === "EURO"
+          ? "€"
+          : currency === "NAIRA"
+            ? "₦"
+            : currency === "USD"
+              ? "$"
+              : "£"}
+        X.XX (charged by our payment partner -
+        {currency === "NAIRA" ? "Paystack" : "Stripe"})
+      </p>
 
       {/* Account Section */}
       {isLoadingAccount || isFetching ? (
         <Skeleton className="h-40 w-full rounded-md" />
       ) : showSavedAccount ? (
-        <div className="border rounded-md p-4 flex flex-col gap-2">
-          <h3 className="font-semibold text-lg">Bank details</h3>
-          <div className="flex items-start gap-4 p-4 border rounded-md bg-gray-50/50">
-            <Bank className="size-8 mt-1" />
-            <div className="flex-1">
-              {currency === "NAIRA" ? (
-                <>
-                  <p className="font-semibold">
-                    {paymentAccount?.paystackAccountName}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {getBankName(paymentAccount?.paystackBankCode || "")} •{" "}
-                    {paymentAccount?.paystackAccountNumber}
-                  </p>
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="text-primary font-semibold text-sm mt-2 hover:underline p-0 h-auto"
-                  >
-                    Edit
-                  </button>
-                </>
-              ) : (
-                <>
-                  <p className="font-semibold">Stripe Account</p>
-                  <p className="text-sm text-gray-600">
-                    {paymentAccount?.stripeIban} •{" "}
-                    {paymentAccount?.stripeBankName}
-                  </p>
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="text-primary font-semibold text-sm mt-2 hover:underline p-0 h-auto"
-                  >
-                    Edit
-                  </button>
-                </>
-              )}
+        <div className=" py-4 flex gap-4 w-2/3">
+          <h3 className="font-medium text-sm">Bank details</h3>
+          <div className="flex-1">
+            <div className="flex items-start gap-6 p-4 border">
+              <Bank className="size-8 mt-1" />
+              <div className="flex-1">
+                {currency === "NAIRA" ? (
+                  <>
+                    <p className="font-semibold">
+                      {paymentAccount?.paystackAccountName}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {getBankName(paymentAccount?.paystackBankCode || "")} •{" "}
+                      {paymentAccount?.paystackAccountNumber}
+                    </p>
+                    <button
+                      onClick={() => setIsEditing(true)}
+                      className="text-primary font-semibold text-sm mt-2 hover:underline p-0 h-auto"
+                    >
+                      Edit
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <p className="font-semibold">Stripe Account</p>
+                    <p className="text-sm text-gray-600">
+                      {paymentAccount?.stripeIban} •{" "}
+                      {paymentAccount?.stripeBankName}
+                    </p>
+                    <button
+                      onClick={() => setIsEditing(true)}
+                      className="text-primary font-semibold text-sm mt-2 hover:underline p-0 h-auto"
+                    >
+                      Edit
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
 
-          <p className="text-xs text-gray-500 mt-2">
-            Payments are processed by{" "}
-            {currency === "NAIRA" ? "Paystack" : "Stripe"}. Payout fees are set
-            by them.
-          </p>
+            <p className="text-sm text-gray-500 mt-2">
+              Payments are processed by{" "}
+              {currency === "NAIRA" ? "Paystack" : "Stripe"}. Payout fees are
+              set by them.
+            </p>
+          </div>
         </div>
       ) : currency === "NAIRA" ? (
         <AddNairaAccountForm

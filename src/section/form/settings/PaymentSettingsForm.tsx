@@ -117,12 +117,11 @@ const PaymentSettingsForm = () => {
     setDisconnectStripeDialogOpen(true);
   };
 
-  const handleEditPayoutAccount = () => {
-    if (currency === "NAIRA") {
-      handleOpenDisconnectDialog("PAYSTACK");
-      return;
-    }
+  const handleEditNairaPayoutAccount = () => {
+    handleOpenDisconnectDialog("PAYSTACK");
+  };
 
+  const handleEditStripePayoutAccount = () => {
     const onboardingUrl = paymentAccount?.stripeOnboardingUrl;
     if (onboardingUrl) {
       window.open(onboardingUrl, "_blank");
@@ -131,6 +130,17 @@ const PaymentSettingsForm = () => {
 
     handleConnectStripeClick();
   };
+
+  // const handleAddStripeBankAccount = () => {
+  //   const onboardingUrl = paymentAccount?.stripeOnboardingUrl;
+  //   if (onboardingUrl) {
+  //     const trimmed = onboardingUrl.replace(/\/+$/, "");
+  //     window.open(`${tri}`, "_blank");
+  //     return;
+  //   }
+
+  //   handleConnectStripeClick();
+  // };
 
   return (
     <div className="flex flex-col gap-10 max-w-7xl">
@@ -192,13 +202,15 @@ const PaymentSettingsForm = () => {
                   ? `${getBankName(paymentAccount?.paystackBankCode || "")} • ${paymentAccount?.paystackAccountNumber}`
                   : `${paymentAccount?.stripeIban}  • ${paymentAccount?.stripeBankName}`}
               </p>
-              <button
-                type="button"
-                onClick={handleEditPayoutAccount}
-                className="text-primary font-bold text-sm mt-2 hover:underline text-left w-fit"
-              >
-                Edit
-              </button>
+              {currency == "NAIRA" && (
+                <button
+                  type="button"
+                  onClick={handleEditNairaPayoutAccount}
+                  className="text-primary font-bold text-sm mt-2 hover:underline text-left w-fit"
+                >
+                  Edit
+                </button>
+              )}
             </div>
           </div>
         ) : currency === "NAIRA" ? (
@@ -215,6 +227,24 @@ const PaymentSettingsForm = () => {
           </div>
         )}
       </div>
+      {currency !== "NAIRA" && (
+        <div className="flex gap-4">
+          <button
+            type="button"
+            onClick={handleEditStripePayoutAccount}
+            className="text-primary font-bold border border-primary  px-4 py-2 text-sm  text-left w-fit"
+          >
+            Add Bank Account
+          </button>
+          <button
+            type="button"
+            onClick={handleEditStripePayoutAccount}
+            className="text-primary font-bold border border-primary  px-4 py-2 text-sm  text-left w-fit"
+          >
+            Edit Stripe Details
+          </button>
+        </div>
+      )}
       <p className="text-xs text-gray-500 max-w-2xl">
         Payments are processed by {currency === "NAIRA" ? "Paystack" : "Stripe"}
         . Payout fees, if any, are set by{" "}
