@@ -21,27 +21,27 @@ const FundProjectAlert = () => {
 
   const { data: projectMilestonesData } = useGetProjectMilestones(params?.id);
 
-
   const firstFundMilestone = useMemo(
     () =>
       projectMilestonesData?.data?.data?.find?.(
-        (milestone) => milestone?.status === "PENDING"
+        (milestone) => milestone?.status === "PENDING",
       ),
-    [projectMilestonesData?.data?.data]
+    [projectMilestonesData?.data?.data],
   );
 
   const isDesigner = me?.user?.profileRole === "DESIGNER";
-  const excludedPaths = ['ads', 'completed', 'bids', 'drafts'];
-  const isExcludedPath = excludedPaths.some(path => pathname.includes(path));
-  const isAwaitingFund = projectData?.data?.data?.fundStatus === "AWAITING_FUND";
-  const isUnfunded = projectData?.data?.data?.amountFunded === 0;
+  const excludedPaths = ["ads", "completed", "bids", "drafts"];
+  const isExcludedPath = excludedPaths.some((path) => pathname.includes(path));
+  const isAwaitingFund =
+    projectData?.data?.data?.fundStatus === "AWAITING_FUND";
+  const isUnfunded = Number(projectData?.data?.data?.amountFunded) === 0;
   const fundMilestone = useFundMilestone({
     onSuccess: (data) => {
       window.open(data.data.data.checkoutUrl, "_blank", "noopener,noreferrer");
     },
     onError: (err) => {
       console.log(err);
-    }
+    },
   });
   const fundProject = useFundProject(params.id, {
     onSuccess: (data) => {
@@ -49,10 +49,13 @@ const FundProjectAlert = () => {
     },
     onError: (err) => {
       console.log(err);
-    }
+    },
   });
 
-  if (isExcludedPath || !isAwaitingFund || !isUnfunded || isDesigner) return null;
+  console.log(isAwaitingFund, isUnfunded);
+
+  if (isExcludedPath || !isAwaitingFund || !isUnfunded || isDesigner)
+    return null;
 
   return (
     <Alert
@@ -63,7 +66,6 @@ const FundProjectAlert = () => {
       message="fund escrow to start project"
       action={
         <div className="flex flex-col md:flex-row gap-1">
-
           <Button
             className="w-full md:w-auto"
             variant="outline"
@@ -72,8 +74,13 @@ const FundProjectAlert = () => {
           >
             Fund Milestone
           </Button>
-          <Button className="w-full md:w-auto" onClick={() => fundProject.mutate()}>Fund Project</Button>
-        </div >
+          <Button
+            className="w-full md:w-auto"
+            onClick={() => fundProject.mutate()}
+          >
+            Fund Project
+          </Button>
+        </div>
       }
     />
   );

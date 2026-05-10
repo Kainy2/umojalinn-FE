@@ -226,9 +226,11 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   const getEffectiveReviewForProp = (prop: string) =>
     prop in measurementComments
       ? measurementComments[prop]
-      : (sizingTemplateResult?.metadata?.reviews as Record<string, string> | undefined)?.[
-          prop
-        ] ?? "";
+      : ((
+          sizingTemplateResult?.metadata?.reviews as
+            | Record<string, string>
+            | undefined
+        )?.[prop] ?? "");
 
   const buildMergedReviewsPayload = (): Record<string, string> => {
     const server = (sizingTemplateResult?.metadata?.reviews ?? {}) as Record<
@@ -527,6 +529,8 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                       const isRequested = requestedMeasurementPoints.includes(
                         item.prop,
                       );
+                      const isSubmitted =
+                        submittedMeasurementPoints.includes(item.prop);
                       const hasReview =
                         !!sizingTemplateResult?.metadata?.reviews?.[item.prop];
 
@@ -536,7 +540,13 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                         !recommendationMode &&
                         !hasReview &&
                         isChangesUpdated &&
-                        submittedMeasurementPoints.includes(item.prop);
+                        isSubmitted;
+
+                      // Designer should not see the stored value of a point
+                      // they have requested until the buyer responds, even if
+                      // an old value exists on the buyer's profile.
+                      const hideValueFromDesigner =
+                        isDesigner && isRequested && !isSubmitted;
 
                       return (
                         <MeasurementPointRow
@@ -556,6 +566,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                           }}
                           isPendingBuyerReply={isPendingBuyerReply}
                           isNewlyUpdated={isNewlyUpdated}
+                          hideValue={hideValueFromDesigner}
                           onClick={() => {
                             handleMeasurementClick(
                               item.img,

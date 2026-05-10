@@ -52,6 +52,7 @@ export type MilestoneTimelineProps = {
   milestones: UmojaLinnMilestone[];
   className?: string;
   isDesigner?: boolean;
+  disableDesignerSubmission?: boolean;
   escrowBalance?: number;
   currency: UmojaLinnProject["currency"];
   projectId?: string;
@@ -91,6 +92,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
   designer,
   buyer,
   disabled = false,
+  disableDesignerSubmission = false,
 }) => {
   const deliveryMilestone = !!milestones.length ? milestones[milestones.length - 1] : undefined;
 
@@ -346,6 +348,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                     deliverySubmission={editableDeliverySubmission}
                     variableSubmissions={item?.variableSubmissions}
                     isAwaitingFunding={false}
+                    disableDesignerSubmission={disableDesignerSubmission}
                     onActionClick={(action) => console.log(action)}
                     onAcceptMilestoneSuccess={() => onAcceptMilestoneSuccess(isDelivery, index)}
                     onAcceptVariableMilestoneSuccess={(deliveryMilestone) =>

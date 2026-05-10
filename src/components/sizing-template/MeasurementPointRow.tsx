@@ -48,6 +48,7 @@ type MeasurementPointRowProps = {
   isPendingBuyerReply?: boolean; // When designer has recommended changes but buyer has not replied yet
   isNewlyUpdated?: boolean; // When buyer has replied and designer is viewing the updated changes for the first time
   isDesigner?: boolean;
+  hideValue?: boolean; // Hide the numeric value (e.g. designer view of a requested point the buyer has not yet submitted)
 };
 
 const MeasurementPointRow = forwardRef<
@@ -138,10 +139,14 @@ const MeasurementPointRow = forwardRef<
                   className={cn(
                     "text-right pr-10",
                     props.unit === "INCH" && "pr-14",
-                    isRowDimmed ? "text-gray-300" : "text-gray-500",
+                    props.hideValue
+                      ? "text-gray-300 italic"
+                      : isRowDimmed
+                        ? "text-gray-300"
+                        : "text-gray-500",
                   )}
                 >
-                  {props.value || 0}
+                  {props.hideValue ? "" : props.value || 0}
                 </span>
               ) : (
                 <input
@@ -156,7 +161,7 @@ const MeasurementPointRow = forwardRef<
                   min={0}
                   max={999}
                   onChange={props.onValueChange}
-                  value={props.value || ""}
+                  value={props.hideValue ? "" : props.value || ""}
                   placeholder="0"
                   onFocus={props.onFocus}
                   autoComplete="off"

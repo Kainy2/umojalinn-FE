@@ -3,7 +3,7 @@ import React from "react";
 type MilestoneProgressProps = {
   value: number;
   total: number;
-  className?: string
+  className?: string;
 };
 
 const MilestoneProgress = (props: MilestoneProgressProps) => {
@@ -14,7 +14,7 @@ const MilestoneProgress = (props: MilestoneProgressProps) => {
           key={index}
           className={cn(
             "h-1.5 bg-gray-100 rounded-full w-full",
-            index < (props.value || 0) && "bg-success"
+            index < (props.value || 0) && "bg-success",
           )}
         />
       ))}
