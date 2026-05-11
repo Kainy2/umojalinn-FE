@@ -228,22 +228,22 @@ const PaymentSettingsForm = () => {
         )}
       </div>
       {currency !== "NAIRA" && (
-        <div className="flex gap-4">
-          <button
-            type="button"
-            onClick={handleEditStripePayoutAccount}
-            className="text-primary font-bold border border-primary  px-4 py-2 text-sm  text-left w-fit"
-          >
-            Add Bank Account
-          </button>
-          <button
-            type="button"
-            onClick={handleEditStripePayoutAccount}
-            className="text-primary font-bold border border-primary  px-4 py-2 text-sm  text-left w-fit"
-          >
-            Edit Stripe Details
-          </button>
-        </div>
+        // <div className="flex gap-4">
+        //   <button
+        //     type="button"
+        //     onClick={handleEditStripePayoutAccount}
+        //     className="text-primary font-bold border border-primary  px-4 py-2 text-sm  text-left w-fit"
+        //   >
+        //     Add Bank Account
+        //   </button>
+        <button
+          type="button"
+          onClick={handleEditStripePayoutAccount}
+          className="text-primary font-bold border border-primary  px-4 py-2 text-sm  text-left w-fit"
+        >
+          Edit Stripe Details
+        </button>
+        // </div>
       )}
       <p className="text-xs text-gray-500 max-w-2xl">
         Payments are processed by {currency === "NAIRA" ? "Paystack" : "Stripe"}
