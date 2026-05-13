@@ -147,19 +147,12 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
           }
         />
       )}
-      <p>
-        {" "}
-        <b>Estimated payout fee:</b> 
-        {currency === "EURO"
-          ? "€"
-          : currency === "NAIRA"
-            ? "₦"
-            : currency === "USD"
-              ? "$"
-              : "£"}
-        X.XX (charged by our payment partner -
-        {currency === "NAIRA" ? "Paystack" : "Stripe"})
-      </p>
+      {currency === "NAIRA" && showSavedAccount && (
+        <p>
+          <b>Estimated payout fee:</b>  ₦ X.XX (charged by our payment partner -
+          Paystack)
+        </p>
+      )}
 
       {/* Account Section */}
       {isLoadingAccount || isFetching ? (
@@ -191,7 +184,7 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
                   <>
                     <p className="font-semibold">Stripe Account</p>
                     <p className="text-sm text-gray-600">
-                      {paymentAccount?.stripeIban} •{" "}
+                      {paymentAccount?.stripeIban || ""} •{" "}
                       {paymentAccount?.stripeBankName}
                     </p>
                     <button
