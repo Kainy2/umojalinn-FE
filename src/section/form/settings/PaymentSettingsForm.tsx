@@ -200,7 +200,7 @@ const PaymentSettingsForm = () => {
               <p className="text-sm text-gray-600">
                 {currency === "NAIRA"
                   ? `${getBankName(paymentAccount?.paystackBankCode || "")} • ${paymentAccount?.paystackAccountNumber}`
-                  : `${paymentAccount?.stripeIban}  • ${paymentAccount?.stripeBankName}`}
+                  : `${paymentAccount?.stripeIban || ""}  • ${paymentAccount?.stripeBankName}`}
               </p>
               {currency == "NAIRA" && (
                 <button

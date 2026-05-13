@@ -515,6 +515,7 @@ export type UmojaLinnPaymentAccountInfo = {
   stripeRequirements: string | null;
   stripeIban: string | null;
   stripeBankName: string | null;
+  stripeBankCurrency: string | null;
   paystackRecipientCode: string;
   paystackStatus: string;
   paystackBankCode: string;
