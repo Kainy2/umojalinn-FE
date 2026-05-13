@@ -44,7 +44,7 @@ const PaymentSettingsForm = () => {
     if (currency === "NAIRA") {
       return accounts.find((a) => !!a.paystackRecipientCode) ?? null;
     }
-    return accounts.find((a) => !!a.stripeAccountId) ?? null;
+    return accounts.find((a) => !!a?.stripeAccountId) ?? null;
   }, [paymentAccountData, currency]);
 
   const hasActiveAccount = useMemo(() => {
