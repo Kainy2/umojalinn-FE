@@ -33,10 +33,7 @@ import {
   UmojaLinnSizingTemplateUnit,
   UmojalinnStandardSize,
 } from "@/types/project";
-import {
-  DEFAULT_HEIGHT,
-  DEFAULT_UNIT,
-} from "@/types/constants";
+import { DEFAULT_HEIGHT, DEFAULT_UNIT } from "@/types/constants";
 import { useQueryClient } from "@tanstack/react-query";
 import { BID, PROJECT, SIZING_TEMPLATE } from "@/tanstack/keys";
 import { useSession } from "next-auth/react";
@@ -320,8 +317,16 @@ const RequestSizingTemplateAlert = () => {
               {!isLoadingTemplates &&
                 availableTemplates.length === 0 &&
                 !canCreateNewTemplate && (
-                  <div className="py-3 px-2 text-center text-sm text-muted-foreground">
-                    Maximum {maxInUseTemplates} templates reached
+                  <div className="flex flex-col gap-2">
+                    <div className="py-3 px-2 text-center text-sm text-muted-foreground">
+                      Maximum {maxInUseTemplates} templates reached
+                    </div>
+                    <button
+                      onClick={() => router.push("/sizing-templates/buy")}
+                      className="text-primary font-semibold cursor-pointer flex-1"
+                    >
+                      Buy sizing template
+                    </button>
                   </div>
                 )}
 

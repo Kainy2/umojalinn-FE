@@ -16,6 +16,7 @@ import {
 } from "@radix-ui/react-dialog";
 import { CircleHelp, Tag } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import DialogListPickerItem from "./ListPickerItem";
 import { cn } from "@/lib/utils";
@@ -80,6 +81,7 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
       sizingTemplateStatus: ["LIVE", "DRAFT"],
     });
   const { data: me } = useGetMe();
+  const router = useRouter();
 
   // Get total template count to check limit
   const { data: allTemplatesData } = useGetAllSizingTemplates();
@@ -231,13 +233,21 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
                 Create a new sizing template
               </button>
             ) : (
-              <span
-                className={cn(
-                  "text-muted-foreground text-sm flex-1 text-center",
-                )}
-              >
-                Maximum {maxTemplates} templates reached
-              </span>
+              <div className="flex flex-col gap-2">
+                <span
+                  className={cn(
+                    "text-muted-foreground text-sm flex-1 text-center",
+                  )}
+                >
+                  Maximum {maxTemplates} templates reached
+                </span>
+                <button
+                  onClick={() => router.push("/sizing-templates/buy")}
+                  className="text-primary font-semibold cursor-pointer flex-1"
+                >
+                  Buy sizing template
+                </button>
+              </div>
             ))}
         </div>
       </DialogContent>

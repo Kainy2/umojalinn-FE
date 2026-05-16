@@ -2,6 +2,7 @@ import { clientAxios, getServerAxiosWithToken } from "@/lib/axios";
 import { convertApiParams } from "@/lib/request";
 import { base62ToUuidSafe } from "@/lib/uuid";
 import {
+  UmojaLinnCurrency,
   UmojaLinnFemaleSizingTemplateProps,
   UmojaLinnMaleSizingTemplateProps,
   UmojaLinnSizingTemplate,
@@ -277,7 +278,7 @@ export const sendSizingTemplateReminder = async (
 };
 
 export const purchaseSizingTemplate = async (
-  body: { currency: "NAIRA" | "EURO"; numberOfTemplates: number },
+  body: { currency: UmojaLinnCurrency; numberOfTemplates: number },
   options?: ServerActionOption
 ) => {
   let axios = clientAxios;

@@ -20,6 +20,7 @@ import {
 import { queryClient } from "@/components/provider/TanstackQueryClient";
 import useHandleError from "@/hooks/useHandleError";
 import {
+  UmojaLinnCurrency,
   UmojaLinnFemaleSizingTemplateProps,
   UmojaLinnMaleSizingTemplateProps,
   UmojaLinnSizingTemplate,
@@ -385,7 +386,7 @@ export const useRequestSizingTemplateInProject = (
 export const usePurchaseSizingTemplate = (
   options?: GenericUseMutationProps<
     SingleApiResponse<{ checkoutUrl: string }>,
-    { currency: "NAIRA" | "EURO"; numberOfTemplates: number }
+    { currency: UmojaLinnCurrency; numberOfTemplates: number }
   >
 ) => {
   const { handleError } = useHandleError("Purchase Sizing Template");
