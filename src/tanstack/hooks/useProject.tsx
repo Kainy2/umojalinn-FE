@@ -35,6 +35,7 @@ import {
   requestDeleteStripeAccountOtp,
   requestWithdrawOtp,
   deleteStripeConnectedAccount,
+  getPaystackFeeEstimate,
 } from "@/actions/project";
 import { queryClient } from "@/components/provider/TanstackQueryClient";
 import useHandleError from "@/hooks/useHandleError";
@@ -57,13 +58,19 @@ import {
   TVerifyNgnAccountPayload,
   TAddNgnBankAccountPayload,
   TRequestWithdrawalPayload,
+  TPaystackFeeEstimate,
 } from "@/types/project";
 import {
   GenericUseMutationProps,
   GenericUseQueryProps,
 } from "@/types/tanstack";
 import { ArrayApiResponse, SingleApiResponse } from "@/types/util";
-import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+} from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import {
   BUYER,
@@ -78,6 +85,7 @@ import {
   WALLET,
   WITHDRAWAL_METHODS,
   PAYMENT_ACCOUNT_INFO,
+  PAYSTACK_FEE_ESTIMATE,
 } from "../keys";
 import { getUserReviews, UserReviewsApiProps } from "@/actions/user";
 
@@ -430,6 +438,22 @@ export const useGetPaymentAccountInfo = (
     enabled: !!me?.user && options?.enabled !== false,
     queryKey: [PROJECT, WALLET, PAYMENT_ACCOUNT_INFO],
     queryFn: () => getPaymentAccountInfo(),
+  });
+};
+
+export const useGetPaystackFeeEstimate = (
+  amount: number,
+  options?: GenericUseQueryProps<SingleApiResponse<TPaystackFeeEstimate>>,
+) => {
+  const { data: me } = useSession();
+  return useQuery({
+    ...options,
+    enabled:
+      !!me?.user && options?.enabled !== false && amount > 0,
+    queryKey: [PROJECT, WALLET, PAYSTACK_FEE_ESTIMATE, amount],
+    queryFn: () =>
+      getPaystackFeeEstimate({ amount, type: "transfer" }),
+    placeholderData: keepPreviousData,
   });
 };
 
