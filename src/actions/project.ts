@@ -23,6 +23,8 @@ import {
   TRequestWithdrawalPayload,
   TVerifyNgnAccountPayload,
   TAddNgnBankAccountPayload,
+  TPaystackFeeEstimatePayload,
+  TPaystackFeeEstimate,
 } from "@/types/project";
 import { UmojaLinnTransaction } from "@/types/transaction";
 import { UmojaLinnNotification } from "@/types/user";
@@ -539,6 +541,20 @@ export const requestWithdrawal = async (
     `/wallet/withdraw`,
     body,
   );
+};
+
+export const getPaystackFeeEstimate = async (
+  body: TPaystackFeeEstimatePayload,
+  options?: ServerActionOption,
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<
+    unknown,
+    AxiosResponse<SingleApiResponse<TPaystackFeeEstimate>>
+  >(`/wallet/paystack/fee-estimate`, body);
 };
 export const markNotificationAsRead = async (
   id: string,

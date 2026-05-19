@@ -490,6 +490,21 @@ export type TRequestWithdrawalPayload = {
   otp: string;
 };
 
+/** POST /wallet/paystack/fee-estimate */
+export type TPaystackFeeEstimatePayload = {
+  amount: number;
+  type: "transfer";
+};
+
+export type TPaystackFeeEstimate = {
+  amount: number;
+  fee: number;
+  totalDebit: number;
+  netToRecipient: number;
+  currency: string;
+  type: "transfer";
+};
+
 /** Payout address on payment account from GET /wallet/payment-account-info */
 export type UmojaLinnPaymentAccountPayoutAddress = {
   id: string;

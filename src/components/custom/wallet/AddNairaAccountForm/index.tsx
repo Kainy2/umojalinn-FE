@@ -148,10 +148,6 @@ export const AddNairaAccountForm = ({
           />
         </div>
 
-        <p className="text-xs text-gray-500">
-          This is a hint text to help user.
-        </p>
-
         <div className="bg-error-50/70 border-2 border-error/50 rounded-lg p-4">
           <div className="flex gap-2 mb-4">
             <span className="icon-wrapper error text-error">

@@ -14,8 +14,10 @@ import {
   useRequestWithdrawal,
   useConnectStripeAccount,
   useRequestWithdrawOtp,
+  useGetPaystackFeeEstimate,
 } from "@/tanstack/hooks/useProject";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatCurrencyValue } from "@/lib/number";
 import { numberToCommaString, removeNonDigits } from "@/lib/utils";
 import { capitalizeFirstLetter } from "@/lib/string";
 import { useToast } from "@/hooks/use-toast";
@@ -117,6 +119,17 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
   const withdrawAmount = Number((amount || "").replace(/,/g, ""));
   const isValidWithdrawalAmount = !!amount && withdrawAmount > 0;
 
+  const {
+    data: feeEstimateResponse,
+    isFetching: isLoadingFee,
+    isError: isFeeEstimateError,
+  } = useGetPaystackFeeEstimate(withdrawAmount, {
+    enabled:
+      currency === "NAIRA" && showSavedAccount && isValidWithdrawalAmount,
+  });
+
+  const payoutFee = feeEstimateResponse?.data?.data?.fee;
+
   return (
     <div className="flex flex-col gap-6">
       {showSavedAccount && (
@@ -147,10 +160,17 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
           }
         />
       )}
-      {currency === "NAIRA" && showSavedAccount && (
+      {currency === "NAIRA" && showSavedAccount && isValidWithdrawalAmount && (
         <p>
-          <b>Estimated payout fee:</b>  ₦ X.XX (charged by our payment partner -
-          Paystack)
+          <b>Estimated payout fee:</b>{" "}
+          {isLoadingFee ? (
+            <Skeleton className="inline-block h-4 w-16 align-middle" />
+          ) : payoutFee != null && !isFeeEstimateError ? (
+            <>₦{formatCurrencyValue(payoutFee)}</>
+          ) : (
+            "—"
+          )}{" "}
+          (charged by our payment partner - Paystack)
         </p>
       )}
 
