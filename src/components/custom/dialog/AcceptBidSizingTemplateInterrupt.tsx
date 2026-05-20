@@ -19,7 +19,9 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import DialogListPickerItem from "./ListPickerItem";
-import { cn } from "@/lib/utils";
+// import { cn } from "@/lib/utils";
+import { filterTemplatesForProject } from "@/lib/sizing-template-utils";
+import { UmojaLinnSizingTemplate } from "@/types/project";
 
 type ButtonOnClickProp = React.ComponentProps<"button">["onClick"];
 
@@ -71,6 +73,7 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
     loadingCreate: boolean;
     handleCreateNewSizingTemplate: ButtonOnClickProp;
     handleAddSizingTemplateToProject: (templateId: string) => void;
+    projectGender?: UmojaLinnSizingTemplate["gender"] | null;
   },
 ) => {
   const [open, setOpen] = useState(false);
@@ -92,6 +95,11 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
 
   const [sizingTemplateId, selectSizingTemplateId] = useState<null | string>(
     null,
+  );
+
+  const matchingTemplates = filterTemplatesForProject(
+    liveSizingTemplates?.data?.data ?? [],
+    props.projectGender,
   );
 
   if (stage === "CONFIRM" && sizingTemplateId) {
@@ -117,7 +125,7 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
             </div>
             <span>
               {
-                liveSizingTemplates?.data?.data?.find(
+                matchingTemplates.find(
                   (template) => template?.id === sizingTemplateId,
                 )?.name
               }
@@ -167,8 +175,8 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
           </div>
         </DialogHeader>
         {loadingLivesizingTemplates && <Skeleton className="h-12" />}
-        {liveSizingTemplates?.data?.data?.length ? (
-          liveSizingTemplates?.data?.data?.map?.((template) => {
+        {matchingTemplates.length ? (
+          matchingTemplates.map?.((template) => {
             const active = template?.id === sizingTemplateId;
             return (
               <DialogListPickerItem
@@ -195,11 +203,15 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
         <DialogFooter>
           <Button
             onClick={(e) => {
-              if (!liveSizingTemplates?.data?.data?.length) {
+              if (!matchingTemplates.length) {
                 if (canCreateNewTemplate) {
                   props?.handleCreateNewSizingTemplate?.(e);
                   props?.onOpenChange?.(false);
                   setOpen(false);
+                } else {
+                  props?.onOpenChange?.(false);
+                  setOpen(false);
+                  router.push("/sizing-templates/buy");
                 }
               } else {
                 setStage("CONFIRM");
@@ -209,22 +221,18 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
             loading={props.loadingCreate}
             disabled={
               loadingLivesizingTemplates ||
-              (!sizingTemplateId &&
-                !!liveSizingTemplates?.data?.data?.length) ||
-              (!liveSizingTemplates?.data?.data?.length &&
-                !canCreateNewTemplate)
+              (!sizingTemplateId && !!matchingTemplates.length)
             }
           >
-            {liveSizingTemplates?.data?.data?.length ||
-            loadingLivesizingTemplates
+            {matchingTemplates.length || loadingLivesizingTemplates
               ? "Confirm"
               : canCreateNewTemplate
                 ? "Create New Sizing Template"
-                : `Max ${maxTemplates} Templates Reached`}
+                : `Max ${maxTemplates} Templates Reached (Buy more templates)`}
           </Button>
         </DialogFooter>
-        <div className="flex -mt-4">
-          {!!liveSizingTemplates?.data?.data?.length &&
+        {/* <div className="flex -mt-4">
+          {!!matchingTemplates.length &&
             (canCreateNewTemplate ? (
               <button
                 onClick={props?.handleCreateNewSizingTemplate}
@@ -249,7 +257,7 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
                 </button>
               </div>
             ))}
-        </div>
+        </div> */}
       </DialogContent>
     </Dialog>
   );
