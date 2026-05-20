@@ -4,6 +4,35 @@
 
 import { REMINDER_COOLDOWN_MINUTES } from "@/types/constants";
 
+export type TSizingGender = "MALE" | "FEMALE";
+
+/** True when project gender is set and matches the template gender */
+export const isMatchingSizingGender = (
+  templateGender: TSizingGender,
+  projectGender: null | TSizingGender | undefined,
+): boolean => {
+  if (!projectGender) return false;
+  return templateGender === projectGender;
+};
+
+/** Templates compatible with a project's gender (empty if project gender unset) */
+export const filterTemplatesForProject = <T extends { gender: TSizingGender }>(
+  templates: T[],
+  projectGender: null | TSizingGender | undefined,
+): T[] => {
+  if (!projectGender) return [];
+  return templates.filter((t) => t.gender === projectGender);
+};
+
+/** Projects compatible with a template's gender */
+export const filterProjectsForTemplate = <
+  T extends { gender: null | TSizingGender },
+>(
+  projects: T[],
+  templateGender: TSizingGender,
+): T[] =>
+  projects.filter((p) => isMatchingSizingGender(templateGender, p.gender));
+
 const COOLDOWN_MS = REMINDER_COOLDOWN_MINUTES * 60 * 1000;
 
 /** Check if cooldown period has passed since last reminder */

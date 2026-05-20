@@ -36,6 +36,7 @@ import {
 } from "@/types/project";
 import {
   canSendReminder,
+  filterProjectsForTemplate,
   getRemainingReminderTime,
 } from "@/lib/sizing-template-utils";
 import {
@@ -122,8 +123,11 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     useGetAllBuyerProject({
       projectStatus: "ADS",
     });
-  const availableProjects = (buyerProjectsData?.data?.data || []).filter(
-    (proj) => !proj.sizingTemplate?.id,
+  const availableProjects = filterProjectsForTemplate(
+    (buyerProjectsData?.data?.data || []).filter(
+      (proj) => !proj.sizingTemplate?.id,
+    ),
+    gender,
   );
 
   // State for showing UK size chart in preview panel

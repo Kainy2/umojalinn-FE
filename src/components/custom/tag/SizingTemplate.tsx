@@ -22,6 +22,7 @@ import {
   UmojaLinnSizingTemplate,
   UmojalinnStandardSize,
 } from "@/types/project";
+import { filterTemplatesForProject } from "@/lib/sizing-template-utils";
 
 type SizingTemplateTagProps = {
   projectId: string;
@@ -45,6 +46,11 @@ const SizingTemplateTag = (props: SizingTemplateTagProps) => {
     !!inUseSizingTemplates?.data?.data &&
     inUseSizingTemplates?.data?.data?.length < maxInUseTemplates;
   const [openSizingTemplate, setOpenSizingTemplate] = useState(false);
+
+  const matchingTemplates = filterTemplatesForProject(
+    sizingTemplateData?.data?.data ?? [],
+    projectData?.data?.data?.gender,
+  );
 
   // Add template to project - closes modal and accepts bid on success
   const {
@@ -108,7 +114,7 @@ const SizingTemplateTag = (props: SizingTemplateTagProps) => {
             </div>
           </PopoverTrigger>
           <PopoverContent align="center" className="w-48 p-0 overflow-hidden">
-            {sizingTemplateData?.data?.data?.map((template) => (
+            {matchingTemplates.map((template) => (
               <PopoverClose key={template?.id} asChild>
                 <MenuButton
                   onClick={() =>

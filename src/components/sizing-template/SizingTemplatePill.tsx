@@ -769,6 +769,7 @@ const SizingTemplatePill = ({
         onOpenChange={setSelectModalOpen}
         handleCreateNewSizingTemplate={handleCreateNew}
         handleAddSizingTemplateToProject={handleSelectTemplate}
+        projectGender={project?.gender}
       />
 
       {/* Height and Size Modal */}
