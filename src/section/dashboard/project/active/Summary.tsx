@@ -2,9 +2,10 @@
 import AvatarIconTag from "@/components/custom/tag/AvatarIcon";
 import SectionTitle from "@/components/custom/SectionTitle";
 import { useGetProjectById } from "@/tanstack/hooks/useProject";
+import { uuidToBase62Safe } from "@/lib/uuid";
 import { format } from "date-fns";
 import { CalendarPlus } from "lucide-react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import React from "react";
 import { SizingTemplatePill } from "@/components/sizing-template";
 
@@ -15,6 +16,7 @@ type ActiveProjectSummaryProps = {
 const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
   const { isDesigner = false } = props;
   const params = useParams<{ id: string }>();
+  const router = useRouter();
   const { data, isPending } = useGetProjectById(params?.id);
   if (isPending) {
     return "";
@@ -31,7 +33,12 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
         </span>
         <span>
           <AvatarIconTag
-            disabled
+            disabled={isDesigner}
+            onClick={
+              !isDesigner
+                ? () => router.push(`/designers/${uuidToBase62Safe(data?.data?.data?.designer?.id || "")}`)
+                : undefined
+            }
             label={
               !isDesigner
                 ? `${data?.data?.data?.designer?.user?.firstName || ""} ${
