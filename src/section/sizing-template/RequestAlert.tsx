@@ -37,6 +37,7 @@ import { DEFAULT_HEIGHT, DEFAULT_UNIT } from "@/types/constants";
 import { useQueryClient } from "@tanstack/react-query";
 import { BID, PROJECT, SIZING_TEMPLATE } from "@/tanstack/keys";
 import { useSession } from "next-auth/react";
+import { filterTemplatesForProject } from "@/lib/sizing-template-utils";
 
 const RequestSizingTemplateAlert = () => {
   const FREE_TEMPLATE_LIMIT = 3;
@@ -75,10 +76,10 @@ const RequestSizingTemplateAlert = () => {
     useGetAllSizingTemplates({
       sizingTemplateStatus: ["LIVE", "DRAFT"],
     });
-  const availableTemplates = templatesData?.data.data ?? [];
-  // useMemo(() => templatesData?.data?.data?.filter(
-  //     (t: UmojaLinnSizingTemplate) => t.status === "LIVE"
-  // ) ?? [], [templatesData]);
+  const availableTemplates = filterTemplatesForProject(
+    templatesData?.data.data ?? [],
+    project?.gender,
+  );
 
   // Get total template count to check limit
   const { data: allTemplatesData } = useGetAllSizingTemplates();
