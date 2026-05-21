@@ -568,3 +568,16 @@ export type TDeletePaymentAccountPayload = {
 
 /** @deprecated use TDeletePaymentAccountPayload */
 export type TDeleteStripeConnectedAccountPayload = TDeletePaymentAccountPayload;
+
+export type UmojaLinnSharedWorkImage = {
+  imageUrl: string;
+  description: string;
+  isCoverImage: boolean;
+};
+
+export type UmojaLinnSharedWork = {
+  id: string;
+  designerId: string;
+  images: UmojaLinnSharedWorkImage[];
+  clothingTypes: Array<{ id: string; name: string } & UmojaLinnTimestamp>;
+} & UmojaLinnTimestamp;
