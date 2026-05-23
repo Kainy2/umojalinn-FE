@@ -34,6 +34,7 @@ import {
 import { Label } from "@/components/ui/label";
 import ConnectPaymentAccountOtpDialog from "@/components/custom/dialog/ConnectPaymentAccountOtpDialog";
 import DisconnectStripeDialog from "@/components/custom/dialog/DisconnectStripeDialog";
+import EditStripeAccountOtpDialog from "@/components/custom/dialog/EditStripeAccountOtpDialog";
 
 const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
   const { currency } = props;
@@ -44,6 +45,7 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
   const [withdrawOtpModalOpen, setWithdrawOtpModalOpen] = useState(false);
   const [connectOtpDialogOpen, setConnectOtpDialogOpen] = useState(false);
   const [disconnectDialogOpen, setDisconnectDialogOpen] = useState(false);
+  const [editStripeOtpDialogOpen, setEditStripeOtpDialogOpen] = useState(false);
   const [disconnectProvider, setDisconnectProvider] =
     useState<TPaymentAccountProvider>("PAYSTACK");
 
@@ -99,7 +101,9 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
     handleOpenDisconnectDialog("PAYSTACK");
   };
 
-  const [isEditing, setIsEditing] = useState(false);
+  const handleEditStripePayoutAccount = () => {
+    setEditStripeOtpDialogOpen(true);
+  };
 
   // Find the account relevant to the current currency
   const paymentAccount = useMemo(() => {
@@ -135,7 +139,7 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
   };
 
   // Logic to determine what to render
-  const showSavedAccount = hasActiveAccount && !isEditing;
+  const showSavedAccount = hasActiveAccount;
   const withdrawAmount = Number((amount || "").replace(/,/g, ""));
   const isValidWithdrawalAmount = !!amount && withdrawAmount > 0;
 
@@ -233,7 +237,8 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
                       {paymentAccount?.stripeBankName}
                     </p>
                     <button
-                      onClick={() => setIsEditing(true)}
+                      type="button"
+                      onClick={handleEditStripePayoutAccount}
                       className="text-primary font-semibold text-sm mt-2 hover:underline p-0 h-auto"
                     >
                       Edit
@@ -282,6 +287,13 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
         open={disconnectDialogOpen}
         onOpenChange={setDisconnectDialogOpen}
         provider={disconnectProvider}
+      />
+
+      <EditStripeAccountOtpDialog
+        open={editStripeOtpDialogOpen}
+        onOpenChange={setEditStripeOtpDialogOpen}
+        stripeOnboardingUrl={paymentAccount?.stripeOnboardingUrl}
+        onNoOnboardingUrl={() => setConnectOtpDialogOpen(true)}
       />
 
       <Dialog

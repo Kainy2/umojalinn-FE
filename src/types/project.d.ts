@@ -490,6 +490,11 @@ export type TConnectStripeAccountPayload = {
   otp: string;
 };
 
+/** POST /wallet/verify-connect-payment-account-otp */
+export type TVerifyConnectPaymentAccountOtpPayload = {
+  otp: string;
+};
+
 export type TRequestWithdrawalPayload = {
   currency: UmojaLinnCurrency;
   amount: number;

@@ -24,6 +24,7 @@ import {
   TVerifyNgnAccountPayload,
   TAddNgnBankAccountPayload,
   TConnectStripeAccountPayload,
+  TVerifyConnectPaymentAccountOtpPayload,
   TPaystackFeeEstimatePayload,
   TPaystackFeeEstimate,
 } from "@/types/project";
@@ -348,35 +349,6 @@ export const requestProjectRefund = async (
   );
 };
 
-// TODO: Wire when backend is ready
-// export const getProjectDisputes = async (
-//   id: string,
-//   options?: ServerActionOption,
-// ) => {
-//   let axios = clientAxios;
-//   if (options?.isServerAction) {
-//     axios = await getServerAxiosWithToken();
-//   }
-//   return axios.get<unknown, AxiosResponse<ArrayApiResponse<unknown>>>(
-//     `/project/${base62ToUuidSafe(id)}/disputes`,
-//   );
-// };
-
-// export const submitDisputeResponse = async (
-//   disputeId: string,
-//   body: FormData,
-//   options?: ServerActionOption,
-// ) => {
-//   const axios = await getAxiosToBeUsed({
-//     body,
-//     isServerAction: options?.isServerAction,
-//   });
-//   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
-//     `/project/dispute/${base62ToUuidSafe(disputeId)}/respond`,
-//     body,
-//   );
-// };
-
 export const getWallet = async (options?: ServerActionOption) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -554,6 +526,20 @@ export const requestConnectPaymentAccountOtp = async (
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
     `/wallet/request-connect-payment-account-otp`,
   );
+};
+
+export const verifyConnectPaymentAccountOtp = async (
+  body: TVerifyConnectPaymentAccountOtpPayload,
+  options?: ServerActionOption,
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<
+    unknown,
+    AxiosResponse<SingleApiResponse<UmojaLinnConnectStripeAccount>>
+  >(`/wallet/verify-connect-payment-account-otp`, body);
 };
 
 export const requestDeleteStripeAccountOtp = async (
