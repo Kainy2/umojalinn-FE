@@ -23,6 +23,7 @@ import {
   TRequestWithdrawalPayload,
   TVerifyNgnAccountPayload,
   TAddNgnBankAccountPayload,
+  TConnectStripeAccountPayload,
   TPaystackFeeEstimatePayload,
   TPaystackFeeEstimate,
 } from "@/types/project";
@@ -315,6 +316,67 @@ export const submitMilestone = async (
   );
 };
 
+export const requestMilestoneCancellation = async (
+  id: string,
+  body: FormData,
+  options?: ServerActionOption,
+) => {
+  const axios = await getAxiosToBeUsed({
+    body,
+    isServerAction: options?.isServerAction,
+  });
+
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/project/milestone/cancellation-request/${base62ToUuidSafe(id)}`,
+    body,
+  );
+};
+
+export const requestProjectRefund = async (
+  id: string,
+  body: FormData,
+  options?: ServerActionOption,
+) => {
+  const axios = await getAxiosToBeUsed({
+    body,
+    isServerAction: options?.isServerAction,
+  });
+
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/project/refund-request/${base62ToUuidSafe(id)}`,
+    body,
+  );
+};
+
+// TODO: Wire when backend is ready
+// export const getProjectDisputes = async (
+//   id: string,
+//   options?: ServerActionOption,
+// ) => {
+//   let axios = clientAxios;
+//   if (options?.isServerAction) {
+//     axios = await getServerAxiosWithToken();
+//   }
+//   return axios.get<unknown, AxiosResponse<ArrayApiResponse<unknown>>>(
+//     `/project/${base62ToUuidSafe(id)}/disputes`,
+//   );
+// };
+
+// export const submitDisputeResponse = async (
+//   disputeId: string,
+//   body: FormData,
+//   options?: ServerActionOption,
+// ) => {
+//   const axios = await getAxiosToBeUsed({
+//     body,
+//     isServerAction: options?.isServerAction,
+//   });
+//   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+//     `/project/dispute/${base62ToUuidSafe(disputeId)}/respond`,
+//     body,
+//   );
+// };
+
 export const getWallet = async (options?: ServerActionOption) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -468,7 +530,10 @@ export const addPaymentAddress = async (
   );
 };
 
-export const connectStripeAccount = async (options?: ServerActionOption) => {
+export const connectStripeAccount = async (
+  body: TConnectStripeAccountPayload,
+  options?: ServerActionOption,
+) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
@@ -476,7 +541,19 @@ export const connectStripeAccount = async (options?: ServerActionOption) => {
   return axios.post<
     unknown,
     AxiosResponse<SingleApiResponse<UmojaLinnConnectStripeAccount>>
-  >(`/wallet/connect-stripe-account`);
+  >(`/wallet/connect-stripe-account`, body);
+};
+
+export const requestConnectPaymentAccountOtp = async (
+  options?: ServerActionOption,
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/wallet/request-connect-payment-account-otp`,
+  );
 };
 
 export const requestDeleteStripeAccountOtp = async (

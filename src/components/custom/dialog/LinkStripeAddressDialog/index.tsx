@@ -18,10 +18,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { stripeLinkAddressFormSchema } from "@/lib/schema";
 // import { useGetMe } from "@/tanstack/hooks/useUser";
-import {
-  useAddPaymentAddress,
-  useConnectStripeAccount,
-} from "@/tanstack/hooks/useProject";
+import { useAddPaymentAddress } from "@/tanstack/hooks/useProject";
 import type {
   ILinkStripeAddressDialogProps,
   TStripeLinkAddressFormValues,
@@ -38,6 +35,7 @@ const defaultValues: TStripeLinkAddressFormValues = {
 export const LinkStripeAddressDialog = ({
   open,
   onOpenChange,
+  onAddressSaved,
 }: ILinkStripeAddressDialogProps) => {
   // const { data: meResponse } = useGetMe();
   // const user = meResponse?.data?.data;
@@ -58,23 +56,15 @@ export const LinkStripeAddressDialog = ({
   //   });
   // }, [open, user, form]);
 
-  const { mutate: connectStripeAccount, isPending: isConnectingStripe } =
-    useConnectStripeAccount({
-      onSuccess: (data) => {
-        if (data.data.data.onboardingUrl) {
-          window.location.href = data.data.data.onboardingUrl;
-        }
-      },
-    });
-
   const { mutate: submitPaymentAddress, isPending: isSavingAddress } =
     useAddPaymentAddress({
       onSuccess: () => {
-        connectStripeAccount();
+        onOpenChange(false);
+        onAddressSaved?.();
       },
     });
 
-  const isPending = isSavingAddress || isConnectingStripe;
+  const isPending = isSavingAddress;
 
   const onSubmit = (values: TStripeLinkAddressFormValues) => {
     submitPaymentAddress({
@@ -185,7 +175,7 @@ export const LinkStripeAddressDialog = ({
                 className="bg-[#EAAA08] hover:bg-[#EAAA08]/90 text-white font-semibold"
                 disabled={isPending}
               >
-                {isPending ? "Continuing..." : "Continue to Stripe"}
+                {isPending ? "Saving..." : "Continue"}
               </Button>
             </DialogFooter>
           </form>
