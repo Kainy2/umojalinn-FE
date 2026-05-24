@@ -482,6 +482,17 @@ export type TAddNgnBankAccountPayload = {
   accountNumber: string;
   bankCode: string;
   accountName: string;
+  otp: string;
+};
+
+/** POST /wallet/connect-stripe-account */
+export type TConnectStripeAccountPayload = {
+  otp: string;
+};
+
+/** POST /wallet/verify-connect-payment-account-otp */
+export type TVerifyConnectPaymentAccountOtpPayload = {
+  otp: string;
 };
 
 export type TRequestWithdrawalPayload = {

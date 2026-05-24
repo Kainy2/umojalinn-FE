@@ -5,7 +5,7 @@ import Bank from "@/icons/Bank";
 import NairaSign from "@/icons/NairaSign";
 import GbpSign from "@/icons/GbpSign";
 import CadSign from "@/icons/CadSign";
-import { UmojaLinnCurrency } from "@/types/project";
+import { TPaymentAccountProvider, UmojaLinnCurrency } from "@/types/project";
 import { Euro, DollarSign } from "lucide-react";
 import React, { useMemo, useState } from "react";
 import {
@@ -32,6 +32,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import ConnectPaymentAccountOtpDialog from "@/components/custom/dialog/ConnectPaymentAccountOtpDialog";
+import DisconnectStripeDialog from "@/components/custom/dialog/DisconnectStripeDialog";
+import EditStripeAccountOtpDialog from "@/components/custom/dialog/EditStripeAccountOtpDialog";
 
 const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
   const { currency } = props;
@@ -40,6 +43,11 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
   const [amount, setAmount] = useState<string | null>(null);
   const [withdrawOtp, setWithdrawOtp] = useState("");
   const [withdrawOtpModalOpen, setWithdrawOtpModalOpen] = useState(false);
+  const [connectOtpDialogOpen, setConnectOtpDialogOpen] = useState(false);
+  const [disconnectDialogOpen, setDisconnectDialogOpen] = useState(false);
+  const [editStripeOtpDialogOpen, setEditStripeOtpDialogOpen] = useState(false);
+  const [disconnectProvider, setDisconnectProvider] =
+    useState<TPaymentAccountProvider>("PAYSTACK");
 
   // New Hooks
   const {
@@ -73,13 +81,29 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
   const { mutate: connectStripe, isPending: isConnectingStripe } =
     useConnectStripeAccount({
       onSuccess: (data) => {
+        setConnectOtpDialogOpen(false);
         if (data.data.data.onboardingUrl) {
           window.location.href = data.data.data.onboardingUrl;
         }
       },
     });
 
-  const [isEditing, setIsEditing] = useState(false);
+  const handleConnectStripeOtpConfirm = (otp: string) => {
+    connectStripe({ otp });
+  };
+
+  const handleOpenDisconnectDialog = (provider: TPaymentAccountProvider) => {
+    setDisconnectProvider(provider);
+    setDisconnectDialogOpen(true);
+  };
+
+  const handleEditNairaPayoutAccount = () => {
+    handleOpenDisconnectDialog("PAYSTACK");
+  };
+
+  const handleEditStripePayoutAccount = () => {
+    setEditStripeOtpDialogOpen(true);
+  };
 
   // Find the account relevant to the current currency
   const paymentAccount = useMemo(() => {
@@ -115,7 +139,7 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
   };
 
   // Logic to determine what to render
-  const showSavedAccount = hasActiveAccount && !isEditing;
+  const showSavedAccount = hasActiveAccount;
   const withdrawAmount = Number((amount || "").replace(/,/g, ""));
   const isValidWithdrawalAmount = !!amount && withdrawAmount > 0;
 
@@ -136,7 +160,11 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
         <TextField
           type="text"
           label="Withdrawal Amount"
-          hint="Stripe may charge a small payout fee depending on your bank and payout method."
+          hint={
+            currency !== "NAIRA"
+              ? "Stripe may charge a small payout fee depending on your bank and payout method."
+              : ""
+          }
           hinticon
           placeholder="Amount to withdraw"
           value={numberToCommaString(amount || "")}
@@ -194,7 +222,8 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
                       {paymentAccount?.paystackAccountNumber}
                     </p>
                     <button
-                      onClick={() => setIsEditing(true)}
+                      type="button"
+                      onClick={handleEditNairaPayoutAccount}
                       className="text-primary font-semibold text-sm mt-2 hover:underline p-0 h-auto"
                     >
                       Edit
@@ -208,7 +237,8 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
                       {paymentAccount?.stripeBankName}
                     </p>
                     <button
-                      onClick={() => setIsEditing(true)}
+                      type="button"
+                      onClick={handleEditStripePayoutAccount}
                       className="text-primary font-semibold text-sm mt-2 hover:underline p-0 h-auto"
                     >
                       Edit
@@ -227,10 +257,8 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
         </div>
       ) : currency === "NAIRA" ? (
         <AddNairaAccountForm
-          formTitle={isEditing ? "Edit Bank Details" : "Add Bank Details"}
+          formTitle="Add Bank Details"
           formDescription={`Add a ${capitalizeFirstLetter(currency.toLowerCase())} receiving account`}
-          showCancelButton={isEditing}
-          onCancel={() => setIsEditing(false)}
           onAddSuccess={() => router.push("/wallet")}
         />
       ) : (
@@ -246,6 +274,27 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
           </div>
         </div>
       )}
+
+      <ConnectPaymentAccountOtpDialog
+        open={connectOtpDialogOpen}
+        onOpenChange={setConnectOtpDialogOpen}
+        intent="stripe"
+        onConfirm={handleConnectStripeOtpConfirm}
+        isConfirming={isConnectingStripe}
+      />
+
+      <DisconnectStripeDialog
+        open={disconnectDialogOpen}
+        onOpenChange={setDisconnectDialogOpen}
+        provider={disconnectProvider}
+      />
+
+      <EditStripeAccountOtpDialog
+        open={editStripeOtpDialogOpen}
+        onOpenChange={setEditStripeOtpDialogOpen}
+        stripeOnboardingUrl={paymentAccount?.stripeOnboardingUrl}
+        onNoOnboardingUrl={() => setConnectOtpDialogOpen(true)}
+      />
 
       <Dialog
         open={withdrawOtpModalOpen}
@@ -332,7 +381,7 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
         )}
         {!showSavedAccount && currency !== "NAIRA" && (
           <Button
-            onClick={() => connectStripe()}
+            onClick={() => setConnectOtpDialogOpen(true)}
             disabled={isConnectingStripe}
             className="bg-[#EAAA08] hover:bg-[#EAAA08]/90 text-white font-semibold flex items-center gap-2 h-12 px-6"
           >

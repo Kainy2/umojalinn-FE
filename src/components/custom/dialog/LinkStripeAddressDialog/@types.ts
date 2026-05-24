@@ -8,4 +8,5 @@ export type TStripeLinkAddressFormValues = z.infer<
 export interface ILinkStripeAddressDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onAddressSaved?: () => void;
 }

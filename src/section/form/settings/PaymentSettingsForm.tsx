@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
 import LinkStripeAddressDialog from "@/components/custom/dialog/LinkStripeAddressDialog";
+import ConnectPaymentAccountOtpDialog from "@/components/custom/dialog/ConnectPaymentAccountOtpDialog";
+import EditStripeAccountOtpDialog from "@/components/custom/dialog/EditStripeAccountOtpDialog";
 import DisconnectStripeDialog from "@/components/custom/dialog/DisconnectStripeDialog/index";
 import AddNairaAccountForm from "@/components/custom/wallet/AddNairaAccountForm";
 import TextField from "@/components/custom/input/TextField";
@@ -23,6 +25,8 @@ import StripeIcon from "@/assets/StripeLogo";
 const PaymentSettingsForm = () => {
   const [currency, setCurrency] = useState<UmojaLinnCurrency>("EURO");
   const [stripeAddressDialogOpen, setStripeAddressDialogOpen] = useState(false);
+  const [connectOtpDialogOpen, setConnectOtpDialogOpen] = useState(false);
+  const [editStripeOtpDialogOpen, setEditStripeOtpDialogOpen] = useState(false);
   const [disconnectStripeDialogOpen, setDisconnectStripeDialogOpen] =
     useState(false);
   const [disconnectProvider, setDisconnectProvider] =
@@ -79,11 +83,20 @@ const PaymentSettingsForm = () => {
     useConnectStripeAccount({
       onSuccess: (data) => {
         const onboardingUrl = data?.data?.data?.onboardingUrl;
+        setConnectOtpDialogOpen(false);
         if (onboardingUrl) {
           window.location.href = onboardingUrl;
         }
       },
     });
+
+  const openConnectStripeOtpDialog = () => {
+    setConnectOtpDialogOpen(true);
+  };
+
+  const handleConnectStripeOtpConfirm = (otp: string) => {
+    connectStripeAccount({ otp });
+  };
 
   const getBankName = (code: string) => {
     return ngnBanksData?.data?.data?.find((b) => b.code === code)?.name || code;
@@ -96,7 +109,7 @@ const PaymentSettingsForm = () => {
         window.open(onboardingUrl, "_blank");
         return;
       }
-      connectStripeAccount();
+      openConnectStripeOtpDialog();
       return;
     }
 
@@ -109,7 +122,7 @@ const PaymentSettingsForm = () => {
       window.location.href = onboardingUrl;
       return;
     }
-    connectStripeAccount();
+    openConnectStripeOtpDialog();
   };
 
   const handleOpenDisconnectDialog = (provider: TPaymentAccountProvider) => {
@@ -122,13 +135,7 @@ const PaymentSettingsForm = () => {
   };
 
   const handleEditStripePayoutAccount = () => {
-    const onboardingUrl = paymentAccount?.stripeOnboardingUrl;
-    if (onboardingUrl) {
-      window.open(onboardingUrl, "_blank");
-      return;
-    }
-
-    handleConnectStripeClick();
+    setEditStripeOtpDialogOpen(true);
   };
 
   // const handleAddStripeBankAccount = () => {
@@ -154,6 +161,8 @@ const PaymentSettingsForm = () => {
             setCurrency(next);
             if (next === "NAIRA") {
               setStripeAddressDialogOpen(false);
+              setConnectOtpDialogOpen(false);
+              setEditStripeOtpDialogOpen(false);
               setDisconnectStripeDialogOpen(false);
             }
           }}
@@ -227,7 +236,7 @@ const PaymentSettingsForm = () => {
           </div>
         )}
       </div>
-      {currency !== "NAIRA" && (
+      {currency !== "NAIRA" && hasActiveAccount && (
         // <div className="flex gap-4">
         //   <button
         //     type="button"
@@ -314,6 +323,22 @@ const PaymentSettingsForm = () => {
       <LinkStripeAddressDialog
         open={stripeAddressDialogOpen}
         onOpenChange={setStripeAddressDialogOpen}
+        onAddressSaved={openConnectStripeOtpDialog}
+      />
+
+      <ConnectPaymentAccountOtpDialog
+        open={connectOtpDialogOpen}
+        onOpenChange={setConnectOtpDialogOpen}
+        intent="stripe"
+        onConfirm={handleConnectStripeOtpConfirm}
+        isConfirming={isConnectingStripe}
+      />
+
+      <EditStripeAccountOtpDialog
+        open={editStripeOtpDialogOpen}
+        onOpenChange={setEditStripeOtpDialogOpen}
+        stripeOnboardingUrl={paymentAccount?.stripeOnboardingUrl}
+        onNoOnboardingUrl={handleConnectStripeClick}
       />
 
       <DisconnectStripeDialog

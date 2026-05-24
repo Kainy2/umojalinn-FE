@@ -1,6 +1,7 @@
 import {
   UmojaLinnCurrency,
   UmojaLinnPaymentAccountInfo,
+  UmojalinnWallet,
   UmojalinnWalletTransaction,
 } from "@/types/project";
 
@@ -103,4 +104,41 @@ export const getTransactionStatus = (
   }
 
   return creditList?.includes(type);
+};
+
+export const getWalletBalanceForCurrency = (
+  wallet: UmojalinnWallet | undefined,
+  currency: UmojaLinnCurrency,
+) => {
+  if (!wallet) return 0;
+  switch (currency) {
+    case "NAIRA":
+      return wallet.ngnBalance ?? 0;
+    case "EURO":
+      return wallet.eurBalance ?? 0;
+    case "USD":
+      return wallet.usdBalance ?? 0;
+    case "GBP":
+      return wallet.gbpBalance ?? 0;
+    case "CAD":
+      return wallet.cadBalance ?? 0;
+    default:
+      return 0;
+  }
+};
+
+export const getWalletCurrencyLabel = (currency: UmojaLinnCurrency) => {
+  switch (currency) {
+    case "NAIRA":
+      return "NGN";
+    case "EURO":
+      return "EUR";
+    case "GBP":
+      return "GBP";
+    case "CAD":
+      return "CAD";
+    case "USD":
+    default:
+      return "USD";
+  }
 };
