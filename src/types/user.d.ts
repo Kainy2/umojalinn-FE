@@ -1,6 +1,6 @@
 import { languageProficiency } from "@/lib/schema";
 import { UmojaLinnTimestamp } from "./util";
-import { UmojaLinnProject } from "./project";
+import { UmojaLinnProject, UmojaLinnProjectReview, UmojaLinnSharedWork } from "./project";
 
 export type UmojaLinnUserRole = "BUYER" | "DESIGNER";
 
@@ -78,6 +78,33 @@ export type UmojaLinnUser = {
 export type UmojaLinnLoginResponse = {
   authToken: string;
   user: UmojaLinnUser;
+};
+
+export type UmojaLinnDesignerProfile = {
+  id: string;
+  userId: string;
+  brandName: string | null;
+  isAvailable: boolean;
+  about: string | null;
+  experienceLevel: string | null;
+  profileStrength: number;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    profilePhotoUri: string | null;
+    address: { country?: string; city?: string; state?: string } | null;
+  };
+  clothingTypes: Array<{ id: string; name: string } & UmojaLinnTimestamp>;
+  specialistType: { id: string; name: string } | null;
+  designerSharedWork: UmojaLinnSharedWork[];
+  reviews: UmojaLinnProjectReview[];
+  projectInvitations: unknown[];
+  projects: unknown[];
+  bids: unknown[];
+  languages: unknown[];
 };
 
 export type UmojaLinnNotification = {

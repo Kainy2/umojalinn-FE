@@ -36,6 +36,13 @@ const ShareYourWorkForm = () => {
   const [values, setValues] = useState<SharedWorkImageEntry[]>([]);
   const [selectedClothingTypes, setSelectedClothingTypes] = useState<string[]>([]);
 
+  const hasAtLeastOneImage = values.length > 0;
+  const hasCoverImage = values.some((v) => v.isCoverImage);
+  const allDescriptionsFilled = values.every((v) => v.description.trim().length > 0);
+  const hasClothingType = selectedClothingTypes.length > 0;
+  const isFormValid =
+    hasAtLeastOneImage && hasCoverImage && allDescriptionsFilled && hasClothingType;
+
   const preview = useMemo(() => {
     return values.map((val) => ({
       ...val,
@@ -103,7 +110,6 @@ const ShareYourWorkForm = () => {
         })),
       });
 
-      return;
       createSharedWork(formData, {
         onSuccess() {
           router.push("/dashboard");
@@ -137,9 +143,13 @@ const ShareYourWorkForm = () => {
                   placeholder="Image Descriptions"
                   rows={3}
                 />
-                <p className="text-sm text-foreground-body">
-                  {value.description?.length || 0}/250 characters
-                </p>
+                {value.description.trim().length === 0 ? (
+                  <p className="text-sm text-red-500">Description is required.</p>
+                ) : (
+                  <p className="text-sm text-foreground-body">
+                    {value.description.length}/250 characters
+                  </p>
+                )}
               </div>
 
               <div>
@@ -185,6 +195,13 @@ const ShareYourWorkForm = () => {
               }}
             />
           </div>
+
+          {!hasAtLeastOneImage && (
+            <p className="text-sm text-red-500">Upload at least one image.</p>
+          )}
+          {hasAtLeastOneImage && !hasCoverImage && (
+            <p className="text-sm text-red-500">Select a cover image.</p>
+          )}
         </div>
       </FormItemWrapper>
 
@@ -203,6 +220,11 @@ const ShareYourWorkForm = () => {
           value={selectedClothingTypes}
           onChange={setSelectedClothingTypes}
         />
+        {!hasClothingType && (
+          <p className="text-sm text-red-500 mt-2">
+            Select at least one clothing type.
+          </p>
+        )}
       </FormItemWrapper>
 
       <ProjectEditFooter
@@ -213,6 +235,7 @@ const ShareYourWorkForm = () => {
         rightPrimaryButtonProps={{
           text: "Publish",
           loading: isSubmitting,
+          disabled: !isFormValid,
           onClick: handleSubmit,
         }}
       />

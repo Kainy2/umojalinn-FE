@@ -17,12 +17,12 @@ export const BUYERS_SIDEBAR_CONTENT: CustomSidebarMenuItemProps[] = [
     icon: <Activity />,
     regex: /(^\/$|^\/project\/.*|^\/projects$|^\/projects\/.*|^\/bids\/.*)/,
   },
-  {
-    title: "Designers",
-    url: "/designers",
-    icon: <SearchRefracted />,
-    regex: /(^\/designers$|^\/designers\/.*)/,
-  },
+  // {
+  //   title: "Designers",
+  //   url: "/designers",
+  //   icon: <SearchRefracted />,
+  //   regex: /(^\/designers$|^\/designers\/.*)/,
+  // },
   {
     title: "Sizing Templates",
     url: "/sizing-templates",

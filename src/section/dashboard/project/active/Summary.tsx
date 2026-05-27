@@ -36,7 +36,7 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
             disabled={isDesigner}
             onClick={
               !isDesigner
-                ? () => router.push(`/designers/${uuidToBase62Safe(data?.data?.data?.designer?.id || "")}`)
+                ? () => router.push(`/designers/${uuidToBase62Safe(data?.data?.data?.designer?.user?.id || "")}`)
                 : undefined
             }
             label={
