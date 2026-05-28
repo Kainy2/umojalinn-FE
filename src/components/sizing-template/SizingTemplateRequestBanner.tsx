@@ -9,11 +9,14 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { FileText } from "lucide-react";
 import { UmojaLinnSizingTemplate } from "@/types/project";
+import { TSizingGender } from "@/lib/sizing-template-utils";
 import AcceptSizingTemplateDropdown from "./AcceptSizingTemplateDropdown";
 
 type SizingTemplateRequestBannerProps = {
   /** Designer who requested the template */
   designerName?: string;
+  /** Project gender for empty-state messaging */
+  projectGender?: null | TSizingGender;
   /** Available templates to choose from */
   availableTemplates?: UmojaLinnSizingTemplate[];
   /** Whether templates are loading */
@@ -27,6 +30,7 @@ type SizingTemplateRequestBannerProps = {
 
 const SizingTemplateRequestBanner = ({
   designerName = "The designer",
+  projectGender,
   availableTemplates = [],
   isLoadingTemplates = false,
   onAccept,
@@ -57,6 +61,7 @@ const SizingTemplateRequestBanner = ({
       
       <AcceptSizingTemplateDropdown
         availableTemplates={availableTemplates}
+        projectGender={projectGender}
         isLoading={isLoadingTemplates}
         onAccept={onAccept}
         isAccepting={isAccepting}

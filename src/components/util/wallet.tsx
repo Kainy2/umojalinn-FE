@@ -142,3 +142,16 @@ export const getWalletCurrencyLabel = (currency: UmojaLinnCurrency) => {
       return "USD";
   }
 };
+
+const WITHDRAW_PATH_SEGMENT_TO_CURRENCY: Record<string, UmojaLinnCurrency> = {
+  naira: "NAIRA",
+  euro: "EURO",
+  usd: "USD",
+  gbp: "GBP",
+  cad: "CAD",
+};
+
+export const getCurrencyFromWithdrawPathSegment = (
+  segment: string,
+): UmojaLinnCurrency | null =>
+  WITHDRAW_PATH_SEGMENT_TO_CURRENCY[segment.toLowerCase()] ?? null;

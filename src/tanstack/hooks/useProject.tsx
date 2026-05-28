@@ -872,7 +872,7 @@ export const useRequestWithdrawal = (
     mutationFn: (variables) => requestWithdrawal(variables),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
-        queryKey: [PROJECT, WALLET, WITHDRAWAL_METHODS],
+        queryKey: [PROJECT, WALLET],
       });
       options?.onSuccess?.(data, variables, context);
     },

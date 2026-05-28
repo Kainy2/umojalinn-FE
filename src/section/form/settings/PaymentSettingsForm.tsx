@@ -15,7 +15,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
 import LinkStripeAddressDialog from "@/components/custom/dialog/LinkStripeAddressDialog";
 import ConnectPaymentAccountOtpDialog from "@/components/custom/dialog/ConnectPaymentAccountOtpDialog";
-import EditStripeAccountOtpDialog from "@/components/custom/dialog/EditStripeAccountOtpDialog";
 import DisconnectStripeDialog from "@/components/custom/dialog/DisconnectStripeDialog/index";
 import AddNairaAccountForm from "@/components/custom/wallet/AddNairaAccountForm";
 import TextField from "@/components/custom/input/TextField";
@@ -26,7 +25,6 @@ const PaymentSettingsForm = () => {
   const [currency, setCurrency] = useState<UmojaLinnCurrency>("EURO");
   const [stripeAddressDialogOpen, setStripeAddressDialogOpen] = useState(false);
   const [connectOtpDialogOpen, setConnectOtpDialogOpen] = useState(false);
-  const [editStripeOtpDialogOpen, setEditStripeOtpDialogOpen] = useState(false);
   const [disconnectStripeDialogOpen, setDisconnectStripeDialogOpen] =
     useState(false);
   const [disconnectProvider, setDisconnectProvider] =
@@ -135,7 +133,9 @@ const PaymentSettingsForm = () => {
   };
 
   const handleEditStripePayoutAccount = () => {
-    setEditStripeOtpDialogOpen(true);
+    const onboardingUrl = paymentAccount?.stripeOnboardingUrl;
+    if (!onboardingUrl) return;
+    window.open(onboardingUrl, "_blank", "noopener,noreferrer");
   };
 
   // const handleAddStripeBankAccount = () => {
@@ -162,7 +162,6 @@ const PaymentSettingsForm = () => {
             if (next === "NAIRA") {
               setStripeAddressDialogOpen(false);
               setConnectOtpDialogOpen(false);
-              setEditStripeOtpDialogOpen(false);
               setDisconnectStripeDialogOpen(false);
             }
           }}
@@ -236,7 +235,9 @@ const PaymentSettingsForm = () => {
           </div>
         )}
       </div>
-      {currency !== "NAIRA" && hasActiveAccount && (
+      {currency !== "NAIRA" &&
+        hasActiveAccount &&
+        paymentAccount?.stripeOnboardingUrl && (
         // <div className="flex gap-4">
         //   <button
         //     type="button"
@@ -332,13 +333,6 @@ const PaymentSettingsForm = () => {
         intent="stripe"
         onConfirm={handleConnectStripeOtpConfirm}
         isConfirming={isConnectingStripe}
-      />
-
-      <EditStripeAccountOtpDialog
-        open={editStripeOtpDialogOpen}
-        onOpenChange={setEditStripeOtpDialogOpen}
-        stripeOnboardingUrl={paymentAccount?.stripeOnboardingUrl}
-        onNoOnboardingUrl={handleConnectStripeClick}
       />
 
       <DisconnectStripeDialog

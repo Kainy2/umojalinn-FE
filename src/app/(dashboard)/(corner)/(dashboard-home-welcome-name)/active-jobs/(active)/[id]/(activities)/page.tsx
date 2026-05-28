@@ -9,6 +9,7 @@ import {
 import { useGetSizingTemplateById } from "@/tanstack/hooks/useSizingTemplates";
 import { useGetMe } from "@/tanstack/hooks/useUser";
 import { uuidToBase62Safe } from "@/lib/uuid";
+import { shouldDisableDesignerMilestoneSubmission } from "@/lib/sizing-template-utils";
 import { useParams } from "next/navigation";
 import React from "react";
 
@@ -63,7 +64,9 @@ const ActiveJobsPage = () => {
     !!sizingTemplate &&
     !hasMeasurementPointsRequested &&
     !hasMeasurementPointsSubmitted;
-  const disableDesignerMilestoneSubmission = isDesigner && showRequestPointsBanner;
+  const disableDesignerMilestoneSubmission =
+    isDesigner &&
+    shouldDisableDesignerMilestoneSubmission(sizingTemplateId, sizingTemplate);
 
   // Show banner to designer to be able to remind buyer to send measurement points values
   const isAwaitingMeasurementPointsValues =
@@ -94,6 +97,7 @@ const ActiveJobsPage = () => {
           buyer={project?.buyer.user}
           designer={project?.designer.user}
           projectId={project?.id}
+          projectName={project?.title ?? undefined}
           currency={project?.currency || null}
           escrowBalance={project?.escrowBalance || 0}
           isDesigner={isDesigner}

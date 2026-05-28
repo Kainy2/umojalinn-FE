@@ -170,7 +170,7 @@ const MeasurementPointsReminderBanner = ({
         <Bell className="size-5 text-amber-600 shrink-0 mt-0.5" />
         <div className="flex gap-2 justify-center">
           <p className="text-sm font-medium text-foreground-body">
-            Set up your Measurement Points to trigger milestones.
+            To proceed request measurement points you need.
           </p>
           <Link
             href={`/sizing-templates/${uuidToBase62Safe(templateId)}?projectId=${uuidToBase62Safe(projectId)}`}
