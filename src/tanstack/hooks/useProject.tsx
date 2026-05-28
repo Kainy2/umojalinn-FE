@@ -40,6 +40,7 @@ import {
   requestWithdrawOtp,
   deleteStripeConnectedAccount,
   getPaystackFeeEstimate,
+  getDesignerProfile,
 } from "@/actions/project";
 import { queryClient } from "@/components/provider/TanstackQueryClient";
 import useHandleError from "@/hooks/useHandleError";
@@ -92,8 +93,10 @@ import {
   WITHDRAWAL_METHODS,
   PAYMENT_ACCOUNT_INFO,
   PAYSTACK_FEE_ESTIMATE,
+  DESIGNER_PROFILE,
 } from "../keys";
 import { getUserReviews, UserReviewsApiProps } from "@/actions/user";
+import { UmojaLinnDesignerProfile } from "@/types/user";
 
 export const useInviteBuyer = (
   options: GenericUseMutationProps<SingleApiResponse, { emails: string[] }>,
@@ -958,5 +961,18 @@ export const useGetSpecialistTypes = (
     enabled: !!me?.user && options?.enabled !== false,
     queryKey: ["SPECIALIST_TYPES"],
     queryFn: () => getSpecialistTypes(),
+  });
+};
+
+export const useGetDesignerProfile = (
+  id?: string,
+  options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnDesignerProfile>>,
+) => {
+  const { data: me } = useSession();
+  return useQuery({
+    ...options,
+    enabled: !!me?.user && !!id && options?.enabled !== false,
+    queryKey: [DESIGNER_PROFILE, id],
+    queryFn: () => getDesignerProfile(id || ""),
   });
 };

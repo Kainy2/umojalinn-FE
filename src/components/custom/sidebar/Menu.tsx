@@ -8,6 +8,7 @@ import {
   DESIGNERS_SIDEBAR_CONTENT,
 } from "@/constant/navigation";
 import { cn } from "@/lib/utils";
+import { Plus } from "lucide-react";
 
 const CustomSidebarMenu = (props: {
   profileRole?: UmojaLinnUserRole | null;
@@ -18,14 +19,31 @@ const CustomSidebarMenu = (props: {
   }
 
   const Menu = props.isMobile ? "div" : SidebarMenu;
-
+  const isDesigner = props.profileRole === "DESIGNER";
   const items =
-    props.profileRole === "DESIGNER"
+    isDesigner
       ? DESIGNERS_SIDEBAR_CONTENT
       : BUYERS_SIDEBAR_CONTENT;
 
+      // {
+      //   title: "Share your work",
+      //   url: "/share-your-work",
+      //   icon: <ImageIcon />,
+      //   regex: /^\/share-your-work$/,
+      // },
   return (
     <Menu className={cn(props.isMobile && "flex flex-col gap-1 pb-8")}>
+      {isDesigner && (
+        <div className="border text-primary mb-4">
+          <CustomSidebarMenuItem
+            title="Share your work"
+            url="/share-your-work"
+            icon={<Plus className="text-primary h-5 w-5" />}
+            isMobile={props.isMobile}
+          />
+        </div>
+      )}
+
       {items.map((item) => (
         <CustomSidebarMenuItem
           {...item}

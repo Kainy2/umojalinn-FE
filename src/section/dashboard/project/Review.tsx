@@ -11,16 +11,22 @@ import { formatCurrencyValue } from "@/lib/number";
 import { StateType } from "@/layout/create-project/CreateProjectProvider";
 import { useGetClothingTypes } from "@/tanstack/hooks/useProject";
 import { cn } from "@/lib/utils";
+import { uuidToBase62Safe } from "@/lib/uuid";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 const ProjectReviewView = (props: {
   project?: UmojaLinnProject;
   projectFormDetails?: StateType;
   loading?: boolean;
 }) => {
-  const { projectFormDetails } = props;
-  const { data } = useGetClothingTypes();
-
-  const allClothingTypes = data?.data?.data;
+  const { projectFormDetails } = props
+  const { data } = useGetClothingTypes()
+  const router = useRouter();
+  const { data: session } = useSession();
+  
+  const isDesigner = session?.user?.profileRole === "DESIGNER";
+  const allClothingTypes = data?.data?.data
 
   if (props.loading) {
     return (
@@ -224,7 +230,12 @@ const ProjectReviewView = (props: {
           Designer
         </h3>
         <AvatarIconTag
-          disabled
+          disabled={isDesigner}
+          onClick={
+            !isDesigner
+              ? () => router.push(`/designers/${uuidToBase62Safe(props?.project?.designer?.user?.id || "")}`)
+              : undefined
+          }
           avatar={{
             src: props?.project?.designer?.user?.profilePhotoUri,
           }}
