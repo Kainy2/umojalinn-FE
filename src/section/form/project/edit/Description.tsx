@@ -30,7 +30,11 @@ import { useGetAllSizingTemplates } from "@/tanstack/hooks/useSizingTemplates";
 import CustomSelectCountry from "@/components/custom/SelectCountry";
 import CustomReactSelect from "@/components/custom/ReactSelect";
 import { useCreateProjectContext } from "@/hooks/create-project/useCreateProjectContext";
-import { filterTemplatesForProject } from "@/lib/sizing-template-utils";
+import {
+  filterTemplatesForProject,
+  getNoMatchingSizingTemplateDescription,
+  TSizingGender,
+} from "@/lib/sizing-template-utils";
 
 export type ProjectFormProps = {
   id: string;
@@ -61,12 +65,13 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
       sizingTemplateStatus: "LIVE",
     });
 
-  const projectGender = form.watch("gender") || data?.data?.data?.gender;
+  const projectGender = (form.watch("gender") ||
+    data?.data?.data?.gender) as TSizingGender | null | undefined;
   const matchingSizingTemplates = useMemo(
     () =>
       filterTemplatesForProject(
         sizingTemplateData?.data?.data ?? [],
-        projectGender as "MALE" | "FEMALE" | null | undefined,
+        projectGender,
       ),
     [sizingTemplateData?.data?.data, projectGender],
   );
@@ -450,7 +455,7 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
                         <span className="text-sm">
                           {
                             !matchingSizingTemplates.length ?
-                              "You have no sizing templates available, you can add sizing template later from the Sizing templates tab" :
+                              getNoMatchingSizingTemplateDescription(projectGender) :
                               "Include Sizing template in your Project description or at project start"
                           }
                         </span>

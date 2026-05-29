@@ -7,7 +7,15 @@ import {
   UmojaLinnProject,
   VariableDeliveryMileStoneSubmissions,
 } from "@/types/project";
-
+import ClipboardSearch from "@/assets/ClipboardSearch";
+import { MoreVertical } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MilestoneCancellationRequestDialog } from "@/components/custom/dialog/MilestoneCancellationRequest";
 import MilestoneIndicator from "./Indicator";
 import MilestonePill from "./Pill";
 import MilestoneAction, { MilestoneActionType } from "./Action";
@@ -56,6 +64,7 @@ export type MilestoneTimelineProps = {
   escrowBalance?: number;
   currency: UmojaLinnProject["currency"];
   projectId?: string;
+  projectName?: string;
   designer: UmojaLinnUser | null | undefined;
   buyer: UmojaLinnUser | null | undefined;
   /** When true, timeline is greyed out and non-interactive */
@@ -64,7 +73,7 @@ export type MilestoneTimelineProps = {
 
 const getMilestoneStatus = (
   status: UmojaLinnMilestone["status"],
-  transactionStatus: UmojaLinnMilestone["transactionStatus"]
+  transactionStatus: UmojaLinnMilestone["transactionStatus"],
 ): MilestoneTimelineItem["status"] => {
   if (status === "IN_ACTIVE") {
     return MilestoneStatus.INACTIVE;
@@ -76,8 +85,6 @@ const getMilestoneStatus = (
     return MilestoneStatus.AWAITING_FUND;
   if (transactionStatus === "PAID") return MilestoneStatus.PAID;
   if (transactionStatus === "PROCESSING") return MilestoneStatus.PROCESSING;
-  ;
-
   if (status === "IN_REVIEW") return MilestoneStatus.IN_REVIEW;
   return MilestoneStatus.INACTIVE;
 };
@@ -89,22 +96,32 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
   isDesigner,
   currency,
   projectId,
+  projectName,
   designer,
   buyer,
   disabled = false,
   disableDesignerSubmission = false,
 }) => {
-  const deliveryMilestone = !!milestones.length ? milestones[milestones.length - 1] : undefined;
+  const deliveryMilestone = !!milestones.length
+    ? milestones[milestones.length - 1]
+    : undefined;
 
   // const [openFundMilestoneModal, setOpenFundMilestoneModal] = useState(false);
   // const [openPayForMilestoneModal, setOpenPayForMilestoneModal] = useState(false)
   // const [selectedMilestoneId, setSelectedMilestoneId] = useState('')
-  const [message, setMessage] = React.useState<string>('');
+  const [message, setMessage] = React.useState<string>("");
   const [files, setFiles] = React.useState<FileList | null>(null);
-  const [editedVariablePrice, setEditedVariablePrice] =
-    useState(deliveryMilestone?.amount ?? 0)
+  const [editedVariablePrice, setEditedVariablePrice] = useState(
+    deliveryMilestone?.amount ?? 0,
+  );
   const [selectedVariableDeliveryMethod, setSelectedVariableDeliveryMethod] =
-    useState(deliveryMilestone?.deliveryMethod ?? "IN_PERSON_PICKUP")
+    useState(deliveryMilestone?.deliveryMethod ?? "IN_PERSON_PICKUP");
+
+  const [cancellationOpen, setCancellationOpen] = useState(false);
+  const [cancellationMilestone, setCancellationMilestone] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
 
   const [editableDeliverySubmission, setEditableDeliverySubmission] =
     useState<UmojaLinnDeliveryMilestoneReviewProps>({
@@ -120,21 +137,25 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
     });
 
   const onAcceptMilestoneSuccess = (isDelivery: boolean, index: number) => {
-    if (isDelivery) return
+    if (isDelivery) return;
     const nextMilestone = milestones[index + 1];
 
     if (nextMilestone.project.fundStatus === MilestoneStatus.AWAITING_FUND) {
       // setOpenFundMilestoneModal(true);
       // setSelectedMilestoneId(nextMilestone.id);
     }
-  }
+  };
 
-  const onAcceptVariableMilestoneSuccess = (isDelivery: boolean, deliveryMilestone: UmojaLinnMilestone) => {
-    if (deliveryMilestone.project.fundStatus !== MilestoneStatus.AWAITING_FUND) return
+  const onAcceptVariableMilestoneSuccess = (
+    isDelivery: boolean,
+    deliveryMilestone: UmojaLinnMilestone,
+  ) => {
+    if (deliveryMilestone.project.fundStatus !== MilestoneStatus.AWAITING_FUND)
+      return;
 
     // setOpenFundMilestoneModal(true);
     // setSelectedMilestoneId(deliveryMilestone.id);
-  }
+  };
   const fundMilestone = useFundMilestone({
     onSuccess: (data) => {
       const url = data?.data?.data?.checkoutUrl;
@@ -147,16 +168,15 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
     },
   });
 
-
   return (
     <>
-
-
-      <ol className={cn(
-        "flex flex-col gap-1.5",
-        disabled && "opacity-50 pointer-events-none select-none",
-        className
-      )}>
+      <ol
+        className={cn(
+          "flex flex-col gap-1.5",
+          disabled && "opacity-50 pointer-events-none select-none",
+          className,
+        )}
+      >
         {milestones.map((item, index) => {
           const isDelivery = !!item?.deliveryMethod;
           const milestone: MilestoneTimelineItem = {
@@ -164,17 +184,20 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
             status: getMilestoneStatus(item?.status, item?.transactionStatus),
             amount: item?.amount || 0,
             date: item?.updatedAt,
-            title: item?.title || (isDelivery && "Delivery Method") || "No title",
+            title:
+              item?.title || (isDelivery && "Delivery Method") || "No title",
             description: item?.description,
             variableSubmissions: item?.variableSubmissions,
             isCurrent: ["PENDING", "ACTIVE", "REJECTED", "IN_REVIEW"].includes(
-              item?.status
+              item?.status,
             ),
           };
 
-          const isVariableDelivery = item.deliveryMileStoneType === EDeliveryMileStoneType.VARIABLE
-          const isAwaitingFunding = milestone?.status === MilestoneStatus.AWAITING_FUND
-          const latestSubmission = milestone.variableSubmissions?.[0]
+          const isVariableDelivery =
+            item.deliveryMileStoneType === EDeliveryMileStoneType.VARIABLE;
+          const isAwaitingFunding =
+            milestone?.status === MilestoneStatus.AWAITING_FUND;
+          const latestSubmission = milestone.variableSubmissions?.[0];
           const isCompletedOrCurrent =
             milestone?.status === MilestoneStatus.COMPLETED ||
             milestone?.isCurrent;
@@ -189,11 +212,39 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                 <h3
                   className={cn(
                     "flex-1 font-semibold text-gray-400 mt-1 truncate",
-                    isCompletedOrCurrent && "text-foreground-body"
+                    isCompletedOrCurrent && "text-foreground-body",
                   )}
                 >
                   {milestone?.title}
                 </h3>
+                {isDesigner && milestone?.isCurrent && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        type="button"
+                        className="shrink-0 rounded-sm outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                        aria-label="Milestone actions"
+                      >
+                        <MoreVertical className="text-primary cursor-pointer" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-[200px]">
+                      <DropdownMenuItem
+                        className="cursor-pointer gap-1 text-[#B54708]"
+                        onClick={() => {
+                          setCancellationMilestone({
+                            id: milestone.id,
+                            title: milestone.title,
+                          });
+                          setCancellationOpen(true);
+                        }}
+                      >
+                        <ClipboardSearch />
+                        Cancel Milestone
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </div>
               <div className="flex flex-row items-stretch gap-3">
                 {/* Line indicator */}
@@ -201,8 +252,8 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                   className={cn(
                     "flex flex-col justify-center items-center w-8 shrink-0 before:content-[''] before:w-0.5 before:h-full before:bg-gray-200 before:flex-1 before:rounded-full ",
                     milestone?.status === MilestoneStatus.COMPLETED &&
-                    "before:bg-success",
-                    milestone?.isCurrent && "before:bg-gray-500"
+                      "before:bg-success",
+                    milestone?.isCurrent && "before:bg-gray-500",
                   )}
                 />
                 {/* Details, actions and content */}
@@ -210,7 +261,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                   <p
                     className={cn(
                       "text-gray-400",
-                      isCompletedOrCurrent && "text-foreground-body"
+                      isCompletedOrCurrent && "text-foreground-body",
                     )}
                   >
                     {milestone?.description}
@@ -234,12 +285,16 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                     isDesigner={!!isDesigner}
                     isDeliveryMilestone={isDelivery}
                     variableSubmissions={item?.variableSubmissions}
-                    currency={currency ?? 'NAIRA'}
+                    currency={currency ?? "NAIRA"}
                     isCurrentMilestone={!!milestone?.isCurrent}
                     editedVariablePrice={editedVariablePrice}
                     setEditedVariablePrice={setEditedVariablePrice}
-                    selectedVariableDeliveryMethod={selectedVariableDeliveryMethod}
-                    setSelectedVariableDeliveryMethod={setSelectedVariableDeliveryMethod}
+                    selectedVariableDeliveryMethod={
+                      selectedVariableDeliveryMethod
+                    }
+                    setSelectedVariableDeliveryMethod={
+                      setSelectedVariableDeliveryMethod
+                    }
                   />
 
                   <MilestoneSubmissionsPreview
@@ -280,34 +335,40 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                   <div
                     className={cn(
                       "flex gap-2 flex-wrap items-center text-sm",
-                      isCompletedOrCurrent && "text-foreground-body"
+                      isCompletedOrCurrent && "text-foreground-body",
                     )}
                   >
                     {milestone?.date && isCompletedOrCurrent && (
                       <time
                         className={cn(
                           "text-gray-400 text-sm",
-                          isCompletedOrCurrent && "text-foreground-body"
+                          isCompletedOrCurrent && "text-foreground-body",
                         )}
                       >
                         {format(
                           new Date(milestone?.date),
-                          "MMM dd, yyyy • hh:mmaaa"
+                          "MMM dd, yyyy • hh:mmaaa",
                         )}
                       </time>
                     )}
-                    <MilestonePill currency={currency} escrowBalance={escrowBalance} isDesigner={isDesigner} {...milestone} />
-                    {(isAwaitingFunding || milestone?.status === MilestoneStatus.PROCESSING) && latestSubmission?.status !== "PENDING" &&
+                    <MilestonePill
+                      currency={currency}
+                      escrowBalance={escrowBalance}
+                      isDesigner={isDesigner}
+                      {...milestone}
+                    />
+                    {(isAwaitingFunding ||
+                      milestone?.status === MilestoneStatus.PROCESSING) &&
+                      latestSubmission?.status !== "PENDING" &&
                       !isDesigner && (
-
-                        <button className="text-sm underline text-primary"
+                        <button
+                          className="text-sm underline text-primary"
                           onClick={() => {
                             fundMilestone.mutate(milestone?.id);
                           }}
                         >
                           Fund Milestone
                         </button>
-
                       )}
                     {(milestone?.retries?.length ?? 0) > 1 && (
                       <>
@@ -316,7 +377,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                             "text-gray-400",
                             (milestone?.status === MilestoneStatus.COMPLETED ||
                               milestone?.isCurrent) &&
-                            "text-foreground-body"
+                              "text-foreground-body",
                           )}
                         >
                           {milestone?.retries?.length}{" "}
@@ -331,7 +392,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                         "text-gray-400",
                         (milestone?.status === MilestoneStatus.COMPLETED ||
                           milestone?.isCurrent) &&
-                        "text-foreground-body"
+                          "text-foreground-body",
                       )}
                     >
                       {milestone?.info}
@@ -350,9 +411,14 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                     isAwaitingFunding={false}
                     disableDesignerSubmission={disableDesignerSubmission}
                     onActionClick={(action) => console.log(action)}
-                    onAcceptMilestoneSuccess={() => onAcceptMilestoneSuccess(isDelivery, index)}
+                    onAcceptMilestoneSuccess={() =>
+                      onAcceptMilestoneSuccess(isDelivery, index)
+                    }
                     onAcceptVariableMilestoneSuccess={(deliveryMilestone) =>
-                      onAcceptVariableMilestoneSuccess(isDelivery, deliveryMilestone)
+                      onAcceptVariableMilestoneSuccess(
+                        isDelivery,
+                        deliveryMilestone,
+                      )
                     }
                     {...{
                       isDesigner,
@@ -366,12 +432,25 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                 </div>
               </div>
             </li>
-
           );
         })}
       </ol>
-    </>
 
+      {cancellationMilestone && (
+        <MilestoneCancellationRequestDialog
+          milestoneId={cancellationMilestone.id}
+          projectName={projectName ?? "Project"}
+          milestoneName={cancellationMilestone.title}
+          escrowAmount={escrowBalance ?? 0}
+          currency={currency}
+          open={cancellationOpen}
+          onOpenChange={(open) => {
+            setCancellationOpen(open);
+            if (!open) setCancellationMilestone(null);
+          }}
+        />
+      )}
+    </>
   );
 };
 

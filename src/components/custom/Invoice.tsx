@@ -94,37 +94,49 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: "row",
+    alignItems: "flex-start",
+    paddingHorizontal: 12,
   },
-  column: { flexGrow: 1 },
-  column1Header: {
-    width: 110 + 12,
+  colDescription: {
+    width: 130,
+    flexShrink: 0,
   },
-  column1: {
-    width: 110,
+  colDate: {
+    width: 72,
+    flexShrink: 0,
   },
-  column2: {
-    width: 40,
+  colPrice: {
+    width: 72,
+    flexShrink: 0,
+    marginLeft: 24,
   },
-  column3: {
-    width: 80,
+  colCommission: {
+    width: 88,
+    flexShrink: 0,
+    textAlign: "center",
   },
-  column4: {
-    width: 60,
-  },
-  column4Header: {
-    width: 60,
-    transform: "translateX(-24px)",
-  },
-  column5: {
+  colEarnings: {
+    flexGrow: 1,
+    flexShrink: 0,
     textAlign: "right",
-    justifyContent: "flex-end",
-    alignItems: "flex-end",
+    transform: "translateX(36px)",
+  },
+  rowClient: {
+    justifyContent: "space-between",
+  },
+  clientCol: {
+    flexGrow: 1,
+    flexBasis: 0,
+    flexShrink: 1,
+  },
+  tableHeaderRow: {
+    marginBottom: 8,
   },
   tableRow: {
     backgroundColor: "#f3f4f7",
-    padding: 12,
+    paddingVertical: 12,
     borderRadius: 8,
-    alignItems: "center",
+    alignItems: "flex-start",
   },
   tableBody: {
     gap: 8,
@@ -261,26 +273,29 @@ const Invoice = (props: InvoiceProps) => {
             style={[
               styles.fontBold,
               styles.row,
-              {
-                marginBottom: 8,
-              },
+              styles.tableHeaderRow,
+              ...(!props.isDesigner ? [styles.rowClient] : []),
             ]}
           >
-            <Text style={[styles.column, styles.column1Header]}>
+            <Text
+              style={
+                props.isDesigner ? styles.colDescription : styles.clientCol
+              }
+            >
               Milestone description
             </Text>
-            <Text style={[styles.column, styles.column2]}>Date</Text>
-            {props.isDesigner && (
-              <>
-                <Text style={[styles.column, styles.column3]}>Price</Text>
-                <Text style={[styles.column, styles.column4Header]}>
-                  Commission
-                </Text>
-              </>
-            )}
-            <Text style={[styles.column, styles.column5, styles.alignRight]}>
-              {props.isDesigner ? "Earnings" : "Total"}
+            <Text style={props.isDesigner ? styles.colDate : styles.clientCol}>
+              Date
             </Text>
+            {props.isDesigner ? (
+              <>
+                <Text style={styles.colPrice}>Price</Text>
+                <Text style={styles.colCommission}>Commission</Text>
+                <Text style={styles.colEarnings}>Earnings</Text>
+              </>
+            ) : (
+              <Text style={styles.clientCol}>Total</Text>
+            )}
           </View>
           <View style={styles.tableBody}>
             {props?.milestones?.map((milestone, index) => {
@@ -289,8 +304,21 @@ const Invoice = (props: InvoiceProps) => {
               const price = total - commission;
 
               return (
-                <View key={milestone?.id} style={[styles.tableRow, styles.row]}>
-                  <View style={[styles.column, styles.column1]}>
+                <View
+                  key={milestone?.id}
+                  style={[
+                    styles.tableRow,
+                    styles.row,
+                    ...(!props.isDesigner ? [styles.rowClient] : []),
+                  ]}
+                >
+                  <View
+                    style={
+                      props.isDesigner
+                        ? styles.colDescription
+                        : styles.clientCol
+                    }
+                  >
                     <Text style={styles.fontBold}>
                       {milestone?.deliveryMethod
                         ? "Delivery milestone"
@@ -298,36 +326,33 @@ const Invoice = (props: InvoiceProps) => {
                     </Text>
                     <Text style={styles.bodyText}>{milestone?.title}</Text>
                   </View>
-                  <Text style={[styles.column, styles.column2]}>
+                  <Text
+                    style={props.isDesigner ? styles.colDate : styles.clientCol}
+                  >
                     {milestone?.paidOutDate
                       ? formatDate(milestone?.paidOutDate, "dd/MM/YYY")
                       : "-"}
                   </Text>
-                  <Text
-                    style={[
-                      styles.column,
-                      props.isDesigner ? styles.column3 : styles.alignRight,
-                    ]}
-                  >
-                    {currency}
-                    {formatCurrencyValue(total)}
-                  </Text>
-                  {props.isDesigner && (
+                  {props.isDesigner ? (
                     <>
-                      <Text style={[styles.column, styles.column4]}>
-                        ( {currency} {formatCurrencyValue(commission)})
+                      <Text style={styles.colPrice}>
+                        {currency}
+                        {formatCurrencyValue(total)}
                       </Text>
-                      <Text
-                        style={[
-                          styles.column,
-                          styles.column5,
-                          styles.successText,
-                        ]}
-                      >
+                      <Text style={styles.colCommission}>
+                        ( {currency}
+                        {formatCurrencyValue(commission)})
+                      </Text>
+                      <Text style={[styles.colEarnings, styles.successText]}>
                         {currency}
                         {formatCurrencyValue(price)}
                       </Text>
                     </>
+                  ) : (
+                    <Text style={[styles.clientCol, styles.successText]}>
+                      {currency}
+                      {formatCurrencyValue(total)}
+                    </Text>
                   )}
                 </View>
               );

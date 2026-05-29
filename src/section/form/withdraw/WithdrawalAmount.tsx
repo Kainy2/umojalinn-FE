@@ -11,11 +11,13 @@ import React, { useMemo, useState } from "react";
 import {
   useGetListNgnBanks,
   useGetPaymentAccountInfo,
+  useGetWallet,
   useRequestWithdrawal,
   useConnectStripeAccount,
   useRequestWithdrawOtp,
   useGetPaystackFeeEstimate,
 } from "@/tanstack/hooks/useProject";
+import { getWalletBalanceForCurrency } from "@/components/util/wallet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrencyValue } from "@/lib/number";
 import { numberToCommaString, removeNonDigits } from "@/lib/utils";
@@ -34,7 +36,6 @@ import {
 import { Label } from "@/components/ui/label";
 import ConnectPaymentAccountOtpDialog from "@/components/custom/dialog/ConnectPaymentAccountOtpDialog";
 import DisconnectStripeDialog from "@/components/custom/dialog/DisconnectStripeDialog";
-import EditStripeAccountOtpDialog from "@/components/custom/dialog/EditStripeAccountOtpDialog";
 
 const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
   const { currency } = props;
@@ -45,11 +46,11 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
   const [withdrawOtpModalOpen, setWithdrawOtpModalOpen] = useState(false);
   const [connectOtpDialogOpen, setConnectOtpDialogOpen] = useState(false);
   const [disconnectDialogOpen, setDisconnectDialogOpen] = useState(false);
-  const [editStripeOtpDialogOpen, setEditStripeOtpDialogOpen] = useState(false);
   const [disconnectProvider, setDisconnectProvider] =
     useState<TPaymentAccountProvider>("PAYSTACK");
 
   // New Hooks
+  const { data: walletData, isPending: isWalletPending } = useGetWallet();
   const {
     data: paymentAccountData,
     isPending: isLoadingAccount,
@@ -101,10 +102,6 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
     handleOpenDisconnectDialog("PAYSTACK");
   };
 
-  const handleEditStripePayoutAccount = () => {
-    setEditStripeOtpDialogOpen(true);
-  };
-
   // Find the account relevant to the current currency
   const paymentAccount = useMemo(() => {
     const accounts = paymentAccountData?.data?.data ?? [];
@@ -114,6 +111,12 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
     }
     return accounts.find((a) => !!a?.stripeAccountId) ?? null;
   }, [paymentAccountData, currency]);
+
+  const handleEditStripePayoutAccount = () => {
+    const onboardingUrl = paymentAccount?.stripeOnboardingUrl;
+    if (!onboardingUrl) return;
+    window.open(onboardingUrl, "_blank", "noopener,noreferrer");
+  };
 
   const hasActiveAccount = useMemo(() => {
     if (!paymentAccount) return false;
@@ -142,6 +145,14 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
   const showSavedAccount = hasActiveAccount;
   const withdrawAmount = Number((amount || "").replace(/,/g, ""));
   const isValidWithdrawalAmount = !!amount && withdrawAmount > 0;
+
+  const wallet = walletData?.data?.data;
+  const availableBalance = getWalletBalanceForCurrency(wallet, currency);
+  const isLoadingBalance = isWalletPending && !wallet;
+  const exceedsAvailableBalance =
+    !isLoadingBalance && isValidWithdrawalAmount && withdrawAmount > availableBalance;
+  const canRequestWithdrawal =
+    isValidWithdrawalAmount && !exceedsAvailableBalance && !isLoadingBalance;
 
   const {
     data: feeEstimateResponse,
@@ -187,6 +198,11 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
             ) : null
           }
         />
+      )}
+      {showSavedAccount && exceedsAvailableBalance && (
+        <p className="text-sm text-error -mt-4">
+          Withdrawal amount cannot exceed your available balance.
+        </p>
       )}
       {currency === "NAIRA" && showSavedAccount && isValidWithdrawalAmount && (
         <p>
@@ -236,13 +252,15 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
                       {paymentAccount?.stripeIban || ""} •{" "}
                       {paymentAccount?.stripeBankName}
                     </p>
-                    <button
-                      type="button"
-                      onClick={handleEditStripePayoutAccount}
-                      className="text-primary font-semibold text-sm mt-2 hover:underline p-0 h-auto"
-                    >
-                      Edit
-                    </button>
+                    {paymentAccount?.stripeOnboardingUrl && (
+                      <button
+                        type="button"
+                        onClick={handleEditStripePayoutAccount}
+                        className="text-primary font-semibold text-sm mt-2 hover:underline p-0 h-auto"
+                      >
+                        Edit
+                      </button>
+                    )}
                   </>
                 )}
               </div>
@@ -289,13 +307,6 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
         provider={disconnectProvider}
       />
 
-      <EditStripeAccountOtpDialog
-        open={editStripeOtpDialogOpen}
-        onOpenChange={setEditStripeOtpDialogOpen}
-        stripeOnboardingUrl={paymentAccount?.stripeOnboardingUrl}
-        onNoOnboardingUrl={() => setConnectOtpDialogOpen(true)}
-      />
-
       <Dialog
         open={withdrawOtpModalOpen}
         onOpenChange={setWithdrawOtpModalOpen}
@@ -335,7 +346,7 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
             <Button
               type="button"
               disabled={
-                !isValidWithdrawalAmount ||
+                !canRequestWithdrawal ||
                 !withdrawOtp.trim() ||
                 isRequestingWithdrawal
               }
@@ -369,9 +380,9 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
 
         {showSavedAccount && (
           <Button
-            disabled={!isValidWithdrawalAmount || isRequestingWithdrawOtp}
+            disabled={!canRequestWithdrawal || isRequestingWithdrawOtp}
             onClick={() => {
-              if (isValidWithdrawalAmount) {
+              if (canRequestWithdrawal) {
                 requestWithdrawOtp();
               }
             }}
