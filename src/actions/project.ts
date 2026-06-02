@@ -29,7 +29,7 @@ import {
   TPaystackFeeEstimate,
 } from "@/types/project";
 import { UmojaLinnTransaction } from "@/types/transaction";
-import { UmojaLinnNotification } from "@/types/user";
+import { UmojaLinnDesignerProfile, UmojaLinnNotification } from "@/types/user";
 
 import {
   ArrayApiResponse,
@@ -693,4 +693,17 @@ export const getSpecialistTypes = async (options?: ServerActionOption) => {
     unknown,
     AxiosResponse<ArrayApiResponse<UmojaLinnSpecialistType>>
   >(`/project/specialist-types`);
+};
+
+export const getDesignerProfile = async (
+  id: string,
+  options?: ServerActionOption,
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.get<unknown, AxiosResponse<SingleApiResponse<UmojaLinnDesignerProfile>>>(
+    `/buyer/designer/${base62ToUuidSafe(id)}/profile`,
+  );
 };
