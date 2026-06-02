@@ -2,8 +2,18 @@ import {
 	UmojaLinnCurrency,
 	UmojalinnPaymentChannels,
 	UmojaLinnProject,
+	TPspProvider,
 	UmojaLinnWithdrawalMethod
 } from "./project";
+
+export type TTransactionMetadata = {
+	amount?: number;
+	currency?: UmojaLinnCurrency;
+	designerId?: string;
+	transferId?: string;
+	transferStatus?: string;
+	withdrawalAmount?: number;
+};
 
 export type UmojaLinnTransaction = {
 	id: string;
@@ -18,12 +28,18 @@ export type UmojaLinnTransaction = {
 	| "MILESTONE_COMPLETED";
 	paymentChannel: UmojalinnPaymentChannels;
 	receiptUrl: string | null;
-	projectId: string;
+	projectId: string | null;
+	milestoneId: string | null;
 	walletId: string;
 	withdrawalMethodId: string | null;
 	successorId: string | null;
-	createdAt: string; // ISO date string
+	pspProvider?: TPspProvider | null;
+	pspReference?: string | null;
+	pspFee?: number | null;
+	pspPayoutId?: string | null;
+	metadata?: TTransactionMetadata | null;
+	createdAt: string;
 	updatedAt: string;
-	project: UmojaLinnProject;
-	withdrawalMethod: UmojaLinnWithdrawalMethod | null; // Replace `unknown` with actual type if available
+	project: UmojaLinnProject | null;
+	withdrawalMethod: UmojaLinnWithdrawalMethod | null;
 };

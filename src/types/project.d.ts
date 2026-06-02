@@ -362,7 +362,15 @@ export type UmojaLinnMediaLink = {
   createdAt: string;
 };
 
-export type UmojalinnPaymentChannels = "PAYPAL" | "DIRECT_TRANSFER"; //  | "STRIPE"
+export type UmojalinnKnownPaymentChannels =
+  | "PAYPAL"
+  | "DIRECT_TRANSFER"
+  | "STRIPE_CARD";
+
+export type UmojalinnPaymentChannels = UmojalinnKnownPaymentChannels | string;
+
+/** PSP on wallet transactions (withdrawals, etc.) */
+export type TPspProvider = TPaymentAccountProvider;
 
 export type UmojaLinnWithdrawalMethod = {
   id: string;
@@ -396,6 +404,11 @@ export type UmojalinnWalletTransaction = {
   projectId: string;
   walletId: null | string;
   project?: UmojaLinnProject;
+  pspProvider?: TPspProvider | null;
+  pspReference?: string | null;
+  pspFee?: number | null;
+  pspPayoutId?: string | null;
+  milestoneId?: string | null;
 } & UmojaLinnTimestamp;
 
 export type UmojalinnWallet = {
