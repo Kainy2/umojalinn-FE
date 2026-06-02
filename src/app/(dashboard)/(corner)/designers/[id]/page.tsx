@@ -63,9 +63,9 @@ const DesignerProfilePage = () => {
 
   const fullName = `${designer.user.firstName} ${designer.user.lastName}`;
   const location =
-    [designer.user.address?.city, designer.user.address?.state]
+    [designer.user.address?.city, designer.user.address?.state, designer.user.address?.country]
       .filter(Boolean)
-      .join(", ") || "N/A";
+      .join(", ") + '.' || "N/A";
 
   const aboutText = designer.about || "No bio provided yet.";
   const shouldTruncate = aboutText.length > ABOUT_TRUNCATE_LENGTH;
@@ -82,12 +82,23 @@ const DesignerProfilePage = () => {
         )
       : 0;
 
+  const currency: UmojaLinnCurrency = designer.projects?.[0]?.currency ?? "NAIRA";
+
+  // const totalEarnings = designer.projects.reduce((sum, project) => sum + (project.approvedBudget ?? 0), 0);
+  const totalEarnings = designer?.projects?.reduce(
+    (total, project) => {
+    if (project.status !== 'COMPLETED') {
+      return total;
+    }
+  
+    return total + Number(project.amountFunded ?? 0);
+  }, 0) ?? 0;
   const stats = [
     { label: "Location", value: location },
-    { label: "Total Earnings", value: "N/A" },
-    { label: "Total Jobs", value: "N/A" },
+    { label: "Total Earnings", value: (getCurrencySymbol(currency) ?? "") + totalEarnings },
+    { label: "Total Jobs", value: designer.projects.length },
     { label: "Success rate", value: "N/A" },
-    { label: "Years of Experience", value: designer.experienceLevel || "N/A" },
+    { label: "Years of Experience", value: designer.experienceLevel?.replace("_", "") || "N/A" },
     { label: "Reviews", value: designer.reviews.length },
   ];
 
@@ -104,15 +115,15 @@ const DesignerProfilePage = () => {
       </div>
 
       {/* Avatar + identity */}
-      <div className="-mt-16 px-4 flex md:flex-row flex-col gap-3 items-center justify-between">
-        <div className="flex gap-6 items-end">
-          <div>
+      <div className="-mt-16 px-4 flex md:flex-row flex-col gap-3 md:items-center items-start justify-between">
+        <div className="flex md:flex-row flex-col gap-6 md:items-center items-start">
+          <div className="">
             <Image
               src={designer.user.profilePhotoUri || "/img/webp/user.webp"}
               alt={fullName}
               width={160}
               height={160}
-              className="rounded-full border-4 border-background w-40 h-40 object-cover bg-background"
+              className="rounded-full border-4 border-background min-w-40 min-h-40 object-cover bg-background"
             />
             {designer.isAvailable && (
               <div className="mt-1 w-full py-1 bg-success text-white text-center text-sm">
@@ -148,7 +159,7 @@ const DesignerProfilePage = () => {
       {/* About */}
       <div>
         <h2 className="font-semibold text-foreground mb-2">About me</h2>
-        <p className="text-foreground-body text-sm">{displayedAbout}</p>
+        <p className="text-foreground-body text-sm whitespace-pre-line">{displayedAbout}</p>
         {shouldTruncate && (
           <button
             className="text-primary text-sm font-medium mt-1"
