@@ -18,6 +18,27 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import TemplateStatusPill from "@/components/sizing-template/TemplateStatusPill";
+import { getSizingGenderLabel } from "@/lib/sizing-template-utils";
+
+const SIZING_TEMPLATE_CARD_IMAGES = {
+	MALE: "/img/png/male.png",
+	FEMALE: "/img/png/female.png",
+} as const;
+
+const getTemplateCardImage = (
+	gender: UmojaLinnSizingTemplate["gender"] | undefined
+) =>
+	gender === "MALE" || gender === "FEMALE"
+		? SIZING_TEMPLATE_CARD_IMAGES[gender]
+		: "/img/png/buy-template.png";
+
+const getTemplateCardAlt = (
+	gender: UmojaLinnSizingTemplate["gender"] | undefined
+) => {
+	if (gender === "MALE") return "Male sizing template silhouette";
+	if (gender === "FEMALE") return "Female sizing template silhouette";
+	return "Sizing template";
+};
 
 const SizingTemplateCard = (props: { template: UmojaLinnSizingTemplate }) => {
 	const { template } = props;
@@ -98,14 +119,8 @@ const SizingTemplateCard = (props: { template: UmojaLinnSizingTemplate }) => {
 					{/* Top Image Section */}
 					<div className="relative h-52 w-full border border-gray-200 rounded-[8px] overflow-hidden bg-[#f8f9fa] shrink-0">
 						<Image
-							// src={
-							// 	isBuyer
-							// 		? "/img/webp/sizing-template-card.webp"
-							// 		: "/img/webp/sizing-template-designer-card.webp"
-							// }
-							src="/img/png/buy-template.png"
-
-							alt=""
+							src={getTemplateCardImage(template?.gender)}
+							alt={getTemplateCardAlt(template?.gender)}
 							className="object-cover object-center"
 							fill
 						/>
@@ -155,7 +170,7 @@ const SizingTemplateCard = (props: { template: UmojaLinnSizingTemplate }) => {
 								{template?.name}
 							</h2>
 							<p className="text-[13px] text-[#4B5563] truncate w-full">
-								{projectInUse?.title || "My Agbada"}
+								{getSizingGenderLabel(template.gender)}
 							</p>
 						</div>
 						{!isBuyer && (

@@ -233,11 +233,9 @@ const WithdrawalPage = () => {
                 className="flex items-center text-foreground-body gap-3 border-b border-border/50 py-2"
                 key={trans?.id}
               >
-                {trans?.paymentChannel && (
-                  <div className="w-10">
-                    {getTransactionIcon(trans?.paymentChannel)}
-                  </div>
-                )}
+                <div className="w-10 shrink-0">
+                  {getTransactionIcon(trans)}
+                </div>
                 <div className="flex-1">
                   <div className="flex justify-between items-center">
                     <p className="font-semibold">

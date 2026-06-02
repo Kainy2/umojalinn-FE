@@ -20,7 +20,10 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import DialogListPickerItem from "./ListPickerItem";
 // import { cn } from "@/lib/utils";
-import { filterTemplatesForProject } from "@/lib/sizing-template-utils";
+import {
+  filterTemplatesForProject,
+  getNoMatchingSizingTemplateMessage,
+} from "@/lib/sizing-template-utils";
 import { UmojaLinnSizingTemplate } from "@/types/project";
 
 type ButtonOnClickProp = React.ComponentProps<"button">["onClick"];
@@ -197,7 +200,9 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
               className="object-contain"
               alt=""
             />
-            <span>No Sizing Template Available</span>
+            <span>
+              {getNoMatchingSizingTemplateMessage(props.projectGender)}
+            </span>
           </div>
         )}
         <DialogFooter>

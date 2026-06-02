@@ -133,11 +133,11 @@ const MeasurementPointRow = forwardRef<
               Request missing measurement
             </div>
           ) : (
-            <div className="text-sm rounded-full relative">
+            <div className="text-sm rounded-full relative min-w-28 shrink-0">
               {props.disabled ? (
                 <span
                   className={cn(
-                    "text-right pr-10",
+                    "inline-block min-w-28 text-right pr-10",
                     props.unit === "INCH" && "pr-14",
                     props.hideValue
                       ? "text-gray-300 italic"
@@ -152,7 +152,7 @@ const MeasurementPointRow = forwardRef<
                 <input
                   ref={ref}
                   className={cn(
-                    "text-right placeholder:text-black focus-visible:outline-none rounded-full p-1 pr-10 w-20 bg-transparent",
+                    "text-right placeholder:text-black focus-visible:outline-none rounded-full p-1 pr-10 w-28 bg-transparent",
                     props.unit === "INCH" && "pr-14",
                     "text-gray-500 focus-visible:bg-gray-100",
                   )}
