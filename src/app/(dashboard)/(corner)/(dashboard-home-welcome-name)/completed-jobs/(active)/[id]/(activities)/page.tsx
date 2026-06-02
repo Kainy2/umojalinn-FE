@@ -32,6 +32,7 @@ const ActiveJobsPage = () => {
         buyer={projectData?.data?.data?.buyer.user}
         designer={projectData?.data?.data?.designer.user}
         projectId={projectData?.data?.data?.id}
+        projectName={projectData?.data?.data?.title ?? undefined}
         currency={projectData?.data?.data?.currency || null}
         escrowBalance={projectData?.data?.data?.escrowBalance || 0}
         isDesigner={
