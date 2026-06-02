@@ -4,7 +4,7 @@ import FormItemWrapper from "@/components/custom/FormItemWrapper";
 import TextField, { FormTextField } from "@/components/custom/input/TextField";
 import { Textarea } from "@/components/ui/textarea";
 import { Info, UserPlus } from "lucide-react";
-import React, { useEffect, useCallback, useState } from "react";
+import React, { useEffect, useCallback, useMemo, useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import {
   useGetClothingTypes,
@@ -30,6 +30,11 @@ import { useGetAllSizingTemplates } from "@/tanstack/hooks/useSizingTemplates";
 import CustomSelectCountry from "@/components/custom/SelectCountry";
 import CustomReactSelect from "@/components/custom/ReactSelect";
 import { useCreateProjectContext } from "@/hooks/create-project/useCreateProjectContext";
+import {
+  filterTemplatesForProject,
+  getNoMatchingSizingTemplateDescription,
+  TSizingGender,
+} from "@/lib/sizing-template-utils";
 
 export type ProjectFormProps = {
   id: string;
@@ -59,6 +64,17 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
     useGetAllSizingTemplates({
       sizingTemplateStatus: "LIVE",
     });
+
+  const projectGender = (form.watch("gender") ||
+    data?.data?.data?.gender) as TSizingGender | null | undefined;
+  const matchingSizingTemplates = useMemo(
+    () =>
+      filterTemplatesForProject(
+        sizingTemplateData?.data?.data ?? [],
+        projectGender,
+      ),
+    [sizingTemplateData?.data?.data, projectGender],
+  );
 
   useEffect(() => {
     if (isAds && projectFormDetails.firstName) {
@@ -438,21 +454,21 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
                         <Info className="text-primary h-6 w-6" />
                         <span className="text-sm">
                           {
-                            !sizingTemplateData?.data?.data?.length ?
-                              "You have no sizing templates available, you can add sizing template later from the Sizing templates tab" :
+                            !matchingSizingTemplates.length ?
+                              getNoMatchingSizingTemplateDescription(projectGender) :
                               "Include Sizing template in your Project description or at project start"
                           }
                         </span>
                       </div>
                       {
-                        sizingTemplateData?.data?.data?.length ?
+                        matchingSizingTemplates.length ?
                           (<CustomSelect
-                            key={String(sizingTemplateData?.data?.data?.length)}
+                            key={String(matchingSizingTemplates.length)}
                             {...field}
                             error={fieldState.error}
                             disabled={loadingSizingTemplate}
                             onValueChange={field.onChange}
-                            options={sizingTemplateData?.data?.data?.map(
+                            options={matchingSizingTemplates.map(
                               (template) => ({
                                 children: template?.name,
                                 value: template?.id,

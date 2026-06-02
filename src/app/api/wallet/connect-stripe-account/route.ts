@@ -10,10 +10,11 @@ export const POST = async (req: NextRequest) => {
   try {
     await setBearerToken(req);
 
+    const body = await req.json();
     const response = await customAxios.post<
       unknown,
       AxiosResponse<SingleApiResponse<UmojaLinnConnectStripeAccount>, unknown>
-    >(`/wallet/connect-stripe-account`);
+    >(`/wallet/connect-stripe-account`, body);
 
     return NextResponse.json(response.data);
   } catch (error) {

@@ -37,6 +37,10 @@ import { DEFAULT_HEIGHT, DEFAULT_UNIT } from "@/types/constants";
 import { useQueryClient } from "@tanstack/react-query";
 import { BID, PROJECT, SIZING_TEMPLATE } from "@/tanstack/keys";
 import { useSession } from "next-auth/react";
+import {
+  filterTemplatesForProject,
+  getNoMatchingSizingTemplateMessage,
+} from "@/lib/sizing-template-utils";
 
 const RequestSizingTemplateAlert = () => {
   const FREE_TEMPLATE_LIMIT = 3;
@@ -75,10 +79,10 @@ const RequestSizingTemplateAlert = () => {
     useGetAllSizingTemplates({
       sizingTemplateStatus: ["LIVE", "DRAFT"],
     });
-  const availableTemplates = templatesData?.data.data ?? [];
-  // useMemo(() => templatesData?.data?.data?.filter(
-  //     (t: UmojaLinnSizingTemplate) => t.status === "LIVE"
-  // ) ?? [], [templatesData]);
+  const availableTemplates = filterTemplatesForProject(
+    templatesData?.data.data ?? [],
+    project?.gender,
+  );
 
   // Get total template count to check limit
   const { data: allTemplatesData } = useGetAllSizingTemplates();
@@ -298,6 +302,12 @@ const RequestSizingTemplateAlert = () => {
                   <span className="ml-2 text-sm text-muted-foreground">
                     Loading...
                   </span>
+                </div>
+              )}
+
+              {!isLoadingTemplates && availableTemplates.length === 0 && (
+                <div className="py-2 px-2 text-center text-sm text-muted-foreground">
+                  {getNoMatchingSizingTemplateMessage(project?.gender)}
                 </div>
               )}
 

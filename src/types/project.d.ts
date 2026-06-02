@@ -362,7 +362,15 @@ export type UmojaLinnMediaLink = {
   createdAt: string;
 };
 
-export type UmojalinnPaymentChannels = "PAYPAL" | "DIRECT_TRANSFER"; //  | "STRIPE"
+export type UmojalinnKnownPaymentChannels =
+  | "PAYPAL"
+  | "DIRECT_TRANSFER"
+  | "STRIPE_CARD";
+
+export type UmojalinnPaymentChannels = UmojalinnKnownPaymentChannels | string;
+
+/** PSP on wallet transactions (withdrawals, etc.) */
+export type TPspProvider = TPaymentAccountProvider;
 
 export type UmojaLinnWithdrawalMethod = {
   id: string;
@@ -396,6 +404,11 @@ export type UmojalinnWalletTransaction = {
   projectId: string;
   walletId: null | string;
   project?: UmojaLinnProject;
+  pspProvider?: TPspProvider | null;
+  pspReference?: string | null;
+  pspFee?: number | null;
+  pspPayoutId?: string | null;
+  milestoneId?: string | null;
 } & UmojaLinnTimestamp;
 
 export type UmojalinnWallet = {
@@ -482,6 +495,17 @@ export type TAddNgnBankAccountPayload = {
   accountNumber: string;
   bankCode: string;
   accountName: string;
+  otp: string;
+};
+
+/** POST /wallet/connect-stripe-account */
+export type TConnectStripeAccountPayload = {
+  otp: string;
+};
+
+/** POST /wallet/verify-connect-payment-account-otp */
+export type TVerifyConnectPaymentAccountOtpPayload = {
+  otp: string;
 };
 
 export type TRequestWithdrawalPayload = {

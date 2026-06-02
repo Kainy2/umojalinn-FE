@@ -364,7 +364,7 @@ const UpdateModeView = ({
                             placeholder="0"
                             disabled={!canEdit}
                             className={cn(
-                              "w-20 text-right text-sm rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-primary/50",
+                              "w-28 text-right text-sm rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-primary/50",
                               isHighlighted
                                 ? "bg-white/10 text-white placeholder:text-white/50"
                                 : "bg-white text-foreground-body border-none",

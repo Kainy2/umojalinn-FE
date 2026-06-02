@@ -75,30 +75,39 @@ const ProjectReviewView = (props: {
           {projectFormDetails?.title || props?.project?.title || "No title"}
         </h3>
         <p className="text-muted-foreground text-sm mb-8 break-words whitespace-pre-wrap">
-          {projectFormDetails?.about || props?.project?.about || "No description"}
+          {projectFormDetails?.about ||
+            props?.project?.about ||
+            "No description"}
         </p>
         <div className="flex gap-4 flex-col lg:flex-row justify-between">
           <p className="text-sm text-muted-foreground">
             Project due:{" "}
             <span className="font-semibold">
-              {
-                projectFormDetails?.dueDate
-                  ? formatDate(projectFormDetails?.dueDate, "MMM dd, yyyy")
-                  : props?.project?.dueDate
-                    ? formatDate(props?.project?.dueDate, "MMM dd, yyyy")
-                    : "None"}
+              {projectFormDetails?.dueDate
+                ? formatDate(projectFormDetails?.dueDate, "MMM dd, yyyy")
+                : props?.project?.dueDate
+                  ? formatDate(props?.project?.dueDate, "MMM dd, yyyy")
+                  : "None"}
             </span>
           </p>
           <p className="text-sm text-muted-foreground">
             Project budget:{" "}
             <span className="font-semibold">
-              {getCurrencySymbol((projectFormDetails?.currency as UmojaLinnCurrency) || props?.project?.currency)}
-              {formatCurrencyValue((projectFormDetails?.budget as number) || props?.project?.budget) || "0"}
+              {getCurrencySymbol(
+                (projectFormDetails?.currency as UmojaLinnCurrency) ||
+                  props?.project?.currency,
+              )}
+              {formatCurrencyValue(
+                (projectFormDetails?.budget as number) ||
+                  props?.project?.budget,
+              ) || "0"}
             </span>
           </p>
         </div>
       </div>
-      {!!(props?.project?.Gallery?.length || projectFormDetails?.gallery?.length) && (
+      {!!(
+        props?.project?.Gallery?.length || projectFormDetails?.gallery?.length
+      ) && (
         <div>
           <h3 className="text-md font-semibold text-foreground mb-2">
             Project Gallery
@@ -110,19 +119,21 @@ const ProjectReviewView = (props: {
               images={
                 projectFormDetails?.gallery?.length
                   ? projectFormDetails?.gallery.map((gal, i) => ({
-                    id: (gal?.id ?? '') as string,
-                    projectId: (props.project?.id || '0'),
-                    imageUrl: typeof gal.image === 'string'
-                      ? gal.image
-                      : URL.createObjectURL(gal.image),
-                    title: gal?.title,
-                    isCoverImage: gal?.isCoverImage,
-                    createdAt: props?.project?.Gallery?.[i]?.createdAt ?? '',
-                    updatedAt: props?.project?.Gallery?.[i]?.updatedAt ?? ''
-                  }))
-                  : props?.project?.Gallery ?
-                    props.project.Gallery
-                    : []}
+                      id: (gal?.id ?? "") as string,
+                      projectId: props.project?.id || "0",
+                      imageUrl:
+                        typeof gal.image === "string"
+                          ? gal.image
+                          : URL.createObjectURL(gal.image),
+                      title: gal?.title,
+                      isCoverImage: gal?.isCoverImage,
+                      createdAt: props?.project?.Gallery?.[i]?.createdAt ?? "",
+                      updatedAt: props?.project?.Gallery?.[i]?.updatedAt ?? "",
+                    }))
+                  : props?.project?.Gallery
+                    ? props.project.Gallery
+                    : []
+              }
               // key={gallery?.id}
               width={310}
               height={170}
@@ -137,38 +148,59 @@ const ProjectReviewView = (props: {
       <Collapsible title="Delivery Details">
         <LabelBadge
           title="Country"
-          value={projectFormDetails?.country || props?.project?.deliveryAddress?.country}
+          value={
+            projectFormDetails?.country ||
+            props?.project?.deliveryAddress?.country
+          }
         />
         <LabelBadge
           title="City"
-          value={projectFormDetails?.city || props?.project?.deliveryAddress?.city}
+          value={
+            projectFormDetails?.city || props?.project?.deliveryAddress?.city
+          }
         />
         <LabelBadge
           title="Province / State / Zip code"
           value={[
             projectFormDetails?.state || props?.project?.deliveryAddress?.state,
-            projectFormDetails?.zipCode || props?.project?.deliveryAddress?.zipCode,
+            projectFormDetails?.zipCode ||
+              props?.project?.deliveryAddress?.zipCode,
           ]}
         />
         <LabelBadge
           title="Address"
-          value={projectFormDetails?.address || props?.project?.deliveryAddress?.address}
+          value={
+            projectFormDetails?.address ||
+            props?.project?.deliveryAddress?.address
+          }
         />
       </Collapsible>
       <Collapsible title="Other Details">
         <LabelBadge
           title="Additional notes"
-          value={projectFormDetails?.additionalNotes || props?.project?.additionalNotes}
+          value={
+            projectFormDetails?.additionalNotes ||
+            props?.project?.additionalNotes
+          }
         />
 
         <div className="flex items-center justify-between">
           <p className="text-foreground-body text-sm">
             Will buyer provide materials?
           </p>
-          <p className={cn("font-semibold",
-            (projectFormDetails?.willProvideMaterials || props.project?.willProvideMaterials) ? "text-green-500" : "text-red-600"
-          )}>
-            {(projectFormDetails?.willProvideMaterials || props.project?.willProvideMaterials) ? "Yes" : "No"}
+          <p
+            className={cn(
+              "font-semibold",
+              projectFormDetails?.willProvideMaterials ||
+                props.project?.willProvideMaterials
+                ? "text-green-500"
+                : "text-red-600",
+            )}
+          >
+            {projectFormDetails?.willProvideMaterials ||
+            props.project?.willProvideMaterials
+              ? "Yes"
+              : "No"}
             {/* {bid.project.willProvideMaterials 
             ? <CheckCircle className="text-success" />
             : <CircleX className="text-white" fill="red" color="currentColor" />
@@ -180,8 +212,9 @@ const ProjectReviewView = (props: {
           title="Clothing type"
           value={
             projectFormDetails?.clothingTypes?.map(
-              id => allClothingTypes?.find(type => type.id === id)?.name
-            ) || props?.project?.clothingTypes?.map?.((type) => type.name)}
+              (id) => allClothingTypes?.find((type) => type.id === id)?.name,
+            ) || props?.project?.clothingTypes?.map?.((type) => type.name)
+          }
         />
         {/* <LabelBadge
           title="Specialist"
@@ -206,8 +239,9 @@ const ProjectReviewView = (props: {
           avatar={{
             src: props?.project?.designer?.user?.profilePhotoUri,
           }}
-          label={`${props?.project?.designer?.user?.firstName || ""} ${props?.project?.designer?.user?.lastName || ""
-            }`}
+          label={`${props?.project?.designer?.user?.firstName || ""} ${
+            props?.project?.designer?.user?.lastName || ""
+          }`}
         />
       </div>
     </>

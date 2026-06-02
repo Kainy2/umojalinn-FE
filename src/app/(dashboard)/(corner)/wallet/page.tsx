@@ -9,12 +9,14 @@ import {
   useGetInfiniteTransactions,
   useGetWallet,
   useGetPaymentAccountInfo,
+  useConnectStripeAccount,
 } from "@/tanstack/hooks/useProject";
 import { useGetMe } from "@/tanstack/hooks/useUser";
 import React, { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { capitalizeFirstLetter, getCurrencySymbol } from "@/lib/string";
 import { formatCurrencyValue } from "@/lib/number";
+import WalletPageSkeleton from "@/components/custom/wallet/WalletPageSkeleton";
 import { formatDate } from "date-fns";
 import {
   getTransactionIcon,
@@ -27,14 +29,13 @@ import { cn } from "@/lib/utils";
 import { useInfiniteData } from "@/hooks/use-infinite-data";
 import { UmojaLinnCurrency } from "@/types/project";
 import LinkStripeAddressDialog from "@/components/custom/dialog/LinkStripeAddressDialog";
-// import VerifyPasswordDialog from "@/components/custom/dialog/VerifyPasswordDialog";
-// import { useRouter } from "next/navigation";
-
+import ConnectPaymentAccountOtpDialog from "@/components/custom/dialog/ConnectPaymentAccountOtpDialog";
 const WithdrawalPage = () => {
   const { data: userData } = useGetMe();
   const { data: session } = useSession();
-  const { data: walletData } = useGetWallet();
-  const { data: paymentAccountData } = useGetPaymentAccountInfo();
+  const { data: walletData, isPending: isWalletPending } = useGetWallet();
+  const { data: paymentAccountData, isPending: isPaymentAccountPending } =
+    useGetPaymentAccountInfo();
 
   const user = userData?.data?.data;
   const defaultCurrency = getDefaultCurrencyFromCountry(user?.address?.country);
@@ -43,8 +44,18 @@ const WithdrawalPage = () => {
     useState<UmojaLinnCurrency>("EURO");
   const [hideBalance, setHideBalance] = useState(true);
   const [linkStripeAddressOpen, setLinkStripeAddressOpen] = useState(false);
-  // const [isVerified, setIsVerified] = useState(false);
-  // const router = useRouter();
+  const [connectOtpDialogOpen, setConnectOtpDialogOpen] = useState(false);
+
+  const { mutate: connectStripeAccount, isPending: isConnectingStripe } =
+    useConnectStripeAccount({
+      onSuccess: (data) => {
+        setConnectOtpDialogOpen(false);
+        const onboardingUrl = data?.data?.data?.onboardingUrl;
+        if (onboardingUrl) {
+          window.location.href = onboardingUrl;
+        }
+      },
+    });
 
   const hasSetDefault = useRef(false);
   useEffect(() => {
@@ -70,6 +81,14 @@ const WithdrawalPage = () => {
 
   const isDesigner = session?.user?.profileRole === "DESIGNER";
 
+  const openConnectStripeOtpDialog = () => {
+    setConnectOtpDialogOpen(true);
+  };
+
+  const handleConnectStripeOtpConfirm = (otp: string) => {
+    connectStripeAccount({ otp });
+  };
+
   const handleLinkStripe = () => {
     if (!paymentAccountHasStoredPayoutAddress(paymentAccount)) {
       setLinkStripeAddressOpen(true);
@@ -80,6 +99,7 @@ const WithdrawalPage = () => {
       window.location.href = url;
       return;
     }
+    openConnectStripeOtpDialog();
   };
 
   const getActionLabel = (currency: UmojaLinnCurrency): string | null => {
@@ -106,21 +126,28 @@ const WithdrawalPage = () => {
     }
   };
 
+  const isPageLoading = isPaymentAccountPending || isWalletPending;
+
+  if (isPageLoading) {
+    return <WalletPageSkeleton showEscrow={isDesigner} />;
+  }
+
   return (
     <>
       <LinkStripeAddressDialog
         open={linkStripeAddressOpen}
         onOpenChange={setLinkStripeAddressOpen}
+        onAddressSaved={openConnectStripeOtpDialog}
       />
-      {/* <VerifyPasswordDialog
-        open={!isVerified}
-        onCancel={() => {
-          router.back();
-        }}
-        onSuccess={() => {
-          setIsVerified(true);
-        }}
-      /> */}
+
+      <ConnectPaymentAccountOtpDialog
+        open={connectOtpDialogOpen}
+        onOpenChange={setConnectOtpDialogOpen}
+        intent="stripe"
+        onConfirm={handleConnectStripeOtpConfirm}
+        isConfirming={isConnectingStripe}
+      />
+
       <h1 className="text-subtitle-1 font-bold mb-8">Wallet</h1>
       <div className="flex h-full flex-col lg:flex-row gap-4">
         <div className="shrink-0 w-full lg:w-8/12">
@@ -131,6 +158,7 @@ const WithdrawalPage = () => {
                 stripeStatus={paymentAccount?.stripeStatus}
                 paystackStatus={paymentAccount?.paystackStatus}
                 onLinkStripe={handleLinkStripe}
+                isLinkingStripe={isConnectingStripe}
                 hideBalance={hideBalance}
                 onToggleBalance={() => setHideBalance((prev) => !prev)}
                 currency={selectedCurrency}
@@ -205,11 +233,9 @@ const WithdrawalPage = () => {
                 className="flex items-center text-foreground-body gap-3 border-b border-border/50 py-2"
                 key={trans?.id}
               >
-                {trans?.paymentChannel && (
-                  <div className="w-10">
-                    {getTransactionIcon(trans?.paymentChannel)}
-                  </div>
-                )}
+                <div className="w-10 shrink-0">
+                  {getTransactionIcon(trans)}
+                </div>
                 <div className="flex-1">
                   <div className="flex justify-between items-center">
                     <p className="font-semibold">

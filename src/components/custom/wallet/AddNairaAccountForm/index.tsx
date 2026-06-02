@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { MessageSquareWarning } from "lucide-react";
 import React, { useState } from "react";
+import ConnectPaymentAccountOtpDialog from "@/components/custom/dialog/ConnectPaymentAccountOtpDialog";
 import type { IAddNairaAccountFormProps } from "./@types";
 
 const defaultTitle = "Add Bank Details";
@@ -31,6 +32,7 @@ export const AddNairaAccountForm = ({
   const [accountNumber, setAccountNumber] = useState<string>("");
   const [verifiedName, setVerifiedName] = useState<string>("");
   const [agree, setAgree] = useState(false);
+  const [connectOtpDialogOpen, setConnectOtpDialogOpen] = useState(false);
 
   const { data: ngnBanksData, isPending: loadingNgnBanks } = useGetListNgnBanks(
     { enabled: true },
@@ -40,6 +42,7 @@ export const AddNairaAccountForm = ({
   const { mutate: addNgnAccount, isPending: isAddingAccount } =
     useAddNgnAccount({
       onSuccess: () => {
+        setConnectOtpDialogOpen(false);
         toast({ description: "Bank account added successfully!" });
         onAddSuccess?.();
       },
@@ -71,16 +74,30 @@ export const AddNairaAccountForm = ({
   };
 
   const handleSaveAccount = () => {
+    if (!bankCode || !accountNumber || !verifiedName || !agree) return;
+    setConnectOtpDialogOpen(true);
+  };
+
+  const handleConnectOtpConfirm = (otp: string) => {
     if (!bankCode || !accountNumber || !verifiedName) return;
     addNgnAccount({
       bankCode,
       accountNumber,
       accountName: verifiedName,
+      otp,
     });
   };
 
   return (
-    <FormItemWrapper title={formTitle} description={formDescription}>
+    <>
+      <ConnectPaymentAccountOtpDialog
+      open={connectOtpDialogOpen}
+      onOpenChange={setConnectOtpDialogOpen}
+      intent="ngn"
+      onConfirm={handleConnectOtpConfirm}
+      isConfirming={isAddingAccount}
+      />
+      <FormItemWrapper title={formTitle} description={formDescription}>
       <div className="flex flex-col gap-6">
         <div className="flex flex-col space-y-2">
           <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
@@ -201,7 +218,8 @@ export const AddNairaAccountForm = ({
           )}
         </div>
       </div>
-    </FormItemWrapper>
+      </FormItemWrapper>
+    </>
   );
 };
 

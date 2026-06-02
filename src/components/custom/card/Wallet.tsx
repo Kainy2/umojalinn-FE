@@ -85,9 +85,6 @@ const WalletCard = (props: IWalletCardProps) => {
     onCurrencyChange,
   } = props;
 
-  // const [currency, setCurrency] = useState<UmojaLinnCurrency>("NAIRA"); // lifted to parent
-  // const [obfuscate, setObfuscate] = useState(!noAction); // logic moved to parent
-
   const currentOption = currencyOptions.find((opt) => opt.value === currency);
 
   const getBalances = () => {

@@ -292,6 +292,7 @@ const IndividualBidPage = () => {
         onOpenChange={(value) => setInterruptOpen(value ? "SELECT" : null)}
         handleCreateNewSizingTemplate={handleCreateNewForAccept}
         handleAddSizingTemplateToProject={handleSelectTemplateForAccept}
+        projectGender={bid?.project?.gender}
       />
 
       {/* Height and Size Modal - for accept proposal flow */}

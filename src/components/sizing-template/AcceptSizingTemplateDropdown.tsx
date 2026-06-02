@@ -16,11 +16,17 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown, FileText, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UmojaLinnSizingTemplate } from "@/types/project";
+import {
+  getNoMatchingSizingTemplateMessage,
+  TSizingGender,
+} from "@/lib/sizing-template-utils";
 import HeightAndSizeModal from "./HeightAndSizeModal";
 
 type AcceptSizingTemplateDropdownProps = {
   /** List of available templates (not in use) */
   availableTemplates?: UmojaLinnSizingTemplate[];
+  /** Project gender for empty-state messaging */
+  projectGender?: null | TSizingGender;
   /** Whether templates are being loaded */
   isLoading?: boolean;
   /** Callback when template is accepted with height/size */
@@ -32,6 +38,7 @@ type AcceptSizingTemplateDropdownProps = {
 
 const AcceptSizingTemplateDropdown = ({
   availableTemplates = [],
+  projectGender,
   isLoading = false,
   onAccept,
   isAccepting = false,
@@ -104,7 +111,7 @@ const AcceptSizingTemplateDropdown = ({
             <div className="py-4 px-2 text-center">
               <FileText className="size-8 mx-auto text-muted-foreground mb-2" />
               <p className="text-sm text-muted-foreground">
-                No templates available
+                {getNoMatchingSizingTemplateMessage(projectGender)}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 Create a sizing template first

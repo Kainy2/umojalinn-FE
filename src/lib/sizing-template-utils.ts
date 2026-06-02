@@ -4,6 +4,57 @@
 
 import { REMINDER_COOLDOWN_MINUTES } from "@/types/constants";
 
+export type TSizingGender = "MALE" | "FEMALE";
+
+/** True when project gender is set and matches the template gender */
+export const isMatchingSizingGender = (
+  templateGender: TSizingGender,
+  projectGender: null | TSizingGender | undefined,
+): boolean => {
+  if (!projectGender) return false;
+  return templateGender === projectGender;
+};
+
+/** Templates compatible with a project's gender (empty if project gender unset) */
+export const filterTemplatesForProject = <T extends { gender: TSizingGender }>(
+  templates: T[],
+  projectGender: null | TSizingGender | undefined,
+): T[] => {
+  if (!projectGender) return [];
+  return templates.filter((t) => t.gender === projectGender);
+};
+
+export const getSizingGenderLabel = (gender: TSizingGender): string =>
+  gender === "FEMALE" ? "Female" : "Male";
+
+export const getNoMatchingSizingTemplateMessage = (
+  projectGender: null | TSizingGender | undefined,
+): string => {
+  if (projectGender === "FEMALE") {
+    return "No Female Sizing Template available";
+  }
+  if (projectGender === "MALE") {
+    return "No Male Sizing Template available";
+  }
+  return "No Sizing Template available";
+};
+
+export const getNoMatchingSizingTemplateDescription = (
+  projectGender: null | TSizingGender | undefined,
+): string => {
+  const base = getNoMatchingSizingTemplateMessage(projectGender);
+  return `${base}. You can add a sizing template later from the Sizing templates tab.`;
+};
+
+/** Projects compatible with a template's gender */
+export const filterProjectsForTemplate = <
+  T extends { gender: null | TSizingGender },
+>(
+  projects: T[],
+  templateGender: TSizingGender,
+): T[] =>
+  projects.filter((p) => isMatchingSizingGender(templateGender, p.gender));
+
 const COOLDOWN_MS = REMINDER_COOLDOWN_MINUTES * 60 * 1000;
 
 /** Check if cooldown period has passed since last reminder */
@@ -52,4 +103,26 @@ export const getPendingMeasurementsCount = (
   if (!submittedPoints) return requestedPoints.length;
   return requestedPoints.filter((point) => !submittedPoints.includes(point))
     .length;
+};
+
+type TSizingTemplateMeasurementGate = {
+  requestedMeasurementPoints?: string[];
+  submittedMeasurementPoints?: string[];
+};
+
+/** Block designer milestone submit until measurement points are requested and filled */
+export const shouldDisableDesignerMilestoneSubmission = (
+  sizingTemplateId: string | undefined | null,
+  sizingTemplate: TSizingTemplateMeasurementGate | undefined | null,
+): boolean => {
+  if (!sizingTemplateId || !sizingTemplate) return false;
+
+  const requested = sizingTemplate.requestedMeasurementPoints ?? [];
+  const submitted = sizingTemplate.submittedMeasurementPoints ?? [];
+
+  if (requested.length === 0) {
+    return submitted.length === 0;
+  }
+
+  return getPendingMeasurementsCount(requested, submitted) > 0;
 };
