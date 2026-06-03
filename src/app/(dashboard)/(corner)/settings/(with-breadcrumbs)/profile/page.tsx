@@ -12,7 +12,7 @@ import { FormCustomTagSelectField } from "@/components/custom/tag/Select";
 import { Button } from "@/components/ui/button";
 import { Form, FormField } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
-// import { LANGUAGES } from "@/constant";
+
 import { useToast } from "@/hooks/use-toast";
 import useClipboard from "@/hooks/useClipboard";
 import { EXPERIENCE_ENUMS_VALUES, updateProfileKeys, updateProfileSchema } from "@/lib/schema";
@@ -25,6 +25,7 @@ import {
   useGetSpecialistTypes,
 } from "@/tanstack/hooks/useProject";
 import { useGetMe, useUpdateUserDetails } from "@/tanstack/hooks/useUser";
+import { MAX_PROFILE_ABOUT_COUNT } from "@/constant";
 import { UpdateProfileProps } from "@/types/form";
 import { UmojaLinnUser } from "@/types/user";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -156,7 +157,7 @@ const SettingsProfilePage = () => {
               render={({ field }) => (
                 <FormTextAreaField
                   placeholder="Bio"
-                  maxLength={300}
+                  maxLength={MAX_PROFILE_ABOUT_COUNT}
                   hint="300 characters max"
                   disabled={disableForm}
                   {...field}

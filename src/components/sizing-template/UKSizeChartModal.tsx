@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { UK_SIZE_CHART_FEMALE, UK_SIZE_CHART_MALE } from "@/types/constants";
+import { UK_SIZE_CHART_FEMALE, UK_SIZE_CHART_MALE } from "@/constant";
 import { UmojaLinnSizingTemplate } from "@/types/project";
 
 type UKSizeChartModalProps = {

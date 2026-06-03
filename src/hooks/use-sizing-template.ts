@@ -10,7 +10,7 @@ import {
   UmojaLinnMaleSizingTemplateProps,
   UmojaLinnSizingTemplate,
 } from "@/types/project";
-import { TEMPLATE_MODE, TemplateMode } from "@/types/constants";
+import { TEMPLATE_MODE, TemplateMode } from "@/constant";
 import { parseStringToNumber } from "@/lib/utils";
 import {
   useCreateSizingTemplate,
