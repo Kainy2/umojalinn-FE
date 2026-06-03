@@ -33,7 +33,7 @@ import {
   UmojaLinnSizingTemplateUnit,
   UmojalinnStandardSize,
 } from "@/types/project";
-import { DEFAULT_HEIGHT, DEFAULT_UNIT } from "@/types/constants";
+import { DEFAULT_HEIGHT, DEFAULT_UNIT } from "@/constant";
 import { useQueryClient } from "@tanstack/react-query";
 import { BID, PROJECT, SIZING_TEMPLATE } from "@/tanstack/keys";
 import { useSession } from "next-auth/react";
