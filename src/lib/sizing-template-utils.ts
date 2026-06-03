@@ -2,7 +2,7 @@
  * Sizing template utility functions
  */
 
-import { REMINDER_COOLDOWN_MINUTES } from "@/types/constants";
+import { REMINDER_COOLDOWN_MINUTES } from "@/constant";
 
 export type TSizingGender = "MALE" | "FEMALE";
 

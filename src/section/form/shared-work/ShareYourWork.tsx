@@ -32,7 +32,7 @@ const ShareYourWorkForm = () => {
   const { mutate: createSharedWork, isPending: isSubmitting } = useCreateSharedWork();
   const { data: clothingTypesData } = useGetClothingTypes();
   const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES);
-
+  const [ submitTries, setSubmitTries ] = useState(0)
   const [values, setValues] = useState<SharedWorkImageEntry[]>([]);
   const [selectedClothingTypes, setSelectedClothingTypes] = useState<string[]>([]);
 
@@ -42,6 +42,9 @@ const ShareYourWorkForm = () => {
   const hasClothingType = selectedClothingTypes.length > 0;
   const isFormValid =
     hasAtLeastOneImage && hasCoverImage && allDescriptionsFilled && hasClothingType;
+    const hasTriedToSubmmit = submitTries > 0;
+
+  
 
   const preview = useMemo(() => {
     return values.map((val) => ({
@@ -99,6 +102,7 @@ const ShareYourWorkForm = () => {
   const handleSubmit = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
       e.preventDefault();
+      setSubmitTries(prev => prev + 1);
 
       const formData = jsonToFormData({
         clothingTypes: selectedClothingTypes,
@@ -123,7 +127,6 @@ const ShareYourWorkForm = () => {
     <>
       <div className="mb-8">
         <h1 className="text-lg font-bold mb-1">Share your work</h1>
-        Upload styling images of previous jobs
       </div>
 
       <FormItemWrapper
@@ -134,8 +137,8 @@ const ShareYourWorkForm = () => {
       >
         <div className="flex flex-col gap-8 mb-8">
           {preview.map((value, index) => (
-            <div key={value.id} className="flex flex-col gap-4">
-              <div className="grid w-full gap-1.5">
+            <div key={value.id} className="flex flex-col gap-4 ">
+              <div className="grid w-full gap-1.5 ">
                 <Textarea
                   value={value.description}
                   onChange={handleDescriptionChange(index)}
@@ -143,7 +146,7 @@ const ShareYourWorkForm = () => {
                   placeholder="Image Descriptions"
                   rows={3}
                 />
-                {value.description.trim().length === 0 ? (
+                {value.description.trim().length === 0 && hasTriedToSubmmit ? (
                   <p className="text-sm text-red-500">Description is required.</p>
                 ) : (
                   <p className="text-sm text-foreground-body">
@@ -189,6 +192,7 @@ const ShareYourWorkForm = () => {
 
           <div className={cn(values.length >= 8 && "hidden")}>
             <FileUploadPicker
+              className="w-full"
               accept="image/*"
               onSelect={(file) => {
                 if (file) handleFileSelect(file as File);
@@ -196,10 +200,10 @@ const ShareYourWorkForm = () => {
             />
           </div>
 
-          {!hasAtLeastOneImage && (
+          {!hasAtLeastOneImage && hasTriedToSubmmit && (
             <p className="text-sm text-red-500">Upload at least one image.</p>
           )}
-          {hasAtLeastOneImage && !hasCoverImage && (
+          {hasAtLeastOneImage && !hasCoverImage && hasTriedToSubmmit && (
             <p className="text-sm text-red-500">Select a cover image.</p>
           )}
         </div>
@@ -220,7 +224,7 @@ const ShareYourWorkForm = () => {
           value={selectedClothingTypes}
           onChange={setSelectedClothingTypes}
         />
-        {!hasClothingType && (
+        {!hasClothingType && hasTriedToSubmmit && (
           <p className="text-sm text-red-500 mt-2">
             Select at least one clothing type.
           </p>

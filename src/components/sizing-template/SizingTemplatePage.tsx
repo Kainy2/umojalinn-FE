@@ -10,7 +10,7 @@ import {
 import {
   TEMPLATE_MODE,
   SIZING_TEMPLATE_REMINDER_TYPE,
-} from "@/types/constants";
+} from "@/constant";
 import MeasurementGuide from "./MeasurementGuide";
 import SuccessMessage from "./SuccessMessage";
 import ActionButtons from "./ActionButtons";
