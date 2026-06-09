@@ -53,6 +53,7 @@ const ShareYourWorkForm = () => {
   const isFormValid =
     hasAtLeastOneImage && hasCoverImage && allDescriptionsFilled && hasClothingType;
     const hasTriedToSubmmit = submitTries > 0;
+console.log(hasTriedToSubmmit);
 
   
 
@@ -156,13 +157,17 @@ const ShareYourWorkForm = () => {
                   placeholder="Image Descriptions"
                   rows={3}
                 />
-                {value.description.trim().length === 0 && hasTriedToSubmmit ? (
+                  <p className="text-sm text-foreground-body">
+                    {value.description.length}/250 characters
+                  </p>
+
+                {/* {value.description.trim().length === 0 && hasTriedToSubmmit ? (
                   <p className="text-sm text-red-500">Description is required.</p>
                 ) : (
                   <p className="text-sm text-foreground-body">
                     {value.description.length}/250 characters
                   </p>
-                )}
+                )} */}
               </div>
 
               <div>
@@ -210,12 +215,12 @@ const ShareYourWorkForm = () => {
             />
           </div>
 
-          {!hasAtLeastOneImage && hasTriedToSubmmit && (
+          {/* {!hasAtLeastOneImage && hasTriedToSubmmit && (
             <p className="text-sm text-red-500">Upload at least one image.</p>
           )}
           {hasAtLeastOneImage && !hasCoverImage && hasTriedToSubmmit && (
             <p className="text-sm text-red-500">Select a cover image.</p>
-          )}
+          )} */}
         </div>
       </FormItemWrapper>
 
@@ -234,11 +239,11 @@ const ShareYourWorkForm = () => {
           value={selectedClothingTypes}
           onChange={setSelectedClothingTypes}
         />
-        {!hasClothingType && hasTriedToSubmmit && (
+        {/* {!hasClothingType && hasTriedToSubmmit && (
           <p className="text-sm text-red-500 mt-2">
             Select at least one clothing type.
           </p>
-        )}
+        )} */}
       </FormItemWrapper>
 
       <ProjectEditFooter
