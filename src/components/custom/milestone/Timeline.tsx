@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import {
@@ -23,8 +23,9 @@ import MilestoneInputSection from "./InputSection";
 import MilestoneSubmissionsPreview from "./SubmissionsPreview";
 import { UmojaLinnUser } from "@/types/user";
 import { VariableDeliveryForm } from "./VariableDeliveryForm";
-import { EDeliveryMileStoneType } from "@/types/enum";
+import { EDeliveryMileStoneType, EMileStoneStatus } from "@/types/enum";
 import { useFundMilestone } from "@/tanstack/hooks/useProject";
+import { canBuyerFundMilestone } from "@/components/util/milestone";
 
 export enum MilestoneStatus {
   INACTIVE = "INACTIVE",
@@ -35,6 +36,8 @@ export enum MilestoneStatus {
   PAID = "PAID",
   COMPLETED = "COMPLETED",
   PROCESSING = "PROCESSING",
+  DISPUTED = "DISPUTED",
+  REFUNDED = "REFUNDED",
 }
 
 export type MilestoneTimelineItem = {
@@ -75,19 +78,47 @@ const getMilestoneStatus = (
   status: UmojaLinnMilestone["status"],
   transactionStatus: UmojaLinnMilestone["transactionStatus"],
 ): MilestoneTimelineItem["status"] => {
-  if (status === "IN_ACTIVE") {
+  if (status === EMileStoneStatus.IN_ACTIVE) {
     return MilestoneStatus.INACTIVE;
   }
-  if (status === "ACTIVE" || status === "REJECTED")
+  if (status === EMileStoneStatus.DISPUTED) {
+    return MilestoneStatus.DISPUTED;
+  }
+  if (status === EMileStoneStatus.REFUNDED) {
+    return MilestoneStatus.REFUNDED;
+  }
+  if (
+    status === EMileStoneStatus.ACTIVE ||
+    status === EMileStoneStatus.REJECTED
+  ) {
     return MilestoneStatus.ACTIVE;
-  if (status === "APPROVED") return MilestoneStatus.COMPLETED;
-  if (status === "PENDING" && transactionStatus === "AWAITING_FUND")
+  }
+  if (status === EMileStoneStatus.APPROVED) {
+    return MilestoneStatus.COMPLETED;
+  }
+  if (
+    status === EMileStoneStatus.PENDING &&
+    transactionStatus === "AWAITING_FUND"
+  ) {
     return MilestoneStatus.AWAITING_FUND;
+  }
   if (transactionStatus === "PAID") return MilestoneStatus.PAID;
-  if (transactionStatus === "PROCESSING") return MilestoneStatus.PROCESSING;
-  if (status === "IN_REVIEW") return MilestoneStatus.IN_REVIEW;
+  if (transactionStatus === "PROCESSING") {
+    return MilestoneStatus.PROCESSING;
+  }
+  if (status === EMileStoneStatus.IN_REVIEW) {
+    return MilestoneStatus.IN_REVIEW;
+  }
   return MilestoneStatus.INACTIVE;
 };
+
+const CURRENT_MILESTONE_STATUSES: UmojaLinnMilestone["status"][] = [
+  EMileStoneStatus.PENDING,
+  EMileStoneStatus.ACTIVE,
+  EMileStoneStatus.REJECTED,
+  EMileStoneStatus.IN_REVIEW,
+  EMileStoneStatus.DISPUTED,
+];
 
 const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
   milestones,
@@ -122,6 +153,34 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
     id: string;
     title: string;
   } | null>(null);
+  const cancellationUnmountTimeoutRef = useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
+
+  const DIALOG_EXIT_MS = 200;
+
+  const handleCancellationOpenChange = (open: boolean) => {
+    setCancellationOpen(open);
+    if (cancellationUnmountTimeoutRef.current) {
+      clearTimeout(cancellationUnmountTimeoutRef.current);
+      cancellationUnmountTimeoutRef.current = null;
+    }
+    if (!open && cancellationMilestone) {
+      cancellationUnmountTimeoutRef.current = setTimeout(() => {
+        setCancellationMilestone(null);
+        cancellationUnmountTimeoutRef.current = null;
+      }, DIALOG_EXIT_MS);
+    }
+  };
+
+  useEffect(
+    () => () => {
+      if (cancellationUnmountTimeoutRef.current) {
+        clearTimeout(cancellationUnmountTimeoutRef.current);
+      }
+    },
+    [],
+  );
 
   const [editableDeliverySubmission, setEditableDeliverySubmission] =
     useState<UmojaLinnDeliveryMilestoneReviewProps>({
@@ -188,9 +247,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
               item?.title || (isDelivery && "Delivery Method") || "No title",
             description: item?.description,
             variableSubmissions: item?.variableSubmissions,
-            isCurrent: ["PENDING", "ACTIVE", "REJECTED", "IN_REVIEW"].includes(
-              item?.status,
-            ),
+            isCurrent: CURRENT_MILESTONE_STATUSES.includes(item?.status),
           };
 
           const isVariableDelivery =
@@ -200,6 +257,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
           const latestSubmission = milestone.variableSubmissions?.[0];
           const isCompletedOrCurrent =
             milestone?.status === MilestoneStatus.COMPLETED ||
+            milestone?.status === MilestoneStatus.REFUNDED ||
             milestone?.isCurrent;
 
           return (
@@ -231,7 +289,8 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                     <DropdownMenuContent align="end" className="w-[200px]">
                       <DropdownMenuItem
                         className="cursor-pointer gap-1 text-[#B54708]"
-                        onClick={() => {
+                        onSelect={(event) => {
+                          event.preventDefault();
                           setCancellationMilestone({
                             id: milestone.id,
                             title: milestone.title,
@@ -251,7 +310,8 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                 <span
                   className={cn(
                     "flex flex-col justify-center items-center w-8 shrink-0 before:content-[''] before:w-0.5 before:h-full before:bg-gray-200 before:flex-1 before:rounded-full ",
-                    milestone?.status === MilestoneStatus.COMPLETED &&
+                    (milestone?.status === MilestoneStatus.COMPLETED ||
+                      milestone?.status === MilestoneStatus.REFUNDED) &&
                       "before:bg-success",
                     milestone?.isCurrent && "before:bg-gray-500",
                   )}
@@ -359,7 +419,10 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                     />
                     {(isAwaitingFunding ||
                       milestone?.status === MilestoneStatus.PROCESSING) &&
-                      latestSubmission?.status !== "PENDING" &&
+                      canBuyerFundMilestone({
+                        isVariableDelivery,
+                        variableSubmissionStatus: latestSubmission?.status,
+                      }) &&
                       !isDesigner && (
                         <button
                           className="text-sm underline text-primary"
@@ -376,6 +439,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                           className={cn(
                             "text-gray-400",
                             (milestone?.status === MilestoneStatus.COMPLETED ||
+                              milestone?.status === MilestoneStatus.REFUNDED ||
                               milestone?.isCurrent) &&
                               "text-foreground-body",
                           )}
@@ -444,10 +508,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
           escrowAmount={escrowBalance ?? 0}
           currency={currency}
           open={cancellationOpen}
-          onOpenChange={(open) => {
-            setCancellationOpen(open);
-            if (!open) setCancellationMilestone(null);
-          }}
+          onOpenChange={handleCancellationOpenChange}
         />
       )}
     </>
