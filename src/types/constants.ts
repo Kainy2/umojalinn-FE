@@ -119,3 +119,4 @@ export const DEFAULT_HEIGHT = 0;
 export const DEFAULT_UNIT: UmojaLinnSizingTemplate["unit"] = "CM";
 export const MAX_IN_USE_TEMPLATES = 3;
 export const FREE_TEMPLATE_LIMIT = 3;
+export const MAX_PROFILE_ABOUT_COUNT = 1000;
