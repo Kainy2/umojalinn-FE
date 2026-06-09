@@ -38,12 +38,17 @@ import { useQueryClient } from "@tanstack/react-query";
 import { BID, PROJECT, SIZING_TEMPLATE } from "@/tanstack/keys";
 import { useSession } from "next-auth/react";
 import {
-  filterTemplatesForProject,
+  getAtLimitCtaLabel,
+  getAtLimitMessage,
   getNoMatchingSizingTemplateMessage,
+  getOppositeGenderTemplateWarningDescription,
+  isFreeTemplateTier,
+  isMatchingSizingGender,
 } from "@/lib/sizing-template-utils";
+import OppositeGenderSizingWarning from "@/components/custom/dialog/OppositeGenderSizingWarning";
+import { FREE_TEMPLATE_LIMIT } from "@/types/constants";
 
 const RequestSizingTemplateAlert = () => {
-  const FREE_TEMPLATE_LIMIT = 3;
   // id here is bid id
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
@@ -79,10 +84,7 @@ const RequestSizingTemplateAlert = () => {
     useGetAllSizingTemplates({
       sizingTemplateStatus: ["LIVE", "DRAFT"],
     });
-  const availableTemplates = filterTemplatesForProject(
-    templatesData?.data.data ?? [],
-    project?.gender,
-  );
+  const availableTemplates = templatesData?.data.data ?? [];
 
   // Get total template count to check limit
   const { data: allTemplatesData } = useGetAllSizingTemplates();
@@ -97,6 +99,9 @@ const RequestSizingTemplateAlert = () => {
     useState<UmojaLinnSizingTemplate | null>(null);
   const [showHeightModal, setShowHeightModal] = useState(false);
   const [isCreatingNew, setIsCreatingNew] = useState(false);
+  const [showGenderWarning, setShowGenderWarning] = useState(false);
+  const [pendingTemplate, setPendingTemplate] =
+    useState<UmojaLinnSizingTemplate | null>(null);
 
   // Buyer: Add template to project mutation
   const { mutate: addTemplateToProject, isPending: isAddingTemplate } =
@@ -142,12 +147,24 @@ const RequestSizingTemplateAlert = () => {
   const isLoading =
     isAddingTemplate || isCreatingTemplate || isUpdatingTemplate;
 
-  // Handle existing template selection - prefill with template values
-  const handleSelectTemplate = (template: UmojaLinnSizingTemplate) => {
+  const proceedWithTemplate = (template: UmojaLinnSizingTemplate) => {
     setSelectedTemplate(template);
     setIsCreatingNew(false);
     setIsDropdownOpen(false);
     setShowHeightModal(true);
+  };
+
+  // Handle existing template selection - prefill with template values
+  const handleSelectTemplate = (template: UmojaLinnSizingTemplate) => {
+    if (
+      project?.gender &&
+      !isMatchingSizingGender(template.gender, project.gender)
+    ) {
+      setPendingTemplate(template);
+      setShowGenderWarning(true);
+      return;
+    }
+    proceedWithTemplate(template);
   };
 
   // Handle "Create new template" selection - use defaults
@@ -307,7 +324,7 @@ const RequestSizingTemplateAlert = () => {
 
               {!isLoadingTemplates && availableTemplates.length === 0 && (
                 <div className="py-2 px-2 text-center text-sm text-muted-foreground">
-                  {getNoMatchingSizingTemplateMessage(project?.gender)}
+                  {getNoMatchingSizingTemplateMessage()}
                 </div>
               )}
 
@@ -328,14 +345,16 @@ const RequestSizingTemplateAlert = () => {
                 availableTemplates.length === 0 &&
                 !canCreateNewTemplate && (
                   <div className="flex flex-col gap-2">
-                    <div className="py-3 px-2 text-center text-sm text-muted-foreground">
-                      Maximum {maxInUseTemplates} templates reached
-                    </div>
+                    {getAtLimitMessage(maxInUseTemplates) && (
+                      <div className="py-3 px-2 text-center text-sm text-muted-foreground">
+                        {getAtLimitMessage(maxInUseTemplates)}
+                      </div>
+                    )}
                     <button
                       onClick={() => router.push("/sizing-templates/buy")}
                       className="text-primary font-semibold cursor-pointer flex-1"
                     >
-                      Buy sizing template
+                      {getAtLimitCtaLabel(maxInUseTemplates)}
                     </button>
                   </div>
                 )}
@@ -356,30 +375,34 @@ const RequestSizingTemplateAlert = () => {
                       </DropdownMenuItem>
                     ),
                   )}
-                  <DropdownMenuItem
-                    onClick={
-                      canCreateNewTemplate ? handleCreateNewTemplate : undefined
-                    }
-                    disabled={!canCreateNewTemplate}
-                    className={cn(
-                      "cursor-pointer py-2.5 border-t",
-                      canCreateNewTemplate
-                        ? "hover:bg-primary/5"
-                        : "opacity-50 cursor-not-allowed",
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "font-medium text-sm",
-                        canCreateNewTemplate
-                          ? "text-primary"
-                          : "text-muted-foreground",
-                      )}
+                  {canCreateNewTemplate ? (
+                    <DropdownMenuItem
+                      onClick={handleCreateNewTemplate}
+                      className="cursor-pointer py-2.5 border-t hover:bg-primary/5"
                     >
-                      + Create new template{" "}
-                      {!canCreateNewTemplate && `(${maxInUseTemplates} max)`}
-                    </span>
-                  </DropdownMenuItem>
+                      <span className="font-medium text-sm text-primary">
+                        + Create new template
+                      </span>
+                    </DropdownMenuItem>
+                  ) : isFreeTemplateTier(maxInUseTemplates) ? (
+                    <DropdownMenuItem
+                      disabled
+                      className="cursor-not-allowed py-2.5 border-t opacity-50"
+                    >
+                      <span className="font-medium text-sm text-muted-foreground">
+                        + Create new template (3 max)
+                      </span>
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem
+                      onClick={() => router.push("/sizing-templates/buy")}
+                      className="cursor-pointer py-2.5 border-t hover:bg-primary/5"
+                    >
+                      <span className="font-medium text-sm text-primary">
+                        {getAtLimitCtaLabel(maxInUseTemplates)}
+                      </span>
+                    </DropdownMenuItem>
+                  )}
                 </>
               )}
             </DropdownMenuContent>
@@ -397,6 +420,26 @@ const RequestSizingTemplateAlert = () => {
           onOpenChange={handleHeightModalChange}
           isLoading={isLoading}
           gender={modalValues.gender}
+        />
+
+        <OppositeGenderSizingWarning
+          open={showGenderWarning}
+          onOpenChange={setShowGenderWarning}
+          description={
+            pendingTemplate && project?.gender
+              ? getOppositeGenderTemplateWarningDescription(
+                  pendingTemplate.gender,
+                  project.gender,
+                )
+              : ""
+          }
+          onConfirm={() => {
+            if (pendingTemplate) {
+              proceedWithTemplate(pendingTemplate);
+              setPendingTemplate(null);
+            }
+            setShowGenderWarning(false);
+          }}
         />
       </>
     );

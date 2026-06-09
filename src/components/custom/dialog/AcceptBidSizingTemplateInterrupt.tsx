@@ -21,14 +21,16 @@ import React, { useState } from "react";
 import DialogListPickerItem from "./ListPickerItem";
 // import { cn } from "@/lib/utils";
 import {
-  filterTemplatesForProject,
+  getAtLimitCtaLabel,
   getNoMatchingSizingTemplateMessage,
+  getOppositeGenderTemplateWarningDescription,
+  isMatchingSizingGender,
 } from "@/lib/sizing-template-utils";
+import { FREE_TEMPLATE_LIMIT } from "@/types/constants";
 import { UmojaLinnSizingTemplate } from "@/types/project";
+import OppositeGenderSizingWarning from "./OppositeGenderSizingWarning";
 
 type ButtonOnClickProp = React.ComponentProps<"button">["onClick"];
-
-const FREE_TEMPLATE_LIMIT = 3;
 
 const AcceptBidSizingTemplateInterrupt = (
   props: DialogProps & {
@@ -99,172 +101,181 @@ export const AcceptBidSizingTemplateInterruptConfirm = (
   const [sizingTemplateId, selectSizingTemplateId] = useState<null | string>(
     null,
   );
+  const [showGenderWarning, setShowGenderWarning] = useState(false);
 
-  const matchingTemplates = filterTemplatesForProject(
-    liveSizingTemplates?.data?.data ?? [],
-    props.projectGender,
+  const availableTemplates = liveSizingTemplates?.data?.data ?? [];
+
+  const selectedTemplate = availableTemplates.find(
+    (template) => template?.id === sizingTemplateId,
   );
+
+  const handleConfirmSelection = () => {
+    if (
+      selectedTemplate &&
+      props.projectGender &&
+      !isMatchingSizingGender(selectedTemplate.gender, props.projectGender)
+    ) {
+      setShowGenderWarning(true);
+      return;
+    }
+    setStage("CONFIRM");
+  };
+
+  const genderWarningDescription =
+    selectedTemplate && props.projectGender
+      ? getOppositeGenderTemplateWarningDescription(
+          selectedTemplate.gender,
+          props.projectGender,
+        )
+      : "";
 
   if (stage === "CONFIRM" && sizingTemplateId) {
     return (
+      <>
+        <Dialog open={open} onOpenChange={setOpen} {...props}>
+          <DialogTrigger asChild onClick={() => setOpen(true)}>
+            {props.children}
+          </DialogTrigger>
+          <DialogContent className="flex flex-col [&>div]:flex-1 [&>div]:shrink-0 [&>div]:p-3 min-w-[40vw]">
+            <DialogHeader className="flex gap-2 flex-col">
+              <div>
+                <DialogTitle className="font-semibold text-left">
+                  Select Sizing template
+                </DialogTitle>
+                <DialogDescription className=" text-left">
+                  Please verify if selected template is correct
+                </DialogDescription>
+              </div>
+            </DialogHeader>
+            <div className="flex gap-2 items-center">
+              <div className="icon-wrapper">
+                <Tag />
+              </div>
+              <span>{selectedTemplate?.name}</span>
+            </div>
+            <DialogFooter>
+              <div className="flex flex-col gap-2 w-full">
+                <Button
+                  disabled={props.loading}
+                  fullWidth
+                  variant="outline"
+                  onClick={() => setStage("SELECT")}
+                >
+                  Change Sizing template
+                </Button>
+                <Button
+                  loading={props.loading}
+                  onClick={() => {
+                    setOpen(false);
+                    props.handleAddSizingTemplateToProject?.(sizingTemplateId);
+                  }}
+                  fullWidth
+                >
+                  Confirm
+                </Button>
+              </div>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        <OppositeGenderSizingWarning
+          open={showGenderWarning}
+          onOpenChange={setShowGenderWarning}
+          description={genderWarningDescription}
+          onConfirm={() => {
+            setShowGenderWarning(false);
+            setStage("CONFIRM");
+          }}
+        />
+      </>
+    );
+  }
+
+  return (
+    <>
       <Dialog open={open} onOpenChange={setOpen} {...props}>
         <DialogTrigger asChild onClick={() => setOpen(true)}>
           {props.children}
         </DialogTrigger>
         <DialogContent className="flex flex-col [&>div]:flex-1 [&>div]:shrink-0 [&>div]:p-3 min-w-[40vw]">
-          <DialogHeader className="flex gap-2 flex-col">
+          <DialogHeader className="flex gap-2 flex-col lg:flex-row">
             <div>
               <DialogTitle className="font-semibold text-left">
                 Select Sizing template
               </DialogTitle>
               <DialogDescription className=" text-left">
-                Please verify if selected template is correct
+                Please select a sizing template
               </DialogDescription>
             </div>
           </DialogHeader>
-          <div className="flex gap-2 items-center">
-            <div className="icon-wrapper">
-              <Tag />
+          {loadingLivesizingTemplates && <Skeleton className="h-12" />}
+          {availableTemplates.length ? (
+            availableTemplates.map?.((template) => {
+              const active = template?.id === sizingTemplateId;
+              return (
+                <DialogListPickerItem
+                  onClick={() => selectSizingTemplateId(template?.id)}
+                  key={template?.id}
+                  icon={<Tag />}
+                  active={active}
+                  title={template?.name}
+                />
+              );
+            })
+          ) : (
+            <div className="flex flex-col gap-2 items-center justify-center">
+              <Image
+                src="/img/svg/no-sizing-template.svg"
+                height={160}
+                width={160}
+                className="object-contain"
+                alt=""
+              />
+              <span>{getNoMatchingSizingTemplateMessage()}</span>
             </div>
-            <span>
-              {
-                matchingTemplates.find(
-                  (template) => template?.id === sizingTemplateId,
-                )?.name
-              }
-            </span>
-          </div>
+          )}
           <DialogFooter>
-            <div className="flex flex-col gap-2 w-full">
-              <Button
-                disabled={props.loading}
-                fullWidth
-                variant="outline"
-                onClick={() => setStage("SELECT")}
-              >
-                Change Sizing template
-              </Button>
-              <Button
-                loading={props.loading}
-                onClick={() => {
-                  setOpen(false);
-                  props.handleAddSizingTemplateToProject?.(sizingTemplateId);
-                }}
-                fullWidth
-              >
-                Confirm
-              </Button>
-            </div>
+            <Button
+              onClick={(e) => {
+                if (!availableTemplates.length) {
+                  if (canCreateNewTemplate) {
+                    props?.handleCreateNewSizingTemplate?.(e);
+                    props?.onOpenChange?.(false);
+                    setOpen(false);
+                  } else {
+                    props?.onOpenChange?.(false);
+                    setOpen(false);
+                    router.push("/sizing-templates/buy");
+                  }
+                } else {
+                  handleConfirmSelection();
+                }
+              }}
+              fullWidth
+              loading={props.loadingCreate}
+              disabled={
+                loadingLivesizingTemplates ||
+                (!sizingTemplateId && !!availableTemplates.length)
+              }
+            >
+              {availableTemplates.length || loadingLivesizingTemplates
+                ? "Confirm"
+                : canCreateNewTemplate
+                  ? "Create New Sizing Template"
+                  : getAtLimitCtaLabel(maxTemplates)}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    );
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen} {...props}>
-      <DialogTrigger asChild onClick={() => setOpen(true)}>
-        {props.children}
-      </DialogTrigger>
-      <DialogContent className="flex flex-col [&>div]:flex-1 [&>div]:shrink-0 [&>div]:p-3 min-w-[40vw]">
-        <DialogHeader className="flex gap-2 flex-col lg:flex-row">
-          <div>
-            <DialogTitle className="font-semibold text-left">
-              Select Sizing template
-            </DialogTitle>
-            <DialogDescription className=" text-left">
-              Please select a sizing template
-            </DialogDescription>
-          </div>
-        </DialogHeader>
-        {loadingLivesizingTemplates && <Skeleton className="h-12" />}
-        {matchingTemplates.length ? (
-          matchingTemplates.map?.((template) => {
-            const active = template?.id === sizingTemplateId;
-            return (
-              <DialogListPickerItem
-                onClick={() => selectSizingTemplateId(template?.id)}
-                key={template?.id}
-                icon={<Tag />}
-                active={active}
-                title={template?.name}
-              />
-            );
-          })
-        ) : (
-          <div className="flex flex-col gap-2 items-center justify-center">
-            <Image
-              src="/img/svg/no-sizing-template.svg"
-              height={160}
-              width={160}
-              className="object-contain"
-              alt=""
-            />
-            <span>
-              {getNoMatchingSizingTemplateMessage(props.projectGender)}
-            </span>
-          </div>
-        )}
-        <DialogFooter>
-          <Button
-            onClick={(e) => {
-              if (!matchingTemplates.length) {
-                if (canCreateNewTemplate) {
-                  props?.handleCreateNewSizingTemplate?.(e);
-                  props?.onOpenChange?.(false);
-                  setOpen(false);
-                } else {
-                  props?.onOpenChange?.(false);
-                  setOpen(false);
-                  router.push("/sizing-templates/buy");
-                }
-              } else {
-                setStage("CONFIRM");
-              }
-            }}
-            fullWidth
-            loading={props.loadingCreate}
-            disabled={
-              loadingLivesizingTemplates ||
-              (!sizingTemplateId && !!matchingTemplates.length)
-            }
-          >
-            {matchingTemplates.length || loadingLivesizingTemplates
-              ? "Confirm"
-              : canCreateNewTemplate
-                ? "Create New Sizing Template"
-                : `Max ${maxTemplates} Templates Reached (Buy more templates)`}
-          </Button>
-        </DialogFooter>
-        {/* <div className="flex -mt-4">
-          {!!matchingTemplates.length &&
-            (canCreateNewTemplate ? (
-              <button
-                onClick={props?.handleCreateNewSizingTemplate}
-                className="text-primary font-semibold cursor-pointer flex-1"
-              >
-                Create a new sizing template
-              </button>
-            ) : (
-              <div className="flex flex-col gap-2">
-                <span
-                  className={cn(
-                    "text-muted-foreground text-sm flex-1 text-center",
-                  )}
-                >
-                  Maximum {maxTemplates} templates reached
-                </span>
-                <button
-                  onClick={() => router.push("/sizing-templates/buy")}
-                  className="text-primary font-semibold cursor-pointer flex-1"
-                >
-                  Buy sizing template
-                </button>
-              </div>
-            ))}
-        </div> */}
-      </DialogContent>
-    </Dialog>
+      <OppositeGenderSizingWarning
+        open={showGenderWarning}
+        onOpenChange={setShowGenderWarning}
+        description={genderWarningDescription}
+        onConfirm={() => {
+          setShowGenderWarning(false);
+          setStage("CONFIRM");
+        }}
+      />
+    </>
   );
 };
 

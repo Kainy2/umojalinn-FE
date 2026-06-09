@@ -18,8 +18,11 @@ import { cn } from "@/lib/utils";
 import { UmojaLinnSizingTemplate } from "@/types/project";
 import {
   getNoMatchingSizingTemplateMessage,
+  getOppositeGenderTemplateWarningDescription,
+  isMatchingSizingGender,
   TSizingGender,
 } from "@/lib/sizing-template-utils";
+import OppositeGenderSizingWarning from "@/components/custom/dialog/OppositeGenderSizingWarning";
 import HeightAndSizeModal from "./HeightAndSizeModal";
 
 type AcceptSizingTemplateDropdownProps = {
@@ -47,11 +50,26 @@ const AcceptSizingTemplateDropdown = ({
   const [isOpen, setIsOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<UmojaLinnSizingTemplate | null>(null);
   const [showHeightModal, setShowHeightModal] = useState(false);
+  const [showGenderWarning, setShowGenderWarning] = useState(false);
+  const [pendingTemplate, setPendingTemplate] =
+    useState<UmojaLinnSizingTemplate | null>(null);
 
-  const handleSelectTemplate = (template: UmojaLinnSizingTemplate) => {
+  const proceedWithTemplate = (template: UmojaLinnSizingTemplate) => {
     setSelectedTemplate(template);
     setIsOpen(false);
     setShowHeightModal(true);
+  };
+
+  const handleSelectTemplate = (template: UmojaLinnSizingTemplate) => {
+    if (
+      projectGender &&
+      !isMatchingSizingGender(template.gender, projectGender)
+    ) {
+      setPendingTemplate(template);
+      setShowGenderWarning(true);
+      return;
+    }
+    proceedWithTemplate(template);
   };
 
   const handleHeightSubmit = (height: number, ukSize: string) => {
@@ -111,7 +129,7 @@ const AcceptSizingTemplateDropdown = ({
             <div className="py-4 px-2 text-center">
               <FileText className="size-8 mx-auto text-muted-foreground mb-2" />
               <p className="text-sm text-muted-foreground">
-                {getNoMatchingSizingTemplateMessage(projectGender)}
+                {getNoMatchingSizingTemplateMessage()}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 Create a sizing template first
@@ -162,6 +180,26 @@ const AcceptSizingTemplateDropdown = ({
           gender={selectedTemplate.gender}
         />
       )}
+
+      <OppositeGenderSizingWarning
+        open={showGenderWarning}
+        onOpenChange={setShowGenderWarning}
+        description={
+          pendingTemplate && projectGender
+            ? getOppositeGenderTemplateWarningDescription(
+                pendingTemplate.gender,
+                projectGender,
+              )
+            : ""
+        }
+        onConfirm={() => {
+          if (pendingTemplate) {
+            proceedWithTemplate(pendingTemplate);
+            setPendingTemplate(null);
+          }
+          setShowGenderWarning(false);
+        }}
+      />
     </>
   );
 };

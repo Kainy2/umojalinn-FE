@@ -10,9 +10,16 @@ import { ChevronDown, Briefcase, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAddSizingTemplateToProject } from "@/tanstack/hooks/useSizingTemplates";
 import { UmojaLinnProject } from "@/types/project";
+import {
+  getOppositeGenderProjectWarningDescription,
+  isMatchingSizingGender,
+  TSizingGender,
+} from "@/lib/sizing-template-utils";
+import OppositeGenderSizingWarning from "@/components/custom/dialog/OppositeGenderSizingWarning";
 
 type AddToJobDropdownProps = {
   templateId?: string;
+  templateGender?: TSizingGender;
   onSuccess?: () => void;
   disabled?: boolean;
   availableProjects?: UmojaLinnProject[];
@@ -22,6 +29,7 @@ type AddToJobDropdownProps = {
 
 const AddToJobDropdown = ({
   templateId,
+  templateGender,
   onSuccess,
   disabled = false,
   availableProjects = [],
@@ -29,6 +37,8 @@ const AddToJobDropdown = ({
   className,
 }: AddToJobDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showGenderWarning, setShowGenderWarning] = useState(false);
+  const [pendingProjectId, setPendingProjectId] = useState<string | null>(null);
 
   const { mutate: addToProject, isPending: isAttaching } = useAddSizingTemplateToProject({
     onSuccess: () => {
@@ -37,15 +47,43 @@ const AddToJobDropdown = ({
     },
   });
 
-  const handleSelectProject = (projectId: string) => {
+  const attachToProject = (projectId: string) => {
     if (!templateId) return;
     addToProject({ sizingTemplateId: templateId, projectId });
   };
+
+  const handleSelectProject = (project: UmojaLinnProject) => {
+    if (!templateId) return;
+
+    if (
+      templateGender &&
+      project.gender &&
+      !isMatchingSizingGender(templateGender, project.gender)
+    ) {
+      setPendingProjectId(project.id);
+      setShowGenderWarning(true);
+      return;
+    }
+    attachToProject(project.id);
+  };
+
+  const pendingProject = availableProjects.find(
+    (project) => project.id === pendingProjectId,
+  );
+
+  const genderWarningDescription =
+    pendingProject?.gender && templateGender
+      ? getOppositeGenderProjectWarningDescription(
+          pendingProject.gender,
+          templateGender,
+        )
+      : "";
 
   const isDisabled = disabled || !templateId || isAttaching;
   const hasNoProjects = availableProjects.length === 0;
 
   return (
+    <>
     <DropdownMenu open={isOpen} onOpenChange={isDisabled ? undefined : setIsOpen}>
       <DropdownMenuTrigger asChild>
         <div className="flex flex-col w-36">
@@ -86,7 +124,7 @@ const AddToJobDropdown = ({
             {availableProjects.map((project, index) => (
               <DropdownMenuItem
                 key={project.id}
-                onClick={() => handleSelectProject(project.id)}
+                onClick={() => handleSelectProject(project)}
                 className={cn("cursor-pointer py-2.5 animate-in fade-in slide-in-from-top-1 duration-200 hover:bg-primary/5 focus:bg-primary/5")}
                 style={{ animationDelay: `${index * 50}ms` }}
               >
@@ -100,6 +138,21 @@ const AddToJobDropdown = ({
         )}
       </DropdownMenuContent>
     </DropdownMenu>
+
+    <OppositeGenderSizingWarning
+      open={showGenderWarning}
+      onOpenChange={setShowGenderWarning}
+      description={genderWarningDescription}
+      pendingConfirm={isAttaching}
+      onConfirm={() => {
+        if (pendingProjectId) {
+          attachToProject(pendingProjectId);
+          setPendingProjectId(null);
+        }
+        setShowGenderWarning(false);
+      }}
+    />
+  </>
   );
 };
 

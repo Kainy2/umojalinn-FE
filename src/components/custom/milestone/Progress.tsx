@@ -7,6 +7,8 @@ type MilestoneProgressProps = {
 };
 
 const MilestoneProgress = (props: MilestoneProgressProps) => {
+  if (!props.total) return null;
+
   return (
     <div className={cn("flex gap-2", props.className)}>
       {new Array(props.total).fill("").map((_, index) => (

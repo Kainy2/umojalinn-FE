@@ -6,7 +6,9 @@ import { FormTextField } from "@/components/custom/input/TextField";
 import { FormCustomDatePickerField } from "@/components/custom/picker/Date";
 import CustomPhonePicker from "@/components/custom/picker/Phone";
 import { FormCustomSelectField } from "@/components/custom/Select";
-import CustomSelectCountry from "@/components/custom/SelectCountry";
+import CustomSelectCountry, {
+  normalizeCountryName,
+} from "@/components/custom/SelectCountry";
 import { FormTabButtonSelect } from "@/components/custom/tab/ButtonSelect";
 import { FormCustomTagSelectField } from "@/components/custom/tag/Select";
 import { Button } from "@/components/ui/button";
@@ -45,7 +47,7 @@ const getDefaultValues = (data:UmojaLinnUser | undefined ): UpdateProfileProps =
     address: data?.address?.address,
     city: data?.address?.city,
     state: data?.address?.state,
-    country: data?.address?.country,
+    country: normalizeCountryName(data?.address?.country),
     zipCode: data?.address?.zipCode,
     specialistType: data?.designerProfile?.specialistType?.id ?? "",
     clothingTypes: data?.designerProfile?.clothingTypes?.map(({id}) => id) ?? [],

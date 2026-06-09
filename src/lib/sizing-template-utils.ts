@@ -2,9 +2,23 @@
  * Sizing template utility functions
  */
 
-import { REMINDER_COOLDOWN_MINUTES } from "@/types/constants";
+import {
+  FREE_TEMPLATE_LIMIT,
+  REMINDER_COOLDOWN_MINUTES,
+} from "@/types/constants";
 
 export type TSizingGender = "MALE" | "FEMALE";
+
+export const isFreeTemplateTier = (numberOfTemplates: number): boolean =>
+  numberOfTemplates === FREE_TEMPLATE_LIMIT;
+
+export const getAtLimitCtaLabel = (numberOfTemplates: number): string =>
+  isFreeTemplateTier(numberOfTemplates)
+    ? "Max 3 templates reached"
+    : "Buy Template";
+
+export const getAtLimitMessage = (numberOfTemplates: number): string | null =>
+  isFreeTemplateTier(numberOfTemplates) ? "Maximum 3 templates reached" : null;
 
 /** True when project gender is set and matches the template gender */
 export const isMatchingSizingGender = (
@@ -27,24 +41,23 @@ export const filterTemplatesForProject = <T extends { gender: TSizingGender }>(
 export const getSizingGenderLabel = (gender: TSizingGender): string =>
   gender === "FEMALE" ? "Female" : "Male";
 
-export const getNoMatchingSizingTemplateMessage = (
-  projectGender: null | TSizingGender | undefined,
-): string => {
-  if (projectGender === "FEMALE") {
-    return "No Female Sizing Template available";
-  }
-  if (projectGender === "MALE") {
-    return "No Male Sizing Template available";
-  }
-  return "No Sizing Template available";
-};
+export const getNoMatchingSizingTemplateMessage = (): string =>
+  "No Sizing Template available";
 
-export const getNoMatchingSizingTemplateDescription = (
-  projectGender: null | TSizingGender | undefined,
-): string => {
-  const base = getNoMatchingSizingTemplateMessage(projectGender);
-  return `${base}. You can add a sizing template later from the Sizing templates tab.`;
-};
+export const getNoMatchingSizingTemplateDescription = (): string =>
+  "No Sizing Template available. You can add a sizing template later from the Sizing templates tab.";
+
+export const getOppositeGenderTemplateWarningDescription = (
+  templateGender: TSizingGender,
+  projectGender: TSizingGender,
+): string =>
+  `This sizing template is for ${getSizingGenderLabel(templateGender)} but your project is for ${getSizingGenderLabel(projectGender)}. Adding it to this project will change it to a ${getSizingGenderLabel(templateGender)} template`;
+
+export const getOppositeGenderProjectWarningDescription = (
+  projectGender: TSizingGender,
+  templateGender: TSizingGender,
+): string =>
+  `This project is for ${getSizingGenderLabel(projectGender)} but your sizing template is for ${getSizingGenderLabel(templateGender)}. Adding it to this project will change it to a ${getSizingGenderLabel(templateGender)} template`;
 
 /** Projects compatible with a template's gender */
 export const filterProjectsForTemplate = <
