@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { UmojalinnStandardSize } from "@/types/project";
-import { MALE_STANDARD_SIZES, FEMALE_STANDARD_SIZES } from "@/types/constants";
+import { MALE_STANDARD_SIZES, FEMALE_STANDARD_SIZES } from "@/constant";
 import {
   Select,
   SelectContent,

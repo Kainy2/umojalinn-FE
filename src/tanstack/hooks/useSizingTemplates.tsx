@@ -337,7 +337,7 @@ export const useSendSizingTemplateReminder = (
   templateId: string,
   options?: GenericUseMutationProps<
     SingleApiResponse,
-    { projectId: string; reminderType: import("@/types/constants").SizingTemplateReminderType }
+    { projectId: string; reminderType: import("@/constant").SizingTemplateReminderType }
   >
 ) => {
   const { handleError } = useHandleError("Send Reminder");

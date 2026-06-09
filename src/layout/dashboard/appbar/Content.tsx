@@ -10,6 +10,7 @@ import { useGetMe } from "@/tanstack/hooks/useUser";
 import {
   ChevronDown,
   LogOut,
+  User,
   // Search
 } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -57,6 +58,15 @@ const DashboardAppbarContent = () => {
         <NotificationPopover />
         <PopoverMenu
           menus={[
+            ...(session?.user?.profileRole === "DESIGNER"
+              ? [
+                  {
+                    href: "/settings/profile",
+                    children: "View profile",
+                    icon: <User className="text-foreground-body" />,
+                  },
+                ]
+              : []),
             {
               onClick: () => logOut(session?.user?.profileRole),
               children: "Logout",

@@ -32,7 +32,7 @@ import { useParams, useRouter } from "next/navigation";
 import React, { useState } from "react";
 import HeightAndSizeModal from "@/components/sizing-template/HeightAndSizeModal";
 import { UmojaLinnSizingTemplate, UmojalinnStandardSize } from "@/types/project";
-import { DEFAULT_HEIGHT, DEFAULT_UNIT } from "@/types/constants";
+import { DEFAULT_HEIGHT, DEFAULT_UNIT } from "@/constant";
 
 const IndividualBidPage = () => {
   const { id } = useParams<{ id: string }>();

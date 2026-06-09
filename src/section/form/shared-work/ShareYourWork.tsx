@@ -11,11 +11,20 @@ import { useFileSizeError } from "@/hooks/useFilePicker";
 import { useGetClothingTypes } from "@/tanstack/hooks/useProject";
 import { useCreateSharedWork } from "@/tanstack/hooks/useSharedWork";
 import { cn, fileToPreviewUrl, jsonToFormData } from "@/lib/utils";
-import { Trash2 } from "lucide-react";
+import { Trash2, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useCallback, useId, useMemo, useState } from "react";
 import ProjectEditFooter from "@/section/form/project/edit/ProjectEditFooter";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import RatingStar from "@/icons/RatingStar";
 
 type SharedWorkImageEntry = {
   id: string | number;
@@ -32,7 +41,8 @@ const ShareYourWorkForm = () => {
   const { mutate: createSharedWork, isPending: isSubmitting } = useCreateSharedWork();
   const { data: clothingTypesData } = useGetClothingTypes();
   const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES);
-
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [ submitTries, setSubmitTries ] = useState(0)
   const [values, setValues] = useState<SharedWorkImageEntry[]>([]);
   const [selectedClothingTypes, setSelectedClothingTypes] = useState<string[]>([]);
 
@@ -42,6 +52,9 @@ const ShareYourWorkForm = () => {
   const hasClothingType = selectedClothingTypes.length > 0;
   const isFormValid =
     hasAtLeastOneImage && hasCoverImage && allDescriptionsFilled && hasClothingType;
+    const hasTriedToSubmmit = submitTries > 0;
+
+  
 
   const preview = useMemo(() => {
     return values.map((val) => ({
@@ -99,6 +112,7 @@ const ShareYourWorkForm = () => {
   const handleSubmit = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
       e.preventDefault();
+      setSubmitTries(prev => prev + 1);
 
       const formData = jsonToFormData({
         clothingTypes: selectedClothingTypes,
@@ -112,7 +126,7 @@ const ShareYourWorkForm = () => {
 
       createSharedWork(formData, {
         onSuccess() {
-          router.push("/dashboard");
+          setShowSuccessModal(true);
         },
       });
     },
@@ -123,7 +137,6 @@ const ShareYourWorkForm = () => {
     <>
       <div className="mb-8">
         <h1 className="text-lg font-bold mb-1">Share your work</h1>
-        Upload styling images of previous jobs
       </div>
 
       <FormItemWrapper
@@ -134,8 +147,8 @@ const ShareYourWorkForm = () => {
       >
         <div className="flex flex-col gap-8 mb-8">
           {preview.map((value, index) => (
-            <div key={value.id} className="flex flex-col gap-4">
-              <div className="grid w-full gap-1.5">
+            <div key={value.id} className="flex flex-col gap-4 ">
+              <div className="grid w-full gap-1.5 ">
                 <Textarea
                   value={value.description}
                   onChange={handleDescriptionChange(index)}
@@ -143,7 +156,7 @@ const ShareYourWorkForm = () => {
                   placeholder="Image Descriptions"
                   rows={3}
                 />
-                {value.description.trim().length === 0 ? (
+                {value.description.trim().length === 0 && hasTriedToSubmmit ? (
                   <p className="text-sm text-red-500">Description is required.</p>
                 ) : (
                   <p className="text-sm text-foreground-body">
@@ -189,6 +202,7 @@ const ShareYourWorkForm = () => {
 
           <div className={cn(values.length >= 8 && "hidden")}>
             <FileUploadPicker
+              className="w-full"
               accept="image/*"
               onSelect={(file) => {
                 if (file) handleFileSelect(file as File);
@@ -196,10 +210,10 @@ const ShareYourWorkForm = () => {
             />
           </div>
 
-          {!hasAtLeastOneImage && (
+          {!hasAtLeastOneImage && hasTriedToSubmmit && (
             <p className="text-sm text-red-500">Upload at least one image.</p>
           )}
-          {hasAtLeastOneImage && !hasCoverImage && (
+          {hasAtLeastOneImage && !hasCoverImage && hasTriedToSubmmit && (
             <p className="text-sm text-red-500">Select a cover image.</p>
           )}
         </div>
@@ -220,7 +234,7 @@ const ShareYourWorkForm = () => {
           value={selectedClothingTypes}
           onChange={setSelectedClothingTypes}
         />
-        {!hasClothingType && (
+        {!hasClothingType && hasTriedToSubmmit && (
           <p className="text-sm text-red-500 mt-2">
             Select at least one clothing type.
           </p>
@@ -239,6 +253,50 @@ const ShareYourWorkForm = () => {
           onClick: handleSubmit,
         }}
       />
+
+      <Dialog open={showSuccessModal}>
+        <DialogContent
+          onInteractOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
+          <button
+            type="button"
+            className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
+            onClick={() => {
+              setShowSuccessModal(false);
+              router.push("/dashboard");
+            }}
+          >
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </button>
+          <DialogHeader>
+            <RatingStar
+              stroke="#FAC515"
+              className="mx-auto md:my-36 size-6 text-primary-600"
+            />
+            <DialogTitle  className="pb-8 text-center">Your work has been published</DialogTitle>
+          </DialogHeader>
+
+          <DialogFooter className="flex-col sm:flex-row gap-2 mt-2">
+            {/* <Button
+              variant="outline"
+              onClick={() => {
+                setShowSuccessModal(false);
+                router.push("/dashboard");
+              }}
+            >
+              Go to dashboard
+            </Button> */}
+            <Button 
+            fullWidth
+            onClick={() => router.push("/settings/profile/portfolio")}
+            >
+              View portfolio
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

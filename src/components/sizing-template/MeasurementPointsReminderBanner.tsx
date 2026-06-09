@@ -16,7 +16,7 @@ import {
 import {
   SIZING_TEMPLATE_REMINDER_TYPE,
   REMINDER_COOLDOWN_MINUTES,
-} from "@/types/constants";
+} from "@/constant";
 import Link from "next/link";
 import { uuidToBase62Safe } from "@/lib/uuid";
 

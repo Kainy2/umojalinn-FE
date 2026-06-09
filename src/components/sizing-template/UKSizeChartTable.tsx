@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { UK_SIZE_CHART_MALE, UK_SIZE_CHART_FEMALE } from "@/types/constants";
+import { UK_SIZE_CHART_MALE, UK_SIZE_CHART_FEMALE } from "@/constant";
 
 interface UKSizeChartTableProps {
   gender: "MALE" | "FEMALE";
