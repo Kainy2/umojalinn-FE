@@ -102,8 +102,8 @@ export type UmojaLinnDesignerProfile = {
   designerSharedWork: UmojaLinnSharedWork[];
   reviews: UmojaLinnProjectReview[];
   projectInvitations: unknown[];
-  projects: unknown[];
-  bids: unknown[];
+  projects: UmojaLinnProject[];
+  bids: UmojaLinnBid[];
   languages: unknown[];
 };
 

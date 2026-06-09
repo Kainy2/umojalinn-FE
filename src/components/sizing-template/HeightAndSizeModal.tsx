@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 import { UmojaLinnSizingTemplate, UmojalinnStandardSize } from "@/types/project";
 import { ArrowRight, Minus, Plus } from "lucide-react";
 import UKSizeChartModal from "./UKSizeChartModal";
-import { MALE_STANDARD_SIZES, FEMALE_STANDARD_SIZES } from "@/types/constants";
+import { MALE_STANDARD_SIZES, FEMALE_STANDARD_SIZES } from "@/constant";
 
 const getSizes = (gender: UmojaLinnSizingTemplate["gender"]) =>
   gender === "MALE" ? MALE_STANDARD_SIZES : FEMALE_STANDARD_SIZES;

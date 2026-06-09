@@ -2,7 +2,7 @@
 
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { UK_SIZE_CHART_MALE, UK_SIZE_CHART_FEMALE } from "@/types/constants";
+import { UK_SIZE_CHART_MALE, UK_SIZE_CHART_FEMALE } from "@/constant";
 
 interface UKSizeChartDrawerProps {
   gender: "MALE" | "FEMALE";

@@ -17,7 +17,7 @@ import { createLucideIcon, File, Loader2, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { uuidToBase62Safe } from "@/lib/uuid";
 // import { canSendReminder } from "@/lib/sizing-template-utils";
-import { DEFAULT_HEIGHT, DEFAULT_UNIT } from "@/types/constants";
+import { DEFAULT_HEIGHT, DEFAULT_UNIT } from "@/constant";
 import {
   UmojaLinnSizingTemplate,
   UmojalinnStandardSize,

@@ -261,7 +261,7 @@ export const saveMeasurementPoints = async (
 export const sendSizingTemplateReminder = async (
   templateId: string,
   projectId: string,
-  reminderType: import("@/types/constants").SizingTemplateReminderType,
+  reminderType: import("@/constant").SizingTemplateReminderType,
   options?: ServerActionOption
 ) => {
   let axios = clientAxios;
