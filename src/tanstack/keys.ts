@@ -2,6 +2,7 @@ export const BID = "BID";
 export const BUYER = "BUYER";
 export const DESIGNER = "DESIGNER";
 export const PROJECT = "PROJECT";
+export const DISPUTES = "DISPUTES";
 export const MILESTONE = "MILESTONE";
 export const WALLET = "WALLET";
 export const TRANSACTION = "TRANSACTION";

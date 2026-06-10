@@ -3,12 +3,13 @@ import CustomCardHolder, {
   CustomCardHolderProps,
 } from "@/components/custom/card/Holder";
 import JobCard from "@/components/custom/card/Job";
-import { getCoverImage } from "@/lib/project";
+import { getBidJobTileProgress, getCoverImage, getProjectJobTileProgress } from "@/lib/project";
 // import { getCoverImage } from "@/lib/project";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { useGetDesignerBids } from "@/tanstack/hooks/useBid";
 import { useGetAllDesignerProject } from "@/tanstack/hooks/useProject";
 import { useCallback, useMemo, useState } from "react";
+import type { UmojaLinnBid } from "@/types/project";
 
 const options = [
   "MY_BIDS",
@@ -60,6 +61,23 @@ const DashboardPage = () => {
       bidStatus: ["REJECTED", "PENDING"],
     });
 
+  const { data: acceptedBidsData } = useGetDesignerBids({
+    bidStatus: "ACCEPTED",
+    projectStatus: ["LIVE", "COMPLETED"],
+  });
+
+  const acceptedBidByProjectId = useMemo(() => {
+    const map = new Map<string, UmojaLinnBid>();
+
+    acceptedBidsData?.data?.data?.forEach((bid) => {
+      if (bid.projectId) {
+        map.set(bid.projectId, bid);
+      }
+    });
+
+    return map;
+  }, [acceptedBidsData?.data?.data]);
+
   const totalBids = useMemo(() => {
     if (
       myBidsDataWithoutDraft?.data?.data?.length === undefined ||
@@ -88,10 +106,7 @@ const DashboardPage = () => {
             href={`/bids/${uuidToBase62Safe(bid?.id)}/edit`}
             amount={bid?.amount}
             currency={bid.project?.currency}
-            progress={{
-              value: 0,
-              total: 1,
-            }}
+            progress={getBidJobTileProgress(bid)}
             // attachedFileCount={bid?.project?.cha}
             img={getCoverImage(bid.project)}
             userImg={
@@ -123,10 +138,7 @@ const DashboardPage = () => {
             href={`/bids/${uuidToBase62Safe(bid?.id)}/edit`}
             amount={bid?.amount}
             currency={bid.project?.currency}
-            progress={{
-              value: 0,
-              total: 1,
-            }}
+            progress={getBidJobTileProgress(bid)}
             img={getCoverImage(bid.project)}
             userImg={
               bid.project.buyer?.user?.profilePhotoUri || "/img/webp/user.webp"
@@ -151,10 +163,10 @@ const DashboardPage = () => {
             href={`/active-jobs/${uuidToBase62Safe(job?.id)}`}
             amount={job.budget}
             currency={job.currency}
-            progress={{
-              value: 0,
-              total: 1,
-            }}
+            progress={getProjectJobTileProgress(
+              job,
+              acceptedBidByProjectId.get(job.id),
+            )}
             attachedFileCount={job.chatLinks?.length}
             img={getCoverImage(job)}
             userImg={job.buyer.user?.profilePhotoUri || "/img/webp/user.webp"}
@@ -163,7 +175,7 @@ const DashboardPage = () => {
         ))}
       </>
     ),
-    [liveProjectsData?.data?.data],
+    [acceptedBidByProjectId, liveProjectsData?.data?.data],
   );
 
   const myCompleteJobsContent = useMemo(
@@ -177,10 +189,10 @@ const DashboardPage = () => {
             href={`/completed-jobs/${uuidToBase62Safe(job?.id)}`}
             amount={job.budget}
             currency={job.currency}
-            progress={{
-              value: 0,
-              total: 1,
-            }}
+            progress={getProjectJobTileProgress(
+              job,
+              acceptedBidByProjectId.get(job.id),
+            )}
             attachedFileCount={job.chatLinks?.length}
             img={getCoverImage(job)}
             userImg={job.buyer.user?.profilePhotoUri || "/img/webp/user.webp"}
@@ -189,7 +201,7 @@ const DashboardPage = () => {
         ))}
       </>
     ),
-    [completedProjectsData?.data?.data],
+    [acceptedBidByProjectId, completedProjectsData?.data?.data],
   );
 
   const closedBidsContent = useMemo(
@@ -203,10 +215,7 @@ const DashboardPage = () => {
             href={`/bids/${uuidToBase62Safe(bid?.id)}`}
             amount={bid?.amount}
             currency={bid.project?.currency}
-            progress={{
-              value: 0,
-              total: 1,
-            }}
+            progress={getBidJobTileProgress(bid)}
             img={getCoverImage(bid.project)}
             userImg={
               bid.project.buyer?.user?.profilePhotoUri || "/img/webp/user.webp"

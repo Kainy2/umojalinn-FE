@@ -1,4 +1,4 @@
-import { EDeliveryMileStoneType } from "./enum";
+import { EDeliveryMileStoneType, EMileStoneStatus } from "./enum";
 import { UmojaLinnUser, UmojaLinnUserRoleProfile } from "./user";
 import { UmojaLinnTimestamp } from "./util";
 
@@ -159,13 +159,7 @@ export type UmojaLinnMilestone = {
   deliveryMileStoneType: EDeliveryMileStoneType;
   lastMilestoneApprovedAt: string | null;
   currency: UmojaLinnCurrency;
-  status:
-    | "IN_ACTIVE"
-    | "PENDING"
-    | "ACTIVE"
-    | "IN_REVIEW"
-    | "REJECTED"
-    | "APPROVED";
+  status: EMileStoneStatus;
   transactionStatus: "AWAITING_FUND" | "PROCESSING" | "FUNDED" | "PAID";
   project: {
     fundStatus: "AWAITING_FUND" | "PROCESSING" | "FUNDED";

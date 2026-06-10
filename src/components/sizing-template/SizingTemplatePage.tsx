@@ -36,7 +36,6 @@ import {
 } from "@/types/project";
 import {
   canSendReminder,
-  filterProjectsForTemplate,
   getRemainingReminderTime,
 } from "@/lib/sizing-template-utils";
 import {
@@ -123,11 +122,8 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     useGetAllBuyerProject({
       projectStatus: "ADS",
     });
-  const availableProjects = filterProjectsForTemplate(
-    (buyerProjectsData?.data?.data || []).filter(
-      (proj) => !proj.sizingTemplate?.id,
-    ),
-    gender,
+  const availableProjects = (buyerProjectsData?.data?.data || []).filter(
+    (proj) => !proj.sizingTemplate?.id,
   );
 
   // State for showing UK size chart in preview panel
@@ -868,6 +864,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
               {isEditable && !isInUse && (
                 <AddToJobDropdown
                   templateId={sizingTemplateId}
+                  templateGender={gender}
                   disabled={!hasRequiredFields}
                   onSuccess={() => router.push("/sizing-templates")}
                   availableProjects={availableProjects}
@@ -911,6 +908,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                 {isEditable && !isInUse && (
                   <AddToJobDropdown
                     templateId={sizingTemplateId}
+                    templateGender={gender}
                     disabled={!hasRequiredFields}
                     onSuccess={() => router.push("/sizing-templates")}
                     availableProjects={availableProjects}

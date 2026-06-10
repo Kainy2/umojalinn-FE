@@ -31,10 +31,12 @@ import CustomSelectCountry from "@/components/custom/SelectCountry";
 import CustomReactSelect from "@/components/custom/ReactSelect";
 import { useCreateProjectContext } from "@/hooks/create-project/useCreateProjectContext";
 import {
-  filterTemplatesForProject,
   getNoMatchingSizingTemplateDescription,
+  getOppositeGenderTemplateWarningDescription,
+  isMatchingSizingGender,
   TSizingGender,
 } from "@/lib/sizing-template-utils";
+import OppositeGenderSizingWarning from "@/components/custom/dialog/OppositeGenderSizingWarning";
 
 export type ProjectFormProps = {
   id: string;
@@ -48,6 +50,10 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
     props?.id
   );
   const [useSizingTemplate, setUseSizingTemplate] = useState(false);
+  const [showGenderWarning, setShowGenderWarning] = useState(false);
+  const [pendingSizingTemplateId, setPendingSizingTemplateId] = useState<
+    string | null
+  >(null);
 
   const router = useRouter();
   const { projectFormDetails, setProjectFormDetails } = useCreateProjectContext()
@@ -67,13 +73,9 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
 
   const projectGender = (form.watch("gender") ||
     data?.data?.data?.gender) as TSizingGender | null | undefined;
-  const matchingSizingTemplates = useMemo(
-    () =>
-      filterTemplatesForProject(
-        sizingTemplateData?.data?.data ?? [],
-        projectGender,
-      ),
-    [sizingTemplateData?.data?.data, projectGender],
+  const allSizingTemplates = useMemo(
+    () => sizingTemplateData?.data?.data ?? [],
+    [sizingTemplateData?.data?.data],
   );
 
   useEffect(() => {
@@ -454,21 +456,38 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
                         <Info className="text-primary h-6 w-6" />
                         <span className="text-sm">
                           {
-                            !matchingSizingTemplates.length ?
-                              getNoMatchingSizingTemplateDescription(projectGender) :
+                            !allSizingTemplates.length ?
+                              getNoMatchingSizingTemplateDescription() :
                               "Include Sizing template in your Project description or at project start"
                           }
                         </span>
                       </div>
                       {
-                        matchingSizingTemplates.length ?
+                        allSizingTemplates.length ?
                           (<CustomSelect
-                            key={String(matchingSizingTemplates.length)}
+                            key={String(allSizingTemplates.length)}
                             {...field}
                             error={fieldState.error}
                             disabled={loadingSizingTemplate}
-                            onValueChange={field.onChange}
-                            options={matchingSizingTemplates.map(
+                            onValueChange={(value) => {
+                              const template = allSizingTemplates.find(
+                                (t) => t.id === value,
+                              );
+                              if (
+                                projectGender &&
+                                template &&
+                                !isMatchingSizingGender(
+                                  template.gender,
+                                  projectGender,
+                                )
+                              ) {
+                                setPendingSizingTemplateId(value);
+                                setShowGenderWarning(true);
+                                return;
+                              }
+                              field.onChange(value);
+                            }}
+                            options={allSizingTemplates.map(
                               (template) => ({
                                 children: template?.name,
                                 value: template?.id,
@@ -523,6 +542,30 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
           }}
         />
       </form>
+
+      <OppositeGenderSizingWarning
+        open={showGenderWarning}
+        onOpenChange={setShowGenderWarning}
+        description={(() => {
+          const template = allSizingTemplates.find(
+            (t) => t.id === pendingSizingTemplateId,
+          );
+          if (template && projectGender) {
+            return getOppositeGenderTemplateWarningDescription(
+              template.gender,
+              projectGender,
+            );
+          }
+          return "";
+        })()}
+        onConfirm={() => {
+          if (pendingSizingTemplateId) {
+            form.setValue("sizingTemplateId", pendingSizingTemplateId);
+            setPendingSizingTemplateId(null);
+          }
+          setShowGenderWarning(false);
+        }}
+      />
     </Form>
   );
 };

@@ -12,6 +12,8 @@ import { useSession } from "next-auth/react";
 import { useParams, usePathname } from "next/navigation";
 import React, { useMemo } from "react";
 import { useFundMilestone, useFundProject } from "@/tanstack/hooks/useProject";
+import { canBuyerFundMilestone } from "@/components/util/milestone";
+import { EDeliveryMileStoneType, EMileStoneStatus } from "@/types/enum";
 
 const FundProjectAlert = () => {
   const pathname = usePathname();
@@ -24,7 +26,7 @@ const FundProjectAlert = () => {
   const firstFundMilestone = useMemo(
     () =>
       projectMilestonesData?.data?.data?.find?.(
-        (milestone) => milestone?.status === "PENDING",
+        (milestone) => milestone?.status === EMileStoneStatus.PENDING,
       ),
     [projectMilestonesData?.data?.data],
   );
@@ -35,6 +37,15 @@ const FundProjectAlert = () => {
   const isAwaitingFund =
     projectData?.data?.data?.fundStatus === "AWAITING_FUND";
   const isUnfunded = Number(projectData?.data?.data?.amountFunded) === 0;
+  const canFundFirstMilestone =
+    !!firstFundMilestone &&
+    canBuyerFundMilestone({
+      isVariableDelivery:
+        firstFundMilestone.deliveryMileStoneType ===
+        EDeliveryMileStoneType.VARIABLE,
+      variableSubmissionStatus:
+        firstFundMilestone.variableSubmissions?.[0]?.status,
+    });
   const fundMilestone = useFundMilestone({
     onSuccess: (data) => {
       window.open(data.data.data.checkoutUrl, "_blank", "noopener,noreferrer");
@@ -69,7 +80,7 @@ const FundProjectAlert = () => {
           <Button
             className="w-full md:w-auto"
             variant="outline"
-            disabled={!firstFundMilestone}
+            disabled={!canFundFirstMilestone}
             onClick={() => fundMilestone.mutate(firstFundMilestone?.id || "")}
           >
             Fund Milestone

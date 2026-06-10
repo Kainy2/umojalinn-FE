@@ -1,10 +1,12 @@
 "use client";
 import CustomCardHolder from "@/components/custom/card/Holder";
 import JobCard from "@/components/custom/card/Job";
-import { getCoverImage } from "@/lib/project";
+import { getCoverImage, getBidJobTileProgress, getProjectJobTileProgress } from "@/lib/project";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { useGetDesignerBids } from "@/tanstack/hooks/useBid";
 import { useGetAllDesignerProject } from "@/tanstack/hooks/useProject";
+import { useMemo } from "react";
+import type { UmojaLinnBid } from "@/types/project";
 
 const PrivateJobPage = () => {
   const { data: myBidsWithDraft, isPending: isLoadingMyBidsWithDraft } =
@@ -36,6 +38,23 @@ const PrivateJobPage = () => {
     projectType: "PRIVATE",
   });
 
+  const { data: acceptedBidsData } = useGetDesignerBids({
+    bidStatus: "ACCEPTED",
+    projectStatus: ["LIVE", "COMPLETED"],
+  });
+
+  const acceptedBidByProjectId = useMemo(() => {
+    const map = new Map<string, UmojaLinnBid>();
+
+    acceptedBidsData?.data?.data?.forEach((bid) => {
+      if (bid.projectId) {
+        map.set(bid.projectId, bid);
+      }
+    });
+
+    return map;
+  }, [acceptedBidsData?.data?.data]);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 justify-stretch mt-4">
       <CustomCardHolder
@@ -56,10 +75,7 @@ const PrivateJobPage = () => {
             href={`/bids/${uuidToBase62Safe(bid?.id)}/edit`}
             amount={bid?.amount}
             currency={bid.project?.currency}
-            progress={{
-              value: 0,
-              total: 1,
-            }}
+            progress={getBidJobTileProgress(bid)}
             img={getCoverImage(bid.project)}
             dueDate={bid?.project?.dueDate}
           />
@@ -79,10 +95,7 @@ const PrivateJobPage = () => {
             href={`/bids/${uuidToBase62Safe(bid?.id)}/edit`}
             amount={bid?.amount}
             currency={bid.project?.currency}
-            progress={{
-              value: 0,
-              total: 1,
-            }}
+            progress={getBidJobTileProgress(bid)}
             img={getCoverImage(bid.project)}
             dueDate={bid?.project?.dueDate}
           />
@@ -103,10 +116,10 @@ const PrivateJobPage = () => {
             href={`/active-jobs/${uuidToBase62Safe(job?.id)}`}
             amount={job.budget}
             currency={job.currency}
-            progress={{
-              value: 0,
-              total: 1,
-            }}
+            progress={getProjectJobTileProgress(
+              job,
+              acceptedBidByProjectId.get(job.id),
+            )}
             img={getCoverImage(job)}
             dueDate={job.dueDate}
           />
@@ -127,10 +140,10 @@ const PrivateJobPage = () => {
             href={`/jobs/${uuidToBase62Safe(job?.id)}`}
             amount={job.budget}
             currency={job.currency}
-            progress={{
-              value: 0,
-              total: 1,
-            }}
+            progress={getProjectJobTileProgress(
+              job,
+              acceptedBidByProjectId.get(job.id),
+            )}
             img={getCoverImage(job)}
             dueDate={job.dueDate}
           />
@@ -151,10 +164,10 @@ const PrivateJobPage = () => {
             href={`/jobs/${uuidToBase62Safe(job?.id)}`}
             amount={job.budget}
             currency={job.currency}
-            progress={{
-              value: 0,
-              total: 1,
-            }}
+            progress={getProjectJobTileProgress(
+              job,
+              acceptedBidByProjectId.get(job.id),
+            )}
             img={getCoverImage(job)}
             dueDate={job.dueDate}
           />
