@@ -266,7 +266,7 @@ console.log(hasTriedToSubmmit);
         >
           <button
             type="button"
-            className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
+            className="absolute z-10 right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
             onClick={() => {
               setShowSuccessModal(false);
               router.push("/dashboard");
@@ -278,9 +278,9 @@ console.log(hasTriedToSubmmit);
           <DialogHeader>
             <RatingStar
               stroke="#FAC515"
-              className="mx-auto md:my-36 size-6 text-primary-600"
+              className="mx-auto my-16 md:my-20 size-6 text-primary-600"
             />
-            <DialogTitle  className="pb-8 text-center">Your work has been published</DialogTitle>
+            <DialogTitle className="pb-8 text-[20px] md:text-lg text-center">Your work has been published</DialogTitle>
           </DialogHeader>
 
           <DialogFooter className="flex-col sm:flex-row gap-2 mt-2">

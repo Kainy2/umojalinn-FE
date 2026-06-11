@@ -20,7 +20,7 @@ const ABOUT_TRUNCATE_LENGTH = 200;
 const LoadingSkeleton = () => (
   <div className="flex flex-col gap-6">
     <Skeleton className="h-32 rounded-sm" />
-    <div className="flex gap-6 -mt-10 px-4 items-end">
+    <div className="flex gap-6  px-4 items-end">
       <Skeleton className="rounded-full w-40 h-40 shrink-0" />
       <div className="flex flex-col gap-2 flex-1 pb-2">
         <Skeleton className="h-6 w-40" />
@@ -105,12 +105,12 @@ const DesignerProfilePage = () => {
   return (
     <div className="flex flex-col gap-6">
       {/* Banner */}
-      <div className="relative h-32 overflow-hidden rounded-sm">
+      <div className="relative h-60 overflow-hidden rounded-sm">
         <Image
-          src="/img/png/corner-pattern.png"
-          alt=""
+          src="/img/png/designer-cover.png"
+          alt="Cover image"
           fill
-          className="object-cover object-right-top"
+          className="object-cover -z-10"
         />
       </div>
 
@@ -156,49 +156,53 @@ const DesignerProfilePage = () => {
 
       <Separator className="bg-border/50" />
 
-      {/* About */}
-      <div>
-        <h2 className="font-semibold text-foreground mb-2">About me</h2>
-        <p className="text-foreground-body text-sm whitespace-pre-line">{displayedAbout}</p>
-        {shouldTruncate && (
-          <button
-            className="text-primary text-sm font-medium mt-1"
-            onClick={() => setAboutExpanded((v) => !v)}
-          >
-            {aboutExpanded ? "Show less" : "Read more"}
-          </button>
+      {/* Info Stats Section */}
+      <div className="bg-gray-50 rounded py-5 px-6">
+
+        {/* About */}
+        <div>
+          <h2 className="font-semibold text-foreground mb-2">About me</h2>
+          <p className="text-foreground-body text-sm whitespace-pre-line">{displayedAbout}</p>
+          {shouldTruncate && (
+            <button
+              className="text-primary text-sm font-medium mt-1"
+              onClick={() => setAboutExpanded((v) => !v)}
+            >
+              {aboutExpanded ? "Show less" : "Read more"}
+            </button>
+          )}
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-8 gap-y-4">
+          {stats.map((stat) => (
+            <div key={stat.label}>
+              <p className="text-sm text-foreground-body">{stat.label}</p>
+              <p className="font-semibold text-foreground">{stat.value}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Rating */}
+        <div>
+          <p className="text-sm text-foreground-body">Ratings</p>
+          <ReviewRatingStars rating={avgRating} disabled small />
+        </div>
+
+        {/* Specialties */}
+        {designer.clothingTypes.length > 0 && (
+          <div>
+            <p className="text-sm text-foreground-body mb-2">Specialty</p>
+            <div className="flex flex-wrap gap-2">
+              {designer.clothingTypes.map((type) => (
+                <Badge key={type.id} variant="outline">
+                  {type.name}
+                </Badge>
+              ))}
+            </div>
+          </div>
         )}
       </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-8 gap-y-4">
-        {stats.map((stat) => (
-          <div key={stat.label}>
-            <p className="text-sm text-foreground-body">{stat.label}</p>
-            <p className="font-semibold text-foreground">{stat.value}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Rating */}
-      <div>
-        <p className="text-sm text-foreground-body">Ratings</p>
-        <ReviewRatingStars rating={avgRating} disabled small />
-      </div>
-
-      {/* Specialties */}
-      {designer.clothingTypes.length > 0 && (
-        <div>
-          <p className="text-sm text-foreground-body mb-2">Specialty</p>
-          <div className="flex flex-wrap gap-2">
-            {designer.clothingTypes.map((type) => (
-              <Badge key={type.id} variant="outline">
-                {type.name}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      )}
 
       <Separator className="bg-border/50" />
 
