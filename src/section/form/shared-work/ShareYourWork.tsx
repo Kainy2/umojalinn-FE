@@ -5,7 +5,6 @@ import { CustomTagField } from "@/components/custom/tag/Select";
 import { Label } from "@/components/ui/label";
 import { RadioGroup } from "@radix-ui/react-radio-group";
 import { RadioGroupItem } from "@/components/ui/radio-group";
-import { Textarea } from "@/components/ui/textarea";
 import { MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES } from "@/constant";
 import { useFileSizeError } from "@/hooks/useFilePicker";
 import { useGetClothingTypes } from "@/tanstack/hooks/useProject";
@@ -25,6 +24,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import RatingStar from "@/icons/RatingStar";
+import TextField from "@/components/custom/input/TextField";
+import { toast } from "@/hooks/use-toast";
 
 type SharedWorkImageEntry = {
   id: string | number;
@@ -45,6 +46,7 @@ const ShareYourWorkForm = () => {
   const [ submitTries, setSubmitTries ] = useState(0)
   const [values, setValues] = useState<SharedWorkImageEntry[]>([]);
   const [selectedClothingTypes, setSelectedClothingTypes] = useState<string[]>([]);
+  const [entryTitle, setEntryTitle] = useState("");
 
   const hasAtLeastOneImage = values.length > 0;
   const hasCoverImage = values.some((v) => v.isCoverImage);
@@ -70,20 +72,30 @@ console.log(hasTriedToSubmmit);
         setValues((prev) => [
           ...prev,
           {
-            id: prev.length,
-            description: "",
+            id: prev?.length,
+            description: entryTitle,
             fileName: file.name,
-            isCoverImage: !prev.length,
+            isCoverImage: !prev?.length,
             image: file,
           },
         ]);
+        setEntryTitle("");
+      }else {
+        toast({
+          title: "File error",
+          description: `Maximum file size is ${MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES / (1024 * 1024)}MB, this file is ${(
+            file.size /
+            (1024 * 1024)
+          ).toFixed(2)}MB. . You can compress the image using an image editor and try uploading again.`,
+          variant: "destructive",
+        });
       }
     },
-    [isFileSizeValid],
+    [isFileSizeValid, entryTitle],
   );
 
   const handleDescriptionChange =
-    (index: number) => (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
       e.preventDefault();
       setValues((prev) =>
         prev.map((val, i) =>
@@ -150,16 +162,12 @@ console.log(hasTriedToSubmmit);
           {preview.map((value, index) => (
             <div key={value.id} className="flex flex-col gap-4 ">
               <div className="grid w-full gap-1.5 ">
-                <Textarea
+                <TextField
                   value={value.description}
                   onChange={handleDescriptionChange(index)}
-                  maxLength={250}
-                  placeholder="Image Descriptions"
-                  rows={3}
+                  maxLength={500}
+                  hint={`${value?.description?.length || 0}/500 characters`}
                 />
-                  <p className="text-sm text-foreground-body">
-                    {value.description.length}/250 characters
-                  </p>
 
                 {/* {value.description.trim().length === 0 && hasTriedToSubmmit ? (
                   <p className="text-sm text-red-500">Description is required.</p>
@@ -205,7 +213,16 @@ console.log(hasTriedToSubmmit);
             </div>
           ))}
 
-          <div className={cn(values.length >= 8 && "hidden")}>
+          <div className={cn(              
+            "flex flex-col gap-4",
+            values.length >= 8 && "hidden"
+          )}>
+            <TextField
+              maxLength={500}
+              value={entryTitle}
+              onChange={(e) => setEntryTitle(e.target.value)}
+              hint={`${entryTitle?.length || 0} / 500 characters`}
+            />
             <FileUploadPicker
               className="w-full"
               accept="image/*"
