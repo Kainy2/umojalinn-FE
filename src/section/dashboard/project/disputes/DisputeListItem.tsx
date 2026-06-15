@@ -20,7 +20,7 @@ const DisputeListItem = ({
   onToggleExpand,
   onRespondNow,
   onCancelResponse,
-  onSubmitResponse,
+  onResponseSuccess,
 }: IDisputeListItemProps) => {
   const title = DISPUTE_TYPE_TITLES[dispute.type];
   const dateLabel = format(new Date(dispute.createdAt), "MMM d, yyyy");
@@ -65,10 +65,11 @@ const DisputeListItem = ({
 
           {showInReviewContent && isResponding && (
             <DisputeResponseForm
+              disputeId={dispute.id}
               currency={currency}
               fullRefundAmount={dispute.fullRefundAmount}
               onCancel={onCancelResponse}
-              onSubmit={onSubmitResponse}
+              onSuccess={onResponseSuccess}
             />
           )}
 

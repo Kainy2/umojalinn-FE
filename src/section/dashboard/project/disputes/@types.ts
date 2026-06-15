@@ -73,7 +73,7 @@ export interface IDisputeListItemProps {
   onToggleExpand: () => void;
   onRespondNow: () => void;
   onCancelResponse: () => void;
-  onSubmitResponse: () => void;
+  onResponseSuccess: () => void;
 }
 
 export interface IDisputeActionBannerProps {
@@ -82,10 +82,11 @@ export interface IDisputeActionBannerProps {
 }
 
 export interface IDisputeResponseFormProps {
+  disputeId: string;
   currency?: UmojaLinnCurrency | null;
   fullRefundAmount?: number;
   onCancel: () => void;
-  onSubmit: () => void;
+  onSuccess?: () => void;
 }
 
 export interface IDisputeResolvedContentProps {

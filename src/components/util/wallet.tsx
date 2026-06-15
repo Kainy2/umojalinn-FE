@@ -242,6 +242,15 @@ export const getWalletBalanceForCurrency = (
   }
 };
 
+export const getAvailableWalletBalanceForCurrency = (
+  wallet: UmojalinnWallet | undefined,
+  currency: UmojaLinnCurrency,
+  lockedAmount = 0,
+) => {
+  const balance = getWalletBalanceForCurrency(wallet, currency);
+  return Math.max(0, balance - lockedAmount);
+};
+
 export const getWalletCurrencyLabel = (currency: UmojaLinnCurrency) => {
   switch (currency) {
     case "NAIRA":

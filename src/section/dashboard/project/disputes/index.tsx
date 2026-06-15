@@ -37,13 +37,9 @@ const ProjectDisputes = ({ projectId, currency }: IProjectDisputesProps) => {
     setRespondingId(null);
   }, []);
 
-  const handleSubmitResponse = useCallback(() => {
-    toast({
-      title: "Response submitted",
-      description: "Your dispute response has been recorded.",
-    });
+  const handleResponseSuccess = useCallback(() => {
     setRespondingId(null);
-  }, [toast]);
+  }, []);
 
   const handleSummaryDocClick = useCallback(() => {
     toast({
@@ -67,7 +63,7 @@ const ProjectDisputes = ({ projectId, currency }: IProjectDisputesProps) => {
             onToggleExpand={() => handleToggleExpand(dispute.id)}
             onRespondNow={() => handleRespondNow(dispute.id)}
             onCancelResponse={handleCancelResponse}
-            onSubmitResponse={handleSubmitResponse}
+            onResponseSuccess={handleResponseSuccess}
           />
         ))}
       </div>

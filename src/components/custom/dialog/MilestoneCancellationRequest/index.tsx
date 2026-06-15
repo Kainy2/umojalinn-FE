@@ -20,7 +20,7 @@ import FileUploadPicker from "@/components/custom/picker/FileUpload";
 import { jsonToFormData } from "@/lib/utils";
 import { formatCurrencyValue } from "@/lib/number";
 import { getCurrencySymbol } from "@/lib/string";
-import { useRequestMilestoneCancellation } from "@/tanstack/hooks/useProject";
+import { useCreateDesignerDispute } from "@/tanstack/hooks/useDispute";
 import ClipboardSearch from "@/assets/ClipboardSearch";
 import { DISPUTE_REASONS, TDisputeReason } from "@/types/dispute";
 import {
@@ -55,7 +55,7 @@ export const MilestoneCancellationRequestDialog = ({
     setFiles(null);
   }, []);
 
-  const { mutate, isPending } = useRequestMilestoneCancellation(milestoneId, {
+  const { mutate, isPending } = useCreateDesignerDispute({
     onSuccess: () => {
       resetForm();
       onOpenChange(false);
@@ -84,11 +84,17 @@ export const MilestoneCancellationRequestDialog = ({
   const handleSubmit = () => {
     if (!reason || !canSubmit) return;
 
+    const reasonLabel =
+      DISPUTE_REASONS.find((item) => item.value === reason)?.label ?? reason;
+
     mutate(
       jsonToFormData({
-        reason,
-        isClientAware: isClientAware === "yes",
-        ...(files ? { media: files } : {}),
+        type: "DESIGNER_CANCELLATION_REQUEST",
+        milestoneId,
+        reasonCategory: reasonLabel,
+        reasonDetail: reasonLabel,
+        requestedRefundAmount: 0,
+        ...(files ? { attachments: files } : {}),
       }),
     );
   };

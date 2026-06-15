@@ -22,20 +22,23 @@ import TextAreaField from "@/components/custom/input/TextAreaField";
 import FileUploadPicker from "@/components/custom/picker/FileUpload";
 import { RefundRequestConfirmDialog } from "@/components/custom/dialog/RefundRequestConfirm";
 import { MilestoneMultiSelect } from "./MilestoneMultiSelect";
-import { removeNonDigits } from "@/lib/utils";
+import { getWalletBalanceForCurrency } from "@/components/util/wallet";
+import { jsonToFormData, removeNonDigits } from "@/lib/utils";
 import { formatCurrencyValue } from "@/lib/number";
 import { getCurrencySymbol } from "@/lib/string";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { getWalletCurrencyLabel } from "@/components/util/wallet";
 import { UmojaLinnCurrency } from "@/types/project";
 import { DISPUTE_REASONS, TDisputeReason } from "@/types/dispute";
+import {
+  useCreateDesignerDispute,
+  useGetWalletDisputeSummary,
+} from "@/tanstack/hooks/useDispute";
+import { useGetWallet } from "@/tanstack/hooks/useProject";
 import { IRefundRequestDialogProps, TRefundType } from "./@types";
 import ClipboardSearch from "@/assets/ClipboardSearch";
 
 const DEFAULT_CURRENCY: UmojaLinnCurrency = "USD";
-
-/** Mock balance until wallet/refund APIs are wired */
-const MOCK_AVAILABLE_BALANCE = 450;
 
 export const RefundRequestDialog = ({
   projectId,
@@ -64,6 +67,15 @@ export const RefundRequestDialog = ({
 
   const resolvedCurrency = (currency ?? DEFAULT_CURRENCY) as UmojaLinnCurrency;
 
+  const { data: walletResponse } = useGetWallet({
+    enabled: open || confirmOpen,
+  });
+  const { data: summaryResponse } = useGetWalletDisputeSummary({
+    enabled: open || confirmOpen,
+  });
+
+  const { mutateAsync, isPending } = useCreateDesignerDispute();
+
   const resetForm = useCallback(() => {
     setMilestoneIds([]);
     setRefundType("PARTIAL");
@@ -78,6 +90,15 @@ export const RefundRequestDialog = ({
   const formattedFullRefund = `${currencySymbol}${formatCurrencyValue(fullRefundAmount)}`;
   const walletCurrencyLabel = getWalletCurrencyLabel(resolvedCurrency);
   const isPartialDisabled = refundType !== "PARTIAL";
+
+  const availableBalance = useMemo(
+    () =>
+      getWalletBalanceForCurrency(walletResponse?.data?.data, resolvedCurrency),
+    [walletResponse?.data?.data, resolvedCurrency],
+  );
+
+  const walletSummaryInsufficient =
+    summaryResponse?.data?.data?.[resolvedCurrency]?.insufficientAmount ?? 0;
 
   const partialAmountNumber = useMemo(() => {
     const parsed = Number(removeNonDigits(partialAmount));
@@ -130,26 +151,51 @@ export const RefundRequestDialog = ({
     setConfirmOpen(true);
   };
 
-  const handleConfirmSubmit = () => {
-    if (!reason || !isFormValid) return;
+  const handleConfirmSubmit = async () => {
+    if (!reason || !isFormValid || isPending) return;
 
     const amount =
       refundType === "FULL" ? fullRefundAmount : partialAmountNumber;
-    const projectSlug = uuidToBase62Safe(projectId);
-    const params = new URLSearchParams({
-      amount: String(amount),
-      currency: resolvedCurrency,
-      balance: String(MOCK_AVAILABLE_BALANCE),
-    });
+    const reasonLabel =
+      DISPUTE_REASONS.find((item) => item.value === reason)?.label ?? reason;
+    const needsTopUp =
+      amount > availableBalance || walletSummaryInsufficient > 0;
 
-    setConfirmOpen(false);
-    resetForm();
-    onOpenChange(false);
+    try {
+      let lastDisputeId = "";
 
-    // TODO: check wallet balance via API before redirecting
-    router.push(
-      `/active-jobs/refund/${projectSlug}/insufficient-balance?${params.toString()}`,
-    );
+      for (const milestoneId of milestoneIds) {
+        const response = await mutateAsync(
+          jsonToFormData({
+            type: "DESIGNER_REFUND",
+            milestoneId,
+            reasonCategory: reasonLabel,
+            reasonDetail: description.trim(),
+            requestedRefundAmount: amount,
+            ...(files ? { attachments: files } : {}),
+          }),
+        );
+        lastDisputeId = response?.data?.data?.id ?? lastDisputeId;
+      }
+
+      setConfirmOpen(false);
+      resetForm();
+      onOpenChange(false);
+
+      if (needsTopUp && lastDisputeId) {
+        const projectSlug = uuidToBase62Safe(projectId);
+        const params = new URLSearchParams({
+          disputeId: lastDisputeId,
+          amount: String(amount),
+          currency: resolvedCurrency,
+        });
+        router.push(
+          `/active-jobs/refund/${projectSlug}/insufficient-balance?${params.toString()}`,
+        );
+      }
+    } catch {
+      // Error handled by mutation hook
+    }
   };
 
   return (
@@ -331,6 +377,7 @@ export const RefundRequestDialog = ({
         open={confirmOpen}
         onOpenChange={setConfirmOpen}
         onConfirm={handleConfirmSubmit}
+        isPending={isPending}
       />
     </>
   );

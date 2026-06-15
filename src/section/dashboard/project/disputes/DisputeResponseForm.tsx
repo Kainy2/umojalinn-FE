@@ -10,18 +10,21 @@ import TextAreaField from "@/components/custom/input/TextAreaField";
 import FileUploadPicker from "@/components/custom/picker/FileUpload";
 import { formatCurrencyValue } from "@/lib/number";
 import { getCurrencySymbol } from "@/lib/string";
-import { removeNonDigits } from "@/lib/utils";
+import { jsonToFormData, removeNonDigits } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { useRespondToDispute } from "@/tanstack/hooks/useDispute";
 import {
   IDisputeResponseFormProps,
   TDisputeResolutionPreference,
 } from "./@types";
+import { mapPreferredResolutionToApi } from "./utils";
 
 const DisputeResponseForm = ({
+  disputeId,
   currency,
   fullRefundAmount = 0,
   onCancel,
-  onSubmit,
+  onSuccess,
 }: IDisputeResponseFormProps) => {
   const [response, setResponse] = useState("");
   const [resolution, setResolution] =
@@ -29,9 +32,20 @@ const DisputeResponseForm = ({
   const [partialAmount, setPartialAmount] = useState("");
   const [files, setFiles] = useState<FileList | null>(null);
 
+  const { mutate, isPending } = useRespondToDispute(disputeId, {
+    onSuccess: () => {
+      onSuccess?.();
+    },
+  });
+
   const currencySymbol = getCurrencySymbol(currency ?? undefined);
   const formattedFullRefund = `${currencySymbol}${formatCurrencyValue(fullRefundAmount)}`;
   const isPartialDisabled = resolution !== "PARTIAL";
+
+  const partialAmountNumber = useMemo(() => {
+    const parsed = Number(removeNonDigits(partialAmount));
+    return Number.isFinite(parsed) ? parsed : 0;
+  }, [partialAmount]);
 
   const isValid = useMemo(() => {
     if (!response.trim()) return false;
@@ -51,6 +65,20 @@ const DisputeResponseForm = ({
       return;
     }
     setFiles(null);
+  };
+
+  const handleSubmit = () => {
+    if (!isValid || isPending) return;
+
+    mutate(
+      jsonToFormData({
+        message: response.trim(),
+        preferredResolution: mapPreferredResolutionToApi(resolution),
+        preferredRefundAmount:
+          resolution === "PARTIAL" ? partialAmountNumber : 0,
+        ...(files ? { attachments: files } : {}),
+      }),
+    );
   };
 
   return (
@@ -169,7 +197,12 @@ const DisputeResponseForm = ({
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="button" disabled={!isValid} onClick={onSubmit}>
+        <Button
+          type="button"
+          disabled={!isValid || isPending}
+          loading={isPending}
+          onClick={handleSubmit}
+        >
           Submit Response
         </Button>
       </div>
