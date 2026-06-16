@@ -93,15 +93,20 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
         </span>
         <span>
           <AvatarIconTag
-            disabled={isDesigner}
-            onClick={
-              !isDesigner
-                ? () =>
-                    router.push(
-                      `/designers/${uuidToBase62Safe(data?.data?.data?.designer?.user?.id || "")}`,
-                    )
-                : undefined
-            }
+            // disabled={isDesigner}
+            // onClick={
+            //   !isDesigner
+            //     ? () =>
+            //         router.push(
+            //           `/designers/${uuidToBase62Safe(data?.data?.data?.designer?.user?.id || "")}`,
+            //         )
+            //     : undefined
+            // }
+          onClick={() => router.push(
+            isDesigner
+            ? '/settings/profile'
+            :`/designers/${uuidToBase62Safe(data?.data?.data?.designer?.user?.id || "")}`
+          )}
             label={
               !isDesigner
                 ? `${data?.data?.data?.designer?.user?.firstName || ""} ${

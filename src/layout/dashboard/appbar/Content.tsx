@@ -11,13 +11,13 @@ import {
   ChevronDown,
   LogOut,
   User,
-  // Search
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import React from "react";
 import MobileMenu from "../sidebar/Mobile";
 import Image from "next/image";
 import { logOut } from "@/lib/auth";
+import Settings01 from "@/icons/Settings01";
 
 const DashboardAppbarContent = () => {
   const { data: meData } = useGetMe();
@@ -58,15 +58,25 @@ const DashboardAppbarContent = () => {
         <NotificationPopover />
         <PopoverMenu
           menus={[
-            ...(session?.user?.profileRole === "DESIGNER"
-              ? [
-                  {
-                    href: "/settings/profile",
-                    children: "View profile",
-                    icon: <User className="text-foreground-body" />,
-                  },
-                ]
-              : []),
+            // ...(session?.user?.profileRole === "DESIGNER"
+            //   ? [
+            //       {
+            //         href: "/settings/profile",
+            //         children: "View profile",
+            //         icon: <User className="text-foreground-body" />,
+            //       },
+            //     ]
+            //   : []),
+            {
+              href: "/settings/profile",
+              children: "View profile",
+              icon: <User className="text-foreground-body" />,
+            },
+            {
+              href: "/settings",
+              children: "Settings",
+              icon: <Settings01 className="text-foreground-body" />,
+            },
             {
               onClick: () => logOut(session?.user?.profileRole),
               children: "Logout",
