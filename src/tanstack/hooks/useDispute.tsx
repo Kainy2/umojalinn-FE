@@ -8,7 +8,11 @@ import {
 } from "@/actions/dispute";
 import { queryClient } from "@/components/provider/TanstackQueryClient";
 import useHandleError from "@/hooks/useHandleError";
-import { IUmojaLinnDispute, IWalletDisputeSummary } from "@/types/dispute";
+import {
+  IUmojaLinnDispute,
+  IWalletDisputeSummary,
+  TCreateDesignerDisputePayload,
+} from "@/types/dispute";
 import {
   GenericUseMutationProps,
   GenericUseQueryProps,
@@ -21,7 +25,7 @@ import { DISPUTES, PROJECT, WALLET } from "../keys";
 export const useCreateDesignerDispute = (
   options?: GenericUseMutationProps<
     SingleApiResponse<IUmojaLinnDispute>,
-    FormData
+    TCreateDesignerDisputePayload
   >,
 ) => {
   const { handleError } = useHandleError("Dispute request");

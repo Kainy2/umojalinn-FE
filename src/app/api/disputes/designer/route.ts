@@ -8,7 +8,7 @@ export const POST = async (req: NextRequest) => {
   try {
     await setBearerToken(req);
 
-    const body = await req.formData();
+    const body = await req.json();
 
     const response = await customAxios.post<
       unknown,

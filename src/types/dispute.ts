@@ -42,11 +42,11 @@ export type TPreferredResolution =
 
 export type TCreateDesignerDisputePayload = {
   type: TDesignerDisputeType;
-  milestoneId: string;
+  milestoneIds: string[];
   reasonCategory: string;
   reasonDetail: string;
   requestedRefundAmount: number;
-  attachments?: FileList | null;
+  attachments: unknown[];
 };
 
 export type TRespondToDisputePayload = {

@@ -30,6 +30,7 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const [refundOpen, setRefundOpen] = useState(false);
+  const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
   const { data, isPending } = useGetProjectById(params?.id);
   const { data: milestonesData } = useGetProjectMilestones(params?.id);
 
@@ -52,7 +53,7 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
         size="large"
         action={
           <>
-            <DropdownMenu>
+            <DropdownMenu open={actionsMenuOpen} onOpenChange={setActionsMenuOpen}>
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
@@ -65,7 +66,10 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
               <DropdownMenuContent align="end" className="w-[200px]">
                 <DropdownMenuItem
                   className="cursor-pointer gap-1 text-[#B54708]"
-                  onClick={() => setRefundOpen(true)}
+                  onSelect={() => {
+                    setActionsMenuOpen(false);
+                    window.setTimeout(() => setRefundOpen(true), 0);
+                  }}
                 >
                   <ClipboardSearch />
                   Refund Buyer

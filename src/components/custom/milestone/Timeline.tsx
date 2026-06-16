@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import {
@@ -153,34 +153,10 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
     id: string;
     title: string;
   } | null>(null);
-  const cancellationUnmountTimeoutRef = useRef<ReturnType<
-    typeof setTimeout
-  > | null>(null);
-
-  const DIALOG_EXIT_MS = 200;
 
   const handleCancellationOpenChange = (open: boolean) => {
     setCancellationOpen(open);
-    if (cancellationUnmountTimeoutRef.current) {
-      clearTimeout(cancellationUnmountTimeoutRef.current);
-      cancellationUnmountTimeoutRef.current = null;
-    }
-    if (!open && cancellationMilestone) {
-      cancellationUnmountTimeoutRef.current = setTimeout(() => {
-        setCancellationMilestone(null);
-        cancellationUnmountTimeoutRef.current = null;
-      }, DIALOG_EXIT_MS);
-    }
   };
-
-  useEffect(
-    () => () => {
-      if (cancellationUnmountTimeoutRef.current) {
-        clearTimeout(cancellationUnmountTimeoutRef.current);
-      }
-    },
-    [],
-  );
 
   const [editableDeliverySubmission, setEditableDeliverySubmission] =
     useState<UmojaLinnDeliveryMilestoneReviewProps>({
@@ -289,13 +265,12 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                     <DropdownMenuContent align="end" className="w-[200px]">
                       <DropdownMenuItem
                         className="cursor-pointer gap-1 text-[#B54708]"
-                        onSelect={(event) => {
-                          event.preventDefault();
+                        onSelect={() => {
                           setCancellationMilestone({
                             id: milestone.id,
                             title: milestone.title,
                           });
-                          setCancellationOpen(true);
+                          window.setTimeout(() => setCancellationOpen(true), 0);
                         }}
                       >
                         <ClipboardSearch />

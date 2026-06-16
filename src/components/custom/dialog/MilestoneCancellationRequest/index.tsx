@@ -17,7 +17,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { CustomSelectField } from "@/components/custom/Select";
 import FileUploadPicker from "@/components/custom/picker/FileUpload";
-import { jsonToFormData } from "@/lib/utils";
 import { formatCurrencyValue } from "@/lib/number";
 import { getCurrencySymbol } from "@/lib/string";
 import { useCreateDesignerDispute } from "@/tanstack/hooks/useDispute";
@@ -87,16 +86,14 @@ export const MilestoneCancellationRequestDialog = ({
     const reasonLabel =
       DISPUTE_REASONS.find((item) => item.value === reason)?.label ?? reason;
 
-    mutate(
-      jsonToFormData({
-        type: "DESIGNER_CANCELLATION_REQUEST",
-        milestoneId,
-        reasonCategory: reasonLabel,
-        reasonDetail: reasonLabel,
-        requestedRefundAmount: 0,
-        ...(files ? { attachments: files } : {}),
-      }),
-    );
+    mutate({
+      type: "DESIGNER_CANCELLATION_REQUEST",
+      milestoneIds: [milestoneId],
+      reasonCategory: reasonLabel,
+      reasonDetail: reasonLabel,
+      attachments: [],
+      requestedRefundAmount: 0,
+    });
   };
 
   const handleOpenChange = (nextOpen: boolean) => {
@@ -111,6 +108,7 @@ export const MilestoneCancellationRequestDialog = ({
           {children}
         </DialogTrigger>
       )}
+      {open ? (
       <DialogContent className="flex max-h-[90vh] flex-col gap-0 overflow-hidden rounded-none p-0 sm:max-w-[520px] lg:max-w-[728px] sm:rounded-none">
         <DialogHeader className="space-y-0 px-6 pb-4 pt-6 text-left flex items-start gap-2 flex-row">
           <ClipboardSearch color="#000000" width={40} height={40} />
@@ -233,6 +231,7 @@ export const MilestoneCancellationRequestDialog = ({
           </Button>
         </DialogFooter>
       </DialogContent>
+      ) : null}
     </Dialog>
   );
 };

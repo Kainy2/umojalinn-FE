@@ -23,7 +23,7 @@ import FileUploadPicker from "@/components/custom/picker/FileUpload";
 import { RefundRequestConfirmDialog } from "@/components/custom/dialog/RefundRequestConfirm";
 import { MilestoneMultiSelect } from "./MilestoneMultiSelect";
 import { getWalletBalanceForCurrency } from "@/components/util/wallet";
-import { jsonToFormData, removeNonDigits } from "@/lib/utils";
+import { removeNonDigits } from "@/lib/utils";
 import { formatCurrencyValue } from "@/lib/number";
 import { getCurrencySymbol } from "@/lib/string";
 import { uuidToBase62Safe } from "@/lib/uuid";
@@ -162,30 +162,24 @@ export const RefundRequestDialog = ({
       amount > availableBalance || walletSummaryInsufficient > 0;
 
     try {
-      let lastDisputeId = "";
-
-      for (const milestoneId of milestoneIds) {
-        const response = await mutateAsync(
-          jsonToFormData({
-            type: "DESIGNER_REFUND",
-            milestoneId,
-            reasonCategory: reasonLabel,
-            reasonDetail: description.trim(),
-            requestedRefundAmount: amount,
-            ...(files ? { attachments: files } : {}),
-          }),
-        );
-        lastDisputeId = response?.data?.data?.id ?? lastDisputeId;
-      }
+      const response = await mutateAsync({
+        type: "DESIGNER_REFUND",
+        milestoneIds,
+        reasonCategory: reasonLabel,
+        reasonDetail: description.trim(),
+        requestedRefundAmount: amount,
+        attachments: [],
+      });
+      const disputeId = response?.data?.data?.id ?? "";
 
       setConfirmOpen(false);
       resetForm();
       onOpenChange(false);
 
-      if (needsTopUp && lastDisputeId) {
+      if (needsTopUp && disputeId) {
         const projectSlug = uuidToBase62Safe(projectId);
         const params = new URLSearchParams({
-          disputeId: lastDisputeId,
+          disputeId,
           amount: String(amount),
           currency: resolvedCurrency,
         });
@@ -206,6 +200,7 @@ export const RefundRequestDialog = ({
             {children}
           </DialogTrigger>
         )}
+        {open ? (
         <DialogContent className="flex max-h-[90vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-[520px] lg:max-w-[728px] sm:rounded-none">
           <DialogHeader className="space-y-0 px-6 pb-4 pt-6 text-left flex items-start gap-2 flex-row">
             <ClipboardSearch color="#000000" width={40} height={40} />
@@ -371,14 +366,17 @@ export const RefundRequestDialog = ({
             </Button>
           </DialogFooter>
         </DialogContent>
+        ) : null}
       </Dialog>
 
+      {confirmOpen ? (
       <RefundRequestConfirmDialog
         open={confirmOpen}
         onOpenChange={setConfirmOpen}
         onConfirm={handleConfirmSubmit}
         isPending={isPending}
       />
+      ) : null}
     </>
   );
 };

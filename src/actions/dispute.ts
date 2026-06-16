@@ -1,6 +1,10 @@
 import { getAxiosToBeUsed, getServerAxiosWithToken, clientAxios } from "@/lib/axios";
 import { base62ToUuidSafe } from "@/lib/uuid";
-import { IUmojaLinnDispute, IWalletDisputeSummary } from "@/types/dispute";
+import {
+  IUmojaLinnDispute,
+  IWalletDisputeSummary,
+  TCreateDesignerDisputePayload,
+} from "@/types/dispute";
 import {
   ArrayApiResponse,
   ServerActionOption,
@@ -9,7 +13,7 @@ import {
 import { AxiosResponse } from "axios";
 
 export const createDesignerDispute = async (
-  body: FormData,
+  body: TCreateDesignerDisputePayload,
   options?: ServerActionOption,
 ) => {
   const axios = await getAxiosToBeUsed({
