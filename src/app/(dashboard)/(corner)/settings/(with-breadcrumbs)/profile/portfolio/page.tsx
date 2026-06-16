@@ -9,7 +9,7 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-import { format } from "date-fns";
+import PortfolioItem from "@/section/dashboard/profile/PortfolioItem";
 
 const SettingsProfilePortfolioPage = () => {
   const { data: session } = useSession();
@@ -61,37 +61,9 @@ const SettingsProfilePortfolioPage = () => {
 
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {sharedWork.map((work) => {
-          const coverImage =
-            work.images.find((img) => img.isCoverImage) ?? work.images[0];
-          return (
-            <div key={work.id} className="flex flex-col gap-3">
-              <div className="aspect-[3/4] md:aspect-auto md:h-56 relative">
-                <Image
-                  alt={coverImage?.description || ""}
-                  src={coverImage?.imageUrl || "/img/svg/null.svg"}
-                  fill
-                  className="object-cover absolute top-0"
-                />
-              </div>
-              <p className="text-xs text-foreground-body">
-                {format(new Date(work.createdAt), "MMM d, yyyy")}
-              </p>
-              {coverImage?.description && (
-                <p className="text-foreground-body line-clamp-3 text-sm">
-                  {coverImage.description}
-                </p>
-              )}
-              <div className="flex flex-wrap gap-1">
-                {work.clothingTypes.map((type) => (
-                  <Badge key={type.id} variant="outline">
-                    {type.name}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          );
-        })}
+        {sharedWork.map((work) => (
+          <PortfolioItem key={work.id} work={work} />
+        ))}
       </div>
     );
   }

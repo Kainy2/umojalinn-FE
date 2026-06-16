@@ -230,12 +230,12 @@ const ProjectReviewView = (props: {
           Designer
         </h3>
         <AvatarIconTag
-          disabled={isDesigner}
-          onClick={
-            !isDesigner
-              ? () => router.push(`/designers/${uuidToBase62Safe(props?.project?.designer?.user?.id || "")}`)
-              : undefined
-          }
+          disabled={!session?.user?.profileRole}
+          onClick={() => router.push(
+            isDesigner
+            ? '/settings/profile'
+            :`/designers/${uuidToBase62Safe(props?.project?.designer?.user?.id || "")}`
+          )}
           avatar={{
             src: props?.project?.designer?.user?.profilePhotoUri,
           }}
