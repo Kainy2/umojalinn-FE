@@ -131,6 +131,8 @@ const DisputeActivityItem = ({
                   >
                     <Image
                       src={url}
+                      width={100}
+                      height={100}
                       alt="Response attachment"
                       className="h-full w-full object-cover"
                     />
