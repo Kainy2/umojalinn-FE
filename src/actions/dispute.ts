@@ -1,9 +1,21 @@
-import { getAxiosToBeUsed, getServerAxiosWithToken, clientAxios } from "@/lib/axios";
+import {
+  getAxiosToBeUsed,
+  getServerAxiosWithToken,
+  clientAxios,
+} from "@/lib/axios";
+import {
+  buildCreateDisputeFormData,
+  buildRespondToDisputeFormData,
+} from "@/lib/dispute";
 import { base62ToUuidSafe } from "@/lib/uuid";
 import {
+  IDisputeRespondData,
   IUmojaLinnDispute,
+  IWalletDispute,
   IWalletDisputeSummary,
+  TCreateBuyerDisputePayload,
   TCreateDesignerDisputePayload,
+  TRespondToDisputePayload,
 } from "@/types/dispute";
 import {
   ArrayApiResponse,
@@ -12,35 +24,53 @@ import {
 } from "@/types/util";
 import { AxiosResponse } from "axios";
 
-export const createDesignerDispute = async (
-  body: TCreateDesignerDisputePayload,
+export const createBuyerDispute = async (
+  body: TCreateBuyerDisputePayload,
   options?: ServerActionOption,
 ) => {
+  const formData = buildCreateDisputeFormData(body);
   const axios = await getAxiosToBeUsed({
-    body,
+    body: formData,
     isServerAction: options?.isServerAction,
   });
 
   return axios.post<
     unknown,
     AxiosResponse<SingleApiResponse<IUmojaLinnDispute>>
-  >("/disputes/designer", body);
+  >("/disputes/buyer", formData);
+};
+
+export const createDesignerDispute = async (
+  body: TCreateDesignerDisputePayload,
+  options?: ServerActionOption,
+) => {
+  const formData = buildCreateDisputeFormData(body);
+  const axios = await getAxiosToBeUsed({
+    body: formData,
+    isServerAction: options?.isServerAction,
+  });
+
+  return axios.post<
+    unknown,
+    AxiosResponse<SingleApiResponse<IUmojaLinnDispute>>
+  >("/disputes/designer", formData);
 };
 
 export const respondToDispute = async (
   disputeId: string,
-  body: FormData,
+  body: TRespondToDisputePayload,
   options?: ServerActionOption,
 ) => {
+  const formData = buildRespondToDisputeFormData(body);
   const axios = await getAxiosToBeUsed({
-    body,
+    body: formData,
     isServerAction: options?.isServerAction,
   });
 
-  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
-    `/disputes/${base62ToUuidSafe(disputeId)}/respond`,
-    body,
-  );
+  return axios.post<
+    unknown,
+    AxiosResponse<SingleApiResponse<IDisputeRespondData>>
+  >(`/disputes/${base62ToUuidSafe(disputeId)}/respond`, formData);
 };
 
 export const getDisputeById = async (
@@ -80,10 +110,23 @@ export const getMyDisputes = async (options?: ServerActionOption) => {
     axios = await getServerAxiosWithToken();
   }
 
-  return axios.get<
-    unknown,
-    AxiosResponse<ArrayApiResponse<IUmojaLinnDispute>>
-  >("/disputes/my");
+  return axios.get<unknown, AxiosResponse<ArrayApiResponse<IUmojaLinnDispute>>>(
+    "/disputes/my",
+  );
+};
+
+export const getProjectDisputes = async (
+  projectId: string,
+  options?: ServerActionOption,
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+
+  return axios.get<unknown, AxiosResponse<ArrayApiResponse<IUmojaLinnDispute>>>(
+    `/project/${base62ToUuidSafe(projectId)}/disputes`,
+  );
 };
 
 export const getWalletDisputeSummary = async (options?: ServerActionOption) => {
@@ -96,4 +139,15 @@ export const getWalletDisputeSummary = async (options?: ServerActionOption) => {
     unknown,
     AxiosResponse<SingleApiResponse<IWalletDisputeSummary>>
   >("/disputes/wallet/summary");
+};
+
+export const getWalletDisputes = async (options?: ServerActionOption) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+
+  return axios.get<unknown, AxiosResponse<ArrayApiResponse<IWalletDispute>>>(
+    "/wallet/disputes",
+  );
 };

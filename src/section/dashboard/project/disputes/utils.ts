@@ -1,21 +1,48 @@
-import { DISPUTE_REASONS, TPreferredResolution } from "@/types/dispute";
-import { IUmojaLinnDispute } from "@/types/dispute";
 import {
-  IDisputeActivity,
-  IProjectDispute,
+  DISPUTE_REASONS,
+  IUmojaLinnDispute,
+  TDisputeApiType,
+  TDisputeResolution,
+  TPreferredResolution,
+} from "@/types/dispute";
+import {
+  IDisputeMilestoneDisplay,
   TDisputeResolutionPreference,
-  TDisputeType,
 } from "./@types";
 
-export const getDisputeReasonLabel = (dispute: IProjectDispute) => {
-  if (dispute.reasonLabel) return dispute.reasonLabel;
-  if (!dispute.reason) return "";
-  return (
-    DISPUTE_REASONS.find((item) => item.value === dispute.reason)?.label ?? ""
-  );
+export const DISPUTE_TYPE_TITLES: Record<TDisputeApiType, string> = {
+  BUYER_ISSUE: "Buyer Issue",
+  DESIGNER_CANCELLATION_REQUEST: "Designer Cancellation Request",
+  DESIGNER_REFUND_REQUEST: "Designer Refund Request",
 };
 
-export const formatTimeRemaining = (deadline?: string) => {
+export const DISPUTE_RESOLUTION_LABELS: Record<TDisputeResolution, string> = {
+  PARTIAL_REFUND: "Partial refund",
+  FULL_REFUND: "Full refund",
+  APPROVE_CANCELLATION: "Cancellation approved",
+  NO_REFUND: "No refund",
+};
+
+export const getDisputeReasonLabel = (dispute: IUmojaLinnDispute) => {
+  if (!dispute.reasonCategory) return "";
+
+  const matchedReason = DISPUTE_REASONS.find(
+    (item) =>
+      item.value === dispute.reasonCategory ||
+      item.label === dispute.reasonCategory,
+  );
+
+  return matchedReason?.label ?? dispute.reasonCategory;
+};
+
+export const getDisputeResolutionLabel = (
+  resolution?: TDisputeResolution | null,
+) => {
+  if (!resolution) return null;
+  return DISPUTE_RESOLUTION_LABELS[resolution] ?? resolution;
+};
+
+export const formatTimeRemaining = (deadline?: string | null) => {
   if (!deadline) return null;
 
   const end = new Date(deadline).getTime();
@@ -46,6 +73,53 @@ export const parseDisputeAmount = (
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
+export const requiresDisputeResponse = (
+  dispute: IUmojaLinnDispute,
+  currentUserId?: string,
+) =>
+  dispute.status === "OPEN" &&
+  !!currentUserId &&
+  currentUserId === dispute.respondentUserId &&
+  !dispute.responses?.length;
+
+export const getDisputeFullRefundAmount = (dispute: IUmojaLinnDispute) =>
+  parseDisputeAmount(dispute.requestedRefundAmount ?? dispute.escrowAmount);
+
+export const hasDisputeActivities = (dispute: IUmojaLinnDispute) =>
+  !!(dispute.events?.length || dispute.activityTimeline?.length) ||
+  !!dispute.responses?.length;
+
+export const getDisputeMilestoneDisplays = (
+  dispute: IUmojaLinnDispute,
+): IDisputeMilestoneDisplay[] => {
+  if (dispute.disputeMilestones?.length) {
+    return dispute.disputeMilestones.map((disputeMilestone) => ({
+      milestoneId: disputeMilestone.milestoneId,
+      label: disputeMilestone.milestone?.title
+        ? `Milestone: ${disputeMilestone.milestone.title}`
+        : "Related milestone",
+      amount: parseDisputeAmount(
+        disputeMilestone.milestone?.amount ?? disputeMilestone.escrowAmount,
+      ),
+      isRefunded: disputeMilestone.milestone?.status === "REFUNDED",
+    }));
+  }
+
+  const milestone = dispute.milestone;
+  if (!milestone) return [];
+
+  return [
+    {
+      milestoneId: milestone.id ?? dispute.milestoneId ?? "",
+      label: milestone.title
+        ? `Milestone: ${milestone.title}`
+        : "Related milestone",
+      amount: parseDisputeAmount(milestone.amount ?? dispute.escrowAmount),
+      isRefunded: milestone.status === "REFUNDED",
+    },
+  ];
+};
+
 export const mapPreferredResolutionToApi = (
   preference: TDisputeResolutionPreference,
 ): TPreferredResolution => {
@@ -58,117 +132,4 @@ export const mapPreferredResolutionToApi = (
     default:
       return "NO_REFUND";
   }
-};
-
-const mapApiTypeToUiType = (type: IUmojaLinnDispute["type"]): TDisputeType => {
-  switch (type) {
-    case "DESIGNER_CANCELLATION_REQUEST":
-      return "DESIGNER_CANCELLATION";
-    case "DESIGNER_REFUND":
-      return "DESIGNER_REFUND";
-    case "BUYER_ISSUE":
-    default:
-      return "BUYER_ISSUE";
-  }
-};
-
-const mapEventsToActivities = (
-  dispute: IUmojaLinnDispute,
-): IDisputeActivity[] => {
-  const activities: IDisputeActivity[] = [];
-
-  dispute.events?.forEach((event) => {
-    if (event.eventType === "DISPUTE_CREATED") {
-      activities.push({
-        id: event.id,
-        type: "DISPUTE_RAISED",
-        date: event.createdAt,
-        title: "Dispute raised",
-      });
-    }
-  });
-
-  dispute.responses?.forEach((response) => {
-    if (response.responderType === "BUYER") {
-      activities.push({
-        id: response.id,
-        type: "BUYER_RESPONSE",
-        date: response.createdAt,
-        title: "Buyer response",
-        expandable: true,
-        body: response.message,
-      });
-    }
-  });
-
-  const resolutionEvent = dispute.events?.find(
-    (event) => event.eventType === "RESOLUTION_APPROVED",
-  );
-  if (dispute.status === "RESOLVED") {
-    const approvedAmount = parseDisputeAmount(dispute.approvedRefundAmount);
-    activities.push({
-      id: resolutionEvent?.id ?? `outcome-${dispute.id}`,
-      type: "OUTCOME",
-      date: dispute.resolvedAt ?? dispute.updatedAt,
-      title: approvedAmount
-        ? "Outcome: Refund Issued"
-        : "Outcome: Dispute resolved",
-      expandable: true,
-      outcomeDetails: approvedAmount
-        ? {
-            refundedAmount: approvedAmount,
-            reason:
-              (resolutionEvent?.metadata?.externalNotes as string) ??
-              dispute.reasonDetail ??
-              undefined,
-            paymentNote:
-              "Funds will be returned to the buyer's original payment method within 5–7 business days.",
-          }
-        : undefined,
-    });
-  }
-
-  return activities;
-};
-
-export const mapDisputeToProjectDispute = (
-  dispute: IUmojaLinnDispute,
-): IProjectDispute => {
-  const milestone = dispute.milestone;
-  const milestoneAmount = parseDisputeAmount(
-    milestone?.amount ?? dispute.escrowAmount,
-  );
-  const milestoneTag =
-    milestone?.status === "REFUNDED" ? "REFUNDED" : "DISPUTED";
-
-  return {
-    id: dispute.id,
-    type: mapApiTypeToUiType(dispute.type),
-    status: dispute.status,
-    createdAt: dispute.createdAt,
-    reasonLabel: dispute.reasonCategory ?? undefined,
-    description: dispute.reasonDetail ?? undefined,
-    attachments: dispute.attachments?.map((attachment) => ({
-      id: attachment.id,
-      url: attachment.url,
-    })),
-    relatedMilestones: milestone
-      ? [
-          {
-            milestoneId: milestone.id ?? dispute.milestoneId,
-            label: milestone.title
-              ? `Milestone: ${milestone.title}`
-              : "Related milestone",
-            amount: milestoneAmount,
-            tag: milestoneTag,
-          },
-        ]
-      : undefined,
-    activities: mapEventsToActivities(dispute),
-    requiresResponse: dispute.status === "IN_REVIEW",
-    responseDeadline: dispute.autoResolveAt ?? undefined,
-    fullRefundAmount: parseDisputeAmount(
-      dispute.requestedRefundAmount ?? dispute.escrowAmount,
-    ),
-  };
 };

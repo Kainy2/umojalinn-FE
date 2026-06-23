@@ -1,16 +1,18 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import TextAreaField from "@/components/custom/input/TextAreaField";
-import FileUploadPicker from "@/components/custom/picker/FileUpload";
+import MilestoneInputSectionImageUpload from "@/components/custom/picker/MilestoneInputSectionImageUpload";
 import { formatCurrencyValue } from "@/lib/number";
 import { getCurrencySymbol } from "@/lib/string";
-import { jsonToFormData, removeNonDigits } from "@/lib/utils";
+import { uuidToBase62Safe } from "@/lib/uuid";
+import { removeNonDigits } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { useRespondToDispute } from "@/tanstack/hooks/useDispute";
 import {
@@ -21,11 +23,13 @@ import { mapPreferredResolutionToApi } from "./utils";
 
 const DisputeResponseForm = ({
   disputeId,
+  projectId,
   currency,
   fullRefundAmount = 0,
   onCancel,
   onSuccess,
 }: IDisputeResponseFormProps) => {
+  const router = useRouter();
   const [response, setResponse] = useState("");
   const [resolution, setResolution] =
     useState<TDisputeResolutionPreference>("FULL");
@@ -33,7 +37,22 @@ const DisputeResponseForm = ({
   const [files, setFiles] = useState<FileList | null>(null);
 
   const { mutate, isPending } = useRespondToDispute(disputeId, {
-    onSuccess: () => {
+    onSuccess: (data) => {
+      const walletCheck = data?.data?.data?.walletCheck;
+
+      if (walletCheck?.insufficient) {
+        const projectSlug = uuidToBase62Safe(projectId);
+        const params = new URLSearchParams({
+          disputeId,
+          amount: String(walletCheck.refundAmount),
+          currency: walletCheck.currency,
+        });
+        router.push(
+          `/active-jobs/refund/${projectSlug}/insufficient-balance?${params.toString()}`,
+        );
+        return;
+      }
+
       onSuccess?.();
     },
   });
@@ -53,32 +72,16 @@ const DisputeResponseForm = ({
     return true;
   }, [response, resolution, partialAmount]);
 
-  const handleImagesSelect = (file: File | FileList | null) => {
-    if (file instanceof FileList) {
-      setFiles(file);
-      return;
-    }
-    if (file instanceof File) {
-      const dataTransfer = new DataTransfer();
-      dataTransfer.items.add(file);
-      setFiles(dataTransfer.files);
-      return;
-    }
-    setFiles(null);
-  };
-
   const handleSubmit = () => {
     if (!isValid || isPending) return;
 
-    mutate(
-      jsonToFormData({
-        message: response.trim(),
-        preferredResolution: mapPreferredResolutionToApi(resolution),
-        preferredRefundAmount:
-          resolution === "PARTIAL" ? partialAmountNumber : 0,
-        ...(files ? { attachments: files } : {}),
-      }),
-    );
+    mutate({
+      message: response.trim(),
+      preferredResolution: mapPreferredResolutionToApi(resolution),
+      preferredRefundAmount:
+        resolution === "PARTIAL" ? partialAmountNumber : undefined,
+      attachmentFiles: files ?? undefined,
+    });
   };
 
   return (
@@ -103,22 +106,10 @@ const DisputeResponseForm = ({
         <Label className="font-semibold text-foreground-body">
           Upload Evidence (Optional but recommended)
         </Label>
-        <FileUploadPicker
-          accept="image/*"
-          multiple
-          onSelect={handleImagesSelect}
-          cta="Click to upload"
-          details={
-            <>
-              or drag and drop <br /> Pictures (max. 50mb)
-            </>
-          }
+        <MilestoneInputSectionImageUpload
+          files={files}
+          onFilesChange={setFiles}
         />
-        {files && files.length > 0 && (
-          <p className="text-sm text-muted-foreground">
-            {files.length} file{files.length > 1 ? "s" : ""} selected
-          </p>
-        )}
       </div>
 
       <div className="space-y-3">
@@ -186,8 +177,8 @@ const DisputeResponseForm = ({
         )}
       >
         <Info className="h-5 w-5 shrink-0 text-primary" />
-        <p>
-          <span className="font-semibold">Important: </span>
+        <p className="text-[#CA8504]">
+          <span className="font-semibold text-[#A15C07]">Important: </span>
           Everything except your preferred resolution will be visible to the
           buyer.
         </p>

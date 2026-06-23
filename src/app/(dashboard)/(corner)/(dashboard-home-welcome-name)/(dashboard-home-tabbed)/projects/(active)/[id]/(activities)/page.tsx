@@ -7,7 +7,7 @@ import {
   useGetProjectMilestones,
 } from "@/tanstack/hooks/useProject";
 import { useGetSizingTemplateById } from "@/tanstack/hooks/useSizingTemplates";
-import { useGetMe } from "@/tanstack/hooks/useUser";
+// import { useGetMe } from "@/tanstack/hooks/useUser";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { shouldDisableDesignerMilestoneSubmission } from "@/lib/sizing-template-utils";
 import { redirect, useParams } from "next/navigation";
@@ -24,7 +24,7 @@ const ActiveProjectPage = () => {
   const { data: projectData, isPending: isLoadingProject } =
     useGetProjectById(id);
 
-  const { data: meData, isPending: isLoadingMe } = useGetMe();
+  // const { data: meData, isPending: isLoadingMe } = useGetMe();
   const { data: session } = useSession();
 
   const project = projectData?.data?.data;
@@ -52,7 +52,7 @@ const ActiveProjectPage = () => {
   if (
     isLoadingProjectMilestones ||
     isLoadingProject ||
-    isLoadingMe ||
+    // isLoadingMe ||
     isLoadingSizingTemplate
   )
     return (
@@ -109,9 +109,7 @@ const ActiveProjectPage = () => {
           projectName={project?.title ?? undefined}
           currency={project?.currency || null}
           escrowBalance={project?.escrowBalance || 0}
-          isDesigner={
-            project?.buyerId === meData?.data?.data?.designerProfile?.id
-          }
+          isDesigner={session?.user?.profileRole === "DESIGNER"}
           milestones={projectMilestonesData?.data?.data || []}
           className="flex-1"
           disableDesignerSubmission={disableDesignerMilestoneSubmission}

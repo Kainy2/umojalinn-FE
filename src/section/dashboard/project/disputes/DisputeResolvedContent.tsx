@@ -7,33 +7,96 @@ import { formatCurrencyValue } from "@/lib/number";
 import { getCurrencySymbol } from "@/lib/string";
 import { cn } from "@/lib/utils";
 import { IDisputeResolvedContentProps } from "./@types";
-import { getDisputeReasonLabel } from "./utils";
+import {
+  DISPUTE_TYPE_TITLES,
+  getDisputeMilestoneDisplays,
+  getDisputeReasonLabel,
+  getDisputeResolutionLabel,
+  parseDisputeAmount,
+} from "./utils";
 
 const DisputeResolvedContent = ({
   dispute,
   currency,
+  currentUserId,
 }: IDisputeResolvedContentProps) => {
   const currencySymbol = getCurrencySymbol(currency ?? undefined);
   const reasonLabel = getDisputeReasonLabel(dispute);
+  const disputeMilestones = getDisputeMilestoneDisplays(dispute);
+  const disputeTypeLabel = DISPUTE_TYPE_TITLES[dispute.type];
+  const resolutionLabel = getDisputeResolutionLabel(dispute.resolution);
+  const approvedRefundAmount = parseDisputeAmount(
+    dispute.refundApproved ?? dispute.approvedRefundAmount,
+  );
+  const projectTitle = dispute.project?.title;
+  const isOwnDispute =
+    !!currentUserId && currentUserId === dispute.initiatorUserId;
+  const rationaleLabel = isOwnDispute ? "Your rationale" : "Reason";
 
   return (
     <div className="flex flex-col gap-6">
+      <div className="grid gap-3 sm:grid-cols-2">
+        {projectTitle && (
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Project
+            </p>
+            <p className="text-sm font-semibold text-foreground-body">
+              {projectTitle}
+            </p>
+          </div>
+        )}
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Dispute type
+          </p>
+          <p className="text-sm font-semibold text-foreground-body">
+            {disputeTypeLabel}
+          </p>
+        </div>
+      </div>
+
       {reasonLabel && (
         <div>
-          <p className="text-sm font-semibold text-foreground-body">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            {rationaleLabel}
+          </p>
+          <p className="mt-1 text-sm font-semibold text-foreground-body">
             {reasonLabel}
           </p>
         </div>
       )}
 
-      {dispute.description && (
-        <blockquote className="border-l-0 text-sm text-muted-foreground">
-          &ldquo;{dispute.description}&rdquo;
+      {dispute.reasonDetail && (
+        <blockquote className="border-l-2 border-gray-200 pl-3 text-sm text-muted-foreground">
+          &ldquo;{dispute.reasonDetail}&rdquo;
         </blockquote>
       )}
 
+      {dispute.status === "RESOLVED" && resolutionLabel && (
+        <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Resolution
+          </p>
+          <p className="mt-1 text-sm font-semibold text-foreground-body">
+            {resolutionLabel}
+          </p>
+          {approvedRefundAmount > 0 && (
+            <p className="mt-2 text-sm text-muted-foreground">
+              Refunded amount: {currencySymbol}
+              {formatCurrencyValue(approvedRefundAmount)}
+            </p>
+          )}
+          {dispute.externalNotes && (
+            <p className="mt-2 text-sm text-muted-foreground">
+              {dispute.externalNotes}
+            </p>
+          )}
+        </div>
+      )}
+
       {!!dispute.attachments?.length && (
-        <div className="grid grid-cols-4 gap-2 max-w-md">
+        <div className="grid max-w-md grid-cols-4 gap-2">
           {dispute.attachments.map((attachment) => (
             <div
               key={attachment.id}
@@ -56,35 +119,35 @@ const DisputeResolvedContent = ({
         </div>
       )}
 
-      {!!dispute.relatedMilestones?.length && (
+      {!!disputeMilestones.length && (
         <div className="space-y-3">
           <h4 className="text-sm font-semibold text-foreground-body">
             Related Milestones
           </h4>
           <ul className="flex flex-col gap-3">
-            {dispute.relatedMilestones.map((milestone) => (
+            {disputeMilestones.map((disputeMilestone) => (
               <li
-                key={milestone.milestoneId}
-                className="flex flex-wrap items-center justify-between gap-2"
+                key={disputeMilestone.milestoneId}
+                className="flex flex-wrap items-center  gap-2"
               >
                 <span className="text-sm text-foreground-body">
-                  {milestone.label}
+                  {disputeMilestone.label}
                 </span>
                 <Badge
                   variant="outline"
                   className={cn(
-                    "rounded-sm font-normal",
-                    milestone.tag === "DISPUTED" &&
+                    "rounded-full font-normal pr-0 py-0",
+                    !disputeMilestone.isRefunded &&
                       "border-error/30 bg-error-50 text-error",
-                    milestone.tag === "REFUNDED" &&
+                    disputeMilestone.isRefunded &&
                       "border-gray-300 bg-gray-50 text-foreground-body",
                   )}
                 >
-                  {milestone.tag === "DISPUTED"
-                    ? "Disputed"
-                    : "Refunded"}{" "}
-                  {currencySymbol}
-                  {formatCurrencyValue(milestone.amount)}
+                  {disputeMilestone.isRefunded ? "Refunded" : "Disputed"}{" "}
+                  <span className="text-xs text-white bg-[#FDA29B] rounded-full px-2 py-1 ml-2">
+                    {currencySymbol}
+                    {formatCurrencyValue(disputeMilestone.amount)}
+                  </span>
                 </Badge>
               </li>
             ))}
