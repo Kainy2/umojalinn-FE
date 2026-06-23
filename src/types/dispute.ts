@@ -22,6 +22,16 @@ export const DISPUTE_REASONS = [
 
 export type TDisputeReason = (typeof DISPUTE_REASONS)[number]["value"];
 
+export const BUYER_ISSUE_REASONS = [
+  { value: "WORK_NOT_AS_DESCRIBED", label: "Work not as described" },
+  { value: "POOR_QUALITY", label: "Poor quality" },
+  { value: "LATE_DELIVERY", label: "Late delivery" },
+  { value: "COMMUNICATION_ISSUES", label: "Communication issues" },
+  { value: "OTHER", label: "Other" },
+] as const;
+
+export type TBuyerIssueReason = (typeof BUYER_ISSUE_REASONS)[number]["value"];
+
 export type TMilestoneDisputeType =
   | "BUYER_ISSUE"
   | "DESIGNER_CANCELLATION_REQUEST";

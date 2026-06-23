@@ -3,6 +3,9 @@ import AvatarIconTag from "@/components/custom/tag/AvatarIcon";
 import SectionTitle from "@/components/custom/SectionTitle";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { RefundRequestDialog } from "@/components/custom/dialog/RefundRequest";
+import { BuyerProjectIssueDialog } from "@/components/custom/dialog/BuyerProjectIssue";
+import { BuyerIssueConfirmDialog } from "@/components/custom/dialog/BuyerIssueConfirm";
+import { TBuyerProjectIssueFormData } from "@/components/custom/dialog/BuyerProjectIssue/@types";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,9 +14,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import ClipboardSearch from "@/assets/ClipboardSearch";
 import {
+  getActiveDisputedMilestoneIds,
+  isMilestoneEligibleForDispute,
+} from "@/lib/dispute";
+import { formatMilestoneSelectLabel } from "@/components/util/milestone";
+import { useCreateBuyerDispute, useGetProjectDisputes } from "@/tanstack/hooks/useDispute";
+import {
   useGetProjectById,
   useGetProjectMilestones,
 } from "@/tanstack/hooks/useProject";
+import { BUYER_ISSUE_REASONS } from "@/types/dispute";
 import { format } from "date-fns";
 import { CalendarPlus, MoreVertical } from "lucide-react";
 import { useParams } from "next/navigation";
@@ -30,20 +40,105 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const [refundOpen, setRefundOpen] = useState(false);
+  const [issueOpen, setIssueOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingIssue, setPendingIssue] =
+    useState<TBuyerProjectIssueFormData | null>(null);
   const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
   const { data, isPending } = useGetProjectById(params?.id);
   const { data: milestonesData } = useGetProjectMilestones(params?.id);
+  const { data: projectDisputesResponse } = useGetProjectDisputes(
+    params?.id ?? "",
+    {
+      enabled: !!params?.id && !isDesigner,
+    },
+  );
+
+  const { mutate: createBuyerDispute, isPending: isCreatingBuyerDispute } =
+    useCreateBuyerDispute({
+      onSuccess: () => {
+        setPendingIssue(null);
+        setConfirmOpen(false);
+        setIssueOpen(false);
+      },
+    });
 
   const project = data?.data?.data;
+  const milestones = milestonesData?.data?.data ?? [];
   const milestoneOptions = useMemo(
     () =>
-      (milestonesData?.data?.data ?? []).map((milestone) => ({
+      milestones.map((milestone) => ({
         id: milestone.id,
         title: milestone.title ?? "",
         amount: Number(milestone.amount) || 0,
       })),
-    [milestonesData?.data?.data],
+    [milestones],
   );
+
+  const issueMilestoneOptions = useMemo(() => {
+    const disputedMilestoneIds = getActiveDisputedMilestoneIds(
+      projectDisputesResponse?.data?.data ?? [],
+    );
+
+    return milestones
+      .filter((milestone) =>
+        isMilestoneEligibleForDispute(milestone, disputedMilestoneIds),
+      )
+      .map((milestone) => ({
+        id: milestone.id,
+        title: formatMilestoneSelectLabel(milestone, milestones),
+        amount: Number(milestone.amount) || 0,
+      }));
+  }, [milestones, projectDisputesResponse?.data?.data]);
+
+  const designerName = useMemo(() => {
+    const user = project?.designer?.user;
+    if (!user) return "The designer";
+    return `${user.firstName || ""} ${user.lastName || ""}`.trim() || "The designer";
+  }, [project?.designer?.user]);
+
+  const canRaiseIssue = !isDesigner && issueMilestoneOptions.length > 0;
+  const showActionsMenu = isDesigner || canRaiseIssue;
+
+  const handleIssueOpenChange = (open: boolean) => {
+    setIssueOpen(open);
+    if (!open) setPendingIssue(null);
+  };
+
+  const handleRaiseIssue = () => {
+    setActionsMenuOpen(false);
+    window.setTimeout(() => setIssueOpen(true), 0);
+  };
+
+  const handleProjectIssueSubmit = (formData: TBuyerProjectIssueFormData) => {
+    setPendingIssue(formData);
+    setIssueOpen(false);
+    window.setTimeout(() => setConfirmOpen(true), 0);
+  };
+
+  const handleConfirmRaiseIssue = () => {
+    if (!pendingIssue) return;
+
+    const reasonLabel =
+      BUYER_ISSUE_REASONS.find((item) => item.value === pendingIssue.reason)
+        ?.label ?? pendingIssue.reason;
+
+    createBuyerDispute({
+      type: "BUYER_ISSUE",
+      milestoneIds: pendingIssue.milestoneIds,
+      reasonCategory: reasonLabel,
+      reasonDetail: reasonLabel,
+      attachmentFiles: pendingIssue.files ?? undefined,
+      requestedRefundAmount: 0,
+    });
+  };
+
+  const handleConfirmOpenChange = (open: boolean) => {
+    setConfirmOpen(open);
+    if (!open && !isCreatingBuyerDispute) {
+      setPendingIssue(null);
+    }
+  };
 
   if (isPending) {
     return "";
@@ -53,7 +148,7 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
       <SectionTitle
         size="large"
         action={
-          isDesigner ? (
+          showActionsMenu ? (
             <>
               <DropdownMenu
                 open={actionsMenuOpen}
@@ -69,19 +164,30 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-[200px]">
-                  <DropdownMenuItem
-                    className="cursor-pointer gap-1 text-[#B54708]"
-                    onSelect={() => {
-                      setActionsMenuOpen(false);
-                      window.setTimeout(() => setRefundOpen(true), 0);
-                    }}
-                  >
-                    <ClipboardSearch />
-                    Refund Buyer
-                  </DropdownMenuItem>
+                  {isDesigner && (
+                    <DropdownMenuItem
+                      className="cursor-pointer gap-1 text-[#B54708]"
+                      onSelect={() => {
+                        setActionsMenuOpen(false);
+                        window.setTimeout(() => setRefundOpen(true), 0);
+                      }}
+                    >
+                      <ClipboardSearch />
+                      Refund Buyer
+                    </DropdownMenuItem>
+                  )}
+                  {canRaiseIssue && (
+                    <DropdownMenuItem
+                      className="cursor-pointer gap-1 text-[#B54708]"
+                      onSelect={handleRaiseIssue}
+                    >
+                      <ClipboardSearch />
+                      Raise an issue
+                    </DropdownMenuItem>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
-              {project && (
+              {isDesigner && project && (
                 <RefundRequestDialog
                   open={refundOpen}
                   onOpenChange={setRefundOpen}
@@ -90,6 +196,24 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
                   milestones={milestoneOptions}
                   currency={project.currency}
                 />
+              )}
+              {!isDesigner && project && (
+                <>
+                  <BuyerProjectIssueDialog
+                    projectName={project.title || "No Title"}
+                    milestones={issueMilestoneOptions}
+                    open={issueOpen}
+                    onOpenChange={handleIssueOpenChange}
+                    onSubmit={handleProjectIssueSubmit}
+                  />
+                  <BuyerIssueConfirmDialog
+                    designerName={designerName}
+                    open={confirmOpen}
+                    onOpenChange={handleConfirmOpenChange}
+                    onConfirm={handleConfirmRaiseIssue}
+                    isPending={isCreatingBuyerDispute}
+                  />
+                </>
               )}
             </>
           ) : undefined

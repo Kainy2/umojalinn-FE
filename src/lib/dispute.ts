@@ -78,18 +78,6 @@ const ACTIVE_DISPUTE_STATUSES = new Set<TDisputeStatus>([
   "AWAITING_PSP_CONFIRMATION",
 ]);
 
-const DISPUTEABLE_MILESTONE_STATUSES = new Set<UmojaLinnMilestone["status"]>([
-  EMileStoneStatus.PENDING,
-  EMileStoneStatus.ACTIVE,
-  EMileStoneStatus.IN_REVIEW,
-  // EMileStoneStatus.APPROVED,
-  EMileStoneStatus.REJECTED,
-]);
-
-const FUNDED_TRANSACTION_STATUSES = new Set<
-  UmojaLinnMilestone["transactionStatus"]
->(["FUNDED", "PAID", "PROCESSING"]);
-
 export const isActiveDisputeStatus = (status: TDisputeStatus) =>
   ACTIVE_DISPUTE_STATUSES.has(status);
 
@@ -134,22 +122,4 @@ export const getSelectedMilestonesRefundAmount = (
 export const isMilestoneEligibleForDispute = (
   milestone: UmojaLinnMilestone,
   disputedMilestoneIds: Set<string>,
-) => {
-  if (
-    isMilestoneDisputed(milestone, disputedMilestoneIds) ||
-    milestone.status === EMileStoneStatus.REFUNDED ||
-    milestone.status === EMileStoneStatus.IN_ACTIVE
-  ) {
-    return false;
-  }
-
-  if (!DISPUTEABLE_MILESTONE_STATUSES.has(milestone.status)) {
-    return false;
-  }
-
-  if (!FUNDED_TRANSACTION_STATUSES.has(milestone.transactionStatus)) {
-    return false;
-  }
-
-  return true;
-};
+) => !isMilestoneDisputed(milestone, disputedMilestoneIds);

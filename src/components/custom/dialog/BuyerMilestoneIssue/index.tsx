@@ -12,68 +12,53 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { CustomSelectField } from "@/components/custom/Select";
 import MilestoneInputSectionImageUpload from "@/components/custom/picker/MilestoneInputSectionImageUpload";
-import { formatCurrencyValue } from "@/lib/number";
-import { getCurrencySymbol } from "@/lib/string";
-import { useCreateDesignerDispute } from "@/tanstack/hooks/useDispute";
+import { useCreateBuyerDispute } from "@/tanstack/hooks/useDispute";
 import ClipboardSearch from "@/assets/ClipboardSearch";
-import { DISPUTE_REASONS, TDisputeReason } from "@/types/dispute";
-import {
-  IMilestoneCancellationRequestDialogProps,
-  TClientAwareness,
-} from "./@types";
+import { BUYER_ISSUE_REASONS, TBuyerIssueReason } from "@/types/dispute";
+import { IBuyerMilestoneIssueDialogProps } from "./@types";
 
-export const MilestoneCancellationRequestDialog = ({
+export const BuyerMilestoneIssueDialog = ({
   milestoneId,
   projectName,
   milestoneName,
-  escrowAmount,
-  currency,
   children,
   open: controlledOpen,
   onOpenChange: controlledOnOpenChange,
   ...dialogProps
-}: IMilestoneCancellationRequestDialogProps) => {
+}: IBuyerMilestoneIssueDialogProps) => {
   const [internalOpen, setInternalOpen] = useState(false);
   const open = controlledOpen ?? internalOpen;
   const onOpenChange = controlledOnOpenChange ?? setInternalOpen;
 
-  const [reason, setReason] = useState<TDisputeReason | "">("");
-  const [isClientAware, setIsClientAware] = useState<TClientAwareness>("no");
-  const [confirmed, setConfirmed] = useState(true);
+  const [reason, setReason] = useState<TBuyerIssueReason | "">("");
   const [files, setFiles] = useState<FileList | null>(null);
 
   const resetForm = useCallback(() => {
     setReason("");
-    setIsClientAware("no");
-    setConfirmed(false);
     setFiles(null);
   }, []);
 
-  const { mutate: createDesignerDispute, isPending } = useCreateDesignerDispute({
+  const { mutate: createBuyerDispute, isPending } = useCreateBuyerDispute({
     onSuccess: () => {
       resetForm();
       onOpenChange(false);
     },
   });
 
-  const currencySymbol = getCurrencySymbol(currency);
-  const formattedEscrow = `${currencySymbol}${formatCurrencyValue(escrowAmount)}`;
-
-  const canSubmit = !!reason && !!isClientAware && confirmed && !isPending;
+  const canSubmit = !!reason && !isPending;
 
   const handleSubmit = () => {
     if (!reason || !canSubmit) return;
 
     const reasonLabel =
-      DISPUTE_REASONS.find((item) => item.value === reason)?.label ?? reason;
+      BUYER_ISSUE_REASONS.find((item) => item.value === reason)?.label ??
+      reason;
 
-    createDesignerDispute({
-      type: "DESIGNER_CANCELLATION_REQUEST",
+    createBuyerDispute({
+      type: "BUYER_ISSUE",
       milestoneIds: [milestoneId],
       reasonCategory: reasonLabel,
       reasonDetail: reasonLabel,
@@ -100,10 +85,10 @@ export const MilestoneCancellationRequestDialog = ({
             <ClipboardSearch color="#000000" width={40} height={40} />
             <div>
               <DialogTitle className="text-subtitle-2 font-semibold">
-                Milestone Cancellation Request
+                Report an issue with this milestone
               </DialogTitle>
               <p className="text-sm text-muted-foreground">
-                Milestone Name:{" "}
+                Project Name:{" "}
                 <span className="text-foreground-body">{projectName}</span>
                 {": "}
                 <span className="text-foreground-body">{milestoneName}</span>
@@ -116,13 +101,13 @@ export const MilestoneCancellationRequestDialog = ({
           <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-6 py-5">
             <CustomSelectField
               label={{
-                children: "Cancellation reason",
+                children: "Issue type",
                 className: "font-semibold text-base text-foreground-body",
               }}
-              placeholder="Select Reason"
+              placeholder="Select Issue Type"
               value={reason || undefined}
-              onValueChange={(value) => setReason(value as TDisputeReason)}
-              options={DISPUTE_REASONS.map((item) => ({
+              onValueChange={(value) => setReason(value as TBuyerIssueReason)}
+              options={BUYER_ISSUE_REASONS.map((item) => ({
                 value: item.value,
                 children: item.label,
               }))}
@@ -137,52 +122,6 @@ export const MilestoneCancellationRequestDialog = ({
                 files={files}
                 onFilesChange={setFiles}
               />
-            </div>
-
-            <div className="grid w-full gap-2">
-              <Label className="font-semibold text-foreground-body">
-                Is the client aware of this cancellation
-              </Label>
-              <RadioGroup
-                value={isClientAware}
-                onValueChange={(value) =>
-                  setIsClientAware(value as TClientAwareness)
-                }
-                className="flex flex-row gap-6"
-              >
-                <Label
-                  htmlFor="client-aware-yes"
-                  className="flex cursor-pointer items-center gap-2 text-sm font-normal"
-                >
-                  <RadioGroupItem value="yes" id="client-aware-yes" />
-                  Yes
-                </Label>
-                <Label
-                  htmlFor="client-aware-no"
-                  className="flex cursor-pointer items-center gap-2 text-sm font-normal"
-                >
-                  <RadioGroupItem value="no" id="client-aware-no" />
-                  No
-                </Label>
-              </RadioGroup>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <Checkbox
-                id="milestone-cancellation-confirm"
-                checked={confirmed}
-                onCheckedChange={(checked) => setConfirmed(!!checked)}
-                className="mt-0.5"
-              />
-              <Label
-                htmlFor="milestone-cancellation-confirm"
-                className="cursor-pointer text-sm font-normal leading-snug text-foreground-body"
-              >
-                I understand that this will cancel the milestone and all funds in
-                this project&apos;s escrow (
-                <span className="font-semibold">{formattedEscrow}</span>) will be
-                released back to the client.
-              </Label>
             </div>
           </div>
 
@@ -201,7 +140,7 @@ export const MilestoneCancellationRequestDialog = ({
               disabled={!canSubmit}
               onClick={handleSubmit}
             >
-              Submit Request
+              Submit Dispute
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -210,4 +149,4 @@ export const MilestoneCancellationRequestDialog = ({
   );
 };
 
-export default MilestoneCancellationRequestDialog;
+export default BuyerMilestoneIssueDialog;
