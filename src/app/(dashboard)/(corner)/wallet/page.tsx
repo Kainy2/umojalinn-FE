@@ -11,6 +11,7 @@ import {
   useGetPaymentAccountInfo,
   useConnectStripeAccount,
 } from "@/tanstack/hooks/useProject";
+import { useGetWalletDisputeSummary } from "@/tanstack/hooks/useDispute";
 import { useGetMe } from "@/tanstack/hooks/useUser";
 import React, { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
@@ -24,16 +25,19 @@ import {
   getDefaultCurrencyFromCountry,
   getCurrencyCarouselOrder,
   paymentAccountHasStoredPayoutAddress,
+  getAvailableWalletBalanceForCurrency,
 } from "@/components/util/wallet";
 import { cn } from "@/lib/utils";
 import { useInfiniteData } from "@/hooks/use-infinite-data";
 import { UmojaLinnCurrency } from "@/types/project";
 import LinkStripeAddressDialog from "@/components/custom/dialog/LinkStripeAddressDialog";
 import ConnectPaymentAccountOtpDialog from "@/components/custom/dialog/ConnectPaymentAccountOtpDialog";
+import WalletDisputesSection from "@/components/custom/wallet/WalletDisputesSection";
 const WithdrawalPage = () => {
   const { data: userData } = useGetMe();
   const { data: session } = useSession();
   const { data: walletData, isPending: isWalletPending } = useGetWallet();
+  const { data: disputeSummaryResponse } = useGetWalletDisputeSummary();
   const { data: paymentAccountData, isPending: isPaymentAccountPending } =
     useGetPaymentAccountInfo();
 
@@ -78,6 +82,8 @@ const WithdrawalPage = () => {
 
   const wallet = walletData?.data?.data;
   const paymentAccount = paymentAccountData?.data?.data?.[0];
+  const disputeSummary = disputeSummaryResponse?.data?.data;
+  const selectedCurrencyDisputeSummary = disputeSummary?.[selectedCurrency];
 
   const isDesigner = session?.user?.profileRole === "DESIGNER";
 
@@ -103,6 +109,9 @@ const WithdrawalPage = () => {
   };
 
   const getActionLabel = (currency: UmojaLinnCurrency): string | null => {
+    if (disputeSummary?.[currency]?.restricted) {
+      return "Withdrawals restricted";
+    }
     if (currency === "NAIRA") {
       return paymentAccount?.paystackStatus !== "ENABLED"
         ? "Action required"
@@ -163,29 +172,34 @@ const WithdrawalPage = () => {
                 onToggleBalance={() => setHideBalance((prev) => !prev)}
                 currency={selectedCurrency}
                 onCurrencyChange={setSelectedCurrency}
+                currencyDisputeSummary={selectedCurrencyDisputeSummary}
               />
               <CurrencyCarousel>
                 {currencyOrder.map((currency) => {
-                  const amountMap: Record<string, number> = {
-                    NAIRA: wallet?.ngnBalance || 0,
-                    EURO: wallet?.eurBalance || 0,
-                    USD: wallet?.usdBalance || 0,
-                    GBP: wallet?.gbpBalance || 0,
-                    CAD: wallet?.cadBalance || 0,
-                  };
+                  const lockedAmount = disputeSummary?.[currency]?.locked ?? 0;
+                  const availableAmount = getAvailableWalletBalanceForCurrency(
+                    wallet,
+                    currency,
+                    lockedAmount,
+                  );
                   return (
                     <CurrencyCard
                       key={currency}
                       currency={currency}
-                      amount={amountMap[currency]}
+                      amount={availableAmount}
                       hideBalance={hideBalance}
                       isSelected={selectedCurrency === currency}
                       stripeStatusLabel={getActionLabel(currency)}
+                      disputeHeldAmount={lockedAmount}
                       onClick={() => setSelectedCurrency(currency)}
                     />
                   );
                 })}
               </CurrencyCarousel>
+              <WalletDisputesSection
+                currency={selectedCurrency}
+                hideBalance={hideBalance}
+              />
             </div>
             {isDesigner && <EscrowCard wallet={wallet!} />}
           </div>

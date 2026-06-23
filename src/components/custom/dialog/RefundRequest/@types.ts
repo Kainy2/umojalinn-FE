@@ -7,6 +7,7 @@ export type TRefundType = "FULL" | "PARTIAL";
 export type TMilestoneOption = {
   id: string;
   title: string;
+  amount: number;
 };
 
 export type TRequestProjectRefundPayload = {
@@ -22,7 +23,6 @@ export interface IRefundRequestDialogProps extends DialogProps {
   projectId: string;
   projectName: string;
   milestones: TMilestoneOption[];
-  fullRefundAmount: number;
   currency?: UmojaLinnCurrency | null;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;

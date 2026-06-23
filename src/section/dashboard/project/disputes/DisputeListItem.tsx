@@ -1,11 +1,16 @@
 "use client";
 
-import React from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { IDisputeListItemProps } from "./@types";
-import { DISPUTE_TYPE_TITLES } from "./mockDisputes";
+import {
+  DISPUTE_TYPE_TITLES,
+  getDisputeFullRefundAmount,
+  hasDisputeActivities,
+  requiresDisputeResponse,
+} from "./utils";
 import DisputeStatusBadge from "./DisputeStatusBadge";
 import DisputeActionBanner from "./DisputeActionBanner";
 import DisputeResponseForm from "./DisputeResponseForm";
@@ -14,19 +19,22 @@ import DisputeActivities from "./DisputeActivities";
 
 const DisputeListItem = ({
   dispute,
+  currentUserId,
   currency,
   expanded,
   isResponding,
+  isDetailLoading,
   onToggleExpand,
   onRespondNow,
   onCancelResponse,
-  onSubmitResponse,
+  onResponseSuccess,
 }: IDisputeListItemProps) => {
   const title = DISPUTE_TYPE_TITLES[dispute.type];
   const dateLabel = format(new Date(dispute.createdAt), "MMM d, yyyy");
-  const showInReviewContent =
-    dispute.status === "IN_REVIEW" && dispute.requiresResponse;
-  const showResolvedContent = dispute.status === "RESOLVED";
+  const requiresResponse = requiresDisputeResponse(dispute, currentUserId);
+  const showActionBanner = requiresResponse && !isResponding;
+  const showResponseForm = requiresResponse && isResponding;
+  const showActivities = hasDisputeActivities(dispute);
 
   return (
     <div className="overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
@@ -52,31 +60,42 @@ const DisputeListItem = ({
 
       {expanded && (
         <div className="space-y-6 border-t border-gray-200 bg-white px-4 pb-4 pt-4">
-          {(showInReviewContent || showResolvedContent) && (
-            <DisputeResolvedContent dispute={dispute} currency={currency} />
-          )}
+          {isDetailLoading ? (
+            <div className="space-y-3">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-20 w-full" />
+              <Skeleton className="h-4 w-48" />
+            </div>
+          ) : (
+            <>
+              <DisputeResolvedContent
+                dispute={dispute}
+                currency={currency}
+                currentUserId={currentUserId}
+              />
 
-          {showInReviewContent && !isResponding && (
-            <DisputeActionBanner
-              responseDeadline={dispute.responseDeadline}
-              onRespondNow={onRespondNow}
-            />
-          )}
+              {showActionBanner && (
+                <DisputeActionBanner
+                  responseDeadline={dispute.autoResolveAt ?? undefined}
+                  onRespondNow={onRespondNow}
+                />
+              )}
 
-          {showInReviewContent && isResponding && (
-            <DisputeResponseForm
-              currency={currency}
-              fullRefundAmount={dispute.fullRefundAmount}
-              onCancel={onCancelResponse}
-              onSubmit={onSubmitResponse}
-            />
-          )}
+              {showResponseForm && (
+                <DisputeResponseForm
+                  disputeId={dispute.id}
+                  projectId={dispute.projectId}
+                  currency={currency}
+                  fullRefundAmount={getDisputeFullRefundAmount(dispute)}
+                  onCancel={onCancelResponse}
+                  onSuccess={onResponseSuccess}
+                />
+              )}
 
-          {showResolvedContent && (
-            <DisputeActivities
-              activities={dispute.activities}
-              currency={currency}
-            />
+              {showActivities && (
+                <DisputeActivities dispute={dispute} currency={currency} />
+              )}
+            </>
           )}
         </div>
       )}

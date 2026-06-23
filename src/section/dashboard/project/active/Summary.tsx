@@ -30,6 +30,7 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const [refundOpen, setRefundOpen] = useState(false);
+  const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
   const { data, isPending } = useGetProjectById(params?.id);
   const { data: milestonesData } = useGetProjectMilestones(params?.id);
 
@@ -39,6 +40,7 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
       (milestonesData?.data?.data ?? []).map((milestone) => ({
         id: milestone.id,
         title: milestone.title ?? "",
+        amount: Number(milestone.amount) || 0,
       })),
     [milestonesData?.data?.data],
   );
@@ -51,39 +53,46 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
       <SectionTitle
         size="large"
         action={
-          <>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  className="shrink-0 bg-[#FEFBE8] rounded-sm p-2 outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                  aria-label="Project action"
-                >
-                  <MoreVertical className="cursor-pointer text-primary" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[200px]">
-                <DropdownMenuItem
-                  className="cursor-pointer gap-1 text-[#B54708]"
-                  onClick={() => setRefundOpen(true)}
-                >
-                  <ClipboardSearch />
-                  Refund Buyer
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            {project && (
-              <RefundRequestDialog
-                open={refundOpen}
-                onOpenChange={setRefundOpen}
-                projectId={project.id}
-                projectName={project.title || "No Title"}
-                milestones={milestoneOptions}
-                fullRefundAmount={project.escrowBalance || 0}
-                currency={project.currency}
-              />
-            )}
-          </>
+          isDesigner ? (
+            <>
+              <DropdownMenu
+                open={actionsMenuOpen}
+                onOpenChange={setActionsMenuOpen}
+              >
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    className="shrink-0 bg-[#FEFBE8] rounded-sm p-2 outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                    aria-label="Project action"
+                  >
+                    <MoreVertical className="cursor-pointer text-primary" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-[200px]">
+                  <DropdownMenuItem
+                    className="cursor-pointer gap-1 text-[#B54708]"
+                    onSelect={() => {
+                      setActionsMenuOpen(false);
+                      window.setTimeout(() => setRefundOpen(true), 0);
+                    }}
+                  >
+                    <ClipboardSearch />
+                    Refund Buyer
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              {project && (
+                <RefundRequestDialog
+                  open={refundOpen}
+                  onOpenChange={setRefundOpen}
+                  projectId={project.id}
+                  projectName={project.title || "No Title"}
+                  milestones={milestoneOptions}
+                  currency={project.currency}
+                />
+              )}
+            </>
+          ) : undefined
         }
         title={data?.data?.data?.title || "No Title"}
       />

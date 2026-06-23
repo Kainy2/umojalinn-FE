@@ -317,38 +317,6 @@ export const submitMilestone = async (
   );
 };
 
-export const requestMilestoneCancellation = async (
-  id: string,
-  body: FormData,
-  options?: ServerActionOption,
-) => {
-  const axios = await getAxiosToBeUsed({
-    body,
-    isServerAction: options?.isServerAction,
-  });
-
-  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
-    `/project/milestone/cancellation-request/${base62ToUuidSafe(id)}`,
-    body,
-  );
-};
-
-export const requestProjectRefund = async (
-  id: string,
-  body: FormData,
-  options?: ServerActionOption,
-) => {
-  const axios = await getAxiosToBeUsed({
-    body,
-    isServerAction: options?.isServerAction,
-  });
-
-  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
-    `/project/refund-request/${base62ToUuidSafe(id)}`,
-    body,
-  );
-};
-
 export const getWallet = async (options?: ServerActionOption) => {
   let axios = clientAxios;
   if (options?.isServerAction) {

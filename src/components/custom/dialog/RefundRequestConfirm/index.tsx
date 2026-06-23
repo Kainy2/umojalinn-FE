@@ -22,6 +22,7 @@ export const RefundRequestConfirmDialog = ({
 }: IRefundRequestConfirmDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange} {...dialogProps}>
+      {open ? (
       <DialogContent className="flex max-w-[440px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[440px] sm:rounded-none">
         <DialogHeader className="space-y-4 px-6 pb-2 pt-8 text-center">
           <div className="mx-auto icon-wrapper warning h-14 w-14 border-4 [&_svg]:size-6">
@@ -70,6 +71,7 @@ export const RefundRequestConfirmDialog = ({
           </Button>
         </DialogFooter>
       </DialogContent>
+      ) : null}
     </Dialog>
   );
 };

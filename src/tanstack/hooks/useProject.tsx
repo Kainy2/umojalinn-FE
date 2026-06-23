@@ -23,8 +23,6 @@ import {
   postProjectLive,
   requestWithdrawal,
   submitMilestone,
-  requestMilestoneCancellation,
-  requestProjectRefund,
   updateProjectById,
   // setDefaultWithdrawalMethod,
   getFundsReleasedTransactions,
@@ -361,108 +359,6 @@ export const useSubmitMilestone = (
     },
   });
 };
-
-export const useRequestMilestoneCancellation = (
-  id: string,
-  options?: GenericUseMutationProps<SingleApiResponse, FormData>,
-) => {
-  const { handleError } = useHandleError("Milestone cancellation");
-  return useMutation({
-    ...options,
-    mutationFn: (variables) => requestMilestoneCancellation(id, variables),
-    onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: [PROJECT] });
-      options?.onSuccess?.(data, variables, context);
-    },
-    onError: (error, variables, context) => {
-      handleError(error);
-      options?.onError?.(error, variables, context);
-    },
-  });
-};
-
-export const useRequestProjectRefund = (
-  id: string,
-  options?: GenericUseMutationProps<SingleApiResponse, FormData>,
-) => {
-  const { handleError } = useHandleError("Refund request");
-  return useMutation({
-    ...options,
-    mutationFn: (variables) => requestProjectRefund(id, variables),
-    onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: [PROJECT] });
-      options?.onSuccess?.(data, variables, context);
-    },
-    onError: (error, variables, context) => {
-      handleError(error);
-      options?.onError?.(error, variables, context);
-    },
-  });
-};
-
-// TODO: Wire when backend is ready
-// import { getProjectDisputes, submitDisputeResponse } from "@/actions/project";
-// import { IProjectDispute } from "@/section/dashboard/project/disputes/@types";
-//
-// export const useGetProjectDisputes = (
-//   id: string,
-//   options?: GenericUseQueryProps<ArrayApiResponse<IProjectDispute>>,
-// ) => {
-//   return useQuery({
-//     ...options,
-//     queryKey: [PROJECT, id, "disputes"],
-//     queryFn: () => getProjectDisputes(id),
-//   });
-// };
-//
-// export const useSubmitDisputeResponse = (
-//   disputeId: string,
-//   options?: GenericUseMutationProps<SingleApiResponse, FormData>,
-// ) => {
-//   const { handleError } = useHandleError("Dispute response");
-//   return useMutation({
-//     ...options,
-//     mutationFn: (variables) => submitDisputeResponse(disputeId, variables),
-//     onSuccess: (data, variables, context) => {
-//       queryClient.invalidateQueries({ queryKey: [PROJECT] });
-//       options?.onSuccess?.(data, variables, context);
-//     },
-//     onError: (error, variables, context) => {
-//       handleError(error);
-//       options?.onError?.(error, variables, context);
-//     },
-//   });
-// };
-
-// TODO: Wire when backend is ready
-// export const useGetWalletReceivingAccount = (
-//   currency: UmojaLinnCurrency,
-//   options?: GenericUseQueryProps<SingleApiResponse<IWalletReceivingAccount>>,
-// ) => {
-//   return useQuery({
-//     ...options,
-//     queryKey: [WALLET, "receiving-account", currency],
-//     queryFn: () => getWalletReceivingAccount(currency),
-//   });
-// };
-//
-// export const useSubmitWalletTopUpReceipt = (
-//   options?: GenericUseMutationProps<SingleApiResponse, FormData>,
-// ) => {
-//   const { handleError } = useHandleError("Wallet top-up");
-//   return useMutation({
-//     ...options,
-//     mutationFn: (variables) => submitWalletTopUpReceipt(variables),
-//     onSuccess: (data, variables, context) => {
-//       queryClient.invalidateQueries({ queryKey: [WALLET] });
-//       options?.onSuccess?.(data, variables, context);
-//     },
-//     onError: (error, variables, context) => {
-//       handleError(error);
-//       options?.onError?.(error, variables, context);
-//     },
-//   });
-// };
 
 export const useGetWallet = (
   options?: GenericUseQueryProps<SingleApiResponse<UmojalinnWallet>>,

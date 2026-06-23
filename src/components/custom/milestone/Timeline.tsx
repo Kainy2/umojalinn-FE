@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import {
@@ -16,6 +16,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MilestoneCancellationRequestDialog } from "@/components/custom/dialog/MilestoneCancellationRequest";
+import {
+  getActiveDisputedMilestoneIds,
+  isMilestoneDisputed,
+  isMilestoneEligibleForDispute,
+} from "@/lib/dispute";
+import { useGetProjectDisputes } from "@/tanstack/hooks/useDispute";
+import { TMilestoneDisputeType } from "@/types/dispute";
 import MilestoneIndicator from "./Indicator";
 import MilestonePill from "./Pill";
 import MilestoneAction, { MilestoneActionType } from "./Action";
@@ -152,35 +159,26 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
   const [cancellationMilestone, setCancellationMilestone] = useState<{
     id: string;
     title: string;
+    disputeType: TMilestoneDisputeType;
   } | null>(null);
-  const cancellationUnmountTimeoutRef = useRef<ReturnType<
-    typeof setTimeout
-  > | null>(null);
 
-  const DIALOG_EXIT_MS = 200;
+  const { data: projectDisputesResponse } = useGetProjectDisputes(
+    projectId ?? "",
+    {
+      enabled: !!projectId,
+    },
+  );
+
+  const disputedMilestoneIds = useMemo(
+    () =>
+      getActiveDisputedMilestoneIds(projectDisputesResponse?.data?.data ?? []),
+    [projectDisputesResponse?.data?.data],
+  );
 
   const handleCancellationOpenChange = (open: boolean) => {
     setCancellationOpen(open);
-    if (cancellationUnmountTimeoutRef.current) {
-      clearTimeout(cancellationUnmountTimeoutRef.current);
-      cancellationUnmountTimeoutRef.current = null;
-    }
-    if (!open && cancellationMilestone) {
-      cancellationUnmountTimeoutRef.current = setTimeout(() => {
-        setCancellationMilestone(null);
-        cancellationUnmountTimeoutRef.current = null;
-      }, DIALOG_EXIT_MS);
-    }
+    if (!open) setCancellationMilestone(null);
   };
-
-  useEffect(
-    () => () => {
-      if (cancellationUnmountTimeoutRef.current) {
-        clearTimeout(cancellationUnmountTimeoutRef.current);
-      }
-    },
-    [],
-  );
 
   const [editableDeliverySubmission, setEditableDeliverySubmission] =
     useState<UmojaLinnDeliveryMilestoneReviewProps>({
@@ -259,6 +257,17 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
             milestone?.status === MilestoneStatus.COMPLETED ||
             milestone?.status === MilestoneStatus.REFUNDED ||
             milestone?.isCurrent;
+          const milestoneIsDisputed = isMilestoneDisputed(
+            item,
+            disputedMilestoneIds,
+          );
+          const canRaiseBuyerDispute =
+            !isDesigner &&
+            isMilestoneEligibleForDispute(item, disputedMilestoneIds);
+          const canRaiseDesignerDispute =
+            isDesigner && milestone?.isCurrent && !milestoneIsDisputed;
+          const showMilestoneActions =
+            canRaiseBuyerDispute || canRaiseDesignerDispute;
 
           return (
             <li key={index} className="flex flex-col gap-1.5">
@@ -275,7 +284,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                 >
                   {milestone?.title}
                 </h3>
-                {isDesigner && milestone?.isCurrent && (
+                {showMilestoneActions && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button
@@ -287,20 +296,44 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-[200px]">
-                      <DropdownMenuItem
-                        className="cursor-pointer gap-1 text-[#B54708]"
-                        onSelect={(event) => {
-                          event.preventDefault();
-                          setCancellationMilestone({
-                            id: milestone.id,
-                            title: milestone.title,
-                          });
-                          setCancellationOpen(true);
-                        }}
-                      >
-                        <ClipboardSearch />
-                        Cancel Milestone
-                      </DropdownMenuItem>
+                      {canRaiseDesignerDispute && (
+                        <DropdownMenuItem
+                          className="cursor-pointer gap-1 text-[#B54708]"
+                          onSelect={() => {
+                            setCancellationMilestone({
+                              id: milestone.id,
+                              title: milestone.title,
+                              disputeType: "DESIGNER_CANCELLATION_REQUEST",
+                            });
+                            window.setTimeout(
+                              () => setCancellationOpen(true),
+                              0,
+                            );
+                          }}
+                        >
+                          <ClipboardSearch />
+                          Cancel Milestone
+                        </DropdownMenuItem>
+                      )}
+                      {canRaiseBuyerDispute && (
+                        <DropdownMenuItem
+                          className="cursor-pointer gap-1 text-[#B54708]"
+                          onSelect={() => {
+                            setCancellationMilestone({
+                              id: milestone.id,
+                              title: milestone.title,
+                              disputeType: "BUYER_ISSUE",
+                            });
+                            window.setTimeout(
+                              () => setCancellationOpen(true),
+                              0,
+                            );
+                          }}
+                        >
+                          <ClipboardSearch />
+                          Cancel Milestone
+                        </DropdownMenuItem>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 )}
@@ -507,6 +540,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
           milestoneName={cancellationMilestone.title}
           escrowAmount={escrowBalance ?? 0}
           currency={currency}
+          disputeType={cancellationMilestone.disputeType}
           open={cancellationOpen}
           onOpenChange={handleCancellationOpenChange}
         />

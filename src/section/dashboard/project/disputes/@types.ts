@@ -1,64 +1,7 @@
-import { TDisputeReason } from "@/types/dispute";
+import { IUmojaLinnDispute, TDisputeStatus } from "@/types/dispute";
 import { UmojaLinnCurrency } from "@/types/project";
 
-export type TDisputeStatus = "IN_REVIEW" | "RESOLVED";
-
-export type TDisputeType =
-  | "BUYER_ISSUE"
-  | "DESIGNER_CANCELLATION"
-  | "DESIGNER_REFUND";
-
-export type TDisputeMilestoneTag = "DISPUTED" | "REFUNDED";
-
 export type TDisputeResolutionPreference = "FULL" | "PARTIAL" | "NONE";
-
-export interface IDisputeAttachment {
-  id: string;
-  url?: string;
-}
-
-export interface IDisputeRelatedMilestone {
-  milestoneId: string;
-  label: string;
-  amount: number;
-  tag: TDisputeMilestoneTag;
-}
-
-export type TDisputeActivityType =
-  | "DISPUTE_RAISED"
-  | "BUYER_RESPONSE"
-  | "OUTCOME";
-
-export interface IDisputeActivity {
-  id: string;
-  type: TDisputeActivityType;
-  date: string;
-  title: string;
-  expandable?: boolean;
-  body?: string;
-  outcomeDetails?: {
-    refundedAmount?: number;
-    reason?: string;
-    paymentNote?: string;
-  };
-}
-
-export interface IProjectDispute {
-  id: string;
-  type: TDisputeType;
-  status: TDisputeStatus;
-  createdAt: string;
-  reason?: TDisputeReason;
-  reasonLabel?: string;
-  description?: string;
-  attachments?: IDisputeAttachment[];
-  relatedMilestones?: IDisputeRelatedMilestone[];
-  activities?: IDisputeActivity[];
-  requiresResponse?: boolean;
-  responseDeadline?: string;
-  summaryDocUrl?: string;
-  fullRefundAmount?: number;
-}
 
 export interface IProjectDisputesProps {
   projectId: string;
@@ -66,14 +9,16 @@ export interface IProjectDisputesProps {
 }
 
 export interface IDisputeListItemProps {
-  dispute: IProjectDispute;
+  dispute: IUmojaLinnDispute;
+  currentUserId?: string;
   currency?: UmojaLinnCurrency | null;
   expanded: boolean;
   isResponding: boolean;
+  isDetailLoading?: boolean;
   onToggleExpand: () => void;
   onRespondNow: () => void;
   onCancelResponse: () => void;
-  onSubmitResponse: () => void;
+  onResponseSuccess: () => void;
 }
 
 export interface IDisputeActionBannerProps {
@@ -82,22 +27,57 @@ export interface IDisputeActionBannerProps {
 }
 
 export interface IDisputeResponseFormProps {
+  disputeId: string;
+  projectId: string;
   currency?: UmojaLinnCurrency | null;
   fullRefundAmount?: number;
   onCancel: () => void;
-  onSubmit: () => void;
+  onSuccess?: () => void;
 }
 
 export interface IDisputeResolvedContentProps {
-  dispute: IProjectDispute;
+  dispute: IUmojaLinnDispute;
   currency?: UmojaLinnCurrency | null;
+  currentUserId?: string;
 }
 
 export interface IDisputeActivitiesProps {
-  activities?: IDisputeActivity[];
+  dispute: IUmojaLinnDispute;
   currency?: UmojaLinnCurrency | null;
 }
 
 export interface IDisputeStatusBadgeProps {
   status: TDisputeStatus;
 }
+
+export interface IDisputeMilestoneDisplay {
+  milestoneId: string;
+  label: string;
+  amount: number;
+  isRefunded: boolean;
+}
+
+export type TDisputeActivityItem =
+  | {
+      id: string;
+      date: string;
+      title: string;
+      kind: "event";
+    }
+  | {
+      id: string;
+      date: string;
+      title: string;
+      kind: "buyer-response";
+      message: string;
+      attachments?: string[];
+    }
+  | {
+      id: string;
+      date: string;
+      title: string;
+      kind: "outcome";
+      refundedAmount?: number;
+      reason?: string;
+      paymentNote?: string;
+    };

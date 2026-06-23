@@ -1,26 +1,94 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { format } from "date-fns";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  IUmojaLinnDisputeEvent,
+  IUmojaLinnDisputeResponse,
+} from "@/types/dispute";
 import { formatCurrencyValue } from "@/lib/number";
 import { getCurrencySymbol } from "@/lib/string";
-import { IDisputeActivitiesProps, IDisputeActivity } from "./@types";
+import { IDisputeActivitiesProps, TDisputeActivityItem } from "./@types";
+import { parseDisputeAmount } from "./utils";
+
+const buildActivityItems = (dispute: IDisputeActivitiesProps["dispute"]) => {
+  const items: TDisputeActivityItem[] = [];
+  const events = dispute.events ?? dispute.activityTimeline ?? [];
+
+  events.forEach((event: IUmojaLinnDisputeEvent) => {
+    if (event.eventType === "DISPUTE_CREATED") {
+      items.push({
+        id: event.id,
+        date: event.createdAt,
+        title: "Dispute raised",
+        kind: "event",
+      });
+    }
+  });
+
+  dispute.responses?.forEach((response: IUmojaLinnDisputeResponse) => {
+    if (response.responderType === "BUYER") {
+      items.push({
+        id: response.id,
+        date: response.createdAt,
+        title: "Buyer response",
+        kind: "buyer-response",
+        message: response.message,
+        attachments: response.attachments,
+      });
+    }
+  });
+
+  if (dispute.status === "RESOLVED") {
+    const resolutionEvent = events.find(
+      (event) => event.eventType === "RESOLUTION_APPROVED",
+    );
+    const approvedAmount = parseDisputeAmount(
+      dispute.refundApproved ?? dispute.approvedRefundAmount,
+    );
+
+    if (!items.some((item) => item.kind === "outcome")) {
+      items.push({
+        id: resolutionEvent?.id ?? `outcome-${dispute.id}`,
+        date: dispute.resolvedAt ?? dispute.updatedAt,
+        title: approvedAmount
+          ? "Outcome: Refund Issued"
+          : "Outcome: Dispute resolved",
+        kind: "outcome",
+        refundedAmount: approvedAmount || undefined,
+        reason:
+          dispute.externalNotes ??
+          (resolutionEvent?.metadata?.externalNotes as string | undefined) ??
+          dispute.reasonDetail ??
+          undefined,
+        paymentNote: approvedAmount
+          ? "Funds will be returned to the buyer's original payment method within 5–7 business days."
+          : undefined,
+      });
+    }
+  }
+
+  return items;
+};
 
 const DisputeActivityItem = ({
   activity,
   currency,
 }: {
-  activity: IDisputeActivity;
+  activity: TDisputeActivityItem;
   currency?: IDisputeActivitiesProps["currency"];
 }) => {
   const [expanded, setExpanded] = useState(false);
   const currencySymbol = getCurrencySymbol(currency ?? undefined);
   const dateLabel = format(new Date(activity.date), "MMM d");
-
   const hasExpandableContent =
-    activity.expandable &&
-    (activity.body || activity.outcomeDetails);
+    activity.kind === "buyer-response" ||
+    (activity.kind === "outcome" &&
+      (activity.refundedAmount != null ||
+        activity.reason ||
+        activity.paymentNote));
 
   return (
     <li className="flex gap-3">
@@ -49,28 +117,46 @@ const DisputeActivityItem = ({
           )}
         </div>
 
-        {expanded && activity.body && (
-          <blockquote className="mt-2 border-l-2 border-gray-200 pl-3 text-sm text-muted-foreground">
-            &ldquo;{activity.body}&rdquo;
-          </blockquote>
+        {expanded && activity.kind === "buyer-response" && (
+          <div className="mt-2 space-y-2 border-l-2 border-gray-200 pl-3">
+            <blockquote className="text-sm text-muted-foreground">
+              &ldquo;{activity.message}&rdquo;
+            </blockquote>
+            {!!activity.attachments?.length && (
+              <div className="grid max-w-md grid-cols-4 gap-2">
+                {activity.attachments.map((url) => (
+                  <div
+                    key={url}
+                    className="aspect-square overflow-hidden rounded border border-gray-200 bg-gray-50"
+                  >
+                    <Image
+                      src={url}
+                      width={100}
+                      height={100}
+                      alt="Response attachment"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         )}
 
-        {expanded && activity.outcomeDetails && (
+        {expanded && activity.kind === "outcome" && (
           <div className="mt-2 space-y-2 border-l-2 border-gray-200 pl-3 text-sm text-muted-foreground">
-            {activity.outcomeDetails.refundedAmount != null && (
+            {activity.refundedAmount != null && (
               <p>
                 <span className="font-semibold text-foreground-body">
                   Refunded Amount:{" "}
                 </span>
                 {currencySymbol}
-                {formatCurrencyValue(activity.outcomeDetails.refundedAmount)}
+                {formatCurrencyValue(activity.refundedAmount)}
               </p>
             )}
-            {activity.outcomeDetails.reason && (
-              <p>{activity.outcomeDetails.reason}</p>
-            )}
-            {activity.outcomeDetails.paymentNote && (
-              <p className="text-xs">{activity.outcomeDetails.paymentNote}</p>
+            {activity.reason && <p>{activity.reason}</p>}
+            {activity.paymentNote && (
+              <p className="text-xs">{activity.paymentNote}</p>
             )}
           </div>
         )}
@@ -79,8 +165,10 @@ const DisputeActivityItem = ({
   );
 };
 
-const DisputeActivities = ({ activities, currency }: IDisputeActivitiesProps) => {
-  if (!activities?.length) return null;
+const DisputeActivities = ({ dispute, currency }: IDisputeActivitiesProps) => {
+  const activities = buildActivityItems(dispute);
+
+  if (!activities.length) return null;
 
   return (
     <div className="space-y-3">
