@@ -19,7 +19,6 @@ import { MilestoneCancellationRequestDialog } from "@/components/custom/dialog/M
 import { BuyerMilestoneIssueDialog } from "@/components/custom/dialog/BuyerMilestoneIssue";
 import {
   getActiveDisputedMilestoneIds,
-  isMilestoneDisputed,
   isMilestoneEligibleForDispute,
 } from "@/lib/dispute";
 import { useGetProjectDisputes } from "@/tanstack/hooks/useDispute";
@@ -266,15 +265,12 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
             milestone?.status === MilestoneStatus.COMPLETED ||
             milestone?.status === MilestoneStatus.REFUNDED ||
             milestone?.isCurrent;
-          const milestoneIsDisputed = isMilestoneDisputed(
-            item,
-            disputedMilestoneIds,
-          );
           const canRaiseBuyerDispute =
             !isDesigner &&
             isMilestoneEligibleForDispute(item, disputedMilestoneIds);
           const canRaiseDesignerDispute =
-            isDesigner && milestone?.isCurrent && !milestoneIsDisputed;
+            isDesigner &&
+            isMilestoneEligibleForDispute(item, disputedMilestoneIds);
           const showMilestoneActions =
             canRaiseBuyerDispute || canRaiseDesignerDispute;
 
