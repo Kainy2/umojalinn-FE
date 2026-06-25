@@ -2,7 +2,41 @@ import {
   MilestoneStatus,
   MilestoneTimelineItem,
 } from "../custom/milestone/Timeline";
-import { UmojaLinnMilestoneSubmissionStatus } from "@/types/project";
+import { UmojaLinnMilestone, UmojaLinnMilestoneSubmissionStatus } from "@/types/project";
+
+export const getMilestoneDisplayName = (
+  milestone: Pick<UmojaLinnMilestone, "title" | "deliveryMethod">,
+): string => {
+  const isDelivery = !!milestone.deliveryMethod;
+
+  if (milestone.title?.trim()) {
+    return milestone.title.trim();
+  }
+
+  if (isDelivery) {
+    return "Delivery Milestone";
+  }
+
+  return "No title";
+};
+
+export const formatMilestoneSelectLabel = (
+  milestone: UmojaLinnMilestone,
+  allMilestones: UmojaLinnMilestone[],
+): string => {
+  const isDelivery = !!milestone.deliveryMethod;
+
+  if (isDelivery) {
+    return "Delivery Milestone";
+  }
+
+  const nonDeliveryMilestones = allMilestones.filter((item) => !item.deliveryMethod);
+  const milestoneIndex = nonDeliveryMilestones.findIndex(
+    (item) => item.id === milestone.id,
+  );
+
+  return `Milestone ${milestoneIndex + 1}: ${getMilestoneDisplayName(milestone)}`;
+};
 
 export function canBuyerFundMilestone({
   isVariableDelivery,

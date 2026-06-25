@@ -16,13 +16,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MilestoneCancellationRequestDialog } from "@/components/custom/dialog/MilestoneCancellationRequest";
+import { BuyerMilestoneIssueDialog } from "@/components/custom/dialog/BuyerMilestoneIssue";
 import {
   getActiveDisputedMilestoneIds,
-  isMilestoneDisputed,
   isMilestoneEligibleForDispute,
 } from "@/lib/dispute";
 import { useGetProjectDisputes } from "@/tanstack/hooks/useDispute";
-import { TMilestoneDisputeType } from "@/types/dispute";
 import MilestoneIndicator from "./Indicator";
 import MilestonePill from "./Pill";
 import MilestoneAction, { MilestoneActionType } from "./Action";
@@ -159,7 +158,11 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
   const [cancellationMilestone, setCancellationMilestone] = useState<{
     id: string;
     title: string;
-    disputeType: TMilestoneDisputeType;
+  } | null>(null);
+  const [buyerIssueOpen, setBuyerIssueOpen] = useState(false);
+  const [buyerIssueMilestone, setBuyerIssueMilestone] = useState<{
+    id: string;
+    title: string;
   } | null>(null);
 
   const { data: projectDisputesResponse } = useGetProjectDisputes(
@@ -178,6 +181,11 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
   const handleCancellationOpenChange = (open: boolean) => {
     setCancellationOpen(open);
     if (!open) setCancellationMilestone(null);
+  };
+
+  const handleBuyerIssueOpenChange = (open: boolean) => {
+    setBuyerIssueOpen(open);
+    if (!open) setBuyerIssueMilestone(null);
   };
 
   const [editableDeliverySubmission, setEditableDeliverySubmission] =
@@ -257,15 +265,12 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
             milestone?.status === MilestoneStatus.COMPLETED ||
             milestone?.status === MilestoneStatus.REFUNDED ||
             milestone?.isCurrent;
-          const milestoneIsDisputed = isMilestoneDisputed(
-            item,
-            disputedMilestoneIds,
-          );
           const canRaiseBuyerDispute =
             !isDesigner &&
             isMilestoneEligibleForDispute(item, disputedMilestoneIds);
           const canRaiseDesignerDispute =
-            isDesigner && milestone?.isCurrent && !milestoneIsDisputed;
+            isDesigner &&
+            isMilestoneEligibleForDispute(item, disputedMilestoneIds);
           const showMilestoneActions =
             canRaiseBuyerDispute || canRaiseDesignerDispute;
 
@@ -303,7 +308,6 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                             setCancellationMilestone({
                               id: milestone.id,
                               title: milestone.title,
-                              disputeType: "DESIGNER_CANCELLATION_REQUEST",
                             });
                             window.setTimeout(
                               () => setCancellationOpen(true),
@@ -319,19 +323,15 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                         <DropdownMenuItem
                           className="cursor-pointer gap-1 text-[#B54708]"
                           onSelect={() => {
-                            setCancellationMilestone({
+                            setBuyerIssueMilestone({
                               id: milestone.id,
                               title: milestone.title,
-                              disputeType: "BUYER_ISSUE",
                             });
-                            window.setTimeout(
-                              () => setCancellationOpen(true),
-                              0,
-                            );
+                            window.setTimeout(() => setBuyerIssueOpen(true), 0);
                           }}
                         >
                           <ClipboardSearch />
-                          Cancel Milestone
+                          Raise an issue
                         </DropdownMenuItem>
                       )}
                     </DropdownMenuContent>
@@ -540,9 +540,17 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
           milestoneName={cancellationMilestone.title}
           escrowAmount={escrowBalance ?? 0}
           currency={currency}
-          disputeType={cancellationMilestone.disputeType}
           open={cancellationOpen}
           onOpenChange={handleCancellationOpenChange}
+        />
+      )}
+      {buyerIssueMilestone && (
+        <BuyerMilestoneIssueDialog
+          milestoneId={buyerIssueMilestone.id}
+          projectName={projectName ?? "Project"}
+          milestoneName={buyerIssueMilestone.title}
+          open={buyerIssueOpen}
+          onOpenChange={handleBuyerIssueOpenChange}
         />
       )}
     </>
