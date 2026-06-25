@@ -45,7 +45,8 @@ const isWorkValid = (work: WorkEntry) => {
   return (
     work.images.length > 0 &&
     work.images.some((img) => img.isCoverImage) &&
-    work.images.every((img) => img.description.trim().length > 0) &&
+    // Make description optional
+    // work.images.every((img) => img.description.trim().length > 0) &&
     work.selectedClothingTypes.length > 0
   );
 };
@@ -255,15 +256,6 @@ const ShareYourWorkForm = () => {
               <div className="flex flex-col gap-8 mb-8">
                 {preview.map((value, imageIndex) => (
                   <div key={value.id} className="flex flex-col gap-4">
-                    <div className="grid w-full gap-1.5">
-                      <TextField
-                        value={value.description}
-                        onChange={handleDescriptionChange(work.localId, imageIndex)}
-                        maxLength={500}
-                        hint={`${value?.description?.length || 0}/500 characters`}
-                      />
-                    </div>
-
                     <div>
                       <div className="relative h-52 mb-4">
                         <Image
@@ -296,6 +288,15 @@ const ShareYourWorkForm = () => {
                         </RadioGroup>
                       </div>
                     </div>
+
+                    <div className="grid w-full gap-1.5">
+                      <TextField
+                        value={value.description}
+                        onChange={handleDescriptionChange(work.localId, imageIndex)}
+                        maxLength={500}
+                        hint={`${value?.description?.length || 0}/500 characters`}
+                      />
+                    </div>
                   </div>
                 ))}
 
@@ -305,6 +306,13 @@ const ShareYourWorkForm = () => {
                     work.images.length >= 8 && "hidden",
                   )}
                 >
+                  <FileUploadPicker
+                    className="w-full"
+                    accept="image/*"
+                    onSelect={(file) => {
+                      if (file) handleFileSelect(work.localId, file as File);
+                    }}
+                  />
                   <TextField
                     maxLength={500}
                     value={entryTitles[work.localId] ?? ""}
@@ -315,13 +323,6 @@ const ShareYourWorkForm = () => {
                       }))
                     }
                     hint={`${entryTitles[work.localId]?.length || 0} / 500 characters`}
-                  />
-                  <FileUploadPicker
-                    className="w-full"
-                    accept="image/*"
-                    onSelect={(file) => {
-                      if (file) handleFileSelect(work.localId, file as File);
-                    }}
                   />
                 </div>
               </div>
@@ -339,7 +340,7 @@ const ShareYourWorkForm = () => {
         );
       })}
 
-      <div className="mb-8">
+      <div className="my-8">
         <Button
           type="button"
           variant="ghost"
@@ -347,7 +348,7 @@ const ShareYourWorkForm = () => {
           onClick={handleAddWork}
         >
           <Plus className="h-4 w-4 mr-2" />
-          Add another work
+            Add More Work
         </Button>
       </div>
 

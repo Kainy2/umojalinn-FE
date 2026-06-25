@@ -55,7 +55,7 @@ const PortfolioItem = ({ work }: PortfolioItemProps) => {
           </div>
           <div className="flex flex-wrap gap-2">
             {work.clothingTypes.map((type) => (
-              <Badge key={type.id} variant="outline">
+              <Badge key={type.id} variant="outline" className="bg-primary text-white">
                 {type.name}
               </Badge>
             ))}
