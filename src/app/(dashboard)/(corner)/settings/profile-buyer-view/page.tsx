@@ -3,9 +3,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import DesignerProfileView from "@/section/dashboard/profile/DesignerProfileView";
 import { useGetDesignerProfile } from "@/tanstack/hooks/useProject";
-import { useGetMe } from "@/tanstack/hooks/useUser";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import React from "react";
+import { useSession } from "next-auth/react";
 
 const LoadingSkeleton = () => (
   <div className="flex flex-col gap-6">
@@ -33,14 +33,16 @@ const LoadingSkeleton = () => (
 );
 
 const BuyerViewPage = () => {
-  const { data: meData, isPending: loadingMe } = useGetMe();
-  const designerProfileId = meData?.data?.data?.designerProfile?.id
-    ? uuidToBase62Safe(meData.data.data.designerProfile.id)
+  const { data: session, status} = useSession()
+
+  const designerProfileId = session?.user?.id
+    ? uuidToBase62Safe(session.user.id)
     : undefined;
+
   const { data, isPending } = useGetDesignerProfile(designerProfileId);
   const designer = data?.data?.data;
 
-  if (loadingMe || isPending) return <LoadingSkeleton />;
+  if (status === "loading" || isPending) return <LoadingSkeleton />;
   if (!designer) return null;
 
   return <DesignerProfileView designer={designer} />;
