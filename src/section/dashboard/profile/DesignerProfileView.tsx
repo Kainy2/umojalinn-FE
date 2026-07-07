@@ -16,6 +16,13 @@ import WorkHistoryItem from "./WorkHistoryItem";
 
 const ABOUT_TRUNCATE_LENGTH = 200;
 
+const EXPERIENCE_LEVEL_LABELS: Record<string, string> = {
+  ONE_TO_TWO_YEARS: "1 - 2 Years",
+  THREE_TO_FIVE_YEARS: "3 - 5 Years",
+  SIX_TO_EIGHT_YEARS: "6 - 8 Years",
+  NINE_PLUS_YEARS: "9+ Years",
+};
+
 type DesignerProfileViewProps = {
   designer: UmojaLinnDesignerProfile;
 };
@@ -39,13 +46,7 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
       ? aboutText.slice(0, ABOUT_TRUNCATE_LENGTH) + "..."
       : aboutText;
 
-  const avgRating =
-    designer.reviews.length > 0
-      ? Math.round(
-          designer.reviews.reduce((sum, r) => sum + r.rating, 0) /
-            designer.reviews.length,
-        )
-      : 0;
+  const avgRating = designer.averageRating ?? 0;
 
   const currency: UmojaLinnCurrency =
     (designer.projects as UmojaLinnProject[])?.[0]?.currency ?? "NAIRA";
@@ -62,7 +63,7 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
     { label: "Total Earnings", value: (getCurrencySymbol(currency) ?? "") + totalEarnings },
     { label: "Total Jobs", value: designer.projects.length },
     { label: "Success rate", value: "N/A" },
-    { label: "Years of Experience", value: designer.experienceLevel?.replace("_", "") || "N/A" },
+    { label: "Years of Experience", value: EXPERIENCE_LEVEL_LABELS[designer.experienceLevel ?? ""] ?? designer.experienceLevel ?? "N/A" },
     { label: "Reviews", value: designer.reviews.length },
   ];
 
