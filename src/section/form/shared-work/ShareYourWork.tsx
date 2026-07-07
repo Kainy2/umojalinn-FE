@@ -195,15 +195,15 @@ const ShareYourWorkForm = () => {
       const formData = new FormData();
       works.forEach((work, wi) => {
         work.images.forEach(({ image }) => {
-          formData.append(`works[${wi}][images]`, image as File);
+          formData.append(`[${wi}][images]`, image as File);
         });
         work.images.forEach(({ description, fileName, isCoverImage }, mi) => {
-          formData.append(`works[${wi}][imagesMeta][${mi}][description]`, description);
-          formData.append(`works[${wi}][imagesMeta][${mi}][fileName]`, fileName);
-          formData.append(`works[${wi}][imagesMeta][${mi}][isCoverImage]`, String(isCoverImage));
+          formData.append(`[${wi}][imagesMeta][${mi}][description]`, description);
+          formData.append(`[${wi}][imagesMeta][${mi}][fileName]`, fileName);
+          formData.append(`[${wi}][imagesMeta][${mi}][isCoverImage]`, String(isCoverImage));
         });
         work.selectedClothingTypes.forEach((typeId, ti) => {
-          formData.append(`works[${wi}][clothingTypes][${ti}]`, typeId);
+          formData.append(`[${wi}][clothingTypes][${ti}]`, typeId);
         });
       });
 

@@ -87,6 +87,7 @@ export type UmojaLinnDesignerProfile = {
   isAvailable: boolean;
   about: string | null;
   experienceLevel: string | null;
+  averageRating: number;
   profileStrength: number;
   createdAt: string;
   updatedAt: string;

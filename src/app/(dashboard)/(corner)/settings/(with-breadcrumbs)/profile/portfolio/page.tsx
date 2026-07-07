@@ -24,8 +24,8 @@ const SettingsProfilePortfolioPage = () => {
 
   // Designer branch — fetch profile which includes designerSharedWork
   const { data: meData, isPending: isGettingMe } = useGetMe({ enabled: isDesigner });
-  const designerProfileId = meData?.data?.data?.designerProfile?.id
-    ? uuidToBase62Safe(meData.data.data.designerProfile.id)
+  const designerProfileId = meData?.data?.data?.designerProfile?.userId
+    ? uuidToBase62Safe(meData.data.data.designerProfile.userId)
     : undefined;
   const { data: designerProfileData, isPending: isGettingDesignerProfile } =
     useGetDesignerProfile(designerProfileId);
