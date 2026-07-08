@@ -104,6 +104,12 @@ const BidPage = () => {
           loadingSave={isPendingUpdateBid || isPendingCreateBid}
           key={index}
           view={index !== editing || !editMode}
+          tourMilestoneFieldsTargetId={
+            index === 0 ? "tour-create-bid-milestone-fields" : undefined
+          }
+          tourPaymentTargetId={
+            index === 0 ? "tour-create-bid-milestone-payment" : undefined
+          }
           {...milestone}
           onEdit={handleToggle(index)}
           currency={project?.currency || null}
@@ -120,7 +126,7 @@ const BidPage = () => {
         </button>
       )}
 
-      <div className="card p-8">
+      <div id="tour-create-bid-delivery-milestone" className="card p-8">
         <div className="text-gray-400">
           <h3 className="mb-2 font-semibold  text-subtitle-1">
             Delivery Milestone
@@ -228,6 +234,7 @@ const BidPage = () => {
               </Button>
             )}
             <Button
+              id="tour-create-bid-submit"
               variant="default"
               loading={isUpdatingBid || isSubmittingBid}
               onClick={() => handleUpdate("LIVE")}

@@ -8,6 +8,7 @@ import { getBidJobTileProgress, getCoverImage, getProjectJobTileProgress } from 
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { useGetDesignerBids } from "@/tanstack/hooks/useBid";
 import { useGetAllDesignerProject } from "@/tanstack/hooks/useProject";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { useCallback, useMemo, useState } from "react";
 import type { UmojaLinnBid } from "@/types/project";
 
@@ -23,6 +24,7 @@ type OptionsType = (typeof options)[number];
 const DashboardPage = () => {
   const [mobileSelection, setMobileSelection] =
     useState<OptionsType>("MY_ACTIVE_JOBS");
+  const isDesktop = useMediaQuery("md");
 
   // const { data: myBids, isPending: isLoadingMyBids } = useGetDesignerBids({
   //   bidStatus: ["PENDING", "REJECTED"],
@@ -152,12 +154,17 @@ const DashboardPage = () => {
     [draftBidData?.data?.data, myBidsDataWithoutDraft?.data?.data],
   );
 
-  const myActiveJobsContent = useMemo(
-    () => (
+  const getMyActiveJobsContent = useCallback(
+    (withTourTarget: boolean) => (
       <>
-        {liveProjectsData?.data?.data?.map((job) => (
+        {liveProjectsData?.data?.data?.map((job, index) => (
           <JobCard
             key={job?.id}
+            id={
+              withTourTarget && index === 0
+                ? "tour-active-project-card"
+                : undefined
+            }
             isPrivate={job.projectType === "PRIVATE"}
             name={job?.title || "No title"}
             href={`/active-jobs/${uuidToBase62Safe(job?.id)}`}
@@ -233,7 +240,7 @@ const DashboardPage = () => {
       case "CLOSED_BIDS":
         return closedBidsContent;
       case "MY_ACTIVE_JOBS":
-        return myActiveJobsContent;
+        return getMyActiveJobsContent(!isDesktop);
       case "MY_COMPLETED_JOBS":
         return myCompleteJobsContent;
       case "MY_BIDS":
@@ -242,8 +249,9 @@ const DashboardPage = () => {
     }
   }, [
     closedBidsContent,
+    getMyActiveJobsContent,
+    isDesktop,
     mobileSelection,
-    myActiveJobsContent,
     myBidsContent,
     myCompleteJobsContent,
   ]);
@@ -308,6 +316,11 @@ const DashboardPage = () => {
           optionKeys={[...options]}
           options={options.map((option) => holderProps(option))}
           onSelect={(tab) => setMobileSelection(tab as OptionsType)}
+          tourTargetId={
+            !isDesktop && mobileSelection === "MY_ACTIVE_JOBS"
+              ? "tour-active-project-jobs-column"
+              : undefined
+          }
         >
           {mobileSelectedContent}
         </CustomCardHolder>
@@ -316,8 +329,13 @@ const DashboardPage = () => {
         <CustomCardHolder {...holderProps("MY_BIDS")}>
           {myBidsContent}
         </CustomCardHolder>
-        <CustomCardHolder {...holderProps("MY_ACTIVE_JOBS")}>
-          {myActiveJobsContent}
+        <CustomCardHolder
+          {...holderProps("MY_ACTIVE_JOBS")}
+          tourTargetId={
+            isDesktop ? "tour-active-project-jobs-column" : undefined
+          }
+        >
+          {getMyActiveJobsContent(isDesktop)}
         </CustomCardHolder>
         <CustomCardHolder {...holderProps("MY_COMPLETED_JOBS")}>
           {myCompleteJobsContent}

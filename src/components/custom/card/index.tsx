@@ -16,6 +16,7 @@ export type CustomCardProps = {
   preDescription?: React.ReactElement;
   action?: React.ReactElement;
   color?: string;
+  id?: string;
   onClick?:
     | ComponentProps<"button">["onClick"]
     | ComponentProps<"a">["onClick"];
@@ -31,6 +32,7 @@ const CustomCardWrapper = (props: {
   img?: string;
   blurred?: boolean;
   disabled?: boolean;
+  id?: string;
   wrapperRef?:
     | React.RefObject<HTMLAnchorElement>
     | React.RefObject<HTMLButtonElement>;
@@ -39,6 +41,7 @@ const CustomCardWrapper = (props: {
     return (
       <Link
         ref={props.wrapperRef as React.RefObject<HTMLAnchorElement>}
+        id={props.id}
         style={
           props.img
             ? {
@@ -60,6 +63,7 @@ const CustomCardWrapper = (props: {
   return (
     <button
       ref={props.wrapperRef as React.RefObject<HTMLButtonElement>}
+      id={props.id}
       style={
         props.img
           ? {
@@ -106,6 +110,7 @@ const CustomCard = (props: CustomCardProps) => {
         disabled={props.disabled}
         img={props.img}
         href={props.href}
+        id={props.id}
         onClick={props.onClick as ComponentProps<"a">["onClick"]}
         className={cn(
           "relative h-28 min-w-80 flex p-12 items-center justify-center border-b-2 border-gray-400 bg-gray-100",
@@ -132,6 +137,7 @@ const CustomCard = (props: CustomCardProps) => {
       blurred={props.blurred}
       disabled={props.disabled}
       href={props.href}
+      id={props.id}
       onClick={props.onClick}
       className="bg-white p-4 text-left"
     >

@@ -1,6 +1,7 @@
 "use client";
 import MilestoneTimeline from "@/components/custom/milestone/Timeline";
 import { MeasurementPointsReminderBanner } from "@/components/sizing-template";
+import TourReadyMarker from "@/components/tour/TourReadyMarker";
 import EscrowCard from "@/section/dashboard/project/active/EscrowCard";
 import {
   useGetProjectById,
@@ -52,9 +53,12 @@ const ActiveJobsPage = () => {
     isLoadingSizingTemplate
   )
     return (
-      <div className="h-[30vh] flex items-center justify-center text-muted-foreground text-sm">
-        <span>Loading...</span>
-      </div>
+      <>
+        <TourReadyMarker ready={false} />
+        <div className="h-[30vh] flex items-center justify-center text-muted-foreground text-sm">
+          <span>Loading...</span>
+        </div>
+      </>
     );
 
   // for buyer, Show banner to buyer to be able to remind designer to send measurement point fields
@@ -77,7 +81,9 @@ const ActiveJobsPage = () => {
     !hasMeasurementPointsSubmitted;
 
   return (
-    <div className="flex flex-col mt-4 lg:mt-0">
+    <>
+      <TourReadyMarker ready />
+      <div className="flex flex-col mt-4 lg:mt-0">
       {/* Reminder Banner - shown when measurement points haven't been requested */}
       {(showRequestPointsBanner || isAwaitingMeasurementPointsValues) && (
         <MeasurementPointsReminderBanner
@@ -118,6 +124,7 @@ const ActiveJobsPage = () => {
         </aside>
       </div>
     </div>
+    </>
   );
 };
 

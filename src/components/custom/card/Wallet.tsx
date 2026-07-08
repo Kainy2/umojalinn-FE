@@ -124,11 +124,12 @@ const WalletCard = (props: IWalletCardProps) => {
 
   return (
     <div
+      id="tour-wallet-balance"
       className={`border border-input rounded-lg w-full bg-white relative overflow-hidden ${currencyDisputeSummary?.restricted ? "border-b border-[#FDE272]" : ""}`}
     >
       <div className="px-2 py-4 lg:p-8">
         <div className="flex justify-between items-start lg:mb-6">
-          <div className="flex items-center gap-2">
+          <div id="tour-wallet-currency-select" className="flex items-center gap-2">
             <h2 className="text-gray-600 text-sm">
               Available {currentOption?.name} Balance
             </h2>
@@ -155,48 +156,51 @@ const WalletCard = (props: IWalletCardProps) => {
               options={currencyOptions}
             />
           </div>
-          {!noAction &&
-            (showLinkAccount ? (
-              <Button
-                variant="outline"
-                className="text-error border-error hover:bg-error/5 hover:text-error gap-2 rounded-md hidden lg:flex"
-                onClick={onLinkStripe}
-                disabled={isLinkingStripe}
-              >
-                {isLinkingStripe ? "Connecting..." : getStripeLinkLabel()}
-              </Button>
-            ) : showAddAccount ? (
-              <Button
-                asChild
-                variant="outline"
-                className="text-error border-error hover:bg-error/5 hover:text-error gap-2 rounded-md hidden lg:flex"
-              >
-                <Link
-                  href={`/wallet/withdraw/${currentOption?.name.toLowerCase()}`}
+          {!noAction && (
+            <div id="tour-wallet-link-account" className="hidden lg:flex">
+              {showLinkAccount ? (
+                <Button
+                  variant="outline"
+                  className="text-error border-error hover:bg-error/5 hover:text-error gap-2 rounded-md"
+                  onClick={onLinkStripe}
+                  disabled={isLinkingStripe}
                 >
-                  Add Account <ArrowRight className="size-4" />
-                </Link>
-              </Button>
-            ) : isWithdrawalRestricted ? (
-              <Button
-                variant="outline"
-                className="text-error border-error hover:bg-error/5 hover:text-error gap-2 rounded-md hidden lg:flex"
-                disabled
-              >
-                Withdrawals restricted
-              </Button>
-            ) : (
-              <Button
-                asChild
-                className="bg-[#E6AB00] text-white gap-2 rounded-md hidden lg:flex"
-              >
-                <Link
-                  href={`/wallet/withdraw/${currentOption?.name.toLowerCase()}`}
+                  {isLinkingStripe ? "Connecting..." : getStripeLinkLabel()}
+                </Button>
+              ) : showAddAccount ? (
+                <Button
+                  asChild
+                  variant="outline"
+                  className="text-error border-error hover:bg-error/5 hover:text-error gap-2 rounded-md"
                 >
-                  Withdraw <Upload className="size-4" />
-                </Link>
-              </Button>
-            ))}
+                  <Link
+                    href={`/wallet/withdraw/${currentOption?.name.toLowerCase()}`}
+                  >
+                    Add Account <ArrowRight className="size-4" />
+                  </Link>
+                </Button>
+              ) : isWithdrawalRestricted ? (
+                <Button
+                  variant="outline"
+                  className="text-error border-error hover:bg-error/5 hover:text-error gap-2 rounded-md"
+                  disabled
+                >
+                  Withdrawals restricted
+                </Button>
+              ) : (
+                <Button
+                  asChild
+                  className="bg-[#E6AB00] text-white gap-2 rounded-md"
+                >
+                  <Link
+                    href={`/wallet/withdraw/${currentOption?.name.toLowerCase()}`}
+                  >
+                    Withdraw <Upload className="size-4" />
+                  </Link>
+                </Button>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="flex items-center lg:justify-normal justify-between gap-4 lg:mb-4">
@@ -236,48 +240,51 @@ const WalletCard = (props: IWalletCardProps) => {
           </div>
         )}
 
-        {!noAction &&
-          (showLinkAccount ? (
-            <Button
-              variant="outline"
-              className="text-error border-error hover:bg-error/5 hover:text-error gap-2 lg:hidden w-full mt-4"
-              onClick={onLinkStripe}
-              disabled={isLinkingStripe}
-            >
-              {isLinkingStripe ? "Connecting..." : getStripeLinkLabel()}
-            </Button>
-          ) : showAddAccount ? (
-            <Button
-              asChild
-              variant="outline"
-              className="text-error border-error hover:bg-error/5 hover:text-error gap-2 lg:hidden w-full mt-4"
-            >
-              <Link
-                href={`/wallet/withdraw/${currentOption?.name.toLowerCase()}`}
+        {!noAction && (
+          <div className="lg:hidden w-full mt-4">
+            {showLinkAccount ? (
+              <Button
+                variant="outline"
+                className="text-error border-error hover:bg-error/5 hover:text-error gap-2 w-full"
+                onClick={onLinkStripe}
+                disabled={isLinkingStripe}
               >
-                Add Account <ArrowRight className="size-4" />
-              </Link>
-            </Button>
-          ) : isWithdrawalRestricted ? (
-            <Button
-              variant="outline"
-              className="text-error border-error hover:bg-error/5 hover:text-error gap-2 lg:hidden w-full mt-4"
-              disabled
-            >
-              Withdrawals restricted
-            </Button>
-          ) : (
-            <Button
-              asChild
-              className="bg-[#E6AB00] text-white gap-2 lg:hidden w-full mt-4"
-            >
-              <Link
-                href={`/wallet/withdraw/${currentOption?.name.toLowerCase()}`}
+                {isLinkingStripe ? "Connecting..." : getStripeLinkLabel()}
+              </Button>
+            ) : showAddAccount ? (
+              <Button
+                asChild
+                variant="outline"
+                className="text-error border-error hover:bg-error/5 hover:text-error gap-2 w-full"
               >
-                Withdraw <Upload className="size-4" />
-              </Link>
-            </Button>
-          ))}
+                <Link
+                  href={`/wallet/withdraw/${currentOption?.name.toLowerCase()}`}
+                >
+                  Add Account <ArrowRight className="size-4" />
+                </Link>
+              </Button>
+            ) : isWithdrawalRestricted ? (
+              <Button
+                variant="outline"
+                className="text-error border-error hover:bg-error/5 hover:text-error gap-2 w-full"
+                disabled
+              >
+                Withdrawals restricted
+              </Button>
+            ) : (
+              <Button
+                asChild
+                className="bg-[#E6AB00] text-white gap-2 w-full"
+              >
+                <Link
+                  href={`/wallet/withdraw/${currentOption?.name.toLowerCase()}`}
+                >
+                  Withdraw <Upload className="size-4" />
+                </Link>
+              </Button>
+            )}
+          </div>
+        )}
       </div>
 
       {lockedAmount > 0 && (

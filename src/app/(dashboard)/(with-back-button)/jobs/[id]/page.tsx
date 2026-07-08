@@ -119,6 +119,7 @@ const JobPage = () => {
             {!project?.bids?.length &&
               session?.user?.profileRole === "DESIGNER" && (
                 <Button
+                  id="tour-create-bid-button"
                   variant="default"
                   onClick={() => createBid(id)}
                   loading={isCreatingBid}

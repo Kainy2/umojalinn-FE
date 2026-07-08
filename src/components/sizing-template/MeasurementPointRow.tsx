@@ -49,6 +49,10 @@ type MeasurementPointRowProps = {
   isNewlyUpdated?: boolean; // When buyer has replied and designer is viewing the updated changes for the first time
   isDesigner?: boolean;
   hideValue?: boolean; // Hide the numeric value (e.g. designer view of a requested point the buyer has not yet submitted)
+  rootId?: string; // Stable DOM id on the row root (used to anchor guided tours)
+  addCommentButtonId?: string; // Stable DOM id on the add-comment action (guided tours)
+  deleteButtonId?: string; // Stable DOM id on the delete-comment action (guided tours)
+  forceShowActions?: boolean; // Render the recommend-mode action icons even when unselected (guided tours)
 };
 
 const MeasurementPointRow = forwardRef<
@@ -79,7 +83,7 @@ const MeasurementPointRow = forwardRef<
   };
 
   return (
-    <div className="flex items-center">
+    <div id={props.rootId} className="flex items-center">
       <div
         role="button"
         onClick={props.onClick}
@@ -183,7 +187,7 @@ const MeasurementPointRow = forwardRef<
         </div>
       </div>
       {/* Recommend Mode Actions */}
-      {props.recommendMode && props.selected && (
+      {props.recommendMode && (props.selected || props.forceShowActions) && (
         <div
           className="border border-primary p-2 rounded-lg transition-all flex items-center gap-2 animate-in fade-in slide-in-from-right-2 duration-300 bg-primary/50"
           onClick={(e) => e.stopPropagation()}
@@ -199,6 +203,7 @@ const MeasurementPointRow = forwardRef<
               onOpenChange={setShowAddCommentModal}
             >
               <button
+                id={props.addCommentButtonId}
                 onClick={handleCommentClick}
                 className="size-8 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-all duration-200 hover:scale-110"
               >
@@ -206,40 +211,42 @@ const MeasurementPointRow = forwardRef<
               </button>
             </AddCommentModal>
           ) : (
-            <>
-              <AddCommentModal
-                measurementName={props.label}
-                initialComment={props.comment}
-                onSubmit={(comment) => {
-                  props.onAddComment?.(comment);
-                  setShowAddCommentModal(false);
-                }}
-                open={showAddCommentModal}
-                onOpenChange={setShowAddCommentModal}
+            <AddCommentModal
+              measurementName={props.label}
+              initialComment={props.comment}
+              onSubmit={(comment) => {
+                props.onAddComment?.(comment);
+                setShowAddCommentModal(false);
+              }}
+              open={showAddCommentModal}
+              onOpenChange={setShowAddCommentModal}
+            >
+              <button
+                id={props.addCommentButtonId}
+                onClick={handleCommentClick}
+                className="size-8 rounded-full flex items-center justify-center bg-yellow-50 hover:bg-yellow-100 transition-all duration-200 hover:scale-110"
               >
-                <button
-                  onClick={handleCommentClick}
-                  className="size-8 rounded-full flex items-center justify-center bg-yellow-50 hover:bg-yellow-100 transition-all duration-200 hover:scale-110"
-                >
-                  <MessageCircle className="size-4 text-primary" />
-                </button>
-              </AddCommentModal>
-              <DeleteCommentModal
-                onConfirm={() => {
-                  props.onDeleteComment?.();
-                  setShowDeleteCommentModal(false);
-                }}
-                open={showDeleteCommentModal}
-                onOpenChange={setShowDeleteCommentModal}
+                <MessageCircle className="size-4 text-primary" />
+              </button>
+            </AddCommentModal>
+          )}
+          {(props.hasComment || props.forceShowActions) && (
+            <DeleteCommentModal
+              onConfirm={() => {
+                props.onDeleteComment?.();
+                setShowDeleteCommentModal(false);
+              }}
+              open={showDeleteCommentModal}
+              onOpenChange={setShowDeleteCommentModal}
+            >
+              <button
+                id={props.deleteButtonId}
+                onClick={handleDeleteClick}
+                className="size-8 rounded-full bg-yellow-50 flex items-center justify-center hover:bg-yellow-100 transition-all duration-200 hover:scale-110"
               >
-                <button
-                  onClick={handleDeleteClick}
-                  className="size-8 rounded-full bg-yellow-50 flex items-center justify-center hover:bg-yellow-100 transition-all duration-200 hover:scale-110"
-                >
-                  <Trash2 className="size-4 text-primary" />
-                </button>
-              </DeleteCommentModal>
-            </>
+                <Trash2 className="size-4 text-primary" />
+              </button>
+            </DeleteCommentModal>
           )}
         </div>
       )}

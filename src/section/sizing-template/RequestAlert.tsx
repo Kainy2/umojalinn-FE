@@ -47,6 +47,7 @@ import {
 } from "@/lib/sizing-template-utils";
 import OppositeGenderSizingWarning from "@/components/custom/dialog/OppositeGenderSizingWarning";
 import { FREE_TEMPLATE_LIMIT } from "@/types/constants";
+import ReviewBidSizingTemplatePlaceholder from "@/components/tour/ReviewBidSizingTemplatePlaceholder";
 
 const RequestSizingTemplateAlert = () => {
   // id here is bid id
@@ -234,7 +235,10 @@ const RequestSizingTemplateAlert = () => {
   // DESIGNER VIEW
   if (bid && project?.id && !project?.sizingTemplateId && isDesigner) {
     return (
-      <div className="flex flex-col lg:flex-row p-3 border rounded-md gap-2 border-yellow-200 bg-yellow-50 lg:items-center mb-8 animate-in fade-in duration-300">
+      <div
+        id="tour-create-bid-sizing-template"
+        className="flex flex-col lg:flex-row p-3 border rounded-md gap-2 border-yellow-200 bg-yellow-50 lg:items-center mb-8 animate-in fade-in duration-300"
+      >
         <span className="size-8 shrink-0 rounded-full bg-yellow-100 text-error flex items-center justify-center">
           <NotificationBox />
         </span>
@@ -270,7 +274,10 @@ const RequestSizingTemplateAlert = () => {
   ) {
     return (
       <>
-        <div className="flex flex-col lg:flex-row p-3 border rounded-md gap-3 border-yellow-200 bg-yellow-50 lg:items-center mb-8 animate-in fade-in duration-300">
+        <div
+          id="tour-review-bid-sizing-template"
+          className="flex flex-col lg:flex-row p-3 border rounded-md gap-3 border-yellow-200 bg-yellow-50 lg:items-center mb-8 animate-in fade-in duration-300"
+        >
           <span className="size-8 shrink-0 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center">
             <NotificationBox />
           </span>
@@ -445,7 +452,7 @@ const RequestSizingTemplateAlert = () => {
     );
   }
 
-  return null;
+  return <ReviewBidSizingTemplatePlaceholder />;
 };
 
 export default RequestSizingTemplateAlert;

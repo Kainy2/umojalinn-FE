@@ -31,6 +31,7 @@ import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import React, { useState } from "react";
 import HeightAndSizeModal from "@/components/sizing-template/HeightAndSizeModal";
+import ReviewBidDesignerNotePlaceholder from "@/components/tour/ReviewBidDesignerNotePlaceholder";
 import { UmojaLinnSizingTemplate, UmojalinnStandardSize } from "@/types/project";
 import { DEFAULT_HEIGHT, DEFAULT_UNIT } from "@/constant";
 
@@ -202,34 +203,40 @@ const IndividualBidPage = () => {
   return (
     <div className="flex flex-col gap-4">
       {/* Designer/Buyer Notes */}
-      {note && (
-        <Alert
-          title={session?.user?.profileRole === "BUYER" ? "Designer's Note" : "Buyer's Note"}
-          message={note || ""}
-          type="error"
-        />
+      {note ? (
+        <div id="tour-review-bid-designer-note">
+          <Alert
+            title={session?.user?.profileRole === "BUYER" ? "Designer's Note" : "Buyer's Note"}
+            message={note || ""}
+            type="error"
+          />
+        </div>
+      ) : (
+        <ReviewBidDesignerNotePlaceholder />
       )}
 
       {/* Milestones */}
-      {bid?.milestones?.map((milestone, index) => (
-        <div className="card p-8" key={index}>
-          <div className="flex gap-1 items-center mb-2 text-subtitle-2">
-            <PragraphSpacing />
-            <h3 className="leading-none font-semibold">{milestone?.title}</h3>
+      <div id="tour-review-bid-milestones" className="flex flex-col gap-4">
+        {bid?.milestones?.map((milestone, index) => (
+          <div className="card p-8" key={index}>
+            <div className="flex gap-1 items-center mb-2 text-subtitle-2">
+              <PragraphSpacing />
+              <h3 className="leading-none font-semibold">{milestone?.title}</h3>
+            </div>
+            <p className="text-sm mb-4">{milestone?.description}</p>
+            <div className="text-subtitle-2 font-semibold flex justify-between">
+              <p>Milestone payment</p>
+              <p>
+                {getCurrencySymbol(bid?.project?.currency)}
+                {formatCurrencyValue(milestone?.amount)}
+              </p>
+            </div>
           </div>
-          <p className="text-sm mb-4">{milestone?.description}</p>
-          <div className="text-subtitle-2 font-semibold flex justify-between">
-            <p>Milestone payment</p>
-            <p>
-              {getCurrencySymbol(bid?.project?.currency)}
-              {formatCurrencyValue(milestone?.amount)}
-            </p>
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
 
       {/* Delivery Milestone */}
-      <div className="card p-8">
+      <div className="card p-8" id="tour-review-bid-delivery-milestone">
         <div className="text-gray-400">
           <h3 className="mb-2 font-semibold text-subtitle-1">Delivery Milestone</h3>
           <h3 className="mb-2 font-semibold">
@@ -252,7 +259,10 @@ const IndividualBidPage = () => {
       </div>
 
       {/* Budget */}
-      <p className="text-subtitle-2 font-semibold text-foreground text-right mt-8">
+      <p
+        id="tour-review-bid-budget"
+        className="text-subtitle-2 font-semibold text-foreground text-right mt-8"
+      >
         <span className="text-foreground-body">Budget</span> {getCurrencySymbol(bid?.project?.currency)}
         {formatCurrencyValue(bid?.amount)}
       </p>
@@ -261,9 +271,13 @@ const IndividualBidPage = () => {
       {isBuyerAndPending && (
         <>
           <Separator />
-          <div className="flex gap-4 justify-end">
+          <div id="tour-review-bid-accept" className="flex gap-4 justify-end">
             <RejectButton bidId={id} />
-            <Button variant="success" loading={isProcessing} onClick={handleAcceptProposal}>
+            <Button
+              variant="success"
+              loading={isProcessing}
+              onClick={handleAcceptProposal}
+            >
               Accept proposal
             </Button>
           </div>

@@ -237,7 +237,11 @@ const SelectModeView = ({
               </div>
 
               {/* Measurement Points with Checkboxes */}
-              <div className="flex flex-col gap-2">
+              <div id="tour-sizing-template-measurement-points">
+              <div
+                id="tour-create-bid-measurement-points"
+                className="flex flex-col gap-2"
+              >
                 {!hasTemplate && (
                   <>
                     <DisabledTemplateItems title={gender} />
@@ -318,6 +322,7 @@ const SelectModeView = ({
                     );
                   })}
               </div>
+              </div>
 
               {/* Mobile Actions */}
               <div className="lg:hidden flex gap-3 mt-6 animate-in fade-in duration-300">
@@ -343,7 +348,10 @@ const SelectModeView = ({
 
           {/* Right Column - Preview */}
           <div className="md:block hidden">
-            <div className="sticky top-0 flex flex-col gap-4">
+            <div
+              id="tour-sizing-template-visual-reference"
+              className="sticky top-0 flex flex-col gap-4"
+            >
               {previewName && (
                 <h3 className="text-lg font-semibold text-foreground-body animate-in fade-in duration-200">
                   {previewName}

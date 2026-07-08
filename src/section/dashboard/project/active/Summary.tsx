@@ -64,7 +64,10 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
     });
 
   const project = data?.data?.data;
-  const milestones = milestonesData?.data?.data ?? [];
+  const milestones = useMemo(
+    () => milestonesData?.data?.data ?? [],
+    [milestonesData?.data?.data],
+  );
   const milestoneOptions = useMemo(
     () =>
       milestones.map((milestone) => ({
@@ -144,7 +147,7 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
     return "";
   }
   return (
-    <div className="flex flex-col">
+    <div id="tour-active-project-summary" className="flex flex-col">
       <SectionTitle
         size="large"
         action={
@@ -256,10 +259,15 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
             }}
           />
         </span>
-        <span className="text-sm text-foreground-body">Sizing Template</span>
-        <span className="relative">
-          <SizingTemplatePill projectId={params?.id} />
-        </span>
+        <div
+          id="tour-active-project-sizing-template"
+          className="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 items-center"
+        >
+          <span className="text-sm text-foreground-body">Sizing Template</span>
+          <span className="relative">
+            <SizingTemplatePill projectId={params?.id} />
+          </span>
+        </div>
         <span className="text-sm text-foreground-body">Timeline</span>
         <span>
           <AvatarIconTag

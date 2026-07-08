@@ -104,9 +104,14 @@ const ActiveProjectCardList = (props: ActiveProjectCardListProps) => {
 
   return (
     <CustomCardHolder type="PROJECT" loading={isPending}>
-      {projectsData?.map((project) => (
+      {projectsData?.map((project, index) => (
         <CustomCard
           key={project?.id}
+          id={
+            baseUrlSlug === "projects" && index === 0
+              ? "tour-active-project-card"
+              : undefined
+          }
           preTitle={project?.projectType === "PRIVATE"}
           color={
             uuidToBase62Safe(params?.id) === uuidToBase62Safe(project?.id)

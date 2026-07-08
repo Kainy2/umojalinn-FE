@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { useNextStep } from "nextstepjs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import {
@@ -136,6 +137,26 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   const [measurementComments, setMeasurementComments] = React.useState<
     Record<string, string>
   >({});
+
+  // Drive the "Recommend Changes" guided tour: the tour walks through the
+  // recommend-mode UI, so we mirror the current step into page state.
+  const { currentTour, currentStep } = useNextStep();
+  const isRecommendTour = currentTour === "recommend-sizing-changes";
+  const wasRecommendTour = useRef(false);
+
+  useEffect(() => {
+    if (!isDesigner) return;
+
+    if (isRecommendTour) {
+      wasRecommendTour.current = true;
+      // Step 0 shows the read-only view with the "Recommend Changes" button;
+      // every step after that walks through recommend mode.
+      setRecommendationMode(currentStep >= 1);
+    } else if (wasRecommendTour.current) {
+      wasRecommendTour.current = false;
+      setRecommendationMode(false);
+    }
+  }, [isDesigner, isRecommendTour, currentStep, setRecommendationMode]);
 
   useEffect(() => {
     if (!recommendationMode) return;
@@ -470,7 +491,10 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-2">
+                <div
+                  id="tour-sizing-template-measurement-points"
+                  className="flex flex-col gap-2"
+                >
                   <DisabledTemplateItems title={gender} />
 
                   {/* UK Standard Size Row */}
@@ -581,6 +605,12 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                           ref={(el) => {
                             inputRefs.current[index] = el;
                           }}
+                          {...(index === 0 && {
+                            rootId: "tour-recommend-measurement-point",
+                            addCommentButtonId: "tour-recommend-add-comment",
+                            deleteButtonId: "tour-recommend-delete-comment",
+                            forceShowActions: isRecommendTour,
+                          })}
                           {...(recommendationMode && {
                             recommendMode: true,
                             selected: selectedMeasurements.includes(item.prop),
@@ -639,7 +669,10 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
 
             {/* Right Column */}
             <div>
-              <div className="sticky top-20">
+              <div
+                id="tour-sizing-template-visual-reference"
+                className="sticky top-20"
+              >
                 <MeasurementGuide
                   previewImage={previewImage}
                   highlightedMeasurementName={highlightedSizingName}
@@ -662,6 +695,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                       Cancel
                     </Button>
                     <Button
+                      id="tour-recommend-submit"
                       onClick={handleSubmitRecommendations}
                       disabled={
                         loading ||
@@ -678,6 +712,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                   hasSubmittedPoints && (
                     <div className="hidden lg:flex justify-end mt-6">
                       <Button
+                        id="tour-recommend-changes-button"
                         disabled={loading}
                         onClick={() => setRecommendationMode(true)}
                         className="h-8 rounded-md bg-primary-600"
@@ -904,7 +939,10 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
               )}
 
               {/* Desktop Actions */}
-              <div className="hidden lg:flex justify-end gap-3">
+              <div
+                id="tour-buyer-sizing-template-actions"
+                className="hidden lg:flex justify-end gap-3"
+              >
                 {isEditable && !isInUse && (
                   <AddToJobDropdown
                     templateId={sizingTemplateId}

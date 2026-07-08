@@ -111,7 +111,10 @@ const MilestoneAction: React.FC<
     return (
       <>
         <Separator className="my-3" />
-        <div className="flex gap-4 flex-col md:flex-row">
+        <div
+          id="tour-active-project-milestone-approval"
+          className="flex gap-4 flex-col md:flex-row"
+        >
           <RejectMilestoneDialog
             isAcceptingVariableDelivery={isAcceptingVariableDelivery}
             id={id}

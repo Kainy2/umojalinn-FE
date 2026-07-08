@@ -1,5 +1,6 @@
 "use client";
 import Alert from "@/components/custom/Alert";
+import ActiveProjectFundPlaceholder from "@/components/tour/ActiveProjectFundPlaceholder";
 
 import { Button } from "@/components/ui/button";
 
@@ -63,38 +64,45 @@ const FundProjectAlert = () => {
     },
   });
 
-  console.log(isAwaitingFund, isUnfunded);
-
-  if (isExcludedPath || !isAwaitingFund || !isUnfunded || isDesigner)
+  if (isExcludedPath || isDesigner) {
     return null;
+  }
 
-  return (
-    <Alert
-      className="w-[90vw] lg:w-[70vw] mt- mb-8 rounded-lg shadow-md shadow-error-700/25"
-      type="error"
-      icon={<AlertTriangle />}
-      title="Awaiting fund"
-      message="fund escrow to start project"
-      action={
-        <div className="flex flex-col md:flex-row gap-1">
-          <Button
-            className="w-full md:w-auto"
-            variant="outline"
-            disabled={!canFundFirstMilestone}
-            onClick={() => fundMilestone.mutate(firstFundMilestone?.id || "")}
-          >
-            Fund Milestone
-          </Button>
-          <Button
-            className="w-full md:w-auto"
-            onClick={() => fundProject.mutate()}
-          >
-            Fund Project
-          </Button>
-        </div>
-      }
-    />
-  );
+  const shouldShowFundAlert = isAwaitingFund && isUnfunded;
+
+  if (shouldShowFundAlert) {
+    return (
+      <div id="tour-active-project-fund">
+        <Alert
+          className="w-[90vw] lg:w-[70vw] mt- mb-8 rounded-lg shadow-md shadow-error-700/25"
+          type="error"
+          icon={<AlertTriangle />}
+          title="Awaiting fund"
+          message="fund escrow to start project"
+          action={
+            <div className="flex flex-col md:flex-row gap-1">
+              <Button
+                className="w-full md:w-auto"
+                variant="outline"
+                disabled={!canFundFirstMilestone}
+                onClick={() => fundMilestone.mutate(firstFundMilestone?.id || "")}
+              >
+                Fund Milestone
+              </Button>
+              <Button
+                className="w-full md:w-auto"
+                onClick={() => fundProject.mutate()}
+              >
+                Fund Project
+              </Button>
+            </div>
+          }
+        />
+      </div>
+    );
+  }
+
+  return <ActiveProjectFundPlaceholder />;
 };
 
 export default FundProjectAlert;

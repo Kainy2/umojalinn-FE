@@ -46,7 +46,12 @@ const NotificationPopover = () => {
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
 			<PopoverTrigger asChild onClick={() => setOpen(true)}>
-				<Button variant="ghost" className="font-normal">
+				<Button
+					id="tour-appbar-notification"
+					variant="ghost"
+					className="font-normal"
+					aria-label="Notifications"
+				>
 					<span className="relative">
 						<Bell className="icon-base" />
 						{!!unreadNotifications?.length && (
