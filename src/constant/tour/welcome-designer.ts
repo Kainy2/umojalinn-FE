@@ -23,14 +23,7 @@ export const DESIGNER_WELCOME_TOUR: Tour = {
       showControls: true,
       showSkip: true,
     },
-    {
-      ...WELCOME_TOUR_POINTER,
-      icon: null,
-      title: "Share your work",
-      content:
-        "Showcase your designs and build your portfolio to attract more clients.",
-      selector: tourTarget("tour-designer-share-work"),
-    },
+
     {
       ...WELCOME_TOUR_POINTER,
       icon: null,
@@ -39,6 +32,14 @@ export const DESIGNER_WELCOME_TOUR: Tour = {
         "Your Dashboard gives you an overview of your work. Here, you can view and manage your bids, active projects, completed jobs, and closed bids.",
       selector: tourTarget("tour-sidebar-dashboard"),
       nextRoute: "/jobs",
+    },
+    {
+      ...WELCOME_TOUR_POINTER,
+      icon: null,
+      title: "Share your work",
+      content:
+        "Showcase your designs and build your portfolio to attract more clients.",
+      selector: tourTarget("tour-designer-share-work"),
     },
     {
       ...WELCOME_TOUR_POINTER,
