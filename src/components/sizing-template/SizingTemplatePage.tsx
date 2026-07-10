@@ -102,6 +102,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     hasSubmittedPoints,
     // hasReviews,
     isInUse,
+    canBuyerFullyEdit,
     isDesigner,
     router,
     // searchParams,
@@ -110,6 +111,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     effectiveProjectId,
     // projectData,
     project,
+    isProjectLive,
   } = useSizingTemplateDialog({
     ...props,
     handleSuccess: (template) => {
@@ -323,23 +325,26 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   const hasRequiredFields = !!(value?.height && value?.ukStandardSize && unit);
   const isCreatingNew = !sizingTemplateId;
   const isEditable =
-    !isInUse && (templateMode === TEMPLATE_MODE.EDIT || isCreatingNew);
-  const canEditGender = isEditable && !isInUse;
-  const isProjectLive = project?.status === "LIVE";
+    canBuyerFullyEdit &&
+    (templateMode === TEMPLATE_MODE.EDIT || isCreatingNew);
+  const canEditGender = isEditable && canBuyerFullyEdit;
   const isChangesUpdated = sizingTemplateResult?.isChangesUpdated;
+  const isRestrictedInUse = isInUse && isProjectLive;
 
   // Page title and description based on mode
   const getPageTitle = () => {
     if (isCreatingNew) return "Create a New Template";
-    if (isDraft) return "Edit Template";
-    if (isInUse) return name || "View Template";
+    if (isDraft || canBuyerFullyEdit) return "Edit Template";
+    if (isRestrictedInUse) return name || "View Template";
     return name || "Sizing Template";
   };
 
   const getPageDescription = () => {
     if (isCreatingNew) return "Add your measurements and save for later use";
-    if (isDraft) return "Update your measurements and save changes";
-    if (isInUse) return "This template is currently in use with a project";
+    if (isDraft || canBuyerFullyEdit)
+      return "Update your measurements and save changes";
+    if (isRestrictedInUse)
+      return "This template is currently in use with a project";
     return "View and manage your sizing template";
   };
 
@@ -768,8 +773,8 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
             </div>
 
             {/* Gender Tabs */}
-            {/* Template Name Input - only when not in use */}
-            {!isInUse && (
+            {/* Template Name Input - only when buyer can fully edit */}
+            {canBuyerFullyEdit && (
               <>
                 <div className="animate-in fade-in duration-300 delay-75">
                   <GenderTabs
@@ -807,7 +812,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
             </div>
 
             <div className="flex flex-col gap-2">
-              {!isNewTemplate && !isDraft && (
+              {isRestrictedInUse && (
                 <DisabledTemplateItems title={gender} />
               )}
 
@@ -822,7 +827,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                 // isDesigner={isDesigner}
               />
 
-              {!isNewTemplate && !isDraft && (
+              {isRestrictedInUse && (
                 <DisabledTemplateItems
                   title="Height"
                   value={value?.height ? `${value?.height} ${unit}` : "-"}
@@ -832,18 +837,18 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
 
             {/* Measurement Points (including Height as first item from TEMPLATE) */}
             {((sizingTemplateId &&
-              (!isInUse ||
+              (canBuyerFullyEdit ||
                 ((hasRequestedPoints || hasSubmittedPoints) &&
                   isProjectLive))) ||
               isNewTemplate ||
               isDraft) && (
               <div className="flex flex-col gap-2">
                 {TEMPLATE.filter((templateItem) => {
-                  // For new templates or drafts, show all measurements
-                  if (isNewTemplate || isDraft) return true;
+                  // Full edit (new, draft, live, or IN_USE before project LIVE): show all
+                  if (canBuyerFullyEdit || isNewTemplate || isDraft) return true;
 
-                  // For in-use templates, only show requested measurement points
-                  if (isInUse && hasRequestedPoints) {
+                  // After job is LIVE: only show requested measurement points
+                  if (isRestrictedInUse && hasRequestedPoints) {
                     return requestedMeasurementPoints.includes(
                       templateItem.prop,
                     );
@@ -900,6 +905,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                 <AddToJobDropdown
                   templateId={sizingTemplateId}
                   templateGender={gender}
+                  templateUnit={unit}
                   disabled={!hasRequiredFields}
                   onSuccess={() => router.push("/sizing-templates")}
                   availableProjects={availableProjects}
@@ -947,6 +953,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                   <AddToJobDropdown
                     templateId={sizingTemplateId}
                     templateGender={gender}
+                    templateUnit={unit}
                     disabled={!hasRequiredFields}
                     onSuccess={() => router.push("/sizing-templates")}
                     availableProjects={availableProjects}

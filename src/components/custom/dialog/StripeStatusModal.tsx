@@ -59,7 +59,8 @@ export const StripeStatusModal = ({
 
   let title = `${displayCurrency} payout setup incomplete`;
   let description = `You can accept ${displayCurrency} projects, but funds will be held securely until you add a receiving account. Umoja linn does not convert currencies.`;
-  let buttonText = "Create Bid (Set up Payout later in wallet)";
+  let buttonLabel = "Create Bid";
+  let buttonSubLabel: string | null = "(Set up Payout later in wallet)";
 
   if (
     !isNaira &&
@@ -68,7 +69,8 @@ export const StripeStatusModal = ({
   ) {
     title = `Connect Stripe to accept ${displayCurrency} projects`;
     description = `To receive ${displayCurrency} payments, you must connect a Stripe account`;
-    buttonText = "Connect Stripe";
+    buttonLabel = "Connect Stripe";
+    buttonSubLabel = null;
   }
 
   const isConnectStripe =
@@ -127,7 +129,7 @@ export const StripeStatusModal = ({
           <DialogFooter className="sm:justify-start w-full mt-4">
             <Button
               type="button"
-              className="w-full bg-[#EAAA08] hover:bg-[#EAAA08]/90 text-white font-semibold text-[18px] h-[60px]"
+              className="w-full bg-[#EAAA08] hover:bg-[#EAAA08]/90 text-white font-semibold text-[18px] h-[60px] flex flex-col items-center justify-center gap-0 leading-tight"
               onClick={() => {
                 if (isConnectStripe) {
                   onOpenChange(false);
@@ -138,7 +140,12 @@ export const StripeStatusModal = ({
               }}
               disabled={!checked}
             >
-              {buttonText}
+              <span>{buttonLabel}</span>
+              {buttonSubLabel && (
+                <span className="text-[11px] font-normal leading-tight">
+                  {buttonSubLabel}
+                </span>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

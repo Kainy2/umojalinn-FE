@@ -34,6 +34,10 @@ import HeightAndSizeModal from "@/components/sizing-template/HeightAndSizeModal"
 import ReviewBidDesignerNotePlaceholder from "@/components/tour/ReviewBidDesignerNotePlaceholder";
 import { UmojaLinnSizingTemplate, UmojalinnStandardSize } from "@/types/project";
 import { DEFAULT_HEIGHT, DEFAULT_UNIT } from "@/constant";
+import {
+  getClearedSizingTemplatePayload,
+  isMatchingSizingGender,
+} from "@/lib/sizing-template-utils";
 
 const IndividualBidPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -141,8 +145,17 @@ const IndividualBidPage = () => {
         ukStandardSize,
       });
     } else if (selectedTemplateForAccept && bid?.projectId) {
-      // First update the template with height and ukStandardSize
+      const projectGender = bid?.project?.gender;
+      const isGenderConversion = !!(
+        projectGender &&
+        selectedTemplateForAccept.gender &&
+        !isMatchingSizingGender(selectedTemplateForAccept.gender, projectGender)
+      );
+
       updateTemplate({
+        ...(isGenderConversion && projectGender
+          ? getClearedSizingTemplatePayload(projectGender)
+          : {}),
         height,
         ukStandardSize,
         unit,
@@ -177,6 +190,22 @@ const IndividualBidPage = () => {
     if (shouldCreateNewTemplateAfterAcceptBid) {
       return { height: DEFAULT_HEIGHT, unit: DEFAULT_UNIT, gender: bid?.project?.gender };
     }
+
+    const projectGender = bid?.project?.gender;
+    const isGenderConversion = !!(
+      projectGender &&
+      selectedTemplateForAccept?.gender &&
+      !isMatchingSizingGender(selectedTemplateForAccept.gender, projectGender)
+    );
+
+    if (isGenderConversion) {
+      return {
+        height: DEFAULT_HEIGHT,
+        unit: selectedTemplateForAccept?.unit ?? DEFAULT_UNIT,
+        gender: projectGender,
+      };
+    }
+
     return {
       height: selectedTemplateForAccept?.height ?? DEFAULT_HEIGHT,
       ukSize: selectedTemplateForAccept?.ukStandardSize,

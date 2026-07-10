@@ -3,12 +3,17 @@ import CustomCardHolder, {
   CustomCardHolderProps,
 } from "@/components/custom/card/Holder";
 import JobCard from "@/components/custom/card/Job";
-import { getBidJobTileProgress, getCoverImage, getProjectJobTileProgress } from "@/lib/project";
+import {
+  getBidJobTileProgress,
+  getCoverImage,
+  getProjectJobTileProgress,
+} from "@/lib/project";
 // import { getCoverImage } from "@/lib/project";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { useGetDesignerBids } from "@/tanstack/hooks/useBid";
-import { useGetAllDesignerProject } from "@/tanstack/hooks/useProject";
+import { useGetInfiniteDesignerProjects } from "@/tanstack/hooks/useProject";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { useInfiniteData } from "@/hooks/use-infinite-data";
 import { useCallback, useMemo, useState } from "react";
 import type { UmojaLinnBid } from "@/types/project";
 
@@ -20,6 +25,28 @@ const options = [
 ] as const;
 
 type OptionsType = (typeof options)[number];
+
+const SeeMoreButton = ({
+  hasNextPage,
+  isFetchingNextPage,
+  onClick,
+}: {
+  hasNextPage: boolean;
+  isFetchingNextPage: boolean;
+  onClick: () => void;
+}) => {
+  if (!hasNextPage) return null;
+
+  return (
+    <button
+      onClick={onClick}
+      disabled={isFetchingNextPage}
+      className="text-primary text-sm text-center block w-full mt-2 py-2 hover:text-primary/70 transition disabled:opacity-50"
+    >
+      {isFetchingNextPage ? "Loading more..." : "See more"}
+    </button>
+  );
+};
 
 const DashboardPage = () => {
   const [mobileSelection, setMobileSelection] =
@@ -45,17 +72,35 @@ const DashboardPage = () => {
     projectStatus: "ADS",
   });
 
-  const { data: liveProjectsData, isPending: isLoadingLiveProjectsData } =
-    useGetAllDesignerProject({
-      projectStatus: "LIVE",
-    });
+  const {
+    data: liveProjectsInfinite,
+    isPending: isLoadingLiveProjectsData,
+    isFetchingNextPage: isFetchingMoreLiveProjects,
+    fetchNextPage: fetchMoreLiveProjects,
+    hasNextPage: hasMoreLiveProjects,
+  } = useGetInfiniteDesignerProjects({
+    projectStatus: "LIVE",
+  });
 
   const {
-    data: completedProjectsData,
+    data: completedProjectsInfinite,
     isPending: isLoadingCompletedProjectsData,
-  } = useGetAllDesignerProject({
+    isFetchingNextPage: isFetchingMoreCompletedProjects,
+    fetchNextPage: fetchMoreCompletedProjects,
+    hasNextPage: hasMoreCompletedProjects,
+  } = useGetInfiniteDesignerProjects({
     projectStatus: ["COMPLETED"],
   });
+
+  const liveProjects = useInfiniteData(liveProjectsInfinite);
+  const completedProjects = useInfiniteData(completedProjectsInfinite);
+
+  const liveProjectsTotal =
+    liveProjectsInfinite?.pages?.[0]?.data?.total ?? liveProjects?.length ?? 0;
+  const completedProjectsTotal =
+    completedProjectsInfinite?.pages?.[0]?.data?.total ??
+    completedProjects?.length ??
+    0;
 
   const { data: closedBids, isPending: isLoadingClosedBidsData } =
     useGetDesignerBids({
@@ -157,7 +202,7 @@ const DashboardPage = () => {
   const getMyActiveJobsContent = useCallback(
     (withTourTarget: boolean) => (
       <>
-        {liveProjectsData?.data?.data?.map((job, index) => (
+        {liveProjects?.map((job, index) => (
           <JobCard
             key={job?.id}
             id={
@@ -180,15 +225,26 @@ const DashboardPage = () => {
             dueDate={job.dueDate}
           />
         ))}
+        <SeeMoreButton
+          hasNextPage={!!hasMoreLiveProjects}
+          isFetchingNextPage={isFetchingMoreLiveProjects}
+          onClick={() => fetchMoreLiveProjects()}
+        />
       </>
     ),
-    [acceptedBidByProjectId, liveProjectsData?.data?.data],
+    [
+      acceptedBidByProjectId,
+      fetchMoreLiveProjects,
+      hasMoreLiveProjects,
+      isFetchingMoreLiveProjects,
+      liveProjects,
+    ],
   );
 
   const myCompleteJobsContent = useMemo(
     () => (
       <>
-        {completedProjectsData?.data?.data?.map((job) => (
+        {completedProjects?.map((job) => (
           <JobCard
             key={job?.id}
             isPrivate={job.projectType === "PRIVATE"}
@@ -206,9 +262,20 @@ const DashboardPage = () => {
             dueDate={job.dueDate}
           />
         ))}
+        <SeeMoreButton
+          hasNextPage={!!hasMoreCompletedProjects}
+          isFetchingNextPage={isFetchingMoreCompletedProjects}
+          onClick={() => fetchMoreCompletedProjects()}
+        />
       </>
     ),
-    [acceptedBidByProjectId, completedProjectsData?.data?.data],
+    [
+      acceptedBidByProjectId,
+      completedProjects,
+      fetchMoreCompletedProjects,
+      hasMoreCompletedProjects,
+      isFetchingMoreCompletedProjects,
+    ],
   );
 
   const closedBidsContent = useMemo(
@@ -262,18 +329,18 @@ const DashboardPage = () => {
         case "MY_ACTIVE_JOBS":
           return {
             colour: "primary",
-            count: liveProjectsData?.data?.data?.length || 0,
+            count: liveProjectsTotal,
             title: "My Active Jobs",
             loading: isLoadingLiveProjectsData,
-            empty: !liveProjectsData?.data?.data?.length,
+            empty: !liveProjects?.length,
           };
         case "MY_COMPLETED_JOBS":
           return {
             colour: "success",
-            count: completedProjectsData?.data?.data?.length,
+            count: completedProjectsTotal,
             title: "My Completed Jobs",
             loading: isLoadingCompletedProjectsData,
-            empty: !completedProjectsData?.data?.data?.length,
+            empty: !completedProjects?.length,
           };
         case "CLOSED_BIDS":
           return {
@@ -296,13 +363,15 @@ const DashboardPage = () => {
       }
     },
     [
-      completedProjectsData?.data?.data?.length,
+      completedProjects?.length,
+      completedProjectsTotal,
       isLoadingClosedBidsData,
       isLoadingCompletedProjectsData,
       isLoadingDraftBidData,
       isLoadingLiveProjectsData,
       isLoadingMyBidsWithoutDraftData,
-      liveProjectsData?.data?.data?.length,
+      liveProjects?.length,
+      liveProjectsTotal,
       totalBids,
     ],
   );

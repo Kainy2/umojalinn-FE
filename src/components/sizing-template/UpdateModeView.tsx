@@ -198,35 +198,27 @@ const UpdateModeView = ({
       return;
     }
 
-    // Only submit editable fields that were actually changed.
+    // Include unchanged values so buyers can confirm the same measurements.
     const updatesToSubmit: Record<string, number> = {};
 
     editableFields.forEach((field) => {
       const nextValue = values[field as keyof MeasurementValues];
-      const currentValue = currentValues[field as keyof MeasurementValues];
-      const hasValidNextValue = typeof nextValue === "number" && nextValue > 0;
-      const previousValue =
-        typeof currentValue === "number" ? currentValue : undefined;
-      const hasChanged = hasValidNextValue && nextValue !== previousValue;
-
-      if (hasChanged) {
+      if (typeof nextValue === "number" && nextValue > 0) {
         updatesToSubmit[field] = nextValue;
       }
     });
     updateTemplate({ projectId, measurements: updatesToSubmit });
   };
 
-  const hasChangedEditableMeasurements = editableFields.some((field) => {
+  const hasValidEditableMeasurements = editableFields.every((field) => {
     const nextValue = values[field as keyof MeasurementValues];
-    const currentValue = currentValues[field as keyof MeasurementValues];
-    if (typeof nextValue !== "number" || nextValue <= 0) return false;
-    return nextValue !== currentValue;
+    return typeof nextValue === "number" && nextValue > 0;
   });
 
   const disableSubmit =
     isUpdating ||
     editableFields.length === 0 ||
-    !hasChangedEditableMeasurements;
+    !hasValidEditableMeasurements;
 
   const highlightedName =
     filteredTemplate.find((item) => item.prop === highlighted)?.name || "";

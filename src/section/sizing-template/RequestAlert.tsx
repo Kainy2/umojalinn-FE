@@ -40,6 +40,7 @@ import { useSession } from "next-auth/react";
 import {
   getAtLimitCtaLabel,
   getAtLimitMessage,
+  getClearedSizingTemplatePayload,
   getNoMatchingSizingTemplateMessage,
   getOppositeGenderTemplateWarningDescription,
   isFreeTemplateTier,
@@ -103,6 +104,7 @@ const RequestSizingTemplateAlert = () => {
   const [showGenderWarning, setShowGenderWarning] = useState(false);
   const [pendingTemplate, setPendingTemplate] =
     useState<UmojaLinnSizingTemplate | null>(null);
+  const [isGenderConversion, setIsGenderConversion] = useState(false);
 
   // Buyer: Add template to project mutation
   const { mutate: addTemplateToProject, isPending: isAddingTemplate } =
@@ -148,8 +150,12 @@ const RequestSizingTemplateAlert = () => {
   const isLoading =
     isAddingTemplate || isCreatingTemplate || isUpdatingTemplate;
 
-  const proceedWithTemplate = (template: UmojaLinnSizingTemplate) => {
+  const proceedWithTemplate = (
+    template: UmojaLinnSizingTemplate,
+    genderConversion = false,
+  ) => {
     setSelectedTemplate(template);
+    setIsGenderConversion(genderConversion);
     setIsCreatingNew(false);
     setIsDropdownOpen(false);
     setShowHeightModal(true);
@@ -172,6 +178,7 @@ const RequestSizingTemplateAlert = () => {
   const handleCreateNewTemplate = () => {
     setSelectedTemplate(null);
     setIsCreatingNew(true);
+    setIsGenderConversion(false);
     setIsDropdownOpen(false);
     setShowHeightModal(true);
   };
@@ -193,10 +200,13 @@ const RequestSizingTemplateAlert = () => {
         ukStandardSize: ukSize,
       });
     } else if (selectedTemplate && project?.id && project.title) {
-      // First update the template with height and ukStandardSize
       updateTemplate({
-        height: height,
+        ...(isGenderConversion && project.gender
+          ? getClearedSizingTemplatePayload(project.gender)
+          : {}),
+        height,
         ukStandardSize: ukSize,
+        unit,
         name: project.title,
       });
     }
@@ -209,6 +219,7 @@ const RequestSizingTemplateAlert = () => {
       if (!open) {
         setSelectedTemplate(null);
         setIsCreatingNew(false);
+        setIsGenderConversion(false);
       }
     }
   };
@@ -220,6 +231,14 @@ const RequestSizingTemplateAlert = () => {
         height: DEFAULT_HEIGHT,
         unit: DEFAULT_UNIT,
         gender: project?.gender,
+      };
+    }
+    // Opposite-gender conversion: wipe prefilled values, use project gender size chart
+    if (isGenderConversion && project?.gender) {
+      return {
+        height: DEFAULT_HEIGHT,
+        unit: selectedTemplate?.unit ?? DEFAULT_UNIT,
+        gender: project.gender,
       };
     }
     return {
@@ -442,7 +461,7 @@ const RequestSizingTemplateAlert = () => {
           }
           onConfirm={() => {
             if (pendingTemplate) {
-              proceedWithTemplate(pendingTemplate);
+              proceedWithTemplate(pendingTemplate, true);
               setPendingTemplate(null);
             }
             setShowGenderWarning(false);

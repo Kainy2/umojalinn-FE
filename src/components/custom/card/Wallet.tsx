@@ -137,6 +137,13 @@ const WalletCard = (props: IWalletCardProps) => {
               adornment={false}
               isSearchable={false}
               className="w-fit min-w-[80px]"
+              menuPortalTarget={
+                typeof document !== "undefined" ? document.body : null
+              }
+              menuPosition="fixed"
+              styles={{
+                menuPortal: (base) => ({ ...base, zIndex: 50 }),
+              }}
               classNames={{
                 control: () =>
                   "!bg-gray-100 !border-none !rounded-2xl !min-h-[32px] !h-[32px]",

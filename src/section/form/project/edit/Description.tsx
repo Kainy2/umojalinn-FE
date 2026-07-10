@@ -26,17 +26,24 @@ import ProjectEditFooter from "./ProjectEditFooter";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { uuidToBase62Safe } from "@/lib/uuid";
-import { useGetAllSizingTemplates } from "@/tanstack/hooks/useSizingTemplates";
+import { useGetAllSizingTemplates, useUpdateSizingTemplate } from "@/tanstack/hooks/useSizingTemplates";
 import CustomSelectCountry from "@/components/custom/SelectCountry";
 import CustomReactSelect from "@/components/custom/ReactSelect";
 import { useCreateProjectContext } from "@/hooks/create-project/useCreateProjectContext";
 import {
+  getClearedSizingTemplatePayload,
   getNoMatchingSizingTemplateDescription,
   getOppositeGenderTemplateWarningDescription,
   isMatchingSizingGender,
   TSizingGender,
 } from "@/lib/sizing-template-utils";
 import OppositeGenderSizingWarning from "@/components/custom/dialog/OppositeGenderSizingWarning";
+import HeightAndSizeModal from "@/components/sizing-template/HeightAndSizeModal";
+import { DEFAULT_HEIGHT, DEFAULT_UNIT } from "@/constant";
+import {
+  UmojaLinnSizingTemplate,
+  UmojalinnStandardSize,
+} from "@/types/project";
 
 export type ProjectFormProps = {
   id: string;
@@ -54,6 +61,13 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
   const [pendingSizingTemplateId, setPendingSizingTemplateId] = useState<
     string | null
   >(null);
+  const [showHeightModal, setShowHeightModal] = useState(false);
+  const [conversionTemplateId, setConversionTemplateId] = useState<
+    string | null
+  >(null);
+
+  const { mutate: updateSizingTemplate, isPending: isUpdatingSizingTemplate } =
+    useUpdateSizingTemplate(conversionTemplateId ?? undefined);
 
   const router = useRouter();
   const { projectFormDetails, setProjectFormDetails } = useCreateProjectContext()
@@ -560,11 +574,55 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
         })()}
         onConfirm={() => {
           if (pendingSizingTemplateId) {
-            form.setValue("sizingTemplateId", pendingSizingTemplateId);
+            setConversionTemplateId(pendingSizingTemplateId);
             setPendingSizingTemplateId(null);
+            setShowGenderWarning(false);
+            setShowHeightModal(true);
+            return;
           }
           setShowGenderWarning(false);
         }}
+      />
+
+      <HeightAndSizeModal
+        height={DEFAULT_HEIGHT}
+        unit={
+          allSizingTemplates.find((t) => t.id === conversionTemplateId)?.unit ??
+          DEFAULT_UNIT
+        }
+        onSubmit={(
+          height: number,
+          ukSize: UmojalinnStandardSize,
+          unit: UmojaLinnSizingTemplate["unit"],
+        ) => {
+          if (!conversionTemplateId || !projectGender) return;
+
+          updateSizingTemplate(
+            {
+              ...getClearedSizingTemplatePayload(projectGender),
+              height,
+              ukStandardSize: ukSize,
+              unit,
+            },
+            {
+              onSuccess: () => {
+                form.setValue("sizingTemplateId", conversionTemplateId);
+                setConversionTemplateId(null);
+                setShowHeightModal(false);
+              },
+            },
+          );
+        }}
+        disabled={false}
+        triggerOpen={showHeightModal}
+        onOpenChange={(open) => {
+          if (!isUpdatingSizingTemplate) {
+            setShowHeightModal(open);
+            if (!open) setConversionTemplateId(null);
+          }
+        }}
+        isLoading={isUpdatingSizingTemplate}
+        gender={projectGender}
       />
     </Form>
   );
