@@ -1,4 +1,8 @@
 import { Button } from "@/components/ui/button";
+import {
+  TOUR_CREATE_BID_SAVE_MILESTONE_EVENT,
+  type TTourPersistEventDetail,
+} from "@/lib/tour";
 import { getCurrencySymbol } from "@/lib/string";
 import { commaStringToNumber, numberToCommaString } from "@/lib/utils";
 import { UmojaLinnCurrency } from "@/types/project";
@@ -21,7 +25,7 @@ type MileStoneCardProps = {
     title: string;
     description: string;
     price: number;
-  }) => void;
+  }) => void | Promise<void>;
   onEdit: React.ComponentProps<"button">["onClick"];
   onCancel: React.ComponentProps<"button">["onClick"];
   onDelete?: () => void;
@@ -29,12 +33,15 @@ type MileStoneCardProps = {
   currency: UmojaLinnCurrency | null;
   price: number;
   hideActions: boolean;
+  tourMilestoneFieldsTargetId?: string;
+  tourPaymentTargetId?: string;
 };
 
 export const MileStoneCardFooter = (
   props: Pick<MileStoneCardProps, "view" | "price" | "currency"> & {
     label: string;
     onPriceChange: (value: number) => void;
+    tourTargetId?: string;
   }
 ) => {
   const { view, price, onPriceChange, label, currency } = props;
@@ -54,7 +61,10 @@ export const MileStoneCardFooter = (
   };
 
   return (
-    <div className="flex justify-between items-center text-subtitle-2 font-semibold">
+    <div
+      id={props.tourTargetId}
+      className="flex justify-between items-center text-subtitle-2 font-semibold"
+    >
       <h4>{label}</h4>
       <div className="flex w-fit gap-2 items-center [&>*>svg]:text-primary ">
         {view ? (
@@ -130,6 +140,12 @@ const MileStoneCard = (props: MileStoneCardProps) => {
     price,
   });
 
+  const editedValuesRef = useRef(editedValues);
+  editedValuesRef.current = editedValues;
+
+  const onSaveRef = useRef(onSave);
+  onSaveRef.current = onSave;
+
   useEffect(() => {
     if (!view) {
       setEditedValues({
@@ -139,6 +155,42 @@ const MileStoneCard = (props: MileStoneCardProps) => {
       });
     }
   }, [description, price, title, view]);
+
+  useEffect(() => {
+    if (view || !props.tourMilestoneFieldsTargetId) {
+      return;
+    }
+
+    const handleTourSave = async (event: Event) => {
+      const detail = (event as CustomEvent<TTourPersistEventDetail>).detail;
+      const resolve = detail?.resolve ?? (() => undefined);
+      const values = editedValuesRef.current;
+      const hasDetails =
+        !!values.title.trim() ||
+        !!values.description.trim() ||
+        values.price > 0;
+
+      if (!hasDetails) {
+        resolve();
+        return;
+      }
+
+      try {
+        await onSaveRef.current({ ...values, id });
+      } finally {
+        resolve();
+      }
+    };
+
+    window.addEventListener(TOUR_CREATE_BID_SAVE_MILESTONE_EVENT, handleTourSave);
+
+    return () => {
+      window.removeEventListener(
+        TOUR_CREATE_BID_SAVE_MILESTONE_EVENT,
+        handleTourSave,
+      );
+    };
+  }, [view, props.tourMilestoneFieldsTargetId, id]);
 
   const handleEdit =
     (value: "title" | "description" | "price") =>
@@ -162,6 +214,7 @@ const MileStoneCard = (props: MileStoneCardProps) => {
       onPriceChange={handleEdit("price")}
       view={view}
       label="Milestone Payment"
+      tourTargetId={props.tourPaymentTargetId}
     />
   );
 
@@ -203,19 +256,24 @@ const MileStoneCard = (props: MileStoneCardProps) => {
     );
   }
   return (
-    <div className="card p-6 flex flex-col gap-4">
-      <TextField
-        label="Milestone name"
-        value={editedValues?.title}
-        onChange={handleEdit("title")}
-      />
-      <TextAreaField
-        label="Description"
-        value={editedValues?.description}
-        onChange={handleEdit("description")}
-        placeholder="Enter a description..."
-        rows={5}
-      />
+    <div
+      id={props.tourMilestoneFieldsTargetId}
+      className="card p-6 flex flex-col gap-4"
+    >
+      <div className="flex flex-col gap-4">
+        <TextField
+          label="Milestone name"
+          value={editedValues?.title}
+          onChange={handleEdit("title")}
+        />
+        <TextAreaField
+          label="Description"
+          value={editedValues?.description}
+          onChange={handleEdit("description")}
+          placeholder="Enter a description..."
+          rows={5}
+        />
+      </div>
       {footer}
       <div className="flex gap-4 items-center">
         <button

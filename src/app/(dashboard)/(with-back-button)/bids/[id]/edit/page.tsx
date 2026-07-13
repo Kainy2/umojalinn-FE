@@ -20,20 +20,20 @@ import { VariableDeliverySelect } from "@/components/custom/bids/VariableDeliver
 import { useGetAppConfig } from "@/tanstack/hooks/useUser";
 import { StripeStatusModal } from "@/components/custom/dialog/StripeStatusModal";
 
-
-
 const BidPage = () => {
   const { data: appConfig } = useGetAppConfig();
-  const SERVICE_FEE_PERCENTAGE = appConfig?.data?.data?.platformCommissionRate || 17;
+  const SERVICE_FEE_PERCENTAGE =
+    appConfig?.data?.data?.platformCommissionRate || 17;
   const {
     bid,
     project,
     handleCancel,
-    handleUpdateAction,
+    // handleUpdateAction,
     handleAdd,
     handleToggle,
     handleSave,
     handleUpdate,
+    handleExcessConfirm,
     handleFinalSubmit,
     milestones,
     totalPrice,
@@ -48,7 +48,6 @@ const BidPage = () => {
     setDeliveryMethod,
     deliveryMilestonePrice,
     setDeliveryMilestonePrice,
-    mode,
     editMode,
     editing,
     isPending,
@@ -96,14 +95,18 @@ const BidPage = () => {
         <MilestoneCard
           loadingDelete={isPendingDelete}
           hideActions={(!!editing && index !== editing) || !editMode}
-          onDelete={() =>
-            milestone?.id && deleteMilestone(milestone?.id)
-          }
+          onDelete={() => milestone?.id && deleteMilestone(milestone?.id)}
           onCancel={() => handleCancel(index)}
           onSave={handleSave(index)}
           loadingSave={isPendingUpdateBid || isPendingCreateBid}
           key={index}
           view={index !== editing || !editMode}
+          tourMilestoneFieldsTargetId={
+            index === 0 ? "tour-create-bid-milestone-fields" : undefined
+          }
+          tourPaymentTargetId={
+            index === 0 ? "tour-create-bid-milestone-payment" : undefined
+          }
           {...milestone}
           onEdit={handleToggle(index)}
           currency={project?.currency || null}
@@ -120,7 +123,7 @@ const BidPage = () => {
         </button>
       )}
 
-      <div className="card p-8">
+      <div id="tour-create-bid-delivery-milestone" className="card p-8">
         <div className="text-gray-400">
           <h3 className="mb-2 font-semibold  text-subtitle-1">
             Delivery Milestone
@@ -130,7 +133,8 @@ const BidPage = () => {
             {project?.deliveryAddress?.country}
           </h3>
           <p className="text-sm mb-4">
-            The Client&apos;s full address will be shown once the project is Active
+            The Client&apos;s full address will be shown once the project is
+            Active
           </p>
 
           <VariableDeliverySelect
@@ -167,7 +171,7 @@ const BidPage = () => {
             <span className="text-foreground-body">Commission</span>
             <span>
               -{getCurrencySymbol(project?.currency)}
-              {formatCurrencyValue(totalPrice * SERVICE_FEE_PERCENTAGE / 100)}
+              {formatCurrencyValue((totalPrice * SERVICE_FEE_PERCENTAGE) / 100)}
             </span>
           </p>
         </div>
@@ -176,7 +180,9 @@ const BidPage = () => {
           <span className="text-foreground-body">You receive</span>
           <span>
             {getCurrencySymbol(project?.currency)}
-            {formatCurrencyValue(totalPrice * (1 - SERVICE_FEE_PERCENTAGE / 100))}
+            {formatCurrencyValue(
+              totalPrice * (1 - SERVICE_FEE_PERCENTAGE / 100),
+            )}
           </span>
         </p>
       </div>
@@ -228,6 +234,7 @@ const BidPage = () => {
               </Button>
             )}
             <Button
+              id="tour-create-bid-submit"
               variant="default"
               loading={isUpdatingBid || isSubmittingBid}
               onClick={() => handleUpdate("LIVE")}
@@ -244,11 +251,7 @@ const BidPage = () => {
           onOpenChange={setShowExcessDialog}
           excess={excess}
           currency={bid?.project?.currency}
-          onConfirm={() => {
-            handleUpdateAction(mode);
-            setShowExcessDialog(false);
-
-          }}
+          onConfirm={handleExcessConfirm}
         />
         <StripeStatusModal
           currency={project?.currency || "USD"}
@@ -263,4 +266,3 @@ const BidPage = () => {
 };
 
 export default BidPage;
-

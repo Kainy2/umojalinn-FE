@@ -27,6 +27,12 @@ const CustomSidebarMenu = (props: {
   const isDesigner = props.profileRole === "DESIGNER";
   const items = isDesigner ? DESIGNERS_SIDEBAR_CONTENT : BUYERS_SIDEBAR_CONTENT;
 
+  // {
+  //   title: "Share your work",
+  //   url: "/share-your-work",
+  //   icon: <ImageIcon />,
+  //   regex: /^\/share-your-work$/,
+  // },
   return (
     <Menu className={cn(props.isMobile && "flex flex-col gap-1 pb-8")}>
       {isDesigner && (
@@ -36,6 +42,7 @@ const CustomSidebarMenu = (props: {
             url="/share-your-work"
             icon={<Plus className="text-primary h-5 w-5" />}
             isMobile={props.isMobile}
+            tourTargetId="tour-designer-share-work"
           />
         </div>
       )}

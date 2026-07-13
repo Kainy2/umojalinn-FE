@@ -33,6 +33,7 @@ import { UmojaLinnCurrency } from "@/types/project";
 import LinkStripeAddressDialog from "@/components/custom/dialog/LinkStripeAddressDialog";
 import ConnectPaymentAccountOtpDialog from "@/components/custom/dialog/ConnectPaymentAccountOtpDialog";
 import WalletDisputesSection from "@/components/custom/wallet/WalletDisputesSection";
+import TourReadyMarker from "@/components/tour/TourReadyMarker";
 const WithdrawalPage = () => {
   const { data: userData } = useGetMe();
   const { data: session } = useSession();
@@ -138,11 +139,17 @@ const WithdrawalPage = () => {
   const isPageLoading = isPaymentAccountPending || isWalletPending;
 
   if (isPageLoading) {
-    return <WalletPageSkeleton showEscrow={isDesigner} />;
+    return (
+      <>
+        <TourReadyMarker ready={false} />
+        <WalletPageSkeleton showEscrow={isDesigner} />
+      </>
+    );
   }
 
   return (
     <>
+      <TourReadyMarker ready />
       <LinkStripeAddressDialog
         open={linkStripeAddressOpen}
         onOpenChange={setLinkStripeAddressOpen}
@@ -174,7 +181,8 @@ const WithdrawalPage = () => {
                 onCurrencyChange={setSelectedCurrency}
                 currencyDisputeSummary={selectedCurrencyDisputeSummary}
               />
-              <CurrencyCarousel>
+              <div id="tour-wallet-currency-carousel">
+                <CurrencyCarousel>
                 {currencyOrder.map((currency) => {
                   const lockedAmount = disputeSummary?.[currency]?.locked ?? 0;
                   const availableAmount = getAvailableWalletBalanceForCurrency(
@@ -195,7 +203,8 @@ const WithdrawalPage = () => {
                     />
                   );
                 })}
-              </CurrencyCarousel>
+                </CurrencyCarousel>
+              </div>
               <WalletDisputesSection
                 currency={selectedCurrency}
                 hideBalance={hideBalance}
@@ -204,7 +213,10 @@ const WithdrawalPage = () => {
             {isDesigner && <EscrowCard wallet={wallet!} />}
           </div>
         </div>
-        <div className="flex-1 shrink-0  max-h-[80vh] overflow-y-scroll p-8 border border-border w-full lg:w-3/12">
+        <div
+          id="tour-wallet-recent-transactions"
+          className="flex-1 shrink-0  max-h-[80vh] overflow-y-scroll p-8 border border-border w-full lg:w-3/12"
+        >
           <h2 className="font-semibold mb-2">Recent transactions</h2>
           <Separator className="bg-border/50" />
           {transactions?.map?.((trans) => {

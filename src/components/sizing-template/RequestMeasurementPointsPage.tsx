@@ -136,7 +136,10 @@ const RequestMeasurementPointsPage = ({
               </div>
 
               {/* Measurement Points */}
-              <div className="flex flex-col gap-2">
+              <div
+                id="tour-create-bid-measurement-points"
+                className="flex flex-col gap-2"
+              >
                 {template
                   .filter((point) => point.prop !== "height")
                   .map((point, index) => {

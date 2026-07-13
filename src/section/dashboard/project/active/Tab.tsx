@@ -48,7 +48,8 @@ const ActiveProjectTab = (props: ActiveProjectTabProps) => {
   }
 
   return (
-    <CustomTab
+    <div id="tour-active-project-tabs">
+      <CustomTab
       replace
       type="NAVIGATOR"
       active={active}
@@ -56,6 +57,7 @@ const ActiveProjectTab = (props: ActiveProjectTabProps) => {
       mobileSelector
       className=""
     />
+    </div>
   );
 };
 

@@ -163,10 +163,11 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
             </FormItemWrapper>
           </>
         )}
-        <FormItemWrapper
-          title="Budget"
-          description="Control your budget"
-          endAdornment={
+        <div id="tour-create-project-budget">
+          <FormItemWrapper
+            title="Budget"
+            description="Control your budget"
+            endAdornment={
             <FormField
               control={form.control}
               name="negotiable"
@@ -250,6 +251,7 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
             )}
           />
         </FormItemWrapper>
+        </div>
         {/* <ProjectEditFooter
           handleSave={form.handleSubmit(onSubmit("SAVE"))}
           handleDraft={form.handleSubmit(onSubmit("DRAFT"))}

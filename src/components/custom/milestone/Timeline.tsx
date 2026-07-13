@@ -27,6 +27,7 @@ import MilestonePill from "./Pill";
 import MilestoneAction, { MilestoneActionType } from "./Action";
 import MilestoneInputSection from "./InputSection";
 import MilestoneSubmissionsPreview from "./SubmissionsPreview";
+import ActiveProjectMilestoneApprovalPlaceholder from "@/components/tour/ActiveProjectMilestoneApprovalPlaceholder";
 import { UmojaLinnUser } from "@/types/user";
 import { VariableDeliveryForm } from "./VariableDeliveryForm";
 import { EDeliveryMileStoneType, EMileStoneStatus } from "@/types/enum";
@@ -178,6 +179,27 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
     [projectDisputesResponse?.data?.data],
   );
 
+  const hasMilestoneApprovalTarget = useMemo(() => {
+    if (isDesigner) {
+      return false;
+    }
+
+    return milestones.some((item) => {
+      const status = getMilestoneStatus(item?.status, item?.transactionStatus);
+      const isCurrent = CURRENT_MILESTONE_STATUSES.includes(item?.status);
+      const isVariableDelivery =
+        item.deliveryMileStoneType === EDeliveryMileStoneType.VARIABLE;
+      const isAcceptingVariableDelivery =
+        isVariableDelivery &&
+        item.variableSubmissions?.[0]?.status === "PENDING";
+
+      return (
+        isCurrent &&
+        (status === MilestoneStatus.IN_REVIEW || isAcceptingVariableDelivery)
+      );
+    });
+  }, [isDesigner, milestones]);
+
   const handleCancellationOpenChange = (open: boolean) => {
     setCancellationOpen(open);
     if (!open) setCancellationMilestone(null);
@@ -236,6 +258,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
   return (
     <>
       <ol
+        id="tour-active-project-milestone-timeline"
         className={cn(
           "flex flex-col gap-1.5",
           disabled && "opacity-50 pointer-events-none select-none",
@@ -275,7 +298,17 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
             canRaiseBuyerDispute || canRaiseDesignerDispute;
 
           return (
-            <li key={index} className="flex flex-col gap-1.5">
+            <li
+              key={index}
+              id={
+                isDelivery
+                  ? "tour-active-project-delivery-milestone"
+                  : isDesigner && milestone.isCurrent
+                    ? "tour-active-project-milestone"
+                    : undefined
+              }
+              className="flex flex-col gap-1.5"
+            >
               <div className="flex flex-row gap-3">
                 {/* Circular indicator with icons */}
                 <MilestoneIndicator {...milestone} />
@@ -532,6 +565,9 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
           );
         })}
       </ol>
+      {!hasMilestoneApprovalTarget && (
+        <ActiveProjectMilestoneApprovalPlaceholder />
+      )}
 
       {cancellationMilestone && (
         <MilestoneCancellationRequestDialog

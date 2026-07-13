@@ -84,8 +84,12 @@ const SizingTemplatesPage = () => {
             </button>
           </SizingTemplateDialog>
         )}
-        {data?.data?.data?.map?.((template) => (
-          <SizingTemplateCard template={template} key={template?.id} />
+        {data?.data?.data?.map?.((template, index) => (
+          <SizingTemplateCard
+            template={template}
+            key={template?.id}
+            tourTargetId={index === 0 ? "tour-sizing-template-card" : undefined}
+          />
         ))}
         {session?.user?.profileRole === "BUYER" && hasExhaustedTemplates && (
           <BuyExtraTemplateCard

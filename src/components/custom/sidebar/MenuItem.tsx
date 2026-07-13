@@ -7,11 +7,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { useGetAllDesignerProject } from "@/tanstack/hooks/useProject";
 import { SheetClose } from "@/components/ui/sheet";
+import { getSidebarTourTargetId } from "@/constant/tour/targets";
+import type { TTourTargetId } from "@/constant/tour/@types";
 
 type GenericCustomSidebarMenuItemProps = {
   title: string;
   regex?: RegExp;
   isMobile?: boolean;
+  tourTargetId?: TTourTargetId;
 };
 
 type AdCustomSidebarMenuItemProps = GenericCustomSidebarMenuItemProps & {
@@ -57,6 +60,9 @@ const CustomSidebarMenuItem = (props: CustomSidebarMenuItemProps) => {
 
   // const AdLinkWrapper = props.isMobile ? SheetClose : "div";
 
+  const tourTargetId =
+    props.tourTargetId ?? getSidebarTourTargetId(props.title);
+
   if (props.isAd) {
     return (
       <div key={props.title} className="bg-gray-50 px-2 py-6 my-2 block">
@@ -69,7 +75,11 @@ const CustomSidebarMenuItem = (props: CustomSidebarMenuItemProps) => {
           width={216}
           className="h-32 w-full object-cover rounded-md mb-6 hidden md:block"
         />
-        <a className="font-semibold text-primary" href={props.action?.href} target='_blank'>
+        <a
+          className="font-semibold text-primary"
+          href={props.action?.href}
+          target="_blank"
+        >
           {props.action?.title}
         </a>
       </div>
@@ -80,7 +90,7 @@ const CustomSidebarMenuItem = (props: CustomSidebarMenuItemProps) => {
     <SidebarMenuItem
       className={cn(
         props.isMobile &&
-          "list-none [&>a]:flex [&>a]:items-center [&>a]:w-full [&>a]:gap-2"
+          "list-none [&>a]:flex [&>a]:items-center [&>a]:w-full [&>a]:gap-2",
       )}
       key={props.title}
     >
@@ -89,17 +99,17 @@ const CustomSidebarMenuItem = (props: CustomSidebarMenuItemProps) => {
         className={cn(
           "rounded-none p-3 h-10",
           active &&
-            "bg-primary text-white hover:text-white active:text-white  hover:bg-primary-600 active:bg-primary-700 "
+            "bg-primary text-white hover:text-white active:text-white  hover:bg-primary-600 active:bg-primary-700 ",
         )}
       >
-        <Link href={props.url}>
+        <Link href={props.url} id={tourTargetId}>
           {props.icon}
           <span className="flex-1 h-5 flex items-center">{props.title}</span>
           {!!badge && (
             <span
               className={cn(
                 "shrink-0 h-5  w-5 text-xs flex items-center justify-center rounded-full",
-                active ? "bg-white text-primary" : "bg-gray-200"
+                active ? "bg-white text-primary" : "bg-gray-200",
               )}
             >
               {badge}
