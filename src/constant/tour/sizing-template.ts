@@ -24,6 +24,7 @@ const SIZING_TEMPLATE_POINTER = {
 export const buildSizingTemplateTour = (
   templateId: string,
   projectId: string,
+  canRequestMeasurementPoints = false,
 ) => {
   const templateDetailPath = `/sizing-templates/${templateId}?projectId=${projectId}`;
 
@@ -48,18 +49,24 @@ export const buildSizingTemplateTour = (
         selector: tourTarget("tour-sizing-template-card"),
         side: "bottom" as const,
         prevRoute: "/sizing-templates",
-        nextRoute: templateDetailPath,
+        ...(canRequestMeasurementPoints
+          ? { nextRoute: templateDetailPath }
+          : {}),
       },
-      {
-        ...SIZING_TEMPLATE_POINTER,
-        icon: null,
-        title: "Request the measurements you need.",
-        content:
-          "You can select the specific measurement points you need for the job.",
-        selector: tourTarget("tour-sizing-template-measurement-points"),
-        side: "right" as const,
-        prevRoute: "/sizing-templates",
-      },
+      ...(canRequestMeasurementPoints
+        ? [
+            {
+              ...SIZING_TEMPLATE_POINTER,
+              icon: null,
+              title: "Request the measurements you need.",
+              content:
+                "You can select the specific measurement points you need for the job.",
+              selector: tourTarget("tour-sizing-template-measurement-points"),
+              side: "right" as const,
+              prevRoute: "/sizing-templates",
+            },
+          ]
+        : []),
     ],
   };
 };

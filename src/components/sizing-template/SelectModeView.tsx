@@ -4,7 +4,7 @@
  * Used when template is IN_USE but no measurement points have been requested yet.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import Image from "next/image";
@@ -34,6 +34,10 @@ import UKStandardSizeRow from "./UKStandardSizeRow";
 import UKSizeChartDrawer from "./UKSizeChartDrawer";
 import DisabledTemplateItems from "./DisabledTemplateItems";
 import { useRouter } from "next/navigation";
+import {
+  TOUR_CREATE_BID_REQUEST_MEASUREMENTS_EVENT,
+  type TTourPersistEventDetail,
+} from "@/lib/tour";
 
 type SelectModeViewProps = {
   projectId?: string;
@@ -75,16 +79,22 @@ const SelectModeView = ({
   const router = useRouter()
 
   // Hook for template-based API (existing)
-  const { mutate: requestPointsOnTemplate, isPending: isPendingTemplate } =
-    useRequestMeasurementPoints({
-      onSuccess: () => onSuccess?.(),
-    });
+  const {
+    mutate: requestPointsOnTemplate,
+    mutateAsync: requestPointsOnTemplateAsync,
+    isPending: isPendingTemplate,
+  } = useRequestMeasurementPoints({
+    onSuccess: () => onSuccess?.(),
+  });
 
   // Hook for bid-based API (new)
-  const { mutate: requestPointsOnBid, isPending: isPendingBid } =
-    useRequestMeasurementPointsOnBid({
-      onSuccess: () => router.push(`/bids/${bidId}/edit`),
-    });
+  const {
+    mutate: requestPointsOnBid,
+    mutateAsync: requestPointsOnBidAsync,
+    isPending: isPendingBid,
+  } = useRequestMeasurementPointsOnBid({
+    onSuccess: () => router.push(`/bids/${bidId}/edit`),
+  });
 
   const isPending = isPendingTemplate || isPendingBid;
 
@@ -98,6 +108,18 @@ const SelectModeView = ({
 
   const handleReset = () => setSelectedPoints([]);
 
+  const buildBidMeasurements = (points: string[]) => {
+    const measurements: Partial<
+      UmojaLinnMaleSizingTemplateProps & UmojaLinnFemaleSizingTemplateProps
+    > = {};
+
+    points.forEach((pointProp) => {
+      measurements[pointProp as keyof typeof measurements] = 1 as never;
+    });
+
+    return measurements;
+  };
+
   const handleSubmit = () => {
     // Check if template exists on project
     if (hasTemplate && projectId) {
@@ -107,23 +129,26 @@ const SelectModeView = ({
         requestedMeasurementPoints: selectedPoints,
       });
     } else if (bidId) {
-      // Use bid-based API (new) - convert selectedPoints array to measurement object
-      const measurements: Partial<
-        UmojaLinnMaleSizingTemplateProps & UmojaLinnFemaleSizingTemplateProps
-      > = {};
-
-      // Convert selected point names to object with placeholder values
-      // The backend expects field names as keys, but we only need to send the keys
-      // The API will extract the field names from the keys that have values
-      selectedPoints.forEach((pointProp) => {
-        // Set a truthy value for each selected point
-        // The backend extracts field names from keys that have values
-        measurements[pointProp as keyof typeof measurements] = 1 as never;
-      });
-
       requestPointsOnBid({
         bidId,
-        measurements,
+        measurements: buildBidMeasurements(selectedPoints),
+      });
+    }
+  };
+
+  const handleSubmitAsync = async (points: string[]) => {
+    if (hasTemplate && projectId) {
+      await requestPointsOnTemplateAsync({
+        projectId,
+        requestedMeasurementPoints: points,
+      });
+      return;
+    }
+
+    if (bidId) {
+      await requestPointsOnBidAsync({
+        bidId,
+        measurements: buildBidMeasurements(points),
       });
     }
   };
@@ -132,6 +157,12 @@ const SelectModeView = ({
     setPreviewImage(img);
     setPreviewName(name);
   };
+
+  const selectedPointsRef = useRef(selectedPoints);
+  selectedPointsRef.current = selectedPoints;
+
+  const handleSubmitAsyncRef = useRef(handleSubmitAsync);
+  handleSubmitAsyncRef.current = handleSubmitAsync;
 
   useEffect(() => {
     if (prefilledPoints.length > 0) {
@@ -146,6 +177,37 @@ const SelectModeView = ({
     setPreviewImage(defaultTemplate[0].img)
     setPreviewName(defaultTemplate[1].name)
   }, [gender])
+
+  useEffect(() => {
+    const handleTourRequest = async (event: Event) => {
+      const detail = (event as CustomEvent<TTourPersistEventDetail>).detail;
+      const resolve = detail?.resolve ?? (() => undefined);
+      const points = selectedPointsRef.current;
+
+      if (!points.length) {
+        resolve();
+        return;
+      }
+
+      try {
+        await handleSubmitAsyncRef.current(points);
+      } finally {
+        resolve();
+      }
+    };
+
+    window.addEventListener(
+      TOUR_CREATE_BID_REQUEST_MEASUREMENTS_EVENT,
+      handleTourRequest,
+    );
+
+    return () => {
+      window.removeEventListener(
+        TOUR_CREATE_BID_REQUEST_MEASUREMENTS_EVENT,
+        handleTourRequest,
+      );
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">

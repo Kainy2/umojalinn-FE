@@ -9,7 +9,12 @@ import { useNextStep } from "nextstepjs";
 
 import type { TTourCardProps } from "@/components/tour/Card/@types";
 import { createBidForTour } from "@/lib/create-bid-tour";
-import { getCreateBidTourProjectId, setCreateBidTourBidId } from "@/lib/tour";
+import {
+  dispatchCreateBidRequestMeasurements,
+  dispatchCreateBidSaveMilestone,
+  getCreateBidTourProjectId,
+  setCreateBidTourBidId,
+} from "@/lib/tour";
 import { cn } from "@/lib/utils";
 
 const TourCard = ({
@@ -66,6 +71,34 @@ const TourCard = ({
         setIsAdvancing(false);
       }
 
+      return;
+    }
+
+    if (
+      currentTour === "create-a-bid" &&
+      step.selector === "#tour-create-bid-milestone-fields"
+    ) {
+      try {
+        setIsAdvancing(true);
+        await dispatchCreateBidSaveMilestone();
+      } finally {
+        setIsAdvancing(false);
+      }
+      nextStep();
+      return;
+    }
+
+    if (
+      currentTour === "create-a-bid" &&
+      step.selector === "#tour-create-bid-measurement-points"
+    ) {
+      try {
+        setIsAdvancing(true);
+        await dispatchCreateBidRequestMeasurements();
+      } finally {
+        setIsAdvancing(false);
+      }
+      nextStep();
       return;
     }
 

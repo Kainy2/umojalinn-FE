@@ -240,6 +240,47 @@ export const resetTourStatus = (tourId: TTourName) => {
 };
 
 export const TOUR_OPEN_INVITE_CLIENT_EVENT = "tour:open-invite-client";
+export const TOUR_CREATE_BID_SAVE_MILESTONE_EVENT =
+  "tour:create-bid-save-milestone";
+export const TOUR_CREATE_BID_REQUEST_MEASUREMENTS_EVENT =
+  "tour:create-bid-request-measurements";
+
+export type TTourPersistEventDetail = {
+  resolve: () => void;
+};
+
+const TOUR_PERSIST_FALLBACK_MS = 5000;
+
+const dispatchAwaitableTourEvent = (eventName: string) => {
+  return new Promise<void>((resolve) => {
+    if (typeof window === "undefined") {
+      resolve();
+      return;
+    }
+
+    let settled = false;
+    const settle = () => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      resolve();
+    };
+
+    const timeout = window.setTimeout(settle, TOUR_PERSIST_FALLBACK_MS);
+
+    window.dispatchEvent(
+      new CustomEvent<TTourPersistEventDetail>(eventName, {
+        detail: {
+          resolve: () => {
+            window.clearTimeout(timeout);
+            settle();
+          },
+        },
+      }),
+    );
+  });
+};
 
 export const dispatchOpenInviteClient = () => {
   if (typeof window === "undefined") {
@@ -248,3 +289,9 @@ export const dispatchOpenInviteClient = () => {
 
   window.dispatchEvent(new CustomEvent(TOUR_OPEN_INVITE_CLIENT_EVENT));
 };
+
+export const dispatchCreateBidSaveMilestone = () =>
+  dispatchAwaitableTourEvent(TOUR_CREATE_BID_SAVE_MILESTONE_EVENT);
+
+export const dispatchCreateBidRequestMeasurements = () =>
+  dispatchAwaitableTourEvent(TOUR_CREATE_BID_REQUEST_MEASUREMENTS_EVENT);

@@ -291,10 +291,29 @@ const NextStepTourProvider = ({ children }: LayoutProps) => {
       sizingTemplateTourContext ?? firstSizingTemplateContext;
 
     if (sizingContext) {
+      const templates = sizingTemplatesData?.data?.data;
+      const template =
+        templates?.find(
+          (item) => uuidToBase62Safe(item.id) === sizingContext.templateId,
+        ) ?? templates?.[0];
+      const linkedProject =
+        template?.projects?.find(
+          (project) => uuidToBase62Safe(project.id) === sizingContext.projectId,
+        ) ??
+        template?.projects?.find((project) => project.status !== "COMPLETED") ??
+        template?.projects?.[0];
+      // Match SELECT mode: only show the request step when points were never
+      // requested (including during the bid phase via the linked project).
+      const canRequestMeasurementPoints =
+        template?.status === "IN_USE" &&
+        !(template.requestedMeasurementPoints?.length) &&
+        !(linkedProject?.requestedMeasurementPoints?.length);
+
       tours.push(
         buildSizingTemplateTour(
           sizingContext.templateId,
           sizingContext.projectId,
+          canRequestMeasurementPoints,
         ),
       );
     }
@@ -323,6 +342,7 @@ const NextStepTourProvider = ({ children }: LayoutProps) => {
     createBidTourBidId,
     firstSizingTemplateContext,
     sizingTemplateTourContext,
+    sizingTemplatesData?.data?.data,
     activeProjectsTourProjectId,
     firstLiveProjectId,
   ]);
