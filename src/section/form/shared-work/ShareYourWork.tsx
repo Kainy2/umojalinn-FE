@@ -193,19 +193,24 @@ const ShareYourWorkForm = () => {
       e.preventDefault();
 
       const formData = new FormData();
-      works.forEach((work, wi) => {
+
+      // All files flat under a single "images" field
+      works.forEach((work) => {
         work.images.forEach(({ image }) => {
-          formData.append(`[${wi}][images]`, image as File);
-        });
-        work.images.forEach(({ description, fileName, isCoverImage }, mi) => {
-          formData.append(`[${wi}][imagesMeta][${mi}][description]`, description);
-          formData.append(`[${wi}][imagesMeta][${mi}][fileName]`, fileName);
-          formData.append(`[${wi}][imagesMeta][${mi}][isCoverImage]`, String(isCoverImage));
-        });
-        work.selectedClothingTypes.forEach((typeId, ti) => {
-          formData.append(`[${wi}][clothingTypes][${ti}]`, typeId);
+          formData.append("images", image as File);
         });
       });
+
+      // Metadata as a JSON string in "sharedWorks"
+      const sharedWorks = works.map((work) => ({
+        clothingTypes: work.selectedClothingTypes,
+        imagesMeta: work.images.map(({ description, fileName, isCoverImage }) => ({
+          description,
+          fileName,
+          isCoverImage,
+        })),
+      }));
+      formData.append("sharedWorks", JSON.stringify(sharedWorks));
 
       createSharedWork(formData, {
         onSuccess() {
