@@ -62,7 +62,7 @@ export const RefundRequestDialog = ({
   const [partialAmount, setPartialAmount] = useState("");
   const [reason, setReason] = useState<TDisputeReason | "">("");
   const [description, setDescription] = useState("");
-  const [confirmed, setConfirmed] = useState(true);
+  const [confirmed, setConfirmed] = useState(false);
   const [files, setFiles] = useState<FileList | null>(null);
 
   const resolvedCurrency = (currency ?? DEFAULT_CURRENCY) as UmojaLinnCurrency;

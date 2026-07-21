@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { NextStep, NextStepProvider } from "nextstepjs";
 import { useSession } from "next-auth/react";
@@ -40,12 +40,15 @@ import {
   getReviewBidTourBidId,
   getSizingTemplateTourProjectId,
   getSizingTemplateTourTemplateId,
+  pickBuyerSizingTemplate,
+  registerTourSteps,
   setActiveProjectsTourProjectId,
   setCreateBidTourProjectId,
   setCreateProjectTourProjectId,
   setReviewBidTourBidId,
   setSizingTemplateTourTemplateId,
   setTourStatus,
+  tourNameToGuidedTourStep,
 } from "@/lib/tour";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { useGetBuyerBids } from "@/tanstack/hooks/useBid";
@@ -57,21 +60,7 @@ import {
   useGetAllDesignerSizingTemplates,
   useGetAllSizingTemplates,
 } from "@/tanstack/hooks/useSizingTemplates";
-import type { UmojaLinnSizingTemplate } from "@/types/project";
-
-const pickBuyerSizingTemplate = (
-  templates: UmojaLinnSizingTemplate[] | undefined,
-) => {
-  if (!templates?.length) {
-    return null;
-  }
-
-  return (
-    templates.find((template) => template.status === "DRAFT") ??
-    templates.find((template) => template.status !== "IN_USE") ??
-    templates[0]
-  );
-};
+import { useCompleteGuidedTour } from "@/tanstack/hooks/useUser";
 
 const NextStepTourProvider = ({ children }: LayoutProps) => {
   const router = useRouter();
@@ -79,6 +68,23 @@ const NextStepTourProvider = ({ children }: LayoutProps) => {
   const profileRole = session?.user?.profileRole;
   const isDesigner = profileRole === "DESIGNER";
   const isBuyer = profileRole === "BUYER";
+  const { mutate: completeGuidedTour } = useCompleteGuidedTour();
+
+  const persistGuidedTourStep = useCallback(
+    (tourName: TTourName) => {
+      if (profileRole !== "BUYER" && profileRole !== "DESIGNER") {
+        return;
+      }
+
+      const step = tourNameToGuidedTourStep(tourName, profileRole);
+      if (!step) {
+        return;
+      }
+
+      completeGuidedTour({ profileType: profileRole, step });
+    },
+    [completeGuidedTour, profileRole],
+  );
 
   const [showWelcomeComplete, setShowWelcomeComplete] = useState(false);
   const [createBidTourBidId, setCreateBidTourBidId] = useState<string | null>(
@@ -215,6 +221,9 @@ const NextStepTourProvider = ({ children }: LayoutProps) => {
     };
   }, [sizingTemplatesData?.data?.data]);
 
+  const hasBuyerSizingTemplates =
+    !!buyerSizingTemplatesData?.data?.data?.length;
+
   const firstBuyerSizingTemplateId = useMemo(() => {
     const template = pickBuyerSizingTemplate(
       buyerSizingTemplatesData?.data?.data,
@@ -248,7 +257,7 @@ const NextStepTourProvider = ({ children }: LayoutProps) => {
   const steps = useMemo(() => {
     const welcomeTour = isDesigner
       ? DESIGNER_WELCOME_TOUR
-      : buildBuyerWelcomeTour(firstBuyerLiveProjectId);
+      : buildBuyerWelcomeTour();
 
     const tours = [welcomeTour];
 
@@ -266,11 +275,8 @@ const NextStepTourProvider = ({ children }: LayoutProps) => {
         tours.push(buildReviewBidTour(reviewBidId));
       }
 
-      const buyerSizingTemplateId =
-        sizingTemplateTourContext?.templateId ?? firstBuyerSizingTemplateId;
-
-      if (buyerSizingTemplateId) {
-        tours.push(buildBuyerSizingTemplateTour(buyerSizingTemplateId));
+      if (hasBuyerSizingTemplates) {
+        tours.push(buildBuyerSizingTemplateTour(firstBuyerSizingTemplateId));
       }
 
       const buyerActiveProjectId =
@@ -338,6 +344,7 @@ const NextStepTourProvider = ({ children }: LayoutProps) => {
     reviewBidTourBidId,
     firstPendingBidId,
     firstBuyerSizingTemplateId,
+    hasBuyerSizingTemplates,
     firstJobId,
     createBidTourBidId,
     firstSizingTemplateContext,
@@ -347,129 +354,159 @@ const NextStepTourProvider = ({ children }: LayoutProps) => {
     firstLiveProjectId,
   ]);
 
-  const syncCreateBidTourBidId = () => {
+  registerTourSteps(steps);
+
+  // nextstepjs puts `onStart` in a useEffect dep array — keep it stable and
+  // avoid setState that always produces a new object (infinite re-render loop).
+  const syncCreateBidTourBidId = useCallback(() => {
     setCreateBidTourBidId(getCreateBidTourBidId());
-  };
+  }, []);
 
-  const handleTourComplete = (tourName: string | null) => {
-    if (!tourName) {
-      return;
-    }
+  const handleTourStart = useCallback(
+    (tourName: string | null) => {
+      if (tourName === "create-a-bid" && firstJobId) {
+        setCreateBidTourProjectId(firstJobId);
+      }
 
-    setTourStatus(tourName as TTourName, "completed");
+      if (tourName === "active-projects") {
+        const activeProjectId = isBuyer
+          ? (activeProjectsTourProjectId ?? firstBuyerLiveProjectId)
+          : (activeProjectsTourProjectId ?? firstLiveProjectId);
 
-    if (tourName === "welcome") {
-      setShowWelcomeComplete(true);
-    }
+        if (activeProjectId) {
+          setActiveProjectsTourProjectId(activeProjectId);
+          setActiveProjectsTourProjectIdState(activeProjectId);
+        }
+      }
 
-    if (tourName === "create-a-bid") {
-      clearCreateBidTourSession();
-    }
+      if (tourName === "create-a-project") {
+        const createProjectId =
+          createProjectTourProjectId ?? firstBuyerDraftProjectId;
 
-    if (tourName === "create-a-project") {
-      clearCreateProjectTourSession();
-    }
+        if (createProjectId) {
+          setCreateProjectTourProjectId(createProjectId);
+          setCreateProjectTourProjectIdState(createProjectId);
+        }
+      }
 
-    if (tourName === "review-bid") {
-      clearReviewBidTourSession();
-    }
+      if (tourName === "review-bid") {
+        const reviewBidId = reviewBidTourBidId ?? firstPendingBidId;
 
-    if (tourName === "sizing-template") {
-      clearSizingTemplateTourSession();
-    }
+        if (reviewBidId) {
+          setReviewBidTourBidId(reviewBidId);
+          setReviewBidTourBidIdState(reviewBidId);
+        }
+      }
 
-    if (tourName === "active-projects") {
-      clearActiveProjectsTourSession();
-    }
-  };
+      if (tourName === "sizing-template" && isBuyer) {
+        const templateId = firstBuyerSizingTemplateId;
 
-  const handleTourSkip = (tourName: string | null) => {
-    if (!tourName) {
-      return;
-    }
+        if (templateId) {
+          setSizingTemplateTourTemplateId(templateId);
+          setSizingTemplateTourContext((prev) =>
+            prev?.templateId === templateId && prev.projectId === ""
+              ? prev
+              : { templateId, projectId: "" },
+          );
+        }
+      }
 
-    setTourStatus(tourName as TTourName, "skipped");
+      syncCreateBidTourBidId();
+    },
+    [
+      activeProjectsTourProjectId,
+      createProjectTourProjectId,
+      firstBuyerDraftProjectId,
+      firstBuyerLiveProjectId,
+      firstBuyerSizingTemplateId,
+      firstJobId,
+      firstLiveProjectId,
+      firstPendingBidId,
+      isBuyer,
+      reviewBidTourBidId,
+      syncCreateBidTourBidId,
+    ],
+  );
 
-    if (tourName === "create-a-bid") {
-      clearCreateBidTourSession();
-    }
+  const handleTourComplete = useCallback(
+    (tourName: string | null) => {
+      if (!tourName) {
+        return;
+      }
 
-    if (tourName === "create-a-project") {
-      clearCreateProjectTourSession();
-    }
+      setTourStatus(tourName as TTourName, "completed");
+      persistGuidedTourStep(tourName as TTourName);
 
-    if (tourName === "review-bid") {
-      clearReviewBidTourSession();
-    }
+      if (tourName === "welcome") {
+        setShowWelcomeComplete(true);
+      }
 
-    if (tourName === "sizing-template") {
-      clearSizingTemplateTourSession();
-    }
+      if (tourName === "create-a-bid") {
+        clearCreateBidTourSession();
+      }
 
-    if (tourName === "active-projects") {
-      clearActiveProjectsTourSession();
-    }
-  };
+      if (tourName === "create-a-project") {
+        clearCreateProjectTourSession();
+      }
+
+      if (tourName === "review-bid") {
+        clearReviewBidTourSession();
+      }
+
+      if (tourName === "sizing-template") {
+        clearSizingTemplateTourSession();
+      }
+
+      if (tourName === "active-projects") {
+        clearActiveProjectsTourSession();
+      }
+    },
+    [persistGuidedTourStep],
+  );
+
+  const handleTourSkip = useCallback(
+    (tourName: string | null) => {
+      if (!tourName) {
+        return;
+      }
+
+      setTourStatus(tourName as TTourName, "skipped");
+      persistGuidedTourStep(tourName as TTourName);
+
+      if (tourName === "create-a-bid") {
+        clearCreateBidTourSession();
+      }
+
+      if (tourName === "create-a-project") {
+        clearCreateProjectTourSession();
+      }
+
+      if (tourName === "review-bid") {
+        clearReviewBidTourSession();
+      }
+
+      if (tourName === "sizing-template") {
+        clearSizingTemplateTourSession();
+      }
+
+      if (tourName === "active-projects") {
+        clearActiveProjectsTourSession();
+      }
+    },
+    [persistGuidedTourStep],
+  );
 
   return (
     <NextStepProvider>
       <NextStep
         steps={steps}
         cardComponent={TourCard}
+        cardTransition={{ ease: "easeOut", duration: 0.25 }}
         overlayZIndex={200}
         shadowRgb="0,0,0"
         shadowOpacity="0.65"
-        onStart={(tourName) => {
-          if (tourName === "create-a-bid" && firstJobId) {
-            setCreateBidTourProjectId(firstJobId);
-          }
-
-          if (tourName === "active-projects") {
-            const activeProjectId = isBuyer
-              ? (activeProjectsTourProjectId ?? firstBuyerLiveProjectId)
-              : (activeProjectsTourProjectId ?? firstLiveProjectId);
-
-            if (activeProjectId) {
-              setActiveProjectsTourProjectId(activeProjectId);
-              setActiveProjectsTourProjectIdState(activeProjectId);
-            }
-          }
-
-          if (tourName === "create-a-project") {
-            const createProjectId =
-              createProjectTourProjectId ?? firstBuyerDraftProjectId;
-
-            if (createProjectId) {
-              setCreateProjectTourProjectId(createProjectId);
-              setCreateProjectTourProjectIdState(createProjectId);
-            }
-          }
-
-          if (tourName === "review-bid") {
-            const reviewBidId = reviewBidTourBidId ?? firstPendingBidId;
-
-            if (reviewBidId) {
-              setReviewBidTourBidId(reviewBidId);
-              setReviewBidTourBidIdState(reviewBidId);
-            }
-          }
-
-          if (tourName === "sizing-template" && isBuyer) {
-            const templateId =
-              sizingTemplateTourContext?.templateId ??
-              firstBuyerSizingTemplateId;
-
-            if (templateId) {
-              setSizingTemplateTourTemplateId(templateId);
-              setSizingTemplateTourContext({ templateId, projectId: "" });
-            }
-          }
-
-          syncCreateBidTourBidId();
-        }}
-        onStepChange={() => {
-          syncCreateBidTourBidId();
-        }}
+        onStart={handleTourStart}
+        onStepChange={syncCreateBidTourBidId}
         onComplete={handleTourComplete}
         onSkip={(_, tourName) => handleTourSkip(tourName)}
       >

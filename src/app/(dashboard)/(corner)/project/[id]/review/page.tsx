@@ -7,7 +7,6 @@ import { getProjectImageDetailUpdate, jsonToFormData } from "@/lib/utils";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import ProjectReviewView from "@/section/dashboard/project/Review";
 import ProjectEditFooter from "@/section/form/project/edit/ProjectEditFooter";
-import { SizingTemplatePill } from "@/components/sizing-template";
 // import ProjectEditFooter from "@/section/form/project/edit/Footer";
 import {
   useGetProjectById,
@@ -142,14 +141,6 @@ const ReviewPage = () => {
         project={data?.data?.data}  
         projectFormDetails={projectFormDetails}
       />
-
-      <div
-        id="tour-create-project-sizing-template"
-        className="grid grid-cols-2 gap-4 max-w-screen-sm items-center justify-start"
-      >
-        <span className="text-sm text-foreground-body">Sizing Template</span>
-        <SizingTemplatePill projectId={params?.id} />
-      </div>
       {/* <ProjectEditFooter
         handleSave={async () => goLive(params?.id)}
         loading={isPending}

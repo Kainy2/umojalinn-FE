@@ -18,7 +18,10 @@ import {
   isMilestoneEligibleForDispute,
 } from "@/lib/dispute";
 import { formatMilestoneSelectLabel } from "@/components/util/milestone";
-import { useCreateBuyerDispute, useGetProjectDisputes } from "@/tanstack/hooks/useDispute";
+import {
+  useCreateBuyerDispute,
+  useGetProjectDisputes,
+} from "@/tanstack/hooks/useDispute";
 import {
   useGetProjectById,
   useGetProjectMilestones,
@@ -97,7 +100,9 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
   const designerName = useMemo(() => {
     const user = project?.designer?.user;
     if (!user) return "The designer";
-    return `${user.firstName || ""} ${user.lastName || ""}`.trim() || "The designer";
+    return (
+      `${user.firstName || ""} ${user.lastName || ""}`.trim() || "The designer"
+    );
   }, [project?.designer?.user]);
 
   const canRaiseIssue = !isDesigner && issueMilestoneOptions.length > 0;
@@ -223,65 +228,122 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
         }
         title={data?.data?.data?.title || "No Title"}
       />
-      <div className="grid grid-cols-1  md:grid-cols-2 gap-2 md:gap-4 max-w-screen-sm items-center justify-start">
-        <span className="text-sm text-foreground-body">
-          {!isDesigner ? "Designer" : "Client"}
-        </span>
-        <span>
-          <AvatarIconTag
-            // disabled={isDesigner}
-            // onClick={
-            //   !isDesigner
-            //     ? () =>
-            //         router.push(
-            //           `/designers/${uuidToBase62Safe(data?.data?.data?.designer?.user?.id || "")}`,
-            //         )
-            //     : undefined
-            // }
-          onClick={() => router.push(
-            isDesigner
-            ? '/settings/profile'
-            :`/designers/${uuidToBase62Safe(data?.data?.data?.designer?.user?.id || "")}`
-          )}
-            label={
-              !isDesigner
-                ? `${data?.data?.data?.designer?.user?.firstName || ""} ${
-                    data?.data?.data?.designer?.user?.lastName || ""
-                  }`
-                : `${data?.data?.data?.buyer?.user?.firstName || ""} ${
-                    data?.data?.data?.buyer?.user?.lastName || ""
-                  }`
-            }
-            avatar={{
-              src: !isDesigner
-                ? data?.data?.data?.designer?.user?.profilePhotoUri
-                : data?.data?.data?.buyer?.user?.profilePhotoUri,
-            }}
-          />
-        </span>
+      {/* <div className="flex flex-col gap-2 md:gap-4 max-w-screen-sm items-center justify-start">
+        <div className="flex flex-row justify-between items-center w-full">
+          <span className="text-sm text-foreground-body">
+            {!isDesigner ? "Designer" : "Client"}
+          </span>
+          <span>
+            <AvatarIconTag
+              onClick={() =>
+                router.push(
+                  isDesigner
+                    ? "/settings/profile"
+                    : `/designers/${uuidToBase62Safe(data?.data?.data?.designer?.user?.id || "")}`,
+                )
+              }
+              label={
+                !isDesigner
+                  ? `${data?.data?.data?.designer?.user?.firstName || ""} ${
+                      data?.data?.data?.designer?.user?.lastName || ""
+                    }`
+                  : `${data?.data?.data?.buyer?.user?.firstName || ""} ${
+                      data?.data?.data?.buyer?.user?.lastName || ""
+                    }`
+              }
+              avatar={{
+                src: !isDesigner
+                  ? data?.data?.data?.designer?.user?.profilePhotoUri
+                  : data?.data?.data?.buyer?.user?.profilePhotoUri,
+              }}
+            />
+          </span>
+        </div>
         <div
           id="tour-active-project-sizing-template"
-          className="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 items-center"
+          className="flex flex-row justify-between items-center w-full"
         >
           <span className="text-sm text-foreground-body">Sizing Template</span>
           <span className="relative">
             <SizingTemplatePill projectId={params?.id} />
           </span>
         </div>
-        <span className="text-sm text-foreground-body">Timeline</span>
-        <span>
-          <AvatarIconTag
-            disabled
-            label={`${format(
-              new Date(data?.data.data?.bidAcceptedDate || 0),
-              "MMM dd, yyy",
-            )} to ${format(
-              new Date(data?.data.data?.dueDate || 0),
-              "MMM dd, yyy",
-            )}`}
-            icon={<CalendarPlus className="text-primary h-5 w-5" />}
-          />
-        </span>
+        <div className="flex flex-row justify-between items-center w-full">
+          <span className="text-sm text-foreground-body">Timeline</span>
+          <span>
+            <AvatarIconTag
+              disabled
+              label={`${format(
+                new Date(data?.data.data?.bidAcceptedDate || 0),
+                "MMM dd, yyy",
+              )} to ${format(
+                new Date(data?.data.data?.dueDate || 0),
+                "MMM dd, yyy",
+              )}`}
+              icon={<CalendarPlus className="text-primary h-5 w-5" />}
+            />
+          </span>
+        </div>
+      </div> */}
+      <div className="max-w-screen-sm w-full space-y-4">
+        <div className="grid grid-cols-[120px_1fr] md:grid-cols-[200px_1fr] items-center gap-4">
+          <span className="text-sm text-foreground-body">
+            {!isDesigner ? "Designer" : "Client"}
+          </span>
+          <div>
+            <AvatarIconTag
+              onClick={() =>
+                router.push(
+                  isDesigner
+                    ? "/settings/profile"
+                    : `/designers/${uuidToBase62Safe(
+                        data?.data?.data?.designer?.user?.id || "",
+                      )}`,
+                )
+              }
+              label={
+                !isDesigner
+                  ? `${data?.data?.data?.designer?.user?.firstName || ""} ${
+                      data?.data?.data?.designer?.user?.lastName || ""
+                    }`
+                  : `${data?.data?.data?.buyer?.user?.firstName || ""} ${
+                      data?.data?.data?.buyer?.user?.lastName || ""
+                    }`
+              }
+              avatar={{
+                src: !isDesigner
+                  ? data?.data?.data?.designer?.user?.profilePhotoUri
+                  : data?.data?.data?.buyer?.user?.profilePhotoUri,
+              }}
+            />
+          </div>
+        </div>
+
+        <div
+          id="tour-active-project-sizing-template"
+          className="grid grid-cols-[120px_1fr] md:grid-cols-[200px_1fr] items-center gap-4"
+        >
+          <span className="text-sm text-foreground-body">Sizing Template</span>
+
+          <SizingTemplatePill projectId={params?.id} />
+        </div>
+
+        <div className="grid grid-cols-[120px_1fr] md:grid-cols-[200px_1fr] items-center gap-4">
+          <span className="text-sm text-foreground-body">Timeline</span>
+          <div>
+            <AvatarIconTag
+              disabled
+              label={`${format(
+                new Date(data?.data.data?.bidAcceptedDate || 0),
+                "MMM dd, yyyy",
+              )} to ${format(
+                new Date(data?.data.data?.dueDate || 0),
+                "MMM dd, yyyy",
+              )}`}
+              icon={<CalendarPlus className="h-5 w-5 text-primary" />}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

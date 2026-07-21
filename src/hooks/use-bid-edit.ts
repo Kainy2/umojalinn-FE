@@ -174,8 +174,6 @@ export const useBidEdit = () => {
 
   const [excess, setExcess] = useState<number>(0);
   const [showExcessDialog, setShowExcessDialog] = useState<boolean>(false);
-  const [submitAfterExcessConfirm, setSubmitAfterExcessConfirm] =
-    useState(false);
 
   const [mode, setMode] = useState<"UPDATE" | "LIVE" | null>(null);
 
@@ -201,22 +199,13 @@ export const useBidEdit = () => {
     deliveryMileStoneType: selectedDeliveryMethodType,
   });
 
-  const openExcessDialog = (
-    nextMode: "UPDATE" | "LIVE" | null,
-    options?: { afterStripe?: boolean },
-  ) => {
+  const openExcessDialog = (nextMode: "UPDATE" | "LIVE" | null) => {
     setExcess(totalPrice - projectBudget);
     setShowExcessDialog(true);
     setMode(nextMode);
-    setSubmitAfterExcessConfirm(!!options?.afterStripe);
   };
 
   const handleFinalSubmit = () => {
-    if (isOverBudget) {
-      openExcessDialog("LIVE", { afterStripe: true });
-      setShowStripeModal(false);
-      return;
-    }
     updateToSubmit(getSubmitPayload());
     setShowStripeModal(false);
   };
@@ -271,11 +260,6 @@ export const useBidEdit = () => {
 
   const handleExcessConfirm = () => {
     setShowExcessDialog(false);
-    if (submitAfterExcessConfirm) {
-      setSubmitAfterExcessConfirm(false);
-      updateToSubmit(getSubmitPayload());
-      return;
-    }
     handleUpdateAction(mode);
   };
 

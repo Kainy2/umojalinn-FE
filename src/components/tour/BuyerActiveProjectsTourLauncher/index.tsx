@@ -17,23 +17,8 @@ import { uuidToBase62Safe } from "@/lib/uuid";
 import { useGetBuyerBids } from "@/tanstack/hooks/useBid";
 import { useGetAllBuyerProject } from "@/tanstack/hooks/useProject";
 import { useGetAllSizingTemplates } from "@/tanstack/hooks/useSizingTemplates";
-import type { UmojaLinnSizingTemplate } from "@/types/project";
 
 const BUYER_ACTIVE_PROJECTS_TOUR_START_PATH = "/projects";
-
-const pickBuyerSizingTemplate = (
-  templates: UmojaLinnSizingTemplate[] | undefined,
-) => {
-  if (!templates?.length) {
-    return null;
-  }
-
-  return (
-    templates.find((template) => template.status === "DRAFT") ??
-    templates.find((template) => template.status !== "IN_USE") ??
-    templates[0]
-  );
-};
 
 const BuyerActiveProjectsTourLauncher = () => {
   const { startNextStep, isNextStepVisible } = useNextStep();
@@ -73,9 +58,10 @@ const BuyerActiveProjectsTourLauncher = () => {
 
   const hasBuyerDraftProject = !!buyerDraftProjectsData?.data?.data?.[0]?.id;
   const hasPendingBid = !!buyerPendingBidsData?.data?.data?.[0]?.id;
-  const hasBuyerSizingTemplate = !!pickBuyerSizingTemplate(
-    buyerSizingTemplatesData?.data?.data,
-  )?.id;
+  // Prefer the sizing-template tour whenever any templates exist (steps 1–2
+  // work without an editable template; step 3 is optional).
+  const hasBuyerSizingTemplate =
+    !!buyerSizingTemplatesData?.data?.data?.length;
 
   useEffect(() => {
     if (status !== "authenticated") {

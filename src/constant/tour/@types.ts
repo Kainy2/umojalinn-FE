@@ -8,6 +8,30 @@ export type TTourName =
   | "wallet"
   | "active-projects";
 
+export type TGuidedTourProfileType = "BUYER" | "DESIGNER";
+
+export type TBuyerGuidedTourStep =
+  | "WELCOME"
+  | "CREATE_PROJECT"
+  | "REVIEW_BID"
+  | "MANAGE_SIZING_TEMPLATE"
+  | "MANAGE_ACTIVE_PROJECT";
+
+export type TDesignerGuidedTourStep =
+  | "WELCOME"
+  | "CREATE_BID"
+  | "SIZING_TEMPLATE"
+  | "RECOMMENDED_CHANGES"
+  | "WALLET"
+  | "ACTIVE_PROJECT";
+
+export type TGuidedTourStep = TBuyerGuidedTourStep | TDesignerGuidedTourStep;
+
+export type TCompleteGuidedTourBody = {
+  profileType: TGuidedTourProfileType;
+  step: TGuidedTourStep;
+};
+
 export type TTourTargetId =
   | "tour-sidebar-dashboard"
   | "tour-sidebar-projects"
@@ -23,7 +47,6 @@ export type TTourTargetId =
   | "tour-create-project-gallery"
   | "tour-create-project-budget"
   | "tour-create-project-review"
-  | "tour-create-project-sizing-template"
   | "tour-buyer-projects-tabs"
   | "tour-buyer-bids-tab"
   | "tour-review-bid-milestones"

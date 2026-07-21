@@ -6,37 +6,19 @@ import { useSession } from "next-auth/react";
 import { useNextStep } from "nextstepjs";
 
 import {
+  pickBuyerSizingTemplate,
   setSizingTemplateTourProjectId,
   setSizingTemplateTourTemplateId,
-  shouldAutoStartCreateProjectTour,
-  shouldAutoStartReviewBidTour,
   shouldAutoStartSizingTemplateTour,
   shouldAutoStartWelcomeTour,
 } from "@/lib/tour";
 import { uuidToBase62Safe } from "@/lib/uuid";
-import { useGetBuyerBids } from "@/tanstack/hooks/useBid";
-import { useGetAllBuyerProject } from "@/tanstack/hooks/useProject";
 import {
   useGetAllDesignerSizingTemplates,
   useGetAllSizingTemplates,
 } from "@/tanstack/hooks/useSizingTemplates";
-import type { UmojaLinnSizingTemplate } from "@/types/project";
 
 const SIZING_TEMPLATE_TOUR_START_PATH = "/sizing-templates";
-
-const pickBuyerSizingTemplate = (
-  templates: UmojaLinnSizingTemplate[] | undefined,
-) => {
-  if (!templates?.length) {
-    return null;
-  }
-
-  return (
-    templates.find((template) => template.status === "DRAFT") ??
-    templates.find((template) => template.status !== "IN_USE") ??
-    templates[0]
-  );
-};
 
 const SizingTemplateTourLauncher = () => {
   const { startNextStep, isNextStepVisible } = useNextStep();
@@ -54,16 +36,6 @@ const SizingTemplateTourLauncher = () => {
     useGetAllSizingTemplates(undefined, {
       enabled: isBuyer,
     });
-
-  const { data: buyerDraftProjectsData } = useGetAllBuyerProject(
-    { projectStatus: "DRAFT" },
-    { enabled: isBuyer },
-  );
-
-  const { data: buyerPendingBidsData } = useGetBuyerBids(
-    { bidStatus: ["PENDING"] },
-    { enabled: isBuyer },
-  );
 
   const firstDesignerTemplateContext = useMemo(() => {
     const firstTemplate = designerTemplatesData?.data?.data?.[0];
@@ -86,18 +58,18 @@ const SizingTemplateTourLauncher = () => {
     };
   }, [designerTemplatesData?.data?.data]);
 
+  const buyerTemplates = buyerTemplatesData?.data?.data;
+  const hasBuyerTemplates = !!buyerTemplates?.length;
+
   const firstBuyerTemplateId = useMemo(() => {
-    const template = pickBuyerSizingTemplate(buyerTemplatesData?.data?.data);
+    const template = pickBuyerSizingTemplate(buyerTemplates);
 
     if (!template?.id) {
       return null;
     }
 
     return uuidToBase62Safe(template.id);
-  }, [buyerTemplatesData?.data?.data]);
-
-  const hasBuyerDraftProject = !!buyerDraftProjectsData?.data?.data?.[0]?.id;
-  const hasPendingBid = !!buyerPendingBidsData?.data?.data?.[0]?.id;
+  }, [buyerTemplates]);
 
   useEffect(() => {
     if (status !== "authenticated") {
@@ -121,18 +93,8 @@ const SizingTemplateTourLauncher = () => {
     }
 
     if (isBuyer) {
-      if (
-        shouldAutoStartCreateProjectTour() &&
-        hasBuyerDraftProject
-      ) {
-        return;
-      }
-
-      if (shouldAutoStartReviewBidTour() && hasPendingBid) {
-        return;
-      }
-
-      if (isBuyerTemplatesPending || !firstBuyerTemplateId) {
+      // Steps 1–2 only need any template card; step 3 needs an editable one.
+      if (isBuyerTemplatesPending || !hasBuyerTemplates) {
         return;
       }
     }
@@ -164,8 +126,7 @@ const SizingTemplateTourLauncher = () => {
   }, [
     firstBuyerTemplateId,
     firstDesignerTemplateContext,
-    hasBuyerDraftProject,
-    hasPendingBid,
+    hasBuyerTemplates,
     isBuyer,
     isBuyerTemplatesPending,
     isDesigner,

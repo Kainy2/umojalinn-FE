@@ -88,7 +88,7 @@ export const buildBuyerActiveProjectsTour = (projectId: string) => {
         content:
           "When your designer submits a completed milestone, review it carefully. Approve it to release payment or reject to send it back with feedback.",
         selector: tourTarget("tour-active-project-milestone-approval"),
-        side: "left" as const,
+        side: "top" as const,
         prevRoute: projectDetailPath,
       },
       {

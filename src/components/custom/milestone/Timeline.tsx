@@ -290,9 +290,11 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
             milestone?.isCurrent;
           const canRaiseBuyerDispute =
             !isDesigner &&
+            milestone.isCurrent &&
             isMilestoneEligibleForDispute(item, disputedMilestoneIds);
           const canRaiseDesignerDispute =
             isDesigner &&
+            milestone?.status !== MilestoneStatus.COMPLETED &&
             isMilestoneEligibleForDispute(item, disputedMilestoneIds);
           const showMilestoneActions =
             canRaiseBuyerDispute || canRaiseDesignerDispute;

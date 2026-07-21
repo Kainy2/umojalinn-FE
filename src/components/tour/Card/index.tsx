@@ -13,7 +13,10 @@ import {
   dispatchCreateBidRequestMeasurements,
   dispatchCreateBidSaveMilestone,
   getCreateBidTourProjectId,
+  getTourStepAt,
   setCreateBidTourBidId,
+  syncTourPointerToTarget,
+  waitForTourSelector,
 } from "@/lib/tour";
 import { cn } from "@/lib/utils";
 
@@ -28,7 +31,7 @@ const TourCard = ({
 }: TTourCardProps) => {
   const router = useRouter();
   const { data: session } = useSession();
-  const { closeNextStep, currentTour } = useNextStep();
+  const { closeNextStep, currentTour, setCurrentStep } = useNextStep();
   const [isAdvancing, setIsAdvancing] = useState(false);
 
   const isBuyer = session?.user?.profileRole === "BUYER";
@@ -39,6 +42,50 @@ const TourCard = ({
 
   const isCreateProjectFinalStep =
     currentTour === "create-a-project" && isLastStep;
+
+  const advanceWithRoute = async (direction: "next" | "prev") => {
+    const route = direction === "next" ? step.nextRoute : step.prevRoute;
+    const targetIndex =
+      direction === "next" ? currentStep + 1 : currentStep - 1;
+
+    if (!route) {
+      if (direction === "next") {
+        nextStep();
+      } else {
+        prevStep();
+      }
+      return;
+    }
+
+    const targetSelector = getTourStepAt(currentTour, targetIndex)?.selector;
+    // Sidebar/appbar targets are already mounted — highlight immediately and
+    // let the page navigate underneath (no MutationObserver wait).
+    const targetAlreadyInDom =
+      !!targetSelector && !!document.querySelector(targetSelector);
+
+    setIsAdvancing(true);
+    try {
+      router.push(route);
+
+      if (!targetAlreadyInDom && targetSelector) {
+        await waitForTourSelector(targetSelector);
+      }
+
+      setCurrentStep(targetIndex);
+
+      // The destination page keeps mounting/loading after the target first
+      // appears, so keep the spotlight glued to the target while it settles.
+      if (targetSelector) {
+        syncTourPointerToTarget(targetSelector);
+      }
+    } finally {
+      setIsAdvancing(false);
+    }
+  };
+
+  const handlePrev = () => {
+    void advanceWithRoute("prev");
+  };
 
   const handleNext = async () => {
     if (isCreateProjectFinalStep) {
@@ -55,7 +102,7 @@ const TourCard = ({
       const projectId = getCreateBidTourProjectId();
 
       if (!projectId) {
-        nextStep();
+        await advanceWithRoute("next");
         return;
       }
 
@@ -64,9 +111,11 @@ const TourCard = ({
         const bidId = await createBidForTour(projectId);
         setCreateBidTourBidId(bidId);
         router.push(`/bids/${bidId}/edit`);
-        window.setTimeout(() => nextStep(), 500);
+        await waitForTourSelector("#tour-create-bid-milestone-fields");
+        setCurrentStep(currentStep + 1);
+        syncTourPointerToTarget("#tour-create-bid-milestone-fields");
       } catch {
-        nextStep();
+        await advanceWithRoute("next");
       } finally {
         setIsAdvancing(false);
       }
@@ -84,7 +133,7 @@ const TourCard = ({
       } finally {
         setIsAdvancing(false);
       }
-      nextStep();
+      await advanceWithRoute("next");
       return;
     }
 
@@ -98,11 +147,11 @@ const TourCard = ({
       } finally {
         setIsAdvancing(false);
       }
-      nextStep();
+      await advanceWithRoute("next");
       return;
     }
 
-    nextStep();
+    await advanceWithRoute("next");
   };
 
   return (
@@ -150,7 +199,7 @@ const TourCard = ({
             type="button"
             variant="outline"
             size="sm"
-            onClick={prevStep}
+            onClick={handlePrev}
             className="text-base font-medium p-2 text-[#475467] border-[#00000033] border rounded-lg"
           >
             Previous

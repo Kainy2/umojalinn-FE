@@ -1,6 +1,7 @@
 import { clientAxios, getAxiosToBeUsed, getServerAxiosWithToken } from "@/lib/axios";
 import { convertApiParams } from "@/lib/request";
 import { base62ToUuidSafe } from "@/lib/uuid";
+import type { TCompleteGuidedTourBody } from "@/constant/tour/@types";
 import { NotificationSettingsProps, PasswordUpdateProps } from "@/types/form";
 import { NewUmojaLinnProjectReview } from "@/types/project";
 import { UmojaLinnUser, UmojaLinnUserRole } from "@/types/user";
@@ -83,6 +84,20 @@ export const updateNotificationSettings = async (
   }
   return axios.put<unknown, AxiosResponse<SingleApiResponse>>(
     "/user/update-notification-setting",
+    body,
+  );
+};
+
+export const completeGuidedTour = async (
+  body: TCompleteGuidedTourBody,
+  options?: ServerActionOption,
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.put<unknown, AxiosResponse<SingleApiResponse>>(
+    "/user/complete-guided-tour",
     body,
   );
 };

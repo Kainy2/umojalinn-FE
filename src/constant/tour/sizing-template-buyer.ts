@@ -4,7 +4,7 @@ export type TBuyerSizingTemplateTourTargetId = Extract<
   TTourTargetId,
   | "tour-sidebar-sizing-templates"
   | "tour-sizing-template-card"
-  | "tour-buyer-sizing-template-actions"
+  | "tour-sizing-template-measurement-points"
 >;
 
 const tourTarget = (id: TBuyerSizingTemplateTourTargetId) => `#${id}`;
@@ -16,8 +16,13 @@ const SIZING_TEMPLATE_POINTER = {
   showSkip: true,
 };
 
-export const buildBuyerSizingTemplateTour = (templateId: string) => {
-  const templateDetailPath = `/sizing-templates/${templateId}`;
+export const buildBuyerSizingTemplateTour = (
+  templateId?: string | null,
+) => {
+  const canEditMeasurements = !!templateId;
+  const templateDetailPath = canEditMeasurements
+    ? `/sizing-templates/${templateId}`
+    : undefined;
 
   return {
     tour: "sizing-template" as const,
@@ -39,20 +44,24 @@ export const buildBuyerSizingTemplateTour = (templateId: string) => {
         content:
           "Each sizing template card displays its current status. Click on a template card to open and manage it.",
         selector: tourTarget("tour-sizing-template-card"),
-        side: "bottom" as const,
+        side: "right" as const,
         prevRoute: "/sizing-templates",
-        nextRoute: templateDetailPath,
+        ...(templateDetailPath ? { nextRoute: templateDetailPath } : {}),
       },
-      {
-        ...SIZING_TEMPLATE_POINTER,
-        icon: null,
-        title: "Edit, Save, & Attach Your Measurements",
-        content:
-          "Save your sizing template for later, or choose 'Add to Job' to attach it directly to an active project.",
-        selector: tourTarget("tour-buyer-sizing-template-actions"),
-        side: "top-left" as const,
-        prevRoute: "/sizing-templates",
-      },
+      ...(canEditMeasurements
+        ? [
+            {
+              ...SIZING_TEMPLATE_POINTER,
+              icon: null,
+              title: "Edit, Save, & Attach Your Measurements",
+              content:
+                "Fill in your measurement points, then save your sizing template for later, or choose 'Add to Job' to attach it directly to an active project.",
+              selector: tourTarget("tour-sizing-template-measurement-points"),
+              side: "right" as const,
+              prevRoute: "/sizing-templates",
+            },
+          ]
+        : []),
     ],
   };
 };

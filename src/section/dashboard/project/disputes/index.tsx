@@ -3,15 +3,12 @@
 import React, { useCallback, useState } from "react";
 import Collapsible from "@/components/custom/Collapsible";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
 import { useGetProjectDisputesWithDetails } from "@/tanstack/hooks/useDispute";
 import { useSession } from "next-auth/react";
 import { IProjectDisputesProps } from "./@types";
 import DisputeListItem from "./DisputeListItem";
 
 const ProjectDisputes = ({ projectId, currency }: IProjectDisputesProps) => {
-  const { toast } = useToast();
   const { data: session } = useSession();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [respondingId, setRespondingId] = useState<string | null>(null);
@@ -42,13 +39,6 @@ const ProjectDisputes = ({ projectId, currency }: IProjectDisputesProps) => {
   const handleResponseSuccess = useCallback(() => {
     setRespondingId(null);
   }, []);
-
-  const handleSummaryDocClick = useCallback(() => {
-    toast({
-      title: "Coming soon",
-      description: "The dispute summary document will be available shortly.",
-    });
-  }, [toast]);
 
   if (isLoading) {
     return (
@@ -82,7 +72,7 @@ const ProjectDisputes = ({ projectId, currency }: IProjectDisputesProps) => {
         ))}
       </div>
 
-      <button
+      {/* <button
         type="button"
         onClick={handleSummaryDocClick}
         className={cn(
@@ -90,7 +80,7 @@ const ProjectDisputes = ({ projectId, currency }: IProjectDisputesProps) => {
         )}
       >
         View summary doc &gt;
-      </button>
+      </button> */}
     </Collapsible>
   );
 };
