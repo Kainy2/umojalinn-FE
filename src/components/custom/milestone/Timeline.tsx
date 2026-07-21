@@ -8,7 +8,7 @@ import {
   VariableDeliveryMileStoneSubmissions,
 } from "@/types/project";
 import ClipboardSearch from "@/assets/ClipboardSearch";
-import { MoreVertical } from "lucide-react";
+import { Info, MoreVertical } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -495,6 +495,13 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                       {milestone?.info}
                     </span>
                   </div>
+
+                  {isDelivery && isDesigner && (
+                    <div className="text-gray-400 text-sm flex flex-row gap-1 items-center">
+                      <Info className="w-3 h-3" />
+                      <p>The Delivery milestone does not incur any commission.</p>
+                    </div>
+                  )}
                   <MilestoneAction
                     {...milestone}
                     message={message}

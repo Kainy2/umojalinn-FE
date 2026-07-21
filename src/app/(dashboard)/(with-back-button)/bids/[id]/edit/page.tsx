@@ -13,7 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { getCurrencySymbol } from "@/lib/string";
 import { UmojaLinnDeliveryMethod } from "@/types/project";
 import { Separator } from "@radix-ui/react-separator";
-import { Plus } from "lucide-react";
+import { Info, Plus } from "lucide-react";
 import { formatCurrencyValue } from "@/lib/number";
 import { useBidEdit } from "@/hooks/use-bid-edit";
 import { VariableDeliverySelect } from "@/components/custom/bids/VariableDeliverySelect";
@@ -155,7 +155,7 @@ const BidPage = () => {
       </div>
 
       <div className="font-semibold">
-        <div className="bg-slate-200/30 text-sm p-4 flex flex-col gap-4">
+        <div className="bg-slate-200/30 p-4 flex flex-col gap-4">
           <p className="flex justify-between ">
             <span className="text-foreground-body">Total Price</span>
             <span>
@@ -163,13 +163,21 @@ const BidPage = () => {
               {formatCurrencyValue(totalPrice)}
             </span>
           </p>
-          <p className="flex justify-between">
-            <span className="text-foreground-body">Commission</span>
-            <span>
-              -{getCurrencySymbol(project?.currency)}
-              {formatCurrencyValue(totalPrice * SERVICE_FEE_PERCENTAGE / 100)}
-            </span>
-          </p>
+
+          <div>
+            <p className="flex justify-between">
+              <span className="text-foreground-body">Commission</span>
+              <span>
+                -{getCurrencySymbol(project?.currency)}
+                {formatCurrencyValue(totalPrice * SERVICE_FEE_PERCENTAGE / 100)}
+              </span>
+            </p>
+            <div className="text-gray-400 text-sm flex flex-row gap-1 items-center">
+              <Info className="w-3 h-3" />
+              <p>The Delivery milestone does not incur any commission.</p>
+            </div>
+          </div>
+
         </div>
         <p className="flex justify-between p-4 py-2 bg-gray-200">
           {" "}

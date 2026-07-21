@@ -29,7 +29,6 @@ import { toast } from "@/hooks/use-toast";
 
 type SharedWorkImageEntry = {
   id: string | number;
-  description: string;
   fileName: string;
   isCoverImage: boolean;
   image: string | File;
@@ -39,6 +38,7 @@ type WorkEntry = {
   localId: number;
   images: SharedWorkImageEntry[];
   selectedClothingTypes: string[];
+  description: string;
 };
 
 const isWorkValid = (work: WorkEntry) => {
@@ -60,9 +60,8 @@ const ShareYourWorkForm = () => {
   const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [works, setWorks] = useState<WorkEntry[]>([
-    { localId: 0, images: [], selectedClothingTypes: [] },
+    { localId: 0, images: [], selectedClothingTypes: [], description: "" },
   ]);
-  const [entryTitles, setEntryTitles] = useState<Record<number, string>>({ 0: "" });
 
   const isFormValid = works.every(isWorkValid);
 
@@ -70,18 +69,12 @@ const ShareYourWorkForm = () => {
     const newId = Date.now();
     setWorks((prev) => [
       ...prev,
-      { localId: newId, images: [], selectedClothingTypes: [] },
+      { localId: newId, images: [], selectedClothingTypes: [], description: "" },
     ]);
-    setEntryTitles((prev) => ({ ...prev, [newId]: "" }));
   }, []);
 
   const handleDeleteWork = useCallback((localId: number) => {
     setWorks((prev) => prev.filter((w) => w.localId !== localId));
-    setEntryTitles((prev) => {
-      const next = { ...prev };
-      delete next[localId];
-      return next;
-    });
   }, []);
 
   const handleFileSelect = useCallback(
@@ -96,7 +89,6 @@ const ShareYourWorkForm = () => {
                 ...work.images,
                 {
                   id: work.images.length,
-                  description: entryTitles[workLocalId] ?? "",
                   fileName: file.name,
                   isCoverImage: !work.images.length,
                   image: file,
@@ -105,7 +97,6 @@ const ShareYourWorkForm = () => {
             };
           }),
         );
-        setEntryTitles((prev) => ({ ...prev, [workLocalId]: "" }));
       } else {
         toast({
           title: "File error",
@@ -116,23 +107,19 @@ const ShareYourWorkForm = () => {
         });
       }
     },
-    [isFileSizeValid, entryTitles],
+    [isFileSizeValid],
   );
 
   const handleDescriptionChange =
-    (workLocalId: number, imageIndex: number) =>
+    (workLocalId: number) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
       e.preventDefault();
       setWorks((prev) =>
-        prev.map((work) => {
-          if (work.localId !== workLocalId) return work;
-          return {
-            ...work,
-            images: work.images.map((img, i) =>
-              i === imageIndex ? { ...img, description: e.target.value } : img,
-            ),
-          };
-        }),
+        prev.map((work) =>
+          work.localId === workLocalId
+            ? { ...work, description: e.target.value }
+            : work,
+        ),
       );
     };
 
@@ -204,8 +191,8 @@ const ShareYourWorkForm = () => {
       // Metadata as a JSON string in "sharedWorks"
       const sharedWorks = works.map((work) => ({
         clothingTypes: work.selectedClothingTypes,
-        imagesMeta: work.images.map(({ description, fileName, isCoverImage }) => ({
-          description,
+        description: work.description,
+        imagesMeta: work.images.map(({ fileName, isCoverImage }) => ({
           fileName,
           isCoverImage,
         })),
@@ -294,14 +281,6 @@ const ShareYourWorkForm = () => {
                       </div>
                     </div>
 
-                    <div className="grid w-full gap-1.5">
-                      <TextField
-                        value={value.description}
-                        onChange={handleDescriptionChange(work.localId, imageIndex)}
-                        maxLength={500}
-                        hint={`${value?.description?.length || 0}/500 characters`}
-                      />
-                    </div>
                   </div>
                 ))}
 
@@ -318,19 +297,17 @@ const ShareYourWorkForm = () => {
                       if (file) handleFileSelect(work.localId, file as File);
                     }}
                   />
-                  <TextField
-                    maxLength={500}
-                    value={entryTitles[work.localId] ?? ""}
-                    onChange={(e) =>
-                      setEntryTitles((prev) => ({
-                        ...prev,
-                        [work.localId]: e.target.value,
-                      }))
-                    }
-                    hint={`${entryTitles[work.localId]?.length || 0} / 500 characters`}
-                  />
                 </div>
               </div>
+            </FormItemWrapper>
+
+            <FormItemWrapper title="Description">
+              <TextField
+                value={work.description}
+                onChange={handleDescriptionChange(work.localId)}
+                maxLength={500}
+                hint={`${work.description.length}/500 characters`}
+              />
             </FormItemWrapper>
 
             <FormItemWrapper>

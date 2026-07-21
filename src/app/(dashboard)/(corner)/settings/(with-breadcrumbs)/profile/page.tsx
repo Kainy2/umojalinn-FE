@@ -159,8 +159,10 @@ const SettingsProfilePage = () => {
               render={({ field }) => (
                 <FormTextAreaField
                   placeholder="Bio"
+                  
                   maxLength={MAX_PROFILE_ABOUT_COUNT}
-                  hint={MAX_PROFILE_ABOUT_COUNT + " characters max"}
+                  hint={`${field.value?.length || 0}/${MAX_PROFILE_ABOUT_COUNT}`}
+                  // hint={MAX_PROFILE_ABOUT_COUNT + " characters max"}
                   disabled={disableForm}
                   {...field}
                   value={field?.value || ""}
