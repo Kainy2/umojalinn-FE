@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Heart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -35,7 +36,7 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
 
   const fullName = `${designer.user.firstName} ${designer.user.lastName}`;
   const location =
-    [designer.user.address?.city, designer.user.address?.state, designer.user.address?.country]
+    [designer.user.address?.state, designer.user.address?.country]
       .filter(Boolean)
       .join(", ") + "." || "N/A";
 
@@ -112,10 +113,11 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
           <Button variant="outline" size="sm">
             <Heart className="h-4 w-4 text-primary" />
           </Button>
-          <Button variant="outline" size="sm">
-            Book Consultation
+          <Button size="sm" asChild>
+            <Link href={`/project/create${designer.inviterTag ? `?inviterTag=${designer.inviterTag}` : ''}`}>
+              Hire Me
+            </Link>
           </Button>
-          <Button size="sm">Hire Me</Button>
         </div>
       </div>
 
@@ -138,7 +140,7 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-8 gap-y-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-8 gap-y-4 mt-4">
           {stats.map((stat) => (
             <div key={stat.label}>
               <p className="text-sm text-foreground-body">{stat.label}</p>
@@ -148,9 +150,9 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
         </div>
 
         {/* Rating */}
-        <div>
+        <div className="mt-4">
           <p className="text-sm text-foreground-body">Ratings</p>
-          <ReviewRatingStars rating={avgRating} disabled small />
+          <ReviewRatingStars smallValue rating={avgRating} disabled small />
         </div>
 
         {/* Specialties */}
