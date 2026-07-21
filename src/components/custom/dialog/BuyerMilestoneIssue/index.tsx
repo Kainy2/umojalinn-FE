@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { CustomSelectField } from "@/components/custom/Select";
+import TextAreaField from "@/components/custom/input/TextAreaField";
 import MilestoneInputSectionImageUpload from "@/components/custom/picker/MilestoneInputSectionImageUpload";
 import { useCreateBuyerDispute } from "@/tanstack/hooks/useDispute";
 import ClipboardSearch from "@/assets/ClipboardSearch";
@@ -34,10 +35,12 @@ export const BuyerMilestoneIssueDialog = ({
   const onOpenChange = controlledOnOpenChange ?? setInternalOpen;
 
   const [reason, setReason] = useState<TBuyerIssueReason | "">("");
+  const [description, setDescription] = useState("");
   const [files, setFiles] = useState<FileList | null>(null);
 
   const resetForm = useCallback(() => {
     setReason("");
+    setDescription("");
     setFiles(null);
   }, []);
 
@@ -48,7 +51,7 @@ export const BuyerMilestoneIssueDialog = ({
     },
   });
 
-  const canSubmit = !!reason && !isPending;
+  const canSubmit = !!reason && !!description.trim() && !isPending;
 
   const handleSubmit = () => {
     if (!reason || !canSubmit) return;
@@ -61,7 +64,7 @@ export const BuyerMilestoneIssueDialog = ({
       type: "BUYER_ISSUE",
       milestoneIds: [milestoneId],
       reasonCategory: reasonLabel,
-      reasonDetail: reasonLabel,
+      reasonDetail: description.trim(),
       attachmentFiles: files ?? undefined,
       requestedRefundAmount: 0,
     });
@@ -111,6 +114,18 @@ export const BuyerMilestoneIssueDialog = ({
                 children: item.label,
               }))}
               trigger={{ className: "rounded-none h-12" }}
+            />
+
+            <TextAreaField
+              label={{
+                children: "Description",
+                className: "font-semibold text-foreground-body",
+              }}
+              placeholder="Enter your message..."
+              rows={4}
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              className="min-h-[120px] resize-none rounded-none"
             />
 
             <div className="grid w-full gap-1.5">

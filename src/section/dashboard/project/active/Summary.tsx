@@ -75,7 +75,7 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
     () =>
       milestones.map((milestone) => ({
         id: milestone.id,
-        title: milestone.title ?? "",
+        title: formatMilestoneSelectLabel(milestone, milestones),
         amount: Number(milestone.amount) || 0,
       })),
     [milestones],
@@ -135,7 +135,7 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
       type: "BUYER_ISSUE",
       milestoneIds: pendingIssue.milestoneIds,
       reasonCategory: reasonLabel,
-      reasonDetail: reasonLabel,
+      reasonDetail: pendingIssue.description,
       attachmentFiles: pendingIssue.files ?? undefined,
       requestedRefundAmount: 0,
     });
