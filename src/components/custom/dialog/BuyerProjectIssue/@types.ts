@@ -4,6 +4,7 @@ import { TBuyerIssueReason } from "@/types/dispute";
 
 export type TBuyerProjectIssueFormData = {
   reason: TBuyerIssueReason;
+  description: string;
   milestoneIds: string[];
   files: FileList | null;
 };

@@ -82,7 +82,7 @@ export const RefundRequestDialog = ({
     setPartialAmount("");
     setReason("");
     setDescription("");
-    setConfirmed(true);
+    setConfirmed(false);
     setFiles(null);
   }, []);
 
