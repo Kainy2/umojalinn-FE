@@ -1,5 +1,6 @@
 import {
   changePassword,
+  completeGuidedTour,
   deleteProjectInvitationById,
   getMe,
   getNotificationSettings,
@@ -11,6 +12,7 @@ import {
   sendCallNotification,
 } from "@/actions/user";
 import { queryClient } from "@/components/provider/TanstackQueryClient";
+import type { TCompleteGuidedTourBody } from "@/constant/tour/@types";
 import {
   GenericUseQueryProps,
   GenericUseMutationProps,
@@ -179,6 +181,25 @@ export const useUpdateNotificationSettings = (
     },
     onError: (error, variables, context) => {
       handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useCompleteGuidedTour = (
+  options?: GenericUseMutationProps<
+    SingleApiResponse,
+    TCompleteGuidedTourBody
+  >,
+) => {
+  return useMutation({
+    ...options,
+    mutationFn: completeGuidedTour,
+    onSuccess: (data, variables, context) => {
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      // Soft fail: localStorage remains source of truth for auto-start.
       options?.onError?.(error, variables, context);
     },
   });

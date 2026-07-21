@@ -225,6 +225,44 @@ export const useGetAllDesignerProject = (
   });
 };
 
+export const useGetInfiniteDesignerProjects = (
+  apiParams?: Partial<{
+    limit: number;
+    projectStatus:
+      | UmojaLinnProject["status"]
+      | Array<UmojaLinnProject["status"]>;
+    projectType:
+      | UmojaLinnProject["projectType"]
+      | Array<UmojaLinnProject["projectType"]>;
+    hasBid?: boolean;
+  }>,
+  options?: { enabled?: boolean },
+) => {
+  const { data: me } = useSession();
+
+  return useInfiniteQuery({
+    initialPageParam: undefined as string | undefined,
+    enabled:
+      me?.user?.profileRole === "DESIGNER" && options?.enabled !== false,
+    queryKey: [PROJECT, DESIGNER, "infinite", { apiParams }],
+    queryFn: ({ pageParam: lastId }) =>
+      getAllDesignerProjects({
+        ...apiParams,
+        ...(lastId ? { lastId } : {}),
+      }),
+    getNextPageParam: (lastPage, allPages) => {
+      const loadedCount = allPages.reduce(
+        (acc, page) => acc + (page.data.data?.length ?? 0),
+        0,
+      );
+      const { total, lastId, data } = lastPage.data;
+      if (!data?.length || !lastId) return undefined;
+      if (typeof total === "number" && loadedCount >= total) return undefined;
+      return lastId;
+    },
+  });
+};
+
 export const useGetProjectMilestones = (
   projectId: string,
   options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnMilestone>>,
@@ -383,14 +421,14 @@ export const useGetTransactions = (params?: Record<string, unknown>) => {
 
 export const useGetInfiniteTransactions = (
   params?: Record<string, unknown>,
-  // options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnTransaction>>
+  options?: { enabled?: boolean },
 ) => {
   const { data: me } = useSession();
   const lastId = params?.lastId;
 
   return useInfiniteQuery({
     initialPageParam: lastId,
-    enabled: !!me?.user,
+    enabled: !!me?.user && options?.enabled !== false,
     queryKey: [TRANSACTION, params],
     queryFn: ({ pageParam: lastId }) =>
       getAllTransactions({ lastId, ...params }),

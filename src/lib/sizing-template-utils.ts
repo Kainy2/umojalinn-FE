@@ -2,10 +2,12 @@
  * Sizing template utility functions
  */
 
+import { ALL_SIZING_TEMPLATES } from "@/constant/sizingTemplate";
 import {
   FREE_TEMPLATE_LIMIT,
   REMINDER_COOLDOWN_MINUTES,
 } from "@/types/constants";
+import { UmojaLinnSizingTemplate } from "@/types/project";
 
 export type TSizingGender = "MALE" | "FEMALE";
 
@@ -51,13 +53,29 @@ export const getOppositeGenderTemplateWarningDescription = (
   templateGender: TSizingGender,
   projectGender: TSizingGender,
 ): string =>
-  `This sizing template is for ${getSizingGenderLabel(templateGender)} but your project is for ${getSizingGenderLabel(projectGender)}. Adding it to this project will change it to a ${getSizingGenderLabel(templateGender)} template`;
+  `This sizing template is for ${getSizingGenderLabel(templateGender)} but your project is for ${getSizingGenderLabel(projectGender)}. Continuing will clear all measurements and convert it to a ${getSizingGenderLabel(projectGender)} template. You'll need to re-enter standard size and height.`;
 
 export const getOppositeGenderProjectWarningDescription = (
   projectGender: TSizingGender,
   templateGender: TSizingGender,
 ): string =>
-  `This project is for ${getSizingGenderLabel(projectGender)} but your sizing template is for ${getSizingGenderLabel(templateGender)}. Adding it to this project will change it to a ${getSizingGenderLabel(templateGender)} template`;
+  `This project is for ${getSizingGenderLabel(projectGender)} but your sizing template is for ${getSizingGenderLabel(templateGender)}. Continuing will clear all measurements and convert it to a ${getSizingGenderLabel(projectGender)} template. You'll need to re-enter standard size and height.`;
+
+/** Null out every measurement field and set gender for an opposite-gender conversion */
+export const getClearedSizingTemplatePayload = (
+  targetGender: TSizingGender,
+): Partial<UmojaLinnSizingTemplate> => {
+  const clearedMeasurements = Object.fromEntries(
+    ALL_SIZING_TEMPLATES.map((item) => [item.prop, null]),
+  ) as Partial<UmojaLinnSizingTemplate>;
+
+  return {
+    ...clearedMeasurements,
+    gender: targetGender,
+    height: null,
+    ukStandardSize: null,
+  };
+};
 
 /** Projects compatible with a template's gender */
 export const filterProjectsForTemplate = <

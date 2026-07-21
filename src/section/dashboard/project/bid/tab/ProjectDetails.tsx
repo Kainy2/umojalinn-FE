@@ -58,7 +58,7 @@ const BidTabProjectDetailsSection = () => {
   }
 
   return (
-    <div className="flex flex-col gap-8">
+    <div id="tour-review-bid-project-details" className="flex flex-col gap-8">
       <div className="relative bg-stone-100 border-l-4 border-stone-600 p-4">
         {project.projectType === "PRIVATE" && (
           <span className="absolute rounded-full p-2 [&>svg]:size-5 text-primary bg-background top-2 right-2">

@@ -22,6 +22,10 @@ import {
   UmojaLinnSizingTemplate,
   UmojalinnStandardSize,
 } from "@/types/project";
+import {
+  getClearedSizingTemplatePayload,
+  isMatchingSizingGender,
+} from "@/lib/sizing-template-utils";
 
 import { useGetMe } from "@/tanstack/hooks/useUser";
 import { useGetBidById } from "@/tanstack/hooks/useBid";
@@ -126,8 +130,16 @@ const SizingTemplatePill = ({
   const { data: allTemplatesData } = useGetAllSizingTemplates();
 
   const sizingTemplate = templateData?.data?.data;
-  const isBuyer = meData?.data?.data?.buyerProfile?.id === project?.buyerId;
-  const isDesigner = !isBuyer;
+  // Match RequestAlert: identify role by profile IDs, not by negating buyer.
+  // Avoids undefined === undefined treating designers as buyers when buyerId is missing.
+  const isDesigner = bid?.designerId
+    ? meData?.data?.data?.designerProfile?.id === bid.designerId
+    : project?.designerId
+      ? meData?.data?.data?.designerProfile?.id === project.designerId
+      : session?.user?.profileRole === "DESIGNER";
+  // const isBuyer = project?.buyerId
+  //   ? meData?.data?.data?.buyerProfile?.id === project.buyerId
+  //   : session?.user?.profileRole === "BUYER";
 
   // State for modals
   const [selectModalOpen, setSelectModalOpen] = useState(false);
@@ -368,7 +380,16 @@ const SizingTemplatePill = ({
         ukStandardSize: ukSize,
       });
     } else if (selectedTemplate && project?.id) {
+      const isGenderConversion = !!(
+        project.gender &&
+        selectedTemplate.gender &&
+        !isMatchingSizingGender(selectedTemplate.gender, project.gender)
+      );
+
       updateTemplate({
+        ...(isGenderConversion && project.gender
+          ? getClearedSizingTemplatePayload(project.gender)
+          : {}),
         height,
         ukStandardSize: ukSize,
         unit,
@@ -497,6 +518,21 @@ const SizingTemplatePill = ({
         gender: sizingTemplate.gender ?? project?.gender,
       };
     }
+
+    const isGenderConversion = !!(
+      project?.gender &&
+      selectedTemplate?.gender &&
+      !isMatchingSizingGender(selectedTemplate.gender, project.gender)
+    );
+
+    if (isGenderConversion) {
+      return {
+        height: DEFAULT_HEIGHT,
+        unit: selectedTemplate?.unit ?? DEFAULT_UNIT,
+        gender: project?.gender,
+      };
+    }
+
     return {
       height: selectedTemplate?.height ?? DEFAULT_HEIGHT,
       ukSize: selectedTemplate?.ukStandardSize,

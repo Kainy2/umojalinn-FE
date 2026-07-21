@@ -46,11 +46,13 @@ type JobCardProps = {
   messageCount?: number;
   newMessage?: boolean;
   href?: string;
+  id?: string;
 };
 const JobCard = (props: JobCardProps) => {
   return (
     <CustomCard
       type="DASHBOARD"
+      id={props.id}
       href={props?.href}
       blurred={props?.blurred}
       disabled={props?.disabled}

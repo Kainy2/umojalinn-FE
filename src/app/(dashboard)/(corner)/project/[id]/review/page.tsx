@@ -127,7 +127,7 @@ const ReviewPage = () => {
 
   return (
     <div className="flex flex-col gap-8">
-      <div>
+      <div id="tour-create-project-review">
         <h3 className="text-md font-semibold text-foreground mb-1">
           Confirm details
         </h3>

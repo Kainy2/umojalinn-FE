@@ -16,6 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { CustomSelectField } from "@/components/custom/Select";
+import TextAreaField from "@/components/custom/input/TextAreaField";
 import MilestoneInputSectionImageUpload from "@/components/custom/picker/MilestoneInputSectionImageUpload";
 import { formatCurrencyValue } from "@/lib/number";
 import { getCurrencySymbol } from "@/lib/string";
@@ -43,28 +44,37 @@ export const MilestoneCancellationRequestDialog = ({
   const onOpenChange = controlledOnOpenChange ?? setInternalOpen;
 
   const [reason, setReason] = useState<TDisputeReason | "">("");
+  const [description, setDescription] = useState("");
   const [isClientAware, setIsClientAware] = useState<TClientAwareness>("no");
-  const [confirmed, setConfirmed] = useState(true);
+  const [confirmed, setConfirmed] = useState(false);
   const [files, setFiles] = useState<FileList | null>(null);
 
   const resetForm = useCallback(() => {
     setReason("");
+    setDescription("");
     setIsClientAware("no");
     setConfirmed(false);
     setFiles(null);
   }, []);
 
-  const { mutate: createDesignerDispute, isPending } = useCreateDesignerDispute({
-    onSuccess: () => {
-      resetForm();
-      onOpenChange(false);
+  const { mutate: createDesignerDispute, isPending } = useCreateDesignerDispute(
+    {
+      onSuccess: () => {
+        resetForm();
+        onOpenChange(false);
+      },
     },
-  });
+  );
 
   const currencySymbol = getCurrencySymbol(currency);
   const formattedEscrow = `${currencySymbol}${formatCurrencyValue(escrowAmount)}`;
 
-  const canSubmit = !!reason && !!isClientAware && confirmed && !isPending;
+  const canSubmit =
+    !!reason &&
+    !!description.trim() &&
+    !!isClientAware &&
+    confirmed &&
+    !isPending;
 
   const handleSubmit = () => {
     if (!reason || !canSubmit) return;
@@ -76,7 +86,7 @@ export const MilestoneCancellationRequestDialog = ({
       type: "DESIGNER_CANCELLATION_REQUEST",
       milestoneIds: [milestoneId],
       reasonCategory: reasonLabel,
-      reasonDetail: reasonLabel,
+      reasonDetail: description.trim(),
       attachmentFiles: files ?? undefined,
       requestedRefundAmount: 0,
     });
@@ -103,7 +113,6 @@ export const MilestoneCancellationRequestDialog = ({
                 Milestone Cancellation Request
               </DialogTitle>
               <p className="text-sm text-muted-foreground">
-                Milestone Name:{" "}
                 <span className="text-foreground-body">{projectName}</span>
                 {": "}
                 <span className="text-foreground-body">{milestoneName}</span>
@@ -127,6 +136,18 @@ export const MilestoneCancellationRequestDialog = ({
                 children: item.label,
               }))}
               trigger={{ className: "rounded-none h-12" }}
+            />
+
+            <TextAreaField
+              label={{
+                children: "Description",
+                className: "font-semibold text-foreground-body",
+              }}
+              placeholder="Enter your message..."
+              rows={4}
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              className="min-h-[120px] resize-none rounded-none"
             />
 
             <div className="grid w-full gap-1.5">
@@ -178,10 +199,10 @@ export const MilestoneCancellationRequestDialog = ({
                 htmlFor="milestone-cancellation-confirm"
                 className="cursor-pointer text-sm font-normal leading-snug text-foreground-body"
               >
-                I understand that this will cancel the milestone and all funds in
-                this project&apos;s escrow (
-                <span className="font-semibold">{formattedEscrow}</span>) will be
-                released back to the client.
+                I understand that this will cancel the milestone and all funds
+                in this project&apos;s escrow (
+                <span className="font-semibold">{formattedEscrow}</span>) will
+                be released back to the client.
               </Label>
             </div>
           </div>

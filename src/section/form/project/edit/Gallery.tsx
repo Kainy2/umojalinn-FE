@@ -212,7 +212,10 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
         title="Project Gallery"
         description="Upload styling inspiration to help designers."
       >
-        <div className="flex flex-col gap-8 mb-8">
+        <div
+          id="tour-create-project-gallery"
+          className="flex flex-col gap-8 mb-8"
+        >
           {preview.map((value, index) => (
             <div key={value?.id} className="flex flex-col gap-4">
               <TextField

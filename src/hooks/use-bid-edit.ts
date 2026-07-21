@@ -85,19 +85,23 @@ export const useBidEdit = () => {
     }
   }, [bid]);
 
-  const { mutate: createMilestone, isPending: isPendingCreateBid } =
-    useCreateMilestone(id, {
-      onSuccess: () => {
-        setEditing(null);
-      },
-    });
+  const {
+    mutateAsync: createMilestoneAsync,
+    isPending: isPendingCreateBid,
+  } = useCreateMilestone(id, {
+    onSuccess: () => {
+      setEditing(null);
+    },
+  });
 
-  const { mutate: updateMilestone, isPending: isPendingUpdateBid } =
-    useUpdateMilestone({
-      onSuccess: () => {
-        setEditing(null);
-      },
-    });
+  const {
+    mutateAsync: updateMilestoneAsync,
+    isPending: isPendingUpdateBid,
+  } = useUpdateMilestone({
+    onSuccess: () => {
+      setEditing(null);
+    },
+  });
 
   const { mutate: deleteMilestone, isPending: isPendingDelete } =
     useDeleteMilestone({
@@ -165,32 +169,6 @@ export const useBidEdit = () => {
       },
     });
 
-  const handleFinalSubmit = () => {
-    updateToSubmit({
-      additionalNote: addNote ? note : undefined,
-      deliveryAmount: Number(deliveryMilestonePrice),
-      deliveryMethod: deliveryMethod || undefined,
-      deliveryMileStoneType: selectedDeliveryMethodType,
-    });
-    setShowStripeModal(false);
-  };
-
-  const handleSave =
-    (index: number) =>
-    (props: { title: string; description: string; price: number }) => {
-      const id = milestones[index]?.id;
-      const { price: amount, ...otherProps } = props;
-      const variables = {
-        ...otherProps,
-        amount,
-      };
-      if (id) {
-        updateMilestone(variables);
-      } else {
-        createMilestone(variables);
-      }
-    };
-
   const [addNote, setAddNote] = useState<boolean>(false);
   const [note, setNote] = useState<string>("");
 
@@ -199,15 +177,78 @@ export const useBidEdit = () => {
 
   const [mode, setMode] = useState<"UPDATE" | "LIVE" | null>(null);
 
+  const totalPrice = useMemo(
+    () =>
+      milestones?.reduce(
+        (prev, curr) => Number(prev) + (Number(curr?.price) || 0),
+        0,
+      ) + Number(deliveryMilestonePrice),
+    [deliveryMilestonePrice, milestones],
+  );
+
+  const projectBudget = Number(bid?.project?.budget);
+  const isOverBudget =
+    Number.isFinite(projectBudget) &&
+    projectBudget > 0 &&
+    totalPrice > projectBudget;
+
+  const getSubmitPayload = () => ({
+    additionalNote: addNote ? note : undefined,
+    deliveryAmount: Number(deliveryMilestonePrice),
+    deliveryMethod: deliveryMethod || undefined,
+    deliveryMileStoneType: selectedDeliveryMethodType,
+  });
+
+  const openExcessDialog = (nextMode: "UPDATE" | "LIVE" | null) => {
+    setExcess(totalPrice - projectBudget);
+    setShowExcessDialog(true);
+    setMode(nextMode);
+  };
+
+  const handleFinalSubmit = () => {
+    updateToSubmit(getSubmitPayload());
+    setShowStripeModal(false);
+  };
+
+  const handleSave =
+    (index: number) =>
+    async (props: {
+      id?: string;
+      title: string;
+      description: string;
+      price: number;
+    }) => {
+      const milestoneId = milestones[index]?.id ?? props.id;
+      const variables = {
+        title: props.title,
+        description: props.description,
+        amount: props.price,
+        ...(milestoneId ? { id: milestoneId } : {}),
+      };
+      if (milestoneId) {
+        await updateMilestoneAsync(variables);
+      } else {
+        await createMilestoneAsync(variables);
+      }
+      setMilestones((prev) =>
+        prev.map((milestone, i) =>
+          i === index
+            ? {
+                ...milestone,
+                title: props.title,
+                description: props.description,
+                price: props.price,
+                ...(milestoneId ? { id: milestoneId } : {}),
+              }
+            : milestone,
+        ),
+      );
+    };
+
   const handleUpdateAction = (mode: "UPDATE" | "LIVE" | null) => {
     switch (mode) {
       case "UPDATE":
-        updateBid({
-          additionalNote: addNote ? note : undefined,
-          deliveryAmount: Number(deliveryMilestonePrice),
-          deliveryMethod: deliveryMethod || undefined,
-          deliveryMileStoneType: selectedDeliveryMethodType,
-        });
+        updateBid(getSubmitPayload());
         break;
       case "LIVE":
         getAccountStatus(project?.id || "");
@@ -215,6 +256,11 @@ export const useBidEdit = () => {
       default:
         break;
     }
+  };
+
+  const handleExcessConfirm = () => {
+    setShowExcessDialog(false);
+    handleUpdateAction(mode);
   };
 
   const handleUpdate = (mode: "UPDATE" | "LIVE" | null) => {
@@ -244,14 +290,8 @@ export const useBidEdit = () => {
     // 	}
     // }
 
-    if (
-      typeof bid?.project?.budget === "number" &&
-      bid?.project?.budget &&
-      totalPrice > bid?.project?.budget
-    ) {
-      setExcess(totalPrice - bid?.project?.budget);
-      setShowExcessDialog(true);
-      setMode(mode);
+    if (isOverBudget) {
+      openExcessDialog(mode);
     } else {
       handleUpdateAction(mode);
     }
@@ -291,15 +331,6 @@ export const useBidEdit = () => {
     });
   };
 
-  const totalPrice = useMemo(
-    () =>
-      milestones?.reduce(
-        (prev, curr) => Number(prev) + (Number(curr?.price) || 0),
-        0,
-      ) + Number(deliveryMilestonePrice),
-    [deliveryMilestonePrice, milestones],
-  );
-
   const editMode = ["DRAFT", "REJECTED"].includes(bid?.status || "");
 
   return {
@@ -311,6 +342,7 @@ export const useBidEdit = () => {
     handleToggle,
     handleSave,
     handleUpdate,
+    handleExcessConfirm,
     milestones,
     totalPrice,
     addNote,

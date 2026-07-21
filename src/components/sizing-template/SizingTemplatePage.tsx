@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { useNextStep } from "nextstepjs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import {
@@ -101,6 +102,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     hasSubmittedPoints,
     // hasReviews,
     isInUse,
+    canBuyerFullyEdit,
     isDesigner,
     router,
     // searchParams,
@@ -109,6 +111,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     effectiveProjectId,
     // projectData,
     project,
+    isProjectLive,
   } = useSizingTemplateDialog({
     ...props,
     handleSuccess: (template) => {
@@ -136,6 +139,26 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   const [measurementComments, setMeasurementComments] = React.useState<
     Record<string, string>
   >({});
+
+  // Drive the "Recommend Changes" guided tour: the tour walks through the
+  // recommend-mode UI, so we mirror the current step into page state.
+  const { currentTour, currentStep } = useNextStep();
+  const isRecommendTour = currentTour === "recommend-sizing-changes";
+  const wasRecommendTour = useRef(false);
+
+  useEffect(() => {
+    if (!isDesigner) return;
+
+    if (isRecommendTour) {
+      wasRecommendTour.current = true;
+      // Step 0 shows the read-only view with the "Recommend Changes" button;
+      // every step after that walks through recommend mode.
+      setRecommendationMode(currentStep >= 1);
+    } else if (wasRecommendTour.current) {
+      wasRecommendTour.current = false;
+      setRecommendationMode(false);
+    }
+  }, [isDesigner, isRecommendTour, currentStep, setRecommendationMode]);
 
   useEffect(() => {
     if (!recommendationMode) return;
@@ -302,23 +325,26 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   const hasRequiredFields = !!(value?.height && value?.ukStandardSize && unit);
   const isCreatingNew = !sizingTemplateId;
   const isEditable =
-    !isInUse && (templateMode === TEMPLATE_MODE.EDIT || isCreatingNew);
-  const canEditGender = isEditable && !isInUse;
-  const isProjectLive = project?.status === "LIVE";
+    canBuyerFullyEdit &&
+    (templateMode === TEMPLATE_MODE.EDIT || isCreatingNew);
+  const canEditGender = isEditable && canBuyerFullyEdit;
   const isChangesUpdated = sizingTemplateResult?.isChangesUpdated;
+  const isRestrictedInUse = isInUse && isProjectLive;
 
   // Page title and description based on mode
   const getPageTitle = () => {
     if (isCreatingNew) return "Create a New Template";
-    if (isDraft) return "Edit Template";
-    if (isInUse) return name || "View Template";
+    if (isDraft || canBuyerFullyEdit) return "Edit Template";
+    if (isRestrictedInUse) return name || "View Template";
     return name || "Sizing Template";
   };
 
   const getPageDescription = () => {
     if (isCreatingNew) return "Add your measurements and save for later use";
-    if (isDraft) return "Update your measurements and save changes";
-    if (isInUse) return "This template is currently in use with a project";
+    if (isDraft || canBuyerFullyEdit)
+      return "Update your measurements and save changes";
+    if (isRestrictedInUse)
+      return "This template is currently in use with a project";
     return "View and manage your sizing template";
   };
 
@@ -470,7 +496,10 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-2">
+                <div
+                  id="tour-sizing-template-measurement-points"
+                  className="flex flex-col gap-2"
+                >
                   <DisabledTemplateItems title={gender} />
 
                   {/* UK Standard Size Row */}
@@ -581,6 +610,12 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                           ref={(el) => {
                             inputRefs.current[index] = el;
                           }}
+                          {...(index === 0 && {
+                            rootId: "tour-recommend-measurement-point",
+                            addCommentButtonId: "tour-recommend-add-comment",
+                            deleteButtonId: "tour-recommend-delete-comment",
+                            forceShowActions: isRecommendTour,
+                          })}
                           {...(recommendationMode && {
                             recommendMode: true,
                             selected: selectedMeasurements.includes(item.prop),
@@ -639,7 +674,10 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
 
             {/* Right Column */}
             <div>
-              <div className="sticky top-20">
+              <div
+                id="tour-sizing-template-visual-reference"
+                className="sticky top-20"
+              >
                 <MeasurementGuide
                   previewImage={previewImage}
                   highlightedMeasurementName={highlightedSizingName}
@@ -662,6 +700,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                       Cancel
                     </Button>
                     <Button
+                      id="tour-recommend-submit"
                       onClick={handleSubmitRecommendations}
                       disabled={
                         loading ||
@@ -678,6 +717,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                   hasSubmittedPoints && (
                     <div className="hidden lg:flex justify-end mt-6">
                       <Button
+                        id="tour-recommend-changes-button"
                         disabled={loading}
                         onClick={() => setRecommendationMode(true)}
                         className="h-8 rounded-md bg-primary-600"
@@ -733,8 +773,8 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
             </div>
 
             {/* Gender Tabs */}
-            {/* Template Name Input - only when not in use */}
-            {!isInUse && (
+            {/* Template Name Input - only when buyer can fully edit */}
+            {canBuyerFullyEdit && (
               <>
                 <div className="animate-in fade-in duration-300 delay-75">
                   <GenderTabs
@@ -765,106 +805,117 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
               />
             </div>
 
-            {/* Table Headers */}
-            <div className="flex justify-between items-center text-sm text-gray-500 border-b border-gray-200 pb-2 animate-in fade-in duration-300 delay-150">
-              <span className="font-medium">Measurement Point</span>
-              <span className="font-medium">Measurement</span>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              {!isNewTemplate && !isDraft && (
-                <DisabledTemplateItems title={gender} />
-              )}
-
-              {/* UK Standard Size Row */}
-              <UKStandardSizeRow
-                gender={gender}
-                value={value?.ukStandardSize ?? null}
-                onChange={handleUKSizeChange}
-                onShowChart={handleShowUKSizeChart}
-                highlighted={showUKSizeChart}
-                disabled={!isEditable}
-                // isDesigner={isDesigner}
-              />
-
-              {!isNewTemplate && !isDraft && (
-                <DisabledTemplateItems
-                  title="Height"
-                  value={value?.height ? `${value?.height} ${unit}` : "-"}
-                />
-              )}
-            </div>
-
-            {/* Measurement Points (including Height as first item from TEMPLATE) */}
-            {((sizingTemplateId &&
-              (!isInUse ||
-                ((hasRequestedPoints || hasSubmittedPoints) &&
-                  isProjectLive))) ||
-              isNewTemplate ||
-              isDraft) && (
-              <div className="flex flex-col gap-2">
-                {TEMPLATE.filter((templateItem) => {
-                  // For new templates or drafts, show all measurements
-                  if (isNewTemplate || isDraft) return true;
-
-                  // For in-use templates, only show requested measurement points
-                  if (isInUse && hasRequestedPoints) {
-                    return requestedMeasurementPoints.includes(
-                      templateItem.prop,
-                    );
-                  }
-
-                  // Default: show all
-                  return true;
-                }).map((templateItem, index) => {
-                  const isDisabled = !isEditable;
-                  const itemValue =
-                    value?.[templateItem.prop as keyof typeof value];
-                  const reviews = sizingTemplateResult?.metadata?.reviews as
-                    | Record<string, string>
-                    | undefined;
-                  const reviewValue = reviews?.[templateItem.prop];
-
-                  return (
-                    <MeasurementPointRow
-                      key={templateItem.prop}
-                      disabled={isDisabled}
-                      onValueChange={handleChange(
-                        templateItem.prop as BothGenderSizingTemplateProps,
-                      )}
-                      value={typeof itemValue === "number" ? itemValue : 0}
-                      unit={unit}
-                      label={templateItem.name}
-                      onFocus={() =>
-                        handleMeasurementClick(
-                          templateItem.img,
-                          templateItem.prop as BothGenderSizingTemplateProps,
-                        )
-                      }
-                      highlighted={highlighted === templateItem.prop}
-                      hasLiveProject={false}
-                      metadata={{ review: reviewValue, img: templateItem?.img }}
-                      onClick={() =>
-                        handleMeasurementClick(
-                          templateItem.img,
-                          templateItem.prop as BothGenderSizingTemplateProps,
-                        )
-                      }
-                      onKeyDown={(e) => handleKeyPress(index, e)}
-                      ref={(el) => {
-                        inputRefs.current[index] = el;
-                      }}
-                    />
-                  );
-                })}
+            {/* Measurement points — tour spotlight target */}
+            <div
+              id="tour-sizing-template-measurement-points"
+              className="flex flex-col gap-6"
+            >
+              {/* Table Headers */}
+              <div className="flex justify-between items-center text-sm text-gray-500 border-b border-gray-200 pb-2 animate-in fade-in duration-300 delay-150">
+                <span className="font-medium">Measurement Point</span>
+                <span className="font-medium">Measurement</span>
               </div>
-            )}
+
+              <div className="flex flex-col gap-2">
+                {isRestrictedInUse && (
+                  <DisabledTemplateItems title={gender} />
+                )}
+
+                {/* UK Standard Size Row */}
+                <UKStandardSizeRow
+                  gender={gender}
+                  value={value?.ukStandardSize ?? null}
+                  onChange={handleUKSizeChange}
+                  onShowChart={handleShowUKSizeChart}
+                  highlighted={showUKSizeChart}
+                  disabled={!isEditable}
+                  // isDesigner={isDesigner}
+                />
+
+                {isRestrictedInUse && (
+                  <DisabledTemplateItems
+                    title="Height"
+                    value={value?.height ? `${value?.height} ${unit}` : "-"}
+                  />
+                )}
+              </div>
+
+              {/* Measurement Points (including Height as first item from TEMPLATE) */}
+              {((sizingTemplateId &&
+                (canBuyerFullyEdit ||
+                  ((hasRequestedPoints || hasSubmittedPoints) &&
+                    isProjectLive))) ||
+                isNewTemplate ||
+                isDraft) && (
+                <div className="flex flex-col gap-2">
+                  {TEMPLATE.filter((templateItem) => {
+                    // Full edit (new, draft, live, or IN_USE before project LIVE): show all
+                    if (canBuyerFullyEdit || isNewTemplate || isDraft)
+                      return true;
+
+                    // After job is LIVE: only show requested measurement points
+                    if (isRestrictedInUse && hasRequestedPoints) {
+                      return requestedMeasurementPoints.includes(
+                        templateItem.prop,
+                      );
+                    }
+
+                    // Default: show all
+                    return true;
+                  }).map((templateItem, index) => {
+                    const isDisabled = !isEditable;
+                    const itemValue =
+                      value?.[templateItem.prop as keyof typeof value];
+                    const reviews = sizingTemplateResult?.metadata?.reviews as
+                      | Record<string, string>
+                      | undefined;
+                    const reviewValue = reviews?.[templateItem.prop];
+
+                    return (
+                      <MeasurementPointRow
+                        key={templateItem.prop}
+                        disabled={isDisabled}
+                        onValueChange={handleChange(
+                          templateItem.prop as BothGenderSizingTemplateProps,
+                        )}
+                        value={typeof itemValue === "number" ? itemValue : 0}
+                        unit={unit}
+                        label={templateItem.name}
+                        onFocus={() =>
+                          handleMeasurementClick(
+                            templateItem.img,
+                            templateItem.prop as BothGenderSizingTemplateProps,
+                          )
+                        }
+                        highlighted={highlighted === templateItem.prop}
+                        hasLiveProject={false}
+                        metadata={{
+                          review: reviewValue,
+                          img: templateItem?.img,
+                        }}
+                        onClick={() =>
+                          handleMeasurementClick(
+                            templateItem.img,
+                            templateItem.prop as BothGenderSizingTemplateProps,
+                          )
+                        }
+                        onKeyDown={(e) => handleKeyPress(index, e)}
+                        ref={(el) => {
+                          inputRefs.current[index] = el;
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+              )}
+            </div>
             {/* Mobile Actions */}
             <div className="lg:hidden flex justify-end gap-3">
               {isEditable && !isInUse && (
                 <AddToJobDropdown
                   templateId={sizingTemplateId}
                   templateGender={gender}
+                  templateUnit={unit}
                   disabled={!hasRequiredFields}
                   onSuccess={() => router.push("/sizing-templates")}
                   availableProjects={availableProjects}
@@ -904,11 +955,15 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
               )}
 
               {/* Desktop Actions */}
-              <div className="hidden lg:flex justify-end gap-3">
+              <div
+                id="tour-buyer-sizing-template-actions"
+                className="hidden lg:flex justify-end gap-3"
+              >
                 {isEditable && !isInUse && (
                   <AddToJobDropdown
                     templateId={sizingTemplateId}
                     templateGender={gender}
+                    templateUnit={unit}
                     disabled={!hasRequiredFields}
                     onSuccess={() => router.push("/sizing-templates")}
                     availableProjects={availableProjects}

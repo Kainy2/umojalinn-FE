@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/popover";
 import { PopoverClose } from "@radix-ui/react-popover";
 import { ChevronDown } from "lucide-react";
+import type { TTourTargetId } from "@/constant/tour/@types";
 
 export type CustomCardHolderProps = {
   title?: string;
@@ -19,6 +20,7 @@ export type CustomCardHolderProps = {
   empty?: boolean;
   loading?: boolean;
   type?: CustomCardProps["type"];
+  tourTargetId?: TTourTargetId;
   // options?: string[];
   onSelect?: (selection: string) => void;
 };
@@ -49,7 +51,8 @@ const CustomCardHolder = (
     optionKeys?: string[]
   }
 ) => {
-  const { empty, loading, type, count, title, children, colour } = props;
+  const { empty, loading, type, count, title, children, colour, tourTargetId } =
+    props;
 
   if (type === "PROJECT") {
     if (loading) {
@@ -65,7 +68,10 @@ const CustomCardHolder = (
   }
 
   return (
-    <div className="bg-gray-100 p-4 flex-1 w-full h-full pt-2">
+    <div
+      id={tourTargetId}
+      className="bg-gray-100 p-4 flex-1 w-full h-full pt-2"
+    >
       <Popover>
         <PopoverTrigger asChild>
           <button

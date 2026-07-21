@@ -1,6 +1,7 @@
 "use client";
 import { use } from "react";
 import SizingTemplatePage from "@/components/sizing-template/SizingTemplatePage";
+import TourReadyMarker from "@/components/tour/TourReadyMarker";
 import { useGetBidById } from "@/tanstack/hooks/useBid";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -15,37 +16,45 @@ const SizingTemplateRequestPage = (props: PageProps) => {
   const searchParams = use(props.searchParams);
   const bidId = params.id;
 
-  // Fetch bid data to get project and template info
   const { data: bidData, isPending: isLoadingBid } = useGetBidById(bidId);
   const bid = bidData?.data?.data;
   const project = bid?.project;
   const sizingTemplateId = project?.sizingTemplateId;
+  const isReady = !isLoadingBid && !!project;
 
   if (isLoadingBid) {
     return (
-      <div className="container mx-auto px-4 py-6">
-        <Skeleton className="h-[50vh] animate-pulse" />
-      </div>
+      <>
+        <TourReadyMarker ready={false} />
+        <div className="container mx-auto px-4 py-6">
+          <Skeleton className="h-[50vh] animate-pulse" />
+        </div>
+      </>
     );
   }
 
   if (!project) {
     return (
-      <div className="h-[50vh] flex items-center justify-center text-muted-foreground">
-        <span>Project not found</span>
-      </div>
+      <>
+        <TourReadyMarker ready={false} />
+        <div className="h-[50vh] flex items-center justify-center text-muted-foreground">
+          <span>Project not found</span>
+        </div>
+      </>
     );
   }
 
   return (
-    <SizingTemplatePage
-      id={sizingTemplateId ? uuidToBase62Safe(sizingTemplateId) : undefined}
-      projectId={uuidToBase62Safe(project.id)}
-      bidId={bidId}
-      disableSaving={searchParams.disableSaving === "true"}
-    />
+    <>
+      <TourReadyMarker ready={isReady} />
+      <SizingTemplatePage
+        id={sizingTemplateId ? uuidToBase62Safe(sizingTemplateId) : undefined}
+        projectId={uuidToBase62Safe(project.id)}
+        bidId={bidId}
+        disableSaving={searchParams.disableSaving === "true"}
+      />
+    </>
   );
 };
 
 export default SizingTemplateRequestPage;
-

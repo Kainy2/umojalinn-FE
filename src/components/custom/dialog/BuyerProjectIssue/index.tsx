@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { CustomSelectField } from "@/components/custom/Select";
+import TextAreaField from "@/components/custom/input/TextAreaField";
 import MilestoneInputSectionImageUpload from "@/components/custom/picker/MilestoneInputSectionImageUpload";
 import { MilestoneMultiSelect } from "@/components/custom/dialog/RefundRequest/MilestoneMultiSelect";
 import ClipboardSearch from "@/assets/ClipboardSearch";
@@ -34,22 +35,25 @@ export const BuyerProjectIssueDialog = ({
   const onOpenChange = controlledOnOpenChange ?? setInternalOpen;
 
   const [reason, setReason] = useState<TBuyerIssueReason | "">("");
+  const [description, setDescription] = useState("");
   const [milestoneIds, setMilestoneIds] = useState<string[]>([]);
   const [files, setFiles] = useState<FileList | null>(null);
 
   const resetForm = useCallback(() => {
     setReason("");
+    setDescription("");
     setMilestoneIds([]);
     setFiles(null);
   }, []);
 
-  const canSubmit = !!reason && milestoneIds.length > 0;
+  const canSubmit = !!reason && !!description.trim() && milestoneIds.length > 0;
 
   const handleSubmit = () => {
     if (!reason || !canSubmit) return;
 
     onSubmit({
       reason,
+      description: description.trim(),
       milestoneIds,
       files,
     });
@@ -73,7 +77,7 @@ export const BuyerProjectIssueDialog = ({
             <ClipboardSearch color="#000000" width={40} height={40} />
             <div>
               <DialogTitle className="text-subtitle-2 font-semibold">
-                Report an issue with this milestone
+                Report an issue with this project
               </DialogTitle>
               <p className="text-sm text-muted-foreground">
                 Project Name:{" "}
@@ -107,6 +111,18 @@ export const BuyerProjectIssueDialog = ({
               placeholder="Select specific milestone(s) related to this issue"
             />
 
+            <TextAreaField
+              label={{
+                children: "Description",
+                className: "font-semibold text-foreground-body",
+              }}
+              placeholder="Enter your message..."
+              rows={4}
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              className="min-h-[120px] resize-none rounded-none"
+            />
+
             <div className="grid w-full gap-1.5">
               <Label className="font-semibold text-foreground-body">
                 Upload images (Optional)
@@ -120,7 +136,7 @@ export const BuyerProjectIssueDialog = ({
 
           <Separator />
 
-          <DialogFooter className="flex-row justify-between gap-3 px-6 py-4 sm:justify-between sm:space-x-0">
+          <DialogFooter className="flex-col md:flex-row justify-between gap-3 px-6 py-4 sm:justify-between sm:space-x-0">
             <DialogClose asChild>
               <Button type="button" variant="outline" className="min-w-[334px]">
                 Cancel

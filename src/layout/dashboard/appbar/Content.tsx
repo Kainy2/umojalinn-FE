@@ -5,6 +5,7 @@ import PopoverMenu from "@/components/custom/PopoverMenu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import Help from "@/section/dashboard/appbar/Help";
 import InviteClient from "@/section/dashboard/appbar/InviteClient";
 import { useGetMe } from "@/tanstack/hooks/useUser";
 import {
@@ -56,6 +57,7 @@ const DashboardAppbarContent = () => {
           </>
         )}
         <NotificationPopover />
+        <Help />
         <PopoverMenu
           menus={[
             // ...(session?.user?.profileRole === "DESIGNER"

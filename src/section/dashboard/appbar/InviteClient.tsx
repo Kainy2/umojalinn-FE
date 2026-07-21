@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,6 +20,7 @@ import useClipboard from "@/hooks/useClipboard";
 import { cn } from "@/lib/utils";
 import { useInviteBuyer } from "@/tanstack/hooks/useProject";
 import { Info } from "lucide-react";
+import { TOUR_OPEN_INVITE_CLIENT_EVENT } from "@/lib/tour";
 
 // Define a Zod schema for an array of valid email strings
 const emailListSchema = z.array(z.string().email());
@@ -58,10 +59,24 @@ const InviteClient = () => {
 
   const { mutate: deleteInvitation, isPending } = useDeleteProjectInvitation();
 
+  useEffect(() => {
+    const handleOpenFromTour = () => setOpen(true);
+
+    window.addEventListener(TOUR_OPEN_INVITE_CLIENT_EVENT, handleOpenFromTour);
+
+    return () => {
+      window.removeEventListener(
+        TOUR_OPEN_INVITE_CLIENT_EVENT,
+        handleOpenFromTour,
+      );
+    };
+  }, []);
+
   return (
     <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
       <DialogTrigger asChild>
         <Button
+          id="tour-appbar-invite-client"
           onClick={() => setOpen(true)}
           variant="ghost"
           className={cn("font-normal", !me?.data?.data && "hidden")}

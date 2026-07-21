@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import TemplateStatusPill from "@/components/sizing-template/TemplateStatusPill";
+import type { TTourTargetId } from "@/constant/tour/@types";
 import { getSizingGenderLabel } from "@/lib/sizing-template-utils";
 
 const SIZING_TEMPLATE_CARD_IMAGES = {
@@ -40,8 +41,11 @@ const getTemplateCardAlt = (
 	return "Sizing template";
 };
 
-const SizingTemplateCard = (props: { template: UmojaLinnSizingTemplate }) => {
-	const { template } = props;
+const SizingTemplateCard = (props: {
+  template: UmojaLinnSizingTemplate;
+  tourTargetId?: TTourTargetId;
+}) => {
+	const { template, tourTargetId } = props;
 	const { data: session } = useSession();
 
 	const isBuyer = session?.user?.profileRole === "BUYER";
@@ -115,7 +119,10 @@ const SizingTemplateCard = (props: { template: UmojaLinnSizingTemplate }) => {
 				id={template?.id}
 				projectId={activeProjectForNavigation?.id}
 			>
-				<button className="flex flex-col p-2 border  border-gray-200 gap-2 rounded-[16px]  text-left bg-white transition-shadow  group relative w-full lg:w-[300px]">
+				<button
+          id={tourTargetId}
+          className="flex flex-col p-2 border  border-gray-200 gap-2 rounded-[16px]  text-left bg-white transition-shadow  group relative w-full lg:w-[300px]"
+        >
 					{/* Top Image Section */}
 					<div className="relative h-52 w-full border border-gray-200 rounded-[8px] overflow-hidden bg-[#f8f9fa] shrink-0">
 						<Image

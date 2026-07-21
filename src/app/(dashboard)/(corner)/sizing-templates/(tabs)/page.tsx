@@ -13,6 +13,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { Plus, AlertCircle } from "lucide-react";
+import { pickBuyerSizingTemplate } from "@/lib/tour";
+
 const SizingTemplatesPage = () => {
   const FREE_TEMPLATE_LIMIT = 3;
   const router = useRouter();
@@ -30,6 +32,9 @@ const SizingTemplatesPage = () => {
   const remainingTemplates = Math.max(numberOfTemplates - usedTemplates, 0);
   const hasExhaustedTemplates = usedTemplates >= numberOfTemplates;
   const shouldShowFreeTierInfo = numberOfTemplates === FREE_TEMPLATE_LIMIT;
+  // Prefer an editable template for step 3; fall back to the first card for steps 1–2.
+  const buyerTourTemplate =
+    pickBuyerSizingTemplate(data?.data?.data) ?? data?.data?.data?.[0];
 
   if (isPending) {
     return (
@@ -84,8 +89,20 @@ const SizingTemplatesPage = () => {
             </button>
           </SizingTemplateDialog>
         )}
-        {data?.data?.data?.map?.((template) => (
-          <SizingTemplateCard template={template} key={template?.id} />
+        {data?.data?.data?.map?.((template, index) => (
+          <SizingTemplateCard
+            template={template}
+            key={template?.id}
+            tourTargetId={
+              session?.user?.profileRole === "BUYER"
+                ? template.id === buyerTourTemplate?.id
+                  ? "tour-sizing-template-card"
+                  : undefined
+                : index === 0
+                  ? "tour-sizing-template-card"
+                  : undefined
+            }
+          />
         ))}
         {session?.user?.profileRole === "BUYER" && hasExhaustedTemplates && (
           <BuyExtraTemplateCard

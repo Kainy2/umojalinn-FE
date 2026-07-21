@@ -40,6 +40,7 @@ const EscrowCard = (props: EscrowCardProps) => {
         "flex flex-col gap-4 bg-gray-50 rounded-md p-4 py-8 md:min-w-80",
         // !hasAllMilestoneCompleted && "hidden lg:flex"
       )}
+      id="tour-active-project-escrow"
     >
       <div className="">
         <div className="flex justify-between items-center mb-2">

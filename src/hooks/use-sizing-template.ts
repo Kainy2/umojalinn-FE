@@ -145,6 +145,8 @@ export const useSizingTemplateDialog = (
     Object.values(sizingTemplateResult.metadata.reviews).some(Boolean);
   const isInUse = sizingTemplateResult?.status === "IN_USE";
   const isProjectLive = project?.status === "LIVE";
+  // Buyers can fully edit until the job goes LIVE (even when template is IN_USE during ADS)
+  const canBuyerFullyEdit = !isDesigner && (!isInUse || !isProjectLive);
 
   // New templateMode with proper priority logic
   const templateMode: TemplateMode = useMemo(() => {
@@ -174,26 +176,30 @@ export const useSizingTemplateDialog = (
       return TEMPLATE_MODE.EDIT;
     }
 
-    // UPDATE: Buyer has recommendations to address (highest priority for in-use templates)
-    if (isInUse && hasReviews) {
-      return TEMPLATE_MODE.UPDATE;
+    // Restricted modes only after job is LIVE
+    if (isInUse && isProjectLive) {
+      // UPDATE: Buyer has recommendations to address
+      if (hasReviews) {
+        return TEMPLATE_MODE.UPDATE;
+      }
+
+      // FILL: Buyer needs to fill requested measurement points
+      if (hasRequestedPoints && !hasSubmittedPoints) {
+        return TEMPLATE_MODE.FILL;
+      }
+
+      // VIEW_ONLY: Template is in use, all submitted, no pending reviews
+      if (hasSubmittedPoints && !hasReviews) {
+        return TEMPLATE_MODE.VIEW_ONLY;
+      }
     }
 
-    // FILL: Buyer needs to fill requested measurement points
-    if (isInUse && hasRequestedPoints && !hasSubmittedPoints && isProjectLive) {
-      return TEMPLATE_MODE.FILL;
-    }
-
-    // VIEW_ONLY: Template is in use, all submitted, no pending reviews
-    if (isInUse && hasSubmittedPoints && !hasReviews) {
-      return TEMPLATE_MODE.VIEW_ONLY;
-    }
-
-    // EDIT: Default for draft/live templates not in use
+    // EDIT: Default for draft/live templates, or IN_USE before project goes LIVE
     return TEMPLATE_MODE.EDIT;
   }, [
     isDesigner,
     isInUse,
+    isProjectLive,
     hasRequestedPoints,
     hasSubmittedPoints,
     hasReviews,
@@ -451,6 +457,8 @@ export const useSizingTemplateDialog = (
     hasSubmittedPoints,
     hasReviews,
     isInUse,
+    isProjectLive,
+    canBuyerFullyEdit,
 
     router,
     searchParams,

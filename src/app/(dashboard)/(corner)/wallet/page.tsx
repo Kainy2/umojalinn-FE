@@ -33,13 +33,18 @@ import { UmojaLinnCurrency } from "@/types/project";
 import LinkStripeAddressDialog from "@/components/custom/dialog/LinkStripeAddressDialog";
 import ConnectPaymentAccountOtpDialog from "@/components/custom/dialog/ConnectPaymentAccountOtpDialog";
 import WalletDisputesSection from "@/components/custom/wallet/WalletDisputesSection";
+import TourReadyMarker from "@/components/tour/TourReadyMarker";
 const WithdrawalPage = () => {
-  const { data: userData } = useGetMe();
   const { data: session } = useSession();
   const { data: walletData, isPending: isWalletPending } = useGetWallet();
-  const { data: disputeSummaryResponse } = useGetWalletDisputeSummary();
+  const secondaryQueriesEnabled = !isWalletPending;
+
+  const { data: userData } = useGetMe({ enabled: secondaryQueriesEnabled });
+  const { data: disputeSummaryResponse } = useGetWalletDisputeSummary({
+    enabled: secondaryQueriesEnabled,
+  });
   const { data: paymentAccountData, isPending: isPaymentAccountPending } =
-    useGetPaymentAccountInfo();
+    useGetPaymentAccountInfo({ enabled: secondaryQueriesEnabled });
 
   const user = userData?.data?.data;
   const defaultCurrency = getDefaultCurrencyFromCountry(user?.address?.country);
@@ -77,7 +82,9 @@ const WithdrawalPage = () => {
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
-  } = useGetInfiniteTransactions();
+  } = useGetInfiniteTransactions(undefined, {
+    enabled: secondaryQueriesEnabled,
+  });
   const transactions = useInfiniteData(allTransactions);
 
   const wallet = walletData?.data?.data;
@@ -112,12 +119,15 @@ const WithdrawalPage = () => {
     if (disputeSummary?.[currency]?.restricted) {
       return "Withdrawals restricted";
     }
+    if (isPaymentAccountPending || !paymentAccount) {
+      return null;
+    }
     if (currency === "NAIRA") {
-      return paymentAccount?.paystackStatus !== "ENABLED"
+      return paymentAccount.paystackStatus !== "ENABLED"
         ? "Action required"
         : null;
     }
-    switch (paymentAccount?.stripeStatus) {
+    switch (paymentAccount.stripeStatus) {
       case "NOT_CONNECTED":
         return "Not connected";
       case "ONBOARDING_STARTED":
@@ -135,14 +145,20 @@ const WithdrawalPage = () => {
     }
   };
 
-  const isPageLoading = isPaymentAccountPending || isWalletPending;
+  const isPageLoading = isWalletPending;
 
   if (isPageLoading) {
-    return <WalletPageSkeleton showEscrow={isDesigner} />;
+    return (
+      <>
+        <TourReadyMarker ready={false} />
+        <WalletPageSkeleton showEscrow={isDesigner} />
+      </>
+    );
   }
 
   return (
     <>
+      <TourReadyMarker ready />
       <LinkStripeAddressDialog
         open={linkStripeAddressOpen}
         onOpenChange={setLinkStripeAddressOpen}
@@ -174,7 +190,8 @@ const WithdrawalPage = () => {
                 onCurrencyChange={setSelectedCurrency}
                 currencyDisputeSummary={selectedCurrencyDisputeSummary}
               />
-              <CurrencyCarousel>
+              <div id="tour-wallet-currency-carousel">
+                <CurrencyCarousel>
                 {currencyOrder.map((currency) => {
                   const lockedAmount = disputeSummary?.[currency]?.locked ?? 0;
                   const availableAmount = getAvailableWalletBalanceForCurrency(
@@ -195,7 +212,8 @@ const WithdrawalPage = () => {
                     />
                   );
                 })}
-              </CurrencyCarousel>
+                </CurrencyCarousel>
+              </div>
               <WalletDisputesSection
                 currency={selectedCurrency}
                 hideBalance={hideBalance}
@@ -204,7 +222,10 @@ const WithdrawalPage = () => {
             {isDesigner && <EscrowCard wallet={wallet!} />}
           </div>
         </div>
-        <div className="flex-1 shrink-0  max-h-[80vh] overflow-y-scroll p-8 border border-border w-full lg:w-3/12">
+        <div
+          id="tour-wallet-recent-transactions"
+          className="flex-1 shrink-0  max-h-[80vh] overflow-y-scroll p-8 border border-border w-full lg:w-3/12"
+        >
           <h2 className="font-semibold mb-2">Recent transactions</h2>
           <Separator className="bg-border/50" />
           {transactions?.map?.((trans) => {
