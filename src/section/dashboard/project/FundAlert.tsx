@@ -35,9 +35,10 @@ const FundProjectAlert = () => {
   const isDesigner = me?.user?.profileRole === "DESIGNER";
   const excludedPaths = ["ads", "completed", "bids", "drafts"];
   const isExcludedPath = excludedPaths.some((path) => pathname.includes(path));
-  const isAwaitingFund =
-    projectData?.data?.data?.fundStatus === "AWAITING_FUND";
+  const fundStatus = projectData?.data?.data?.fundStatus;
   const isUnfunded = Number(projectData?.data?.data?.amountFunded) === 0;
+  const needsFunding =
+    fundStatus === "AWAITING_FUND" || fundStatus === "PROCESSING";
   const canFundFirstMilestone =
     !!firstFundMilestone &&
     canBuyerFundMilestone({
@@ -68,7 +69,7 @@ const FundProjectAlert = () => {
     return null;
   }
 
-  const shouldShowFundAlert = isAwaitingFund && isUnfunded;
+  const shouldShowFundAlert = needsFunding && isUnfunded;
 
   if (shouldShowFundAlert) {
     return (

@@ -17,10 +17,16 @@ const APPBAR_TOUR_POINTER = {
   showSkip: true,
   pointerPadding: 8,
   pointerRadius: 8,
-  side: "bottom-right" as const,
 };
 
-export const buildBuyerWelcomeTour = (): Tour => {
+export const buildBuyerWelcomeTour = (isDesktop = true): Tour => {
+  const appbarPointer = {
+    ...APPBAR_TOUR_POINTER,
+    // bottom-right clips off the left edge on narrow screens when the
+    // target sits in the appbar; keep it for desktop only.
+    side: isDesktop ? ("bottom-right" as const) : ("bottom" as const),
+  };
+
   return {
     tour: "welcome",
     steps: [
@@ -102,7 +108,7 @@ export const buildBuyerWelcomeTour = (): Tour => {
         nextRoute: "/projects",
       },
       {
-        ...APPBAR_TOUR_POINTER,
+        ...appbarPointer,
         icon: null,
         title: "Never Miss an Update",
         content:

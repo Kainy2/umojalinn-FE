@@ -16,7 +16,6 @@ const ProjectTab = (props: Pick<ProjectFormProps, "isOnboarding">) => {
         href: `${
           !!props.isOnboarding ? "/onboard" : ""
         }/project/${uuidToBase62Safe(params?.id)}`,
-        tourTargetId: "tour-create-project-description",
       },
       {
         title: "Gallery",

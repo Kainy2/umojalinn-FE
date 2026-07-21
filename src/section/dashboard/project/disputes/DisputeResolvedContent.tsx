@@ -36,6 +36,14 @@ const DisputeResolvedContent = ({
   return (
     <div className="flex flex-col gap-6">
       <div className="grid gap-3 sm:grid-cols-2">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Dispute ID
+          </p>
+          <p className="text-sm font-semibold text-foreground-body">
+            {dispute.disputeId}
+          </p>
+        </div>
         {projectTitle && (
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
@@ -12,13 +12,128 @@ import { createBidForTour } from "@/lib/create-bid-tour";
 import {
   dispatchCreateBidRequestMeasurements,
   dispatchCreateBidSaveMilestone,
+  dispatchTourMobileMenuOpen,
+  ensureMobileMenuForTourSelector,
   getCreateBidTourProjectId,
   getTourStepAt,
+  isTourMobileViewport,
   setCreateBidTourBidId,
   syncTourPointerToTarget,
   waitForTourSelector,
 } from "@/lib/tour";
 import { cn } from "@/lib/utils";
+
+const TOUR_CARD_VIEWPORT_MARGIN_PX = 16;
+const TOUR_CARD_MAX_WIDTH_PX = 22 * 16; // 22rem
+
+const resetTourCardParent = (el: HTMLElement) => {
+  const parent = el.parentElement;
+  if (parent?.getAttribute("data-name") !== "nextstep-card") {
+    return;
+  }
+
+  parent.style.left = "";
+  parent.style.right = "";
+  parent.style.top = "";
+  parent.style.bottom = "";
+  parent.style.width = "";
+  parent.style.maxWidth = "";
+  parent.style.minWidth = "";
+  parent.style.transform = "";
+  parent.style.margin = "";
+};
+
+const resetTourCardPosition = (el: HTMLElement) => {
+  el.style.position = "";
+  el.style.left = "";
+  el.style.right = "";
+  el.style.top = "";
+  el.style.width = "";
+  el.style.maxWidth = "";
+  el.style.minWidth = "";
+  el.style.transform = "";
+  el.style.zIndex = "";
+  el.style.margin = "";
+  resetTourCardParent(el);
+};
+
+/**
+ * Escape nextstepjs absolute/motion placement so the card stays on-screen.
+ *
+ * nextstep mounts the card inside a motion pointer that uses transforms.
+ * That makes `position: fixed` relative to the pointer box (often 0×0 on the
+ * welcome step), so left/right viewport pinning collapses into a sliver.
+ * Measure the containing-block origin, then place with an explicit width.
+ */
+const placeTourCardInViewport = (
+  el: HTMLElement,
+  selector?: string | null,
+) => {
+  const margin = TOUR_CARD_VIEWPORT_MARGIN_PX;
+  const width = Math.min(
+    window.innerWidth - margin * 2,
+    TOUR_CARD_MAX_WIDTH_PX,
+  );
+
+  const parent = el.parentElement;
+  if (parent?.getAttribute("data-name") === "nextstep-card") {
+    // Neutralize library side offsets (left: 100%, transform, maxWidth: 100%).
+    parent.style.left = "0";
+    parent.style.right = "auto";
+    parent.style.top = "0";
+    parent.style.bottom = "auto";
+    parent.style.width = "auto";
+    parent.style.maxWidth = "none";
+    parent.style.minWidth = "0";
+    parent.style.transform = "none";
+    parent.style.margin = "0";
+  }
+
+  el.style.position = "fixed";
+  el.style.right = "auto";
+  el.style.width = `${width}px`;
+  el.style.maxWidth = `${width}px`;
+  el.style.minWidth = "0";
+  el.style.transform = "none";
+  el.style.zIndex = "210";
+  el.style.margin = "0";
+  el.style.boxSizing = "border-box";
+
+  // Local (0,0) under the transformed pointer → viewport origin.
+  el.style.left = "0px";
+  el.style.top = "0px";
+  const origin = el.getBoundingClientRect();
+
+  const target = selector ? document.querySelector(selector) : null;
+  const cardHeight = el.offsetHeight;
+  const maxTop = Math.max(margin, window.innerHeight - cardHeight - margin);
+  const desiredLeft = Math.max(
+    margin,
+    (window.innerWidth - width) / 2,
+  );
+  let desiredTop = margin;
+
+  if (target) {
+    const targetRect = target.getBoundingClientRect();
+    const below = targetRect.bottom + margin;
+    const above = targetRect.top - cardHeight - margin;
+
+    if (below <= maxTop) {
+      desiredTop = below;
+    } else if (above >= margin) {
+      desiredTop = above;
+    } else {
+      desiredTop = Math.min(Math.max(margin, below), maxTop);
+    }
+  } else {
+    desiredTop = Math.max(margin, (window.innerHeight - cardHeight) / 2);
+  }
+
+  desiredTop = Math.min(Math.max(margin, desiredTop), maxTop);
+
+  el.style.left = `${desiredLeft - origin.left}px`;
+  el.style.top = `${desiredTop - origin.top}px`;
+};
 
 const TourCard = ({
   step,
@@ -33,6 +148,8 @@ const TourCard = ({
   const { data: session } = useSession();
   const { closeNextStep, currentTour, setCurrentStep } = useNextStep();
   const [isAdvancing, setIsAdvancing] = useState(false);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   const isBuyer = session?.user?.profileRole === "BUYER";
 
@@ -43,28 +160,74 @@ const TourCard = ({
   const isCreateProjectFinalStep =
     currentTour === "create-a-project" && isLastStep;
 
+  // nextstepjs anchors the card to the highlight with absolute + transform.
+  // On mobile that routinely hangs off-screen (esp. appbar bottom-right).
+  // Pin the card to the viewport instead; desktop keeps library positioning.
+  useLayoutEffect(() => {
+    const el = cardRef.current;
+    if (!el) {
+      return;
+    }
+
+    const syncPlacement = () => {
+      const mobile = isTourMobileViewport();
+      setIsMobileViewport(mobile);
+
+      if (!mobile) {
+        resetTourCardPosition(el);
+        return;
+      }
+
+      placeTourCardInViewport(el, step.selector);
+    };
+
+    syncPlacement();
+
+    // nextstep animates the pointer after the step index changes — re-place
+    // once after the frame and once after the card transition settles.
+    const rafId = window.requestAnimationFrame(syncPlacement);
+    const timeoutId = window.setTimeout(syncPlacement, 320);
+
+    window.addEventListener("resize", syncPlacement);
+
+    return () => {
+      window.cancelAnimationFrame(rafId);
+      window.clearTimeout(timeoutId);
+      window.removeEventListener("resize", syncPlacement);
+      resetTourCardPosition(el);
+    };
+  }, [currentStep, step.selector, step.side]);
+
   const advanceWithRoute = async (direction: "next" | "prev") => {
     const route = direction === "next" ? step.nextRoute : step.prevRoute;
     const targetIndex =
       direction === "next" ? currentStep + 1 : currentStep - 1;
-
-    if (!route) {
-      if (direction === "next") {
-        nextStep();
-      } else {
-        prevStep();
-      }
-      return;
-    }
-
     const targetSelector = getTourStepAt(currentTour, targetIndex)?.selector;
-    // Sidebar/appbar targets are already mounted — highlight immediately and
-    // let the page navigate underneath (no MutationObserver wait).
-    const targetAlreadyInDom =
-      !!targetSelector && !!document.querySelector(targetSelector);
 
     setIsAdvancing(true);
     try {
+      // Sidebar targets only exist in the mobile hamburger Drawer — open/close
+      // it before waiting so waitForTourSelector does not time out.
+      await ensureMobileMenuForTourSelector(targetSelector);
+
+      if (!route) {
+        if (direction === "next") {
+          nextStep();
+        } else {
+          prevStep();
+        }
+
+        if (targetSelector) {
+          syncTourPointerToTarget(targetSelector);
+        }
+        return;
+      }
+
+      // Sidebar/appbar targets are already mounted — highlight immediately and
+      // let the page navigate underneath (no MutationObserver wait).
+      const targetAlreadyInDom =
+        !!targetSelector && !!document.querySelector(targetSelector);
+
       router.push(route);
 
       if (!targetAlreadyInDom && targetSelector) {
@@ -155,7 +318,13 @@ const TourCard = ({
   };
 
   return (
-    <div className="relative box-border w-[min(100vw-2rem,22rem)] min-w-[16rem] rounded-xl bg-background p-5 shadow-lg">
+    <div
+      ref={cardRef}
+      className={cn(
+        "relative box-border w-[min(100vw-2rem,22rem)] max-w-[calc(100vw-2rem)] rounded-xl bg-background p-5 shadow-lg",
+        "max-md:min-w-0 md:min-w-[16rem]",
+      )}
+    >
       <div className="mb-3 flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1" />
         <div className="flex shrink-0 items-center gap-2">
@@ -167,6 +336,7 @@ const TourCard = ({
             aria-label="Close tour"
             className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             onClick={() => {
+              dispatchTourMobileMenuOpen(false);
               if (skipTour) {
                 skipTour();
                 return;
@@ -185,11 +355,11 @@ const TourCard = ({
         {step.content}
       </p>
 
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         {isFirstStep ? (
           <button
             type="button"
-            className="text-sm font-medium p-2 text-[#009FE2] border-[#00000033] border rounded-lg"
+            className="shrink-0 text-sm font-medium p-2 text-[#009FE2] border-[#00000033] border rounded-lg"
             onClick={skipTour}
           >
             Skip tour
@@ -200,7 +370,7 @@ const TourCard = ({
             variant="outline"
             size="sm"
             onClick={handlePrev}
-            className="text-base font-medium p-2 text-[#475467] border-[#00000033] border rounded-lg"
+            className="shrink-0 text-base font-medium p-2 text-[#475467] border-[#00000033] border rounded-lg"
           >
             Previous
           </Button>
@@ -212,7 +382,7 @@ const TourCard = ({
           loading={isAdvancing}
           className={cn(
             isFirstStep && "ml-auto",
-            "text-base font-semibold py-2 px-4 bg-[#CA8504] rounded-lg",
+            "shrink-0 text-base font-semibold py-2 px-4 bg-[#CA8504] rounded-lg",
           )}
           onClick={handleNext}
         >
@@ -227,7 +397,8 @@ const TourCard = ({
         </Button>
       </div>
 
-      {arrow}
+      {/* Arrow is tied to nextstep absolute placement; skip on mobile fixed card. */}
+      {!isMobileViewport && arrow}
     </div>
   );
 };

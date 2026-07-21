@@ -13,9 +13,53 @@ import { getCurrencySymbol } from "@/lib/string";
 import { IDisputeActivitiesProps, TDisputeActivityItem } from "./@types";
 import { parseDisputeAmount } from "./utils";
 
+const getResponseTitle = (
+  responderType?: string | null,
+  actorType?: string | null,
+) => {
+  const type = responderType ?? actorType;
+  if (type === "BUYER") return "Buyer response";
+  if (type === "DESIGNER") return "Designer response";
+  return "Response";
+};
+
+const findMatchingResponse = (
+  event: IUmojaLinnDisputeEvent,
+  responses: IUmojaLinnDisputeResponse[],
+) => {
+  const candidates = responses.filter(
+    (response) =>
+      !!event.actorUserId && response.responderUserId === event.actorUserId,
+  );
+
+  if (!candidates.length) return undefined;
+  if (candidates.length === 1) return candidates[0];
+
+  const eventTime = new Date(event.createdAt).getTime();
+  return candidates.reduce((closest, response) => {
+    const closestDiff = Math.abs(
+      new Date(closest.createdAt).getTime() - eventTime,
+    );
+    const responseDiff = Math.abs(
+      new Date(response.createdAt).getTime() - eventTime,
+    );
+    return responseDiff < closestDiff ? response : closest;
+  });
+};
+
+const isResolutionEvent = (eventType: string) =>
+  eventType === "RESOLUTION_APPROVED" || eventType.startsWith("RESOLUTION_");
+
 const buildActivityItems = (dispute: IDisputeActivitiesProps["dispute"]) => {
+  const events = [...(dispute.events ?? dispute.activityTimeline ?? [])].sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+  );
+  const responses = dispute.responses ?? [];
+  const approvedAmount = parseDisputeAmount(
+    dispute.refundApproved ?? dispute.approvedRefundAmount,
+  );
+
   const items: TDisputeActivityItem[] = [];
-  const events = dispute.events ?? dispute.activityTimeline ?? [];
 
   events.forEach((event: IUmojaLinnDisputeEvent) => {
     if (event.eventType === "DISPUTE_CREATED") {
@@ -25,50 +69,47 @@ const buildActivityItems = (dispute: IDisputeActivitiesProps["dispute"]) => {
         title: "Dispute raised",
         kind: "event",
       });
+      return;
     }
-  });
 
-  dispute.responses?.forEach((response: IUmojaLinnDisputeResponse) => {
-    if (response.responderType === "BUYER") {
+    if (event.eventType === "DEFENCE_SUBMITTED") {
+      const matchedResponse = findMatchingResponse(event, responses);
       items.push({
-        id: response.id,
-        date: response.createdAt,
-        title: "Buyer response",
-        kind: "buyer-response",
-        message: response.message,
-        attachments: response.attachments,
+        id: event.id,
+        date: event.createdAt,
+        title: getResponseTitle(
+          matchedResponse?.responderType,
+          event.actorType,
+        ),
+        kind: "response",
+        message: matchedResponse?.message,
+        attachments: matchedResponse?.attachments,
       });
+      return;
     }
-  });
 
-  if (dispute.status === "RESOLVED") {
-    const resolutionEvent = events.find(
-      (event) => event.eventType === "RESOLUTION_APPROVED",
-    );
-    const approvedAmount = parseDisputeAmount(
-      dispute.refundApproved ?? dispute.approvedRefundAmount,
-    );
-
-    if (!items.some((item) => item.kind === "outcome")) {
+    if (isResolutionEvent(event.eventType)) {
       items.push({
-        id: resolutionEvent?.id ?? `outcome-${dispute.id}`,
-        date: dispute.resolvedAt ?? dispute.updatedAt,
-        title: approvedAmount
-          ? "Outcome: Refund Issued"
-          : "Outcome: Dispute resolved",
+        id: event.id,
+        date: event.createdAt,
+        title:
+          approvedAmount > 0
+            ? "Outcome: Refund Issued"
+            : "Outcome: No Refund Issued",
         kind: "outcome",
-        refundedAmount: approvedAmount || undefined,
+        refundedAmount: approvedAmount,
         reason:
           dispute.externalNotes ??
-          (resolutionEvent?.metadata?.externalNotes as string | undefined) ??
+          (event.metadata?.externalNotes as string | undefined) ??
           dispute.reasonDetail ??
           undefined,
-        paymentNote: approvedAmount
-          ? "Funds will be returned to the buyer's original payment method within 5–7 business days."
-          : undefined,
+        paymentNote:
+          approvedAmount > 0
+            ? "Funds will be returned to the buyer's original payment method within 5–7 business days."
+            : undefined,
       });
     }
-  }
+  });
 
   return items;
 };
@@ -82,9 +123,11 @@ const DisputeActivityItem = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
   const currencySymbol = getCurrencySymbol(currency ?? undefined);
-  const dateLabel = format(new Date(activity.date), "MMM d");
+  const activityDate = new Date(activity.date);
+  const dateLabel = format(activityDate, "MMM d");
+  const timeLabel = format(activityDate, "h:mm a");
   const hasExpandableContent =
-    activity.kind === "buyer-response" ||
+    (activity.kind === "response" && !!activity.message) ||
     (activity.kind === "outcome" &&
       (activity.refundedAmount != null ||
         activity.reason ||
@@ -92,14 +135,17 @@ const DisputeActivityItem = ({
 
   return (
     <li className="flex gap-3">
-      <span className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-success-50 text-success before:absolute before:left-1/2 before:top-8 before:h-[calc(100%+0.5rem)] before:w-px before:-translate-x-1/2 before:bg-gray-200 before:content-[''] last:before:hidden">
+      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-success text-success">
         <Check className="h-3.5 w-3.5" />
       </span>
       <div className="flex-1 pb-6">
-        <div className="flex items-start justify-between gap-2">
-          <p className="text-sm font-medium text-foreground-body">
-            {dateLabel} – {activity.title}
-          </p>
+        <div className="flex items-start gap-8">
+          <div>
+            <p className="text-sm font-medium text-foreground-body">
+              {dateLabel} – {activity.title}
+            </p>
+            <p className="text-xs text-muted-foreground">{timeLabel}</p>
+          </div>
           {hasExpandableContent && (
             <button
               type="button"
@@ -117,9 +163,9 @@ const DisputeActivityItem = ({
           )}
         </div>
 
-        {expanded && activity.kind === "buyer-response" && (
+        {expanded && activity.kind === "response" && activity.message && (
           <div className="mt-2 space-y-2 border-l-2 border-gray-200 pl-3">
-            <blockquote className="text-sm text-muted-foreground">
+            <blockquote className="text-sm italic text-muted-foreground">
               &ldquo;{activity.message}&rdquo;
             </blockquote>
             {!!activity.attachments?.length && (

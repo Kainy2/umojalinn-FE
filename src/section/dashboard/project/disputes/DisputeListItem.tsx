@@ -30,7 +30,7 @@ const DisputeListItem = ({
   onResponseSuccess,
 }: IDisputeListItemProps) => {
   const title = DISPUTE_TYPE_TITLES[dispute.type];
-  const dateLabel = format(new Date(dispute.createdAt), "MMM d, yyyy");
+  const dateLabel = format(new Date(dispute.createdAt), "MMM d, yyyy, h:mm a");
   const requiresResponse = requiresDisputeResponse(dispute, currentUserId);
   const showActionBanner = requiresResponse && !isResponding;
   const showResponseForm = requiresResponse && isResponding;
