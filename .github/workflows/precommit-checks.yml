@@ -28,3 +28,6 @@ jobs:
 
       - name: Run Type Check
         run: yarn type-check
+
+      - name: Run next build
+        run: yarn build

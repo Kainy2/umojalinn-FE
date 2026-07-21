@@ -23,7 +23,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import RatingStar from "@/icons/RatingStar";
 import TextField from "@/components/custom/input/TextField";
 import { toast } from "@/hooks/use-toast";
 
@@ -347,6 +346,7 @@ const ShareYourWorkForm = () => {
         }}
       />
 
+      {/* Success modal */}
       <Dialog open={showSuccessModal}>
         <DialogContent
           onInteractOutside={(e) => e.preventDefault()}
@@ -364,10 +364,9 @@ const ShareYourWorkForm = () => {
             <span className="sr-only">Close</span>
           </button>
           <DialogHeader>
-            <RatingStar
-              stroke="#FAC515"
-              className="mx-auto my-16 md:my-20 size-6 text-primary-600"
-            />
+
+            <Image src="/gif/good-tick.gif" alt="Success" width={300} height={300} className="mx-auto" />
+
             <DialogTitle className="pb-8 text-[20px] md:text-lg text-center">
               Your work has been published
             </DialogTitle>
