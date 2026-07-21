@@ -116,8 +116,10 @@ const WalletCard = (props: IWalletCardProps) => {
     }
   };
 
-  const showLinkAccount = currency !== "NAIRA" && stripeStatus !== "ENABLED";
-  const showAddAccount = currency === "NAIRA" && paystackStatus !== "ENABLED";
+  const showLinkAccount =
+    currency !== "NAIRA" && !!stripeStatus && stripeStatus !== "ENABLED";
+  const showAddAccount =
+    currency === "NAIRA" && !!paystackStatus && paystackStatus !== "ENABLED";
   const isWithdrawalRestricted = currencyDisputeSummary?.restricted ?? false;
   const insufficientDisputeAmount =
     currencyDisputeSummary?.insufficientAmount ?? 0;

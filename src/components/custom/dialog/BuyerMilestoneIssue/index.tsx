@@ -88,7 +88,6 @@ export const BuyerMilestoneIssueDialog = ({
                 Report an issue with this milestone
               </DialogTitle>
               <p className="text-sm text-muted-foreground">
-                Project Name:{" "}
                 <span className="text-foreground-body">{projectName}</span>
                 {": "}
                 <span className="text-foreground-body">{milestoneName}</span>
@@ -127,7 +126,7 @@ export const BuyerMilestoneIssueDialog = ({
 
           <Separator />
 
-          <DialogFooter className="flex-row justify-between gap-3 px-6 py-4 sm:justify-between sm:space-x-0">
+          <DialogFooter className="flex-col md:flex-row justify-between gap-3 px-6 py-4 sm:justify-between sm:space-x-0">
             <DialogClose asChild>
               <Button type="button" variant="outline" className="min-w-[334px]">
                 Cancel

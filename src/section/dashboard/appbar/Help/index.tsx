@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { CircleHelp } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useNextStep } from "nextstepjs";
@@ -26,12 +26,14 @@ import {
   DESIGNER_HELP_TOUR_OPTIONS,
 } from "@/constant/tour/help";
 import {
+  pickBuyerSizingTemplate,
   setActiveProjectsTourProjectId,
   setCreateBidTourProjectId,
   setCreateProjectTourProjectId,
   setReviewBidTourBidId,
   setSizingTemplateTourProjectId,
   setSizingTemplateTourTemplateId,
+  syncTourPointerToTarget,
 } from "@/lib/tour";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import HelpCentre from "@/section/dashboard/appbar/Help/HelpCentre";
@@ -44,31 +46,18 @@ import {
   useGetAllBuyerProject,
   useGetAllDesignerProject,
 } from "@/tanstack/hooks/useProject";
-import { useGetBuyerBids } from "@/tanstack/hooks/useBid";
+import { useGetBuyerBids, useGetDesignerBids } from "@/tanstack/hooks/useBid";
 import { useGetAllDesignerSizingTemplates, useGetAllSizingTemplates } from "@/tanstack/hooks/useSizingTemplates";
 import type { TTourName } from "@/constant/tour/@types";
-import type { UmojaLinnSizingTemplate } from "@/types/project";
-
-const pickBuyerSizingTemplate = (
-  templates: UmojaLinnSizingTemplate[] | undefined,
-) => {
-  if (!templates?.length) {
-    return null;
-  }
-
-  return (
-    templates.find((template) => template.status === "DRAFT") ??
-    templates.find((template) => template.status !== "IN_USE") ??
-    templates[0]
-  );
-};
 
 const Help = () => {
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<THelpView>("help-centre");
   const router = useRouter();
+  const pathname = usePathname();
   const { data: session } = useSession();
-  const { startNextStep, isNextStepVisible } = useNextStep();
+  const { startNextStep, setCurrentStep, isNextStepVisible } = useNextStep();
+  const currentBidId = pathname.match(/^\/bids\/([^/]+)$/)?.[1] ?? null;
 
   const isDesigner = session?.user?.profileRole === "DESIGNER";
   const helpCentreOptions = isDesigner
@@ -80,6 +69,14 @@ const Help = () => {
       projectStatus: "ADS",
       projectType: "PRIVATE",
       hasBid: false,
+    },
+    { enabled: isDesigner },
+  );
+
+  const { data: designerSubmittedBidsData } = useGetDesignerBids(
+    {
+      limit: 1,
+      bidStatus: ["PENDING", "ACCEPTED", "REJECTED"],
     },
     { enabled: isDesigner },
   );
@@ -127,6 +124,8 @@ const Help = () => {
 
     return uuidToBase62Safe(firstJob.id);
   }, [jobsData?.data?.data]);
+
+  const hasSubmittedBid = !!designerSubmittedBidsData?.data?.data?.length;
 
   const firstSizingTemplateContext = useMemo(() => {
     const firstTemplate = sizingTemplatesData?.data?.data?.[0];
@@ -179,6 +178,9 @@ const Help = () => {
     return uuidToBase62Safe(firstBid.id);
   }, [buyerPendingBidsData?.data?.data]);
 
+  const hasBuyerSizingTemplates =
+    !!buyerSizingTemplatesData?.data?.data?.length;
+
   const firstBuyerSizingTemplateId = useMemo(() => {
     const template = pickBuyerSizingTemplate(buyerSizingTemplatesData?.data?.data);
 
@@ -215,7 +217,7 @@ const Help = () => {
         }
 
         if (option.tourId === "sizing-template") {
-          return { ...option, disabled: !firstBuyerSizingTemplateId };
+          return { ...option, disabled: !hasBuyerSizingTemplates };
         }
 
         if (option.tourId === "active-projects") {
@@ -228,7 +230,11 @@ const Help = () => {
 
     return baseOptions.map((option) => {
       if (option.tourId === "create-a-bid") {
-        return { ...option, disabled: !firstJobId };
+        return {
+          ...option,
+          title: hasSubmittedBid ? "Submit Your bid" : "Submit Your first Bid",
+          disabled: !firstJobId,
+        };
       }
 
       if (option.tourId === "sizing-template") {
@@ -248,11 +254,12 @@ const Help = () => {
   }, [
     firstBuyerDraftProjectId,
     firstBuyerLiveProjectId,
-    firstBuyerSizingTemplateId,
+    hasBuyerSizingTemplates,
     firstJobId,
     firstLiveProjectId,
     firstPendingBidId,
     firstSizingTemplateContext,
+    hasSubmittedBid,
     isDesigner,
   ]);
 
@@ -265,8 +272,8 @@ const Help = () => {
       setCreateProjectTourProjectId(firstBuyerDraftProjectId);
     }
 
-    if (tourId === "review-bid" && firstPendingBidId) {
-      setReviewBidTourBidId(firstPendingBidId);
+    if (tourId === "review-bid" && (currentBidId || firstPendingBidId)) {
+      setReviewBidTourBidId(currentBidId ?? firstPendingBidId!);
     }
 
     if (tourId === "sizing-template") {
@@ -305,6 +312,12 @@ const Help = () => {
     }
 
     startNextStep(tourId);
+
+    if (tourId === "review-bid" && currentBidId) {
+      setCurrentStep(1);
+      syncTourPointerToTarget("#tour-review-bid-milestones");
+    }
+
     setOpen(false);
     setView("help-centre");
   };

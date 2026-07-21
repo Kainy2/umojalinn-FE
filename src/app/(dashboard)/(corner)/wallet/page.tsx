@@ -35,12 +35,16 @@ import ConnectPaymentAccountOtpDialog from "@/components/custom/dialog/ConnectPa
 import WalletDisputesSection from "@/components/custom/wallet/WalletDisputesSection";
 import TourReadyMarker from "@/components/tour/TourReadyMarker";
 const WithdrawalPage = () => {
-  const { data: userData } = useGetMe();
   const { data: session } = useSession();
   const { data: walletData, isPending: isWalletPending } = useGetWallet();
-  const { data: disputeSummaryResponse } = useGetWalletDisputeSummary();
+  const secondaryQueriesEnabled = !isWalletPending;
+
+  const { data: userData } = useGetMe({ enabled: secondaryQueriesEnabled });
+  const { data: disputeSummaryResponse } = useGetWalletDisputeSummary({
+    enabled: secondaryQueriesEnabled,
+  });
   const { data: paymentAccountData, isPending: isPaymentAccountPending } =
-    useGetPaymentAccountInfo();
+    useGetPaymentAccountInfo({ enabled: secondaryQueriesEnabled });
 
   const user = userData?.data?.data;
   const defaultCurrency = getDefaultCurrencyFromCountry(user?.address?.country);
@@ -78,7 +82,9 @@ const WithdrawalPage = () => {
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
-  } = useGetInfiniteTransactions();
+  } = useGetInfiniteTransactions(undefined, {
+    enabled: secondaryQueriesEnabled,
+  });
   const transactions = useInfiniteData(allTransactions);
 
   const wallet = walletData?.data?.data;
@@ -113,12 +119,15 @@ const WithdrawalPage = () => {
     if (disputeSummary?.[currency]?.restricted) {
       return "Withdrawals restricted";
     }
+    if (isPaymentAccountPending || !paymentAccount) {
+      return null;
+    }
     if (currency === "NAIRA") {
-      return paymentAccount?.paystackStatus !== "ENABLED"
+      return paymentAccount.paystackStatus !== "ENABLED"
         ? "Action required"
         : null;
     }
-    switch (paymentAccount?.stripeStatus) {
+    switch (paymentAccount.stripeStatus) {
       case "NOT_CONNECTED":
         return "Not connected";
       case "ONBOARDING_STARTED":
@@ -136,7 +145,7 @@ const WithdrawalPage = () => {
     }
   };
 
-  const isPageLoading = isPaymentAccountPending || isWalletPending;
+  const isPageLoading = isWalletPending;
 
   if (isPageLoading) {
     return (

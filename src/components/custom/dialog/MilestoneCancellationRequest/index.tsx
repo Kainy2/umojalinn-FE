@@ -44,7 +44,7 @@ export const MilestoneCancellationRequestDialog = ({
 
   const [reason, setReason] = useState<TDisputeReason | "">("");
   const [isClientAware, setIsClientAware] = useState<TClientAwareness>("no");
-  const [confirmed, setConfirmed] = useState(true);
+  const [confirmed, setConfirmed] = useState(false);
   const [files, setFiles] = useState<FileList | null>(null);
 
   const resetForm = useCallback(() => {
@@ -54,12 +54,14 @@ export const MilestoneCancellationRequestDialog = ({
     setFiles(null);
   }, []);
 
-  const { mutate: createDesignerDispute, isPending } = useCreateDesignerDispute({
-    onSuccess: () => {
-      resetForm();
-      onOpenChange(false);
+  const { mutate: createDesignerDispute, isPending } = useCreateDesignerDispute(
+    {
+      onSuccess: () => {
+        resetForm();
+        onOpenChange(false);
+      },
     },
-  });
+  );
 
   const currencySymbol = getCurrencySymbol(currency);
   const formattedEscrow = `${currencySymbol}${formatCurrencyValue(escrowAmount)}`;
@@ -178,10 +180,10 @@ export const MilestoneCancellationRequestDialog = ({
                 htmlFor="milestone-cancellation-confirm"
                 className="cursor-pointer text-sm font-normal leading-snug text-foreground-body"
               >
-                I understand that this will cancel the milestone and all funds in
-                this project&apos;s escrow (
-                <span className="font-semibold">{formattedEscrow}</span>) will be
-                released back to the client.
+                I understand that this will cancel the milestone and all funds
+                in this project&apos;s escrow (
+                <span className="font-semibold">{formattedEscrow}</span>) will
+                be released back to the client.
               </Label>
             </div>
           </div>

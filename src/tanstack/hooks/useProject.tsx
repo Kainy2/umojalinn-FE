@@ -421,14 +421,14 @@ export const useGetTransactions = (params?: Record<string, unknown>) => {
 
 export const useGetInfiniteTransactions = (
   params?: Record<string, unknown>,
-  // options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnTransaction>>
+  options?: { enabled?: boolean },
 ) => {
   const { data: me } = useSession();
   const lastId = params?.lastId;
 
   return useInfiniteQuery({
     initialPageParam: lastId,
-    enabled: !!me?.user,
+    enabled: !!me?.user && options?.enabled !== false,
     queryKey: [TRANSACTION, params],
     queryFn: ({ pageParam: lastId }) =>
       getAllTransactions({ lastId, ...params }),

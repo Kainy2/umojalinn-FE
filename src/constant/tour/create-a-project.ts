@@ -48,7 +48,7 @@ export const buildCreateProjectTour = (projectId: string) => {
         content:
           "This is the fun part! Upload images or sketches to help your designer bring your style to life.",
         selector: tourTarget("tour-create-project-gallery"),
-        side: "right" as const,
+        side: "bottom" as const,
         prevRoute: descriptionPath,
         nextRoute: budgetPath,
       },

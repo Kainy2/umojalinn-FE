@@ -78,13 +78,21 @@ const SelectModeView = ({
   const [isUkChartOpen, setIsUkChartOpen] = useState(false);
   const router = useRouter()
 
+  const handleRequestSuccess = () => {
+    if (!isProjectLive) {
+      router.back();
+      return;
+    }
+    onSuccess?.();
+  };
+
   // Hook for template-based API (existing)
   const {
     mutate: requestPointsOnTemplate,
     mutateAsync: requestPointsOnTemplateAsync,
     isPending: isPendingTemplate,
   } = useRequestMeasurementPoints({
-    onSuccess: () => onSuccess?.(),
+    onSuccess: handleRequestSuccess,
   });
 
   // Hook for bid-based API (new)
@@ -93,7 +101,7 @@ const SelectModeView = ({
     mutateAsync: requestPointsOnBidAsync,
     isPending: isPendingBid,
   } = useRequestMeasurementPointsOnBid({
-    onSuccess: () => router.push(`/bids/${bidId}/edit`),
+    onSuccess: handleRequestSuccess,
   });
 
   const isPending = isPendingTemplate || isPendingBid;

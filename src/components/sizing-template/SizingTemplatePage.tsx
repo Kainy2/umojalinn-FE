@@ -805,100 +805,110 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
               />
             </div>
 
-            {/* Table Headers */}
-            <div className="flex justify-between items-center text-sm text-gray-500 border-b border-gray-200 pb-2 animate-in fade-in duration-300 delay-150">
-              <span className="font-medium">Measurement Point</span>
-              <span className="font-medium">Measurement</span>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              {isRestrictedInUse && (
-                <DisabledTemplateItems title={gender} />
-              )}
-
-              {/* UK Standard Size Row */}
-              <UKStandardSizeRow
-                gender={gender}
-                value={value?.ukStandardSize ?? null}
-                onChange={handleUKSizeChange}
-                onShowChart={handleShowUKSizeChart}
-                highlighted={showUKSizeChart}
-                disabled={!isEditable}
-                // isDesigner={isDesigner}
-              />
-
-              {isRestrictedInUse && (
-                <DisabledTemplateItems
-                  title="Height"
-                  value={value?.height ? `${value?.height} ${unit}` : "-"}
-                />
-              )}
-            </div>
-
-            {/* Measurement Points (including Height as first item from TEMPLATE) */}
-            {((sizingTemplateId &&
-              (canBuyerFullyEdit ||
-                ((hasRequestedPoints || hasSubmittedPoints) &&
-                  isProjectLive))) ||
-              isNewTemplate ||
-              isDraft) && (
-              <div className="flex flex-col gap-2">
-                {TEMPLATE.filter((templateItem) => {
-                  // Full edit (new, draft, live, or IN_USE before project LIVE): show all
-                  if (canBuyerFullyEdit || isNewTemplate || isDraft) return true;
-
-                  // After job is LIVE: only show requested measurement points
-                  if (isRestrictedInUse && hasRequestedPoints) {
-                    return requestedMeasurementPoints.includes(
-                      templateItem.prop,
-                    );
-                  }
-
-                  // Default: show all
-                  return true;
-                }).map((templateItem, index) => {
-                  const isDisabled = !isEditable;
-                  const itemValue =
-                    value?.[templateItem.prop as keyof typeof value];
-                  const reviews = sizingTemplateResult?.metadata?.reviews as
-                    | Record<string, string>
-                    | undefined;
-                  const reviewValue = reviews?.[templateItem.prop];
-
-                  return (
-                    <MeasurementPointRow
-                      key={templateItem.prop}
-                      disabled={isDisabled}
-                      onValueChange={handleChange(
-                        templateItem.prop as BothGenderSizingTemplateProps,
-                      )}
-                      value={typeof itemValue === "number" ? itemValue : 0}
-                      unit={unit}
-                      label={templateItem.name}
-                      onFocus={() =>
-                        handleMeasurementClick(
-                          templateItem.img,
-                          templateItem.prop as BothGenderSizingTemplateProps,
-                        )
-                      }
-                      highlighted={highlighted === templateItem.prop}
-                      hasLiveProject={false}
-                      metadata={{ review: reviewValue, img: templateItem?.img }}
-                      onClick={() =>
-                        handleMeasurementClick(
-                          templateItem.img,
-                          templateItem.prop as BothGenderSizingTemplateProps,
-                        )
-                      }
-                      onKeyDown={(e) => handleKeyPress(index, e)}
-                      ref={(el) => {
-                        inputRefs.current[index] = el;
-                      }}
-                    />
-                  );
-                })}
+            {/* Measurement points — tour spotlight target */}
+            <div
+              id="tour-sizing-template-measurement-points"
+              className="flex flex-col gap-6"
+            >
+              {/* Table Headers */}
+              <div className="flex justify-between items-center text-sm text-gray-500 border-b border-gray-200 pb-2 animate-in fade-in duration-300 delay-150">
+                <span className="font-medium">Measurement Point</span>
+                <span className="font-medium">Measurement</span>
               </div>
-            )}
+
+              <div className="flex flex-col gap-2">
+                {isRestrictedInUse && (
+                  <DisabledTemplateItems title={gender} />
+                )}
+
+                {/* UK Standard Size Row */}
+                <UKStandardSizeRow
+                  gender={gender}
+                  value={value?.ukStandardSize ?? null}
+                  onChange={handleUKSizeChange}
+                  onShowChart={handleShowUKSizeChart}
+                  highlighted={showUKSizeChart}
+                  disabled={!isEditable}
+                  // isDesigner={isDesigner}
+                />
+
+                {isRestrictedInUse && (
+                  <DisabledTemplateItems
+                    title="Height"
+                    value={value?.height ? `${value?.height} ${unit}` : "-"}
+                  />
+                )}
+              </div>
+
+              {/* Measurement Points (including Height as first item from TEMPLATE) */}
+              {((sizingTemplateId &&
+                (canBuyerFullyEdit ||
+                  ((hasRequestedPoints || hasSubmittedPoints) &&
+                    isProjectLive))) ||
+                isNewTemplate ||
+                isDraft) && (
+                <div className="flex flex-col gap-2">
+                  {TEMPLATE.filter((templateItem) => {
+                    // Full edit (new, draft, live, or IN_USE before project LIVE): show all
+                    if (canBuyerFullyEdit || isNewTemplate || isDraft)
+                      return true;
+
+                    // After job is LIVE: only show requested measurement points
+                    if (isRestrictedInUse && hasRequestedPoints) {
+                      return requestedMeasurementPoints.includes(
+                        templateItem.prop,
+                      );
+                    }
+
+                    // Default: show all
+                    return true;
+                  }).map((templateItem, index) => {
+                    const isDisabled = !isEditable;
+                    const itemValue =
+                      value?.[templateItem.prop as keyof typeof value];
+                    const reviews = sizingTemplateResult?.metadata?.reviews as
+                      | Record<string, string>
+                      | undefined;
+                    const reviewValue = reviews?.[templateItem.prop];
+
+                    return (
+                      <MeasurementPointRow
+                        key={templateItem.prop}
+                        disabled={isDisabled}
+                        onValueChange={handleChange(
+                          templateItem.prop as BothGenderSizingTemplateProps,
+                        )}
+                        value={typeof itemValue === "number" ? itemValue : 0}
+                        unit={unit}
+                        label={templateItem.name}
+                        onFocus={() =>
+                          handleMeasurementClick(
+                            templateItem.img,
+                            templateItem.prop as BothGenderSizingTemplateProps,
+                          )
+                        }
+                        highlighted={highlighted === templateItem.prop}
+                        hasLiveProject={false}
+                        metadata={{
+                          review: reviewValue,
+                          img: templateItem?.img,
+                        }}
+                        onClick={() =>
+                          handleMeasurementClick(
+                            templateItem.img,
+                            templateItem.prop as BothGenderSizingTemplateProps,
+                          )
+                        }
+                        onKeyDown={(e) => handleKeyPress(index, e)}
+                        ref={(el) => {
+                          inputRefs.current[index] = el;
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+              )}
+            </div>
             {/* Mobile Actions */}
             <div className="lg:hidden flex justify-end gap-3">
               {isEditable && !isInUse && (

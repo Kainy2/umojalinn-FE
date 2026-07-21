@@ -20,10 +20,7 @@ const APPBAR_TOUR_POINTER = {
   side: "bottom-right" as const,
 };
 
-export const buildBuyerWelcomeTour = (projectId: string | null): Tour => {
-  const projectsPath = "/projects";
-  const projectDetailPath = projectId ? `/projects/${projectId}` : projectsPath;
-
+export const buildBuyerWelcomeTour = (): Tour => {
   return {
     tour: "welcome",
     steps: [
@@ -42,7 +39,7 @@ export const buildBuyerWelcomeTour = (projectId: string | null): Tour => {
         content:
           "Start by creating a project. Add your design brief, timeline, budget, and requirements.",
         selector: tourTarget("tour-buyer-create-project"),
-        nextRoute: projectDetailPath,
+        nextRoute: "/projects",
       },
       {
         ...WELCOME_TOUR_POINTER,
@@ -51,8 +48,8 @@ export const buildBuyerWelcomeTour = (projectId: string | null): Tour => {
         content:
           "Manage active projects and job ads, review designer bids, manage drafts, and revisit completed work - all from one place.",
         selector: tourTarget("tour-sidebar-projects"),
-        prevRoute: projectsPath,
-        nextRoute: projectDetailPath,
+        prevRoute: "/projects",
+        nextRoute: "/sizing-templates",
       },
       // {
       //   ...WELCOME_TOUR_POINTER,
@@ -62,7 +59,7 @@ export const buildBuyerWelcomeTour = (projectId: string | null): Tour => {
       //     "Track milestone payments, escrow balances, and invoices. Funds remain securely held until you approve each completed milestone.",
       //   selector: tourTarget("tour-active-project-escrow"),
       //   side: "left",
-      //   prevRoute: projectDetailPath,
+      //   prevRoute: `/projects/${projectId}`,
       //   nextRoute: "/sizing-templates",
       // },
       // Uncomment when Designers nav is enabled in BUYERS_SIDEBAR_CONTENT:
@@ -73,8 +70,6 @@ export const buildBuyerWelcomeTour = (projectId: string | null): Tour => {
       //   content:
       //     "View designers you've previously worked with and create new projects with them!",
       //   selector: tourTarget("tour-sidebar-designers"),
-      //   prevRoute: projectsPath,
-      //   nextRoute: projectsPath,
       // },
       {
         ...WELCOME_TOUR_POINTER,
@@ -83,8 +78,8 @@ export const buildBuyerWelcomeTour = (projectId: string | null): Tour => {
         content:
           "Create, view, and manage your sizing templates here. Each template displays its current status so you always know if action is required.",
         selector: tourTarget("tour-sidebar-sizing-templates"),
-        prevRoute: projectDetailPath,
-        nextRoute: projectsPath,
+        prevRoute: "/projects",
+        nextRoute: "/escrow",
       },
       {
         ...WELCOME_TOUR_POINTER,
@@ -93,7 +88,7 @@ export const buildBuyerWelcomeTour = (projectId: string | null): Tour => {
         content:
           "View active project escrows, and summary of released payments.",
         selector: tourTarget("tour-sidebar-escrow"),
-        prevRoute: projectsPath,
+        prevRoute: "/sizing-templates",
         nextRoute: "/settings",
       },
       {
@@ -104,9 +99,8 @@ export const buildBuyerWelcomeTour = (projectId: string | null): Tour => {
           "Manage your profile, security, and notification settings from one place.",
         selector: tourTarget("tour-sidebar-settings"),
         prevRoute: "/escrow",
-        nextRoute: projectsPath,
+        nextRoute: "/projects",
       },
-
       {
         ...APPBAR_TOUR_POINTER,
         icon: null,
