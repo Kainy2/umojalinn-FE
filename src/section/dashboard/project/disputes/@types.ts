@@ -68,8 +68,8 @@ export type TDisputeActivityItem =
       id: string;
       date: string;
       title: string;
-      kind: "buyer-response";
-      message: string;
+      kind: "response";
+      message?: string;
       attachments?: string[];
     }
   | {

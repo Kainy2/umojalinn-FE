@@ -26,7 +26,8 @@ import { buildSizingTemplateTour } from "@/constant/tour/sizing-template";
 import { buildBuyerSizingTemplateTour } from "@/constant/tour/sizing-template-buyer";
 import { WALLET_TOUR } from "@/constant/tour/wallet";
 import { buildBuyerWelcomeTour } from "@/constant/tour/welcome-buyer";
-import { DESIGNER_WELCOME_TOUR } from "@/constant/tour/welcome-designer";
+import { buildDesignerWelcomeTour } from "@/constant/tour/welcome-designer";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import {
   clearActiveProjectsTourSession,
   clearCreateBidTourSession,
@@ -34,12 +35,15 @@ import {
   clearReviewBidTourSession,
   clearSizingTemplateTourSession,
   dispatchOpenInviteClient,
+  dispatchTourMobileMenuOpen,
+  ensureMobileMenuForTourSelector,
   getActiveProjectsTourProjectId,
   getCreateBidTourBidId,
   getCreateProjectTourProjectId,
   getReviewBidTourBidId,
   getSizingTemplateTourProjectId,
   getSizingTemplateTourTemplateId,
+  getTourStepAt,
   pickBuyerSizingTemplate,
   registerTourSteps,
   setActiveProjectsTourProjectId,
@@ -68,6 +72,7 @@ const NextStepTourProvider = ({ children }: LayoutProps) => {
   const profileRole = session?.user?.profileRole;
   const isDesigner = profileRole === "DESIGNER";
   const isBuyer = profileRole === "BUYER";
+  const isDesktop = useMediaQuery("md");
   const { mutate: completeGuidedTour } = useCompleteGuidedTour();
 
   const persistGuidedTourStep = useCallback(
@@ -256,8 +261,8 @@ const NextStepTourProvider = ({ children }: LayoutProps) => {
 
   const steps = useMemo(() => {
     const welcomeTour = isDesigner
-      ? DESIGNER_WELCOME_TOUR
-      : buildBuyerWelcomeTour();
+      ? buildDesignerWelcomeTour(isDesktop)
+      : buildBuyerWelcomeTour(isDesktop);
 
     const tours = [welcomeTour];
 
@@ -338,6 +343,7 @@ const NextStepTourProvider = ({ children }: LayoutProps) => {
   }, [
     isDesigner,
     isBuyer,
+    isDesktop,
     firstBuyerLiveProjectId,
     firstBuyerDraftProjectId,
     createProjectTourProjectId,
@@ -412,6 +418,9 @@ const NextStepTourProvider = ({ children }: LayoutProps) => {
       }
 
       syncCreateBidTourBidId();
+      void ensureMobileMenuForTourSelector(
+        getTourStepAt(tourName, 0)?.selector,
+      );
     },
     [
       activeProjectsTourProjectId,
@@ -428,12 +437,23 @@ const NextStepTourProvider = ({ children }: LayoutProps) => {
     ],
   );
 
+  const handleStepChange = useCallback(
+    (stepIndex: number, tourName: string | null) => {
+      syncCreateBidTourBidId();
+      void ensureMobileMenuForTourSelector(
+        getTourStepAt(tourName, stepIndex)?.selector,
+      );
+    },
+    [syncCreateBidTourBidId],
+  );
+
   const handleTourComplete = useCallback(
     (tourName: string | null) => {
       if (!tourName) {
         return;
       }
 
+      dispatchTourMobileMenuOpen(false);
       setTourStatus(tourName as TTourName, "completed");
       persistGuidedTourStep(tourName as TTourName);
 
@@ -470,6 +490,7 @@ const NextStepTourProvider = ({ children }: LayoutProps) => {
         return;
       }
 
+      dispatchTourMobileMenuOpen(false);
       setTourStatus(tourName as TTourName, "skipped");
       persistGuidedTourStep(tourName as TTourName);
 
@@ -506,7 +527,7 @@ const NextStepTourProvider = ({ children }: LayoutProps) => {
         shadowRgb="0,0,0"
         shadowOpacity="0.65"
         onStart={handleTourStart}
-        onStepChange={syncCreateBidTourBidId}
+        onStepChange={handleStepChange}
         onComplete={handleTourComplete}
         onSkip={(_, tourName) => handleTourSkip(tourName)}
       >

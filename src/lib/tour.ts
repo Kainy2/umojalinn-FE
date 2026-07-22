@@ -290,10 +290,50 @@ export const resetTourStatus = (tourId: TTourName) => {
 };
 
 export const TOUR_OPEN_INVITE_CLIENT_EVENT = "tour:open-invite-client";
+export const TOUR_MOBILE_MENU_EVENT = "tour:mobile-menu";
 export const TOUR_CREATE_BID_SAVE_MILESTONE_EVENT =
   "tour:create-bid-save-milestone";
 export const TOUR_CREATE_BID_REQUEST_MEASUREMENTS_EVENT =
   "tour:create-bid-request-measurements";
+
+export type TTourMobileMenuEventDetail = {
+  open: boolean;
+  /** When true, ignore outside-dismiss so Tour Next clicks don't close the drawer. */
+  locked: boolean;
+};
+
+/** Matches Tailwind `md` — same breakpoint as `useIsMobile` / mobile hamburger. */
+const TOUR_MOBILE_BREAKPOINT_PX = 768;
+
+export const isTourMobileViewport = (): boolean =>
+  typeof window !== "undefined" &&
+  window.innerWidth < TOUR_MOBILE_BREAKPOINT_PX;
+
+export const isSidebarTourSelector = (
+  selector?: string | null,
+): selector is string => {
+  if (!selector) {
+    return false;
+  }
+
+  return (
+    selector.startsWith("#tour-sidebar-") ||
+    selector === "#tour-designer-share-work" ||
+    selector === "#tour-buyer-create-project"
+  );
+};
+
+export const dispatchTourMobileMenuOpen = (open: boolean) => {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.dispatchEvent(
+    new CustomEvent<TTourMobileMenuEventDetail>(TOUR_MOBILE_MENU_EVENT, {
+      detail: { open, locked: open },
+    }),
+  );
+};
 
 export type TTourPersistEventDetail = {
   resolve: () => void;
@@ -469,4 +509,28 @@ export const waitForTourSelector = (
       settle(document.querySelector(selector));
     }, timeoutMs);
   });
+};
+
+/**
+ * On mobile, sidebar tour targets only exist inside the hamburger Drawer.
+ * Open it before waiting on those selectors; close it for appbar / page targets.
+ */
+export const ensureMobileMenuForTourSelector = async (
+  selector?: string | null,
+) => {
+  if (!isTourMobileViewport()) {
+    return;
+  }
+
+  if (isSidebarTourSelector(selector)) {
+    dispatchTourMobileMenuOpen(true);
+    await waitForTourSelector(selector);
+    // Let the drawer finish sliding so getBoundingClientRect is stable.
+    await new Promise<void>((resolve) => {
+      window.setTimeout(resolve, 200);
+    });
+    return;
+  }
+
+  dispatchTourMobileMenuOpen(false);
 };

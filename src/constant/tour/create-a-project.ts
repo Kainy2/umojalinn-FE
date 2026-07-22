@@ -38,7 +38,7 @@ export const buildCreateProjectTour = (projectId: string) => {
         content:
           "Start by describing your dream outfit - title, details, and any special notes!",
         selector: tourTarget("tour-create-project-description"),
-        side: "right" as const,
+        side: "top" as const,
         nextRoute: galleryPath,
       },
       {
