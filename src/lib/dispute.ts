@@ -3,10 +3,16 @@ import {
   IUmojaLinnDispute,
   TCreateBuyerDisputePayload,
   TCreateDesignerDisputePayload,
+  TDisputeFundLocation,
   TDisputeStatus,
   TRespondToDisputePayload,
 } from "@/types/dispute";
 import { UmojaLinnMilestone } from "@/types/project";
+
+const WALLET_IMPACT_FUND_LOCATIONS = new Set<TDisputeFundLocation>([
+  "WALLET",
+  "WITHDRAWN",
+]);
 
 const toFileArray = (files?: FileList | File[]) => {
   if (!files) return [];
@@ -123,3 +129,70 @@ export const isMilestoneEligibleForDispute = (
   milestone: UmojaLinnMilestone,
   disputedMilestoneIds: Set<string>,
 ) => !isMilestoneDisputed(milestone, disputedMilestoneIds);
+
+/** true = wallet impact, false = escrow-only, null = unknown */
+export const doesDisputeImpactDesignerWallet = (
+  dispute?: IUmojaLinnDispute | null,
+): boolean | null => {
+  if (!dispute) return null;
+
+  const locations: TDisputeFundLocation[] = [];
+
+  if (dispute.fundLocation) {
+    locations.push(dispute.fundLocation);
+  }
+
+  dispute.disputeMilestones?.forEach((disputeMilestone) => {
+    if (disputeMilestone.fundLocation) {
+      locations.push(disputeMilestone.fundLocation);
+    }
+  });
+
+  if (!locations.length) return null;
+
+  if (locations.some((location) => WALLET_IMPACT_FUND_LOCATIONS.has(location))) {
+    return true;
+  }
+
+  return locations.every((location) => location === "ESCROW") ? false : null;
+};
+
+export const doesSelectionImpactDesignerWallet = (
+  milestones: Array<{
+    id: string;
+    transactionStatus?: UmojaLinnMilestone["transactionStatus"];
+  }>,
+  selectedMilestoneIds: string[],
+) =>
+  milestones.some(
+    (milestone) =>
+      selectedMilestoneIds.includes(milestone.id) &&
+      milestone.transactionStatus === "PAID",
+  );
+
+export const shouldRedirectToInsufficientBalance = ({
+  dispute,
+  selectedMilestones,
+  selectedIds,
+  amount,
+  availableBalance,
+  walletSummaryInsufficient,
+}: {
+  dispute?: IUmojaLinnDispute | null;
+  selectedMilestones: Array<{
+    id: string;
+    transactionStatus?: UmojaLinnMilestone["transactionStatus"];
+  }>;
+  selectedIds: string[];
+  amount: number;
+  availableBalance: number;
+  walletSummaryInsufficient: number;
+}) => {
+  const impactsWallet =
+    doesDisputeImpactDesignerWallet(dispute) ??
+    doesSelectionImpactDesignerWallet(selectedMilestones, selectedIds);
+
+  if (!impactsWallet) return false;
+
+  return amount > availableBalance || walletSummaryInsufficient > 0;
+};

@@ -8,7 +8,7 @@ import { getCurrencySymbol } from "@/lib/string";
 import { cn } from "@/lib/utils";
 import { IDisputeResolvedContentProps } from "./@types";
 import {
-  DISPUTE_TYPE_TITLES,
+  formatMilestoneStatusLabel,
   getDisputeMilestoneDisplays,
   getDisputeReasonLabel,
   getDisputeResolutionLabel,
@@ -18,20 +18,14 @@ import {
 const DisputeResolvedContent = ({
   dispute,
   currency,
-  currentUserId,
 }: IDisputeResolvedContentProps) => {
   const currencySymbol = getCurrencySymbol(currency ?? undefined);
   const reasonLabel = getDisputeReasonLabel(dispute);
   const disputeMilestones = getDisputeMilestoneDisplays(dispute);
-  const disputeTypeLabel = DISPUTE_TYPE_TITLES[dispute.type];
   const resolutionLabel = getDisputeResolutionLabel(dispute.resolution);
   const approvedRefundAmount = parseDisputeAmount(
     dispute.refundApproved ?? dispute.approvedRefundAmount,
   );
-  const projectTitle = dispute.project?.title;
-  const isOwnDispute =
-    !!currentUserId && currentUserId === dispute.initiatorUserId;
-  const rationaleLabel = isOwnDispute ? "Your rationale" : "Reason";
 
   return (
     <div className="flex flex-col gap-6">
@@ -44,31 +38,10 @@ const DisputeResolvedContent = ({
             {dispute.disputeId}
           </p>
         </div>
-        {projectTitle && (
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Project
-            </p>
-            <p className="text-sm font-semibold text-foreground-body">
-              {projectTitle}
-            </p>
-          </div>
-        )}
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Dispute type
-          </p>
-          <p className="text-sm font-semibold text-foreground-body">
-            {disputeTypeLabel}
-          </p>
-        </div>
       </div>
 
       {reasonLabel && (
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            {rationaleLabel}
-          </p>
           <p className="mt-1 text-sm font-semibold text-foreground-body">
             {reasonLabel}
           </p>
@@ -76,7 +49,7 @@ const DisputeResolvedContent = ({
       )}
 
       {dispute.reasonDetail && (
-        <blockquote className="border-l-2 border-gray-200 pl-3 text-sm text-muted-foreground">
+        <blockquote className="text-sm text-muted-foreground">
           &ldquo;{dispute.reasonDetail}&rdquo;
         </blockquote>
       )}
@@ -132,27 +105,30 @@ const DisputeResolvedContent = ({
           <h4 className="text-sm font-semibold text-foreground-body">
             Related Milestones
           </h4>
-          <ul className="flex flex-col gap-3">
+          <ul className="grid grid-cols-[max-content_auto] items-center gap-x-3 gap-y-3">
             {disputeMilestones.map((disputeMilestone) => (
-              <li
-                key={disputeMilestone.milestoneId}
-                className="flex flex-wrap items-center  gap-2"
-              >
+              <li key={disputeMilestone.milestoneId} className="contents">
                 <span className="text-sm text-foreground-body">
                   {disputeMilestone.label}
                 </span>
                 <Badge
                   variant="outline"
                   className={cn(
-                    "rounded-full font-normal pr-0 py-0",
-                    !disputeMilestone.isRefunded &&
-                      "border-error/30 bg-error-50 text-error",
-                    disputeMilestone.isRefunded &&
-                      "border-gray-300 bg-gray-50 text-foreground-body",
+                    "w-fit rounded-full font-normal pr-0 py-0",
+                    disputeMilestone.status === "DISPUTED"
+                      ? "border-error/30 bg-error-50 text-error"
+                      : "border-gray-300 bg-gray-50 text-foreground-body",
                   )}
                 >
-                  {disputeMilestone.isRefunded ? "Refunded" : "Disputed"}{" "}
-                  <span className="text-xs text-white bg-[#FDA29B] rounded-full px-2 py-1 ml-2">
+                  {formatMilestoneStatusLabel(disputeMilestone.status)}{" "}
+                  <span
+                    className={cn(
+                      "ml-2 rounded-full px-2 py-1 text-xs text-white",
+                      disputeMilestone.status === "DISPUTED"
+                        ? "bg-[#FDA29B]"
+                        : "bg-gray-400",
+                    )}
+                  >
                     {currencySymbol}
                     {formatCurrencyValue(disputeMilestone.amount)}
                   </span>
@@ -160,6 +136,7 @@ const DisputeResolvedContent = ({
               </li>
             ))}
           </ul>
+          <div className="border border-gray-50" />
         </div>
       )}
     </div>

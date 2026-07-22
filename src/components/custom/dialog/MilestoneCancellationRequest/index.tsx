@@ -199,8 +199,8 @@ export const MilestoneCancellationRequestDialog = ({
                 htmlFor="milestone-cancellation-confirm"
                 className="cursor-pointer text-sm font-normal leading-snug text-foreground-body"
               >
-                I understand that this will cancel the milestone and all funds
-                in this project&apos;s escrow (
+                I understand that this will cancel the milestone and related
+                funds in escrow (
                 <span className="font-semibold">{formattedEscrow}</span>) will
                 be released back to the client.
               </Label>

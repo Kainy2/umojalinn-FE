@@ -24,6 +24,7 @@ export interface IDisputeListItemProps {
 export interface IDisputeActionBannerProps {
   responseDeadline?: string;
   onRespondNow: () => void;
+  className?: string;
 }
 
 export interface IDisputeResponseFormProps {
@@ -54,7 +55,7 @@ export interface IDisputeMilestoneDisplay {
   milestoneId: string;
   label: string;
   amount: number;
-  isRefunded: boolean;
+  status?: string;
 }
 
 export type TDisputeActivityItem =

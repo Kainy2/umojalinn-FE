@@ -26,7 +26,10 @@ import { getWalletBalanceForCurrency } from "@/components/util/wallet";
 import { removeNonDigits } from "@/lib/utils";
 import { formatCurrencyValue } from "@/lib/number";
 import { getCurrencySymbol } from "@/lib/string";
-import { getSelectedMilestonesRefundAmount } from "@/lib/dispute";
+import {
+  getSelectedMilestonesRefundAmount,
+  shouldRedirectToInsufficientBalance,
+} from "@/lib/dispute";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { getWalletCurrencyLabel } from "@/components/util/wallet";
 import { UmojaLinnCurrency } from "@/types/project";
@@ -149,8 +152,6 @@ export const RefundRequestDialog = ({
       refundType === "FULL" ? fullRefundAmount : partialAmountNumber;
     const reasonLabel =
       DISPUTE_REASONS.find((item) => item.value === reason)?.label ?? reason;
-    const needsTopUp =
-      amount > availableBalance || walletSummaryInsufficient > 0;
 
     try {
       const response = await mutateAsync({
@@ -161,7 +162,16 @@ export const RefundRequestDialog = ({
         requestedRefundAmount: amount,
         attachmentFiles: files ?? undefined,
       });
-      const disputeId = response?.data?.data?.id ?? "";
+      const dispute = response?.data?.data;
+      const disputeId = dispute?.id ?? "";
+      const needsTopUp = shouldRedirectToInsufficientBalance({
+        dispute,
+        selectedMilestones: milestones,
+        selectedIds: milestoneIds,
+        amount,
+        availableBalance,
+        walletSummaryInsufficient,
+      });
 
       setConfirmOpen(false);
       resetForm();

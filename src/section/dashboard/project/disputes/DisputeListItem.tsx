@@ -30,9 +30,10 @@ const DisputeListItem = ({
   onResponseSuccess,
 }: IDisputeListItemProps) => {
   const title = DISPUTE_TYPE_TITLES[dispute.type];
-  const dateLabel = format(new Date(dispute.createdAt), "MMM d, yyyy, h:mm a");
+  const dateLabel = format(new Date(dispute.createdAt), "MMM d, yyyy");
   const requiresResponse = requiresDisputeResponse(dispute, currentUserId);
-  const showActionBanner = requiresResponse && !isResponding;
+  const showActionBanner =
+    requiresResponse && !isResponding && !isDetailLoading;
   const showResponseForm = requiresResponse && isResponding;
   const showActivities = hasDisputeActivities(dispute);
 
@@ -42,21 +43,33 @@ const DisputeListItem = ({
         type="button"
         onClick={onToggleExpand}
         className={cn(
-          "flex w-full flex-wrap items-center gap-3 px-4 py-3 text-left",
+          "flex w-full items-center gap-3 px-4 py-3 text-left",
           "hover:bg-gray-100/80",
         )}
       >
-        <span className="min-w-0 flex-1 text-sm font-medium text-foreground-body">
-          {title}
-        </span>
-        <span className="text-sm text-muted-foreground">{dateLabel}</span>
-        <DisputeStatusBadge status={dispute.status} />
+        <div className="flex min-w-0 flex-1 flex-col gap-1 md:flex-row md:items-center md:gap-3">
+          <span className="min-w-0 text-sm font-medium text-foreground-body md:flex-1">
+            {title}
+          </span>
+          <div className="flex flex-wrap items-center gap-2 md:gap-3">
+            <span className="text-sm text-muted-foreground">{dateLabel}</span>
+            <DisputeStatusBadge status={dispute.status} />
+          </div>
+        </div>
         {expanded ? (
           <ChevronUp className="h-5 w-5 shrink-0 text-primary" />
         ) : (
           <ChevronDown className="h-5 w-5 shrink-0 text-primary" />
         )}
       </button>
+
+      {showActionBanner && !expanded && (
+        <DisputeActionBanner
+          responseDeadline={dispute.autoResolveAt ?? undefined}
+          onRespondNow={onRespondNow}
+          className="rounded-none rounded-b-lg border-x-0"
+        />
+      )}
 
       {expanded && (
         <div className="space-y-6 border-t border-gray-200 bg-white px-4 pb-4 pt-4">
