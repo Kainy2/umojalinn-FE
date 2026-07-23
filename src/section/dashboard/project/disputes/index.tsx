@@ -1,37 +1,20 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useState } from "react";
 import Collapsible from "@/components/custom/Collapsible";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetProjectDisputesWithDetails } from "@/tanstack/hooks/useDispute";
 import { useSession } from "next-auth/react";
 import { IProjectDisputesProps } from "./@types";
 import DisputeListItem from "./DisputeListItem";
-import { requiresDisputeResponse } from "./utils";
 
 const ProjectDisputes = ({ projectId, currency }: IProjectDisputesProps) => {
   const { data: session } = useSession();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [respondingId, setRespondingId] = useState<string | null>(null);
-  const hasAutoExpandedRef = useRef(false);
 
   const { disputes, isLoading, detailLoadingById } =
     useGetProjectDisputesWithDetails(projectId);
-
-  useEffect(() => {
-    if (hasAutoExpandedRef.current || isLoading || !disputes.length) return;
-
-    const disputeNeedingResponse = disputes.find(
-      (dispute) =>
-        !detailLoadingById[dispute.id] &&
-        requiresDisputeResponse(dispute, session?.user?.id),
-    );
-
-    if (!disputeNeedingResponse) return;
-
-    hasAutoExpandedRef.current = true;
-    setExpandedId(disputeNeedingResponse.id);
-  }, [disputes, detailLoadingById, isLoading, session?.user?.id]);
 
   const handleToggleExpand = useCallback((id: string) => {
     setExpandedId((prev) => {

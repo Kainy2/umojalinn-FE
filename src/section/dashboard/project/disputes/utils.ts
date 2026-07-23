@@ -89,6 +89,15 @@ export const hasDisputeActivities = (dispute: IUmojaLinnDispute) =>
   !!(dispute.events?.length || dispute.activityTimeline?.length) ||
   !!dispute.responses?.length;
 
+export const formatMilestoneStatusLabel = (status?: string) => {
+  if (!status) return null;
+  return status
+    .toLowerCase()
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+};
+
 export const getDisputeMilestoneDisplays = (
   dispute: IUmojaLinnDispute,
 ): IDisputeMilestoneDisplay[] => {
@@ -101,7 +110,7 @@ export const getDisputeMilestoneDisplays = (
       amount: parseDisputeAmount(
         disputeMilestone.milestone?.amount ?? disputeMilestone.escrowAmount,
       ),
-      isRefunded: disputeMilestone.milestone?.status === "REFUNDED",
+      status: disputeMilestone.milestone?.status,
     }));
   }
 
@@ -115,7 +124,7 @@ export const getDisputeMilestoneDisplays = (
         ? `Milestone: ${milestone.title}`
         : "Related milestone",
       amount: parseDisputeAmount(milestone.amount ?? dispute.escrowAmount),
-      isRefunded: milestone.status === "REFUNDED",
+      status: milestone.status,
     },
   ];
 };

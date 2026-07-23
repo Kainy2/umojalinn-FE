@@ -164,7 +164,7 @@ const DisputeActivityItem = ({
         </div>
 
         {expanded && activity.kind === "response" && activity.message && (
-          <div className="mt-2 space-y-2 border-l-2 border-gray-200 pl-3">
+          <div className="mt-2 space-y-2">
             <blockquote className="text-sm italic text-muted-foreground">
               &ldquo;{activity.message}&rdquo;
             </blockquote>
@@ -190,7 +190,7 @@ const DisputeActivityItem = ({
         )}
 
         {expanded && activity.kind === "outcome" && (
-          <div className="mt-2 space-y-2 border-l-2 border-gray-200 pl-3 text-sm text-muted-foreground">
+          <div className="mt-2 space-y-2 text-sm text-muted-foreground">
             {activity.refundedAmount != null && (
               <p>
                 <span className="font-semibold text-foreground-body">

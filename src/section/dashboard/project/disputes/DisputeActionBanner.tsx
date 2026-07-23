@@ -10,6 +10,7 @@ import { formatTimeRemaining } from "./utils";
 const DisputeActionBanner = ({
   responseDeadline,
   onRespondNow,
+  className,
 }: IDisputeActionBannerProps) => {
   const timeRemaining = formatTimeRemaining(responseDeadline);
 
@@ -18,6 +19,7 @@ const DisputeActionBanner = ({
       className={cn(
         "flex flex-col gap-4 rounded-lg border border-error bg-error-50 p-4",
         "md:flex-row md:items-start md:justify-between",
+        className,
       )}
     >
       <div className="flex gap-3">

@@ -1,5 +1,5 @@
 import { TDisputeReason } from "@/types/dispute";
-import { UmojaLinnCurrency } from "@/types/project";
+import { UmojaLinnCurrency, UmojaLinnMilestone } from "@/types/project";
 import { DialogProps } from "@radix-ui/react-dialog";
 
 export type TRefundType = "FULL" | "PARTIAL";
@@ -8,6 +8,7 @@ export type TMilestoneOption = {
   id: string;
   title: string;
   amount: number;
+  transactionStatus: UmojaLinnMilestone["transactionStatus"];
 };
 
 export type TRequestProjectRefundPayload = {

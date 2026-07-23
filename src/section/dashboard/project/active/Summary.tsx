@@ -77,6 +77,7 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
         id: milestone.id,
         title: formatMilestoneSelectLabel(milestone, milestones),
         amount: Number(milestone.amount) || 0,
+        transactionStatus: milestone.transactionStatus,
       })),
     [milestones],
   );
@@ -94,6 +95,7 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
         id: milestone.id,
         title: formatMilestoneSelectLabel(milestone, milestones),
         amount: Number(milestone.amount) || 0,
+        transactionStatus: milestone.transactionStatus,
       }));
   }, [milestones, projectDisputesResponse?.data?.data]);
 
