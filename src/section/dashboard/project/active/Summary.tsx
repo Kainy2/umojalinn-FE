@@ -12,6 +12,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import ClipboardSearch from "@/assets/ClipboardSearch";
 import {
   getActiveDisputedMilestoneIds,
@@ -37,6 +43,27 @@ import { useRouter } from "next/navigation";
 type ActiveProjectSummaryProps = {
   isDesigner?: boolean;
 };
+
+const CompletedProjectDisputeTooltip = ({
+  children,
+}: React.PropsWithChildren) => (
+  <TooltipProvider delayDuration={0}>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="flex w-full">{children}</span>
+      </TooltipTrigger>
+      <TooltipContent
+        side="top"
+        className="max-w-[240px] border-0 bg-[#0F172A] px-3 py-2 text-white"
+      >
+        <p className="font-semibold">Completed Project</p>
+        <p className="text-xs text-white/90">
+          Requests cannot be raised for already completed projects
+        </p>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+);
 
 const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
   const { isDesigner = false } = props;
@@ -107,6 +134,7 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
     );
   }, [project?.designer?.user]);
 
+  const isProjectCompleted = project?.status === "COMPLETED";
   const canRaiseIssue = !isDesigner && issueMilestoneOptions.length > 0;
   const showActionsMenu = isDesigner || canRaiseIssue;
 
@@ -116,8 +144,15 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
   };
 
   const handleRaiseIssue = () => {
+    if (isProjectCompleted) return;
     setActionsMenuOpen(false);
     window.setTimeout(() => setIssueOpen(true), 0);
+  };
+
+  const handleOpenRefund = () => {
+    if (isProjectCompleted) return;
+    setActionsMenuOpen(false);
+    window.setTimeout(() => setRefundOpen(true), 0);
   };
 
   const handleProjectIssueSubmit = (formData: TBuyerProjectIssueFormData) => {
@@ -127,7 +162,7 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
   };
 
   const handleConfirmRaiseIssue = () => {
-    if (!pendingIssue) return;
+    if (!pendingIssue || isProjectCompleted) return;
 
     const reasonLabel =
       BUYER_ISSUE_REASONS.find((item) => item.value === pendingIssue.reason)
@@ -174,27 +209,46 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-[200px]">
-                  {isDesigner && (
-                    <DropdownMenuItem
-                      className="cursor-pointer gap-1 text-[#B54708]"
-                      onSelect={() => {
-                        setActionsMenuOpen(false);
-                        window.setTimeout(() => setRefundOpen(true), 0);
-                      }}
-                    >
-                      <ClipboardSearch />
-                      Refund Buyer
-                    </DropdownMenuItem>
-                  )}
-                  {canRaiseIssue && (
-                    <DropdownMenuItem
-                      className="cursor-pointer gap-1 text-[#B54708]"
-                      onSelect={handleRaiseIssue}
-                    >
-                      <ClipboardSearch />
-                      Raise an issue
-                    </DropdownMenuItem>
-                  )}
+                  {isDesigner &&
+                    (isProjectCompleted ? (
+                      <CompletedProjectDisputeTooltip>
+                        <DropdownMenuItem
+                          disabled
+                          className="gap-1 text-[#B54708]"
+                        >
+                          <ClipboardSearch />
+                          Refund Buyer
+                        </DropdownMenuItem>
+                      </CompletedProjectDisputeTooltip>
+                    ) : (
+                      <DropdownMenuItem
+                        className="cursor-pointer gap-1 text-[#B54708]"
+                        onSelect={handleOpenRefund}
+                      >
+                        <ClipboardSearch />
+                        Refund Buyer
+                      </DropdownMenuItem>
+                    ))}
+                  {canRaiseIssue &&
+                    (isProjectCompleted ? (
+                      <CompletedProjectDisputeTooltip>
+                        <DropdownMenuItem
+                          disabled
+                          className="gap-1 text-[#B54708]"
+                        >
+                          <ClipboardSearch />
+                          Raise an issue
+                        </DropdownMenuItem>
+                      </CompletedProjectDisputeTooltip>
+                    ) : (
+                      <DropdownMenuItem
+                        className="cursor-pointer gap-1 text-[#B54708]"
+                        onSelect={handleRaiseIssue}
+                      >
+                        <ClipboardSearch />
+                        Raise an issue
+                      </DropdownMenuItem>
+                    ))}
                 </DropdownMenuContent>
               </DropdownMenu>
               {isDesigner && project && (

@@ -75,6 +75,7 @@ export type MilestoneTimelineProps = {
   currency: UmojaLinnProject["currency"];
   projectId?: string;
   projectName?: string;
+  projectStatus?: UmojaLinnProject["status"];
   designer: UmojaLinnUser | null | undefined;
   buyer: UmojaLinnUser | null | undefined;
   /** When true, timeline is greyed out and non-interactive */
@@ -135,11 +136,13 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
   currency,
   projectId,
   projectName,
+  projectStatus,
   designer,
   buyer,
   disabled = false,
   disableDesignerSubmission = false,
 }) => {
+  const isProjectCompleted = projectStatus === "COMPLETED";
   const deliveryMilestone = !!milestones.length
     ? milestones[milestones.length - 1]
     : undefined;
@@ -290,10 +293,12 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
             milestone?.isCurrent;
           const canRaiseBuyerDispute =
             !isDesigner &&
+            !isProjectCompleted &&
             milestone.isCurrent &&
             isMilestoneEligibleForDispute(item, disputedMilestoneIds);
           const canRaiseDesignerDispute =
             isDesigner &&
+            !isProjectCompleted &&
             milestone?.status !== MilestoneStatus.COMPLETED &&
             isMilestoneEligibleForDispute(item, disputedMilestoneIds);
           const showMilestoneActions =
