@@ -3,6 +3,7 @@ import AvatarIconTag from "@/components/custom/tag/AvatarIcon";
 import SectionTitle from "@/components/custom/SectionTitle";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { RefundRequestDialog } from "@/components/custom/dialog/RefundRequest";
+import { MilestoneCancellationRequestDialog } from "@/components/custom/dialog/MilestoneCancellationRequest";
 import { BuyerProjectIssueDialog } from "@/components/custom/dialog/BuyerProjectIssue";
 import { BuyerIssueConfirmDialog } from "@/components/custom/dialog/BuyerIssueConfirm";
 import { TBuyerProjectIssueFormData } from "@/components/custom/dialog/BuyerProjectIssue/@types";
@@ -33,6 +34,7 @@ import {
   useGetProjectMilestones,
 } from "@/tanstack/hooks/useProject";
 import { BUYER_ISSUE_REASONS } from "@/types/dispute";
+import { EMileStoneStatus } from "@/types/enum";
 import { format } from "date-fns";
 import { CalendarPlus, MoreVertical } from "lucide-react";
 import { useParams } from "next/navigation";
@@ -70,6 +72,7 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const [refundOpen, setRefundOpen] = useState(false);
+  const [cancellationOpen, setCancellationOpen] = useState(false);
   const [issueOpen, setIssueOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingIssue, setPendingIssue] =
@@ -80,7 +83,7 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
   const { data: projectDisputesResponse } = useGetProjectDisputes(
     params?.id ?? "",
     {
-      enabled: !!params?.id && !isDesigner,
+      enabled: !!params?.id,
     },
   );
 
@@ -109,22 +112,43 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
     [milestones],
   );
 
-  const issueMilestoneOptions = useMemo(() => {
-    const disputedMilestoneIds = getActiveDisputedMilestoneIds(
-      projectDisputesResponse?.data?.data ?? [],
-    );
+  const disputedMilestoneIds = useMemo(
+    () =>
+      getActiveDisputedMilestoneIds(projectDisputesResponse?.data?.data ?? []),
+    [projectDisputesResponse?.data?.data],
+  );
 
-    return milestones
-      .filter((milestone) =>
-        isMilestoneEligibleForDispute(milestone, disputedMilestoneIds),
-      )
-      .map((milestone) => ({
-        id: milestone.id,
-        title: formatMilestoneSelectLabel(milestone, milestones),
-        amount: Number(milestone.amount) || 0,
-        transactionStatus: milestone.transactionStatus,
-      }));
-  }, [milestones, projectDisputesResponse?.data?.data]);
+  const issueMilestoneOptions = useMemo(
+    () =>
+      milestones
+        .filter((milestone) =>
+          isMilestoneEligibleForDispute(milestone, disputedMilestoneIds),
+        )
+        .map((milestone) => ({
+          id: milestone.id,
+          title: formatMilestoneSelectLabel(milestone, milestones),
+          amount: Number(milestone.amount) || 0,
+          transactionStatus: milestone.transactionStatus,
+        })),
+    [milestones, disputedMilestoneIds],
+  );
+
+  const cancelMilestoneOptions = useMemo(
+    () =>
+      milestones
+        .filter(
+          (milestone) =>
+            milestone.status !== EMileStoneStatus.APPROVED &&
+            isMilestoneEligibleForDispute(milestone, disputedMilestoneIds),
+        )
+        .map((milestone) => ({
+          id: milestone.id,
+          title: formatMilestoneSelectLabel(milestone, milestones),
+          amount: Number(milestone.amount) || 0,
+          transactionStatus: milestone.transactionStatus,
+        })),
+    [milestones, disputedMilestoneIds],
+  );
 
   const designerName = useMemo(() => {
     const user = project?.designer?.user;
@@ -153,6 +177,12 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
     if (isProjectCompleted) return;
     setActionsMenuOpen(false);
     window.setTimeout(() => setRefundOpen(true), 0);
+  };
+
+  const handleOpenCancellation = () => {
+    if (isProjectCompleted) return;
+    setActionsMenuOpen(false);
+    window.setTimeout(() => setCancellationOpen(true), 0);
   };
 
   const handleProjectIssueSubmit = (formData: TBuyerProjectIssueFormData) => {
@@ -229,6 +259,26 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
                         Refund Buyer
                       </DropdownMenuItem>
                     ))}
+                  {isDesigner &&
+                    (isProjectCompleted ? (
+                      <CompletedProjectDisputeTooltip>
+                        <DropdownMenuItem
+                          disabled
+                          className="gap-1 text-[#B54708]"
+                        >
+                          <ClipboardSearch />
+                          Cancel Milestone
+                        </DropdownMenuItem>
+                      </CompletedProjectDisputeTooltip>
+                    ) : (
+                      <DropdownMenuItem
+                        className="cursor-pointer gap-1 text-[#B54708]"
+                        onSelect={handleOpenCancellation}
+                      >
+                        <ClipboardSearch />
+                        Cancel Milestone
+                      </DropdownMenuItem>
+                    ))}
                   {canRaiseIssue &&
                     (isProjectCompleted ? (
                       <CompletedProjectDisputeTooltip>
@@ -252,14 +302,24 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
                 </DropdownMenuContent>
               </DropdownMenu>
               {isDesigner && project && (
-                <RefundRequestDialog
-                  open={refundOpen}
-                  onOpenChange={setRefundOpen}
-                  projectId={project.id}
-                  projectName={project.title || "No Title"}
-                  milestones={milestoneOptions}
-                  currency={project.currency}
-                />
+                <>
+                  <RefundRequestDialog
+                    open={refundOpen}
+                    onOpenChange={setRefundOpen}
+                    projectId={project.id}
+                    projectName={project.title || "No Title"}
+                    milestones={milestoneOptions}
+                    currency={project.currency}
+                  />
+                  <MilestoneCancellationRequestDialog
+                    open={cancellationOpen}
+                    onOpenChange={setCancellationOpen}
+                    projectName={project.title || "No Title"}
+                    milestones={cancelMilestoneOptions}
+                    escrowAmount={project.escrowBalance || 0}
+                    currency={project.currency}
+                  />
+                </>
               )}
               {!isDesigner && project && (
                 <>

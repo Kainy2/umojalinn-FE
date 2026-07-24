@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   Dialog,
   DialogClose,
@@ -29,9 +29,10 @@ import {
 } from "./@types";
 
 export const MilestoneCancellationRequestDialog = ({
-  milestoneId,
+  milestoneId: fixedMilestoneId,
   projectName,
-  milestoneName,
+  milestoneName: fixedMilestoneName,
+  milestones,
   escrowAmount,
   currency,
   children,
@@ -43,13 +44,26 @@ export const MilestoneCancellationRequestDialog = ({
   const open = controlledOpen ?? internalOpen;
   const onOpenChange = controlledOnOpenChange ?? setInternalOpen;
 
+  const requiresMilestoneSelect = !!milestones?.length && !fixedMilestoneId;
+
+  const [selectedMilestoneId, setSelectedMilestoneId] = useState("");
   const [reason, setReason] = useState<TDisputeReason | "">("");
   const [description, setDescription] = useState("");
   const [isClientAware, setIsClientAware] = useState<TClientAwareness>("no");
   const [confirmed, setConfirmed] = useState(false);
   const [files, setFiles] = useState<FileList | null>(null);
 
+  const selectedMilestone = useMemo(
+    () => milestones?.find((item) => item.id === selectedMilestoneId),
+    [milestones, selectedMilestoneId],
+  );
+
+  const milestoneId = fixedMilestoneId ?? selectedMilestoneId;
+  const milestoneName =
+    fixedMilestoneName ?? selectedMilestone?.title ?? undefined;
+
   const resetForm = useCallback(() => {
+    setSelectedMilestoneId("");
     setReason("");
     setDescription("");
     setIsClientAware("no");
@@ -70,6 +84,7 @@ export const MilestoneCancellationRequestDialog = ({
   const formattedEscrow = `${currencySymbol}${formatCurrencyValue(escrowAmount)}`;
 
   const canSubmit =
+    !!milestoneId &&
     !!reason &&
     !!description.trim() &&
     !!isClientAware &&
@@ -77,7 +92,7 @@ export const MilestoneCancellationRequestDialog = ({
     !isPending;
 
   const handleSubmit = () => {
-    if (!reason || !canSubmit) return;
+    if (!reason || !milestoneId || !canSubmit) return;
 
     const reasonLabel =
       DISPUTE_REASONS.find((item) => item.value === reason)?.label ?? reason;
@@ -114,8 +129,12 @@ export const MilestoneCancellationRequestDialog = ({
               </DialogTitle>
               <p className="text-sm text-muted-foreground">
                 <span className="text-foreground-body">{projectName}</span>
-                {": "}
-                <span className="text-foreground-body">{milestoneName}</span>
+                {milestoneName ? (
+                  <>
+                    {": "}
+                    <span className="text-foreground-body">{milestoneName}</span>
+                  </>
+                ) : null}
               </p>
             </div>
           </DialogHeader>
@@ -123,6 +142,23 @@ export const MilestoneCancellationRequestDialog = ({
           <Separator />
 
           <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-6 py-5">
+            {requiresMilestoneSelect && milestones && (
+              <CustomSelectField
+                label={{
+                  children: "Milestone",
+                  className: "font-semibold text-base text-foreground-body",
+                }}
+                placeholder="Select Milestone"
+                value={selectedMilestoneId || undefined}
+                onValueChange={setSelectedMilestoneId}
+                options={milestones.map((item) => ({
+                  value: item.id,
+                  children: item.title,
+                }))}
+                trigger={{ className: "rounded-none h-12" }}
+              />
+            )}
+
             <CustomSelectField
               label={{
                 children: "Cancellation reason",
