@@ -3,6 +3,7 @@ import AvatarIconTag from "@/components/custom/tag/AvatarIcon";
 import SectionTitle from "@/components/custom/SectionTitle";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { RefundRequestDialog } from "@/components/custom/dialog/RefundRequest";
+import { MilestoneCancellationRequestDialog } from "@/components/custom/dialog/MilestoneCancellationRequest";
 import { BuyerProjectIssueDialog } from "@/components/custom/dialog/BuyerProjectIssue";
 import { BuyerIssueConfirmDialog } from "@/components/custom/dialog/BuyerIssueConfirm";
 import { TBuyerProjectIssueFormData } from "@/components/custom/dialog/BuyerProjectIssue/@types";
@@ -12,6 +13,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import ClipboardSearch from "@/assets/ClipboardSearch";
 import {
   getActiveDisputedMilestoneIds,
@@ -27,6 +34,7 @@ import {
   useGetProjectMilestones,
 } from "@/tanstack/hooks/useProject";
 import { BUYER_ISSUE_REASONS } from "@/types/dispute";
+import { EMileStoneStatus } from "@/types/enum";
 import { format } from "date-fns";
 import { CalendarPlus, MoreVertical } from "lucide-react";
 import { useParams } from "next/navigation";
@@ -38,11 +46,33 @@ type ActiveProjectSummaryProps = {
   isDesigner?: boolean;
 };
 
+const CompletedProjectDisputeTooltip = ({
+  children,
+}: React.PropsWithChildren) => (
+  <TooltipProvider delayDuration={0}>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="flex w-full">{children}</span>
+      </TooltipTrigger>
+      <TooltipContent
+        side="top"
+        className="max-w-[240px] border-0 bg-[#0F172A] px-3 py-2 text-white"
+      >
+        <p className="font-semibold">Completed Project</p>
+        <p className="text-xs text-white/90">
+          Requests cannot be raised for already completed projects
+        </p>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+);
+
 const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
   const { isDesigner = false } = props;
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const [refundOpen, setRefundOpen] = useState(false);
+  const [cancellationOpen, setCancellationOpen] = useState(false);
   const [issueOpen, setIssueOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingIssue, setPendingIssue] =
@@ -53,7 +83,7 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
   const { data: projectDisputesResponse } = useGetProjectDisputes(
     params?.id ?? "",
     {
-      enabled: !!params?.id && !isDesigner,
+      enabled: !!params?.id,
     },
   );
 
@@ -82,22 +112,43 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
     [milestones],
   );
 
-  const issueMilestoneOptions = useMemo(() => {
-    const disputedMilestoneIds = getActiveDisputedMilestoneIds(
-      projectDisputesResponse?.data?.data ?? [],
-    );
+  const disputedMilestoneIds = useMemo(
+    () =>
+      getActiveDisputedMilestoneIds(projectDisputesResponse?.data?.data ?? []),
+    [projectDisputesResponse?.data?.data],
+  );
 
-    return milestones
-      .filter((milestone) =>
-        isMilestoneEligibleForDispute(milestone, disputedMilestoneIds),
-      )
-      .map((milestone) => ({
-        id: milestone.id,
-        title: formatMilestoneSelectLabel(milestone, milestones),
-        amount: Number(milestone.amount) || 0,
-        transactionStatus: milestone.transactionStatus,
-      }));
-  }, [milestones, projectDisputesResponse?.data?.data]);
+  const issueMilestoneOptions = useMemo(
+    () =>
+      milestones
+        .filter((milestone) =>
+          isMilestoneEligibleForDispute(milestone, disputedMilestoneIds),
+        )
+        .map((milestone) => ({
+          id: milestone.id,
+          title: formatMilestoneSelectLabel(milestone, milestones),
+          amount: Number(milestone.amount) || 0,
+          transactionStatus: milestone.transactionStatus,
+        })),
+    [milestones, disputedMilestoneIds],
+  );
+
+  const cancelMilestoneOptions = useMemo(
+    () =>
+      milestones
+        .filter(
+          (milestone) =>
+            milestone.status !== EMileStoneStatus.APPROVED &&
+            isMilestoneEligibleForDispute(milestone, disputedMilestoneIds),
+        )
+        .map((milestone) => ({
+          id: milestone.id,
+          title: formatMilestoneSelectLabel(milestone, milestones),
+          amount: Number(milestone.amount) || 0,
+          transactionStatus: milestone.transactionStatus,
+        })),
+    [milestones, disputedMilestoneIds],
+  );
 
   const designerName = useMemo(() => {
     const user = project?.designer?.user;
@@ -107,6 +158,7 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
     );
   }, [project?.designer?.user]);
 
+  const isProjectCompleted = project?.status === "COMPLETED";
   const canRaiseIssue = !isDesigner && issueMilestoneOptions.length > 0;
   const showActionsMenu = isDesigner || canRaiseIssue;
 
@@ -116,8 +168,21 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
   };
 
   const handleRaiseIssue = () => {
+    if (isProjectCompleted) return;
     setActionsMenuOpen(false);
     window.setTimeout(() => setIssueOpen(true), 0);
+  };
+
+  const handleOpenRefund = () => {
+    if (isProjectCompleted) return;
+    setActionsMenuOpen(false);
+    window.setTimeout(() => setRefundOpen(true), 0);
+  };
+
+  const handleOpenCancellation = () => {
+    if (isProjectCompleted) return;
+    setActionsMenuOpen(false);
+    window.setTimeout(() => setCancellationOpen(true), 0);
   };
 
   const handleProjectIssueSubmit = (formData: TBuyerProjectIssueFormData) => {
@@ -127,7 +192,7 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
   };
 
   const handleConfirmRaiseIssue = () => {
-    if (!pendingIssue) return;
+    if (!pendingIssue || isProjectCompleted) return;
 
     const reasonLabel =
       BUYER_ISSUE_REASONS.find((item) => item.value === pendingIssue.reason)
@@ -174,38 +239,87 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-[200px]">
-                  {isDesigner && (
-                    <DropdownMenuItem
-                      className="cursor-pointer gap-1 text-[#B54708]"
-                      onSelect={() => {
-                        setActionsMenuOpen(false);
-                        window.setTimeout(() => setRefundOpen(true), 0);
-                      }}
-                    >
-                      <ClipboardSearch />
-                      Refund Buyer
-                    </DropdownMenuItem>
-                  )}
-                  {canRaiseIssue && (
-                    <DropdownMenuItem
-                      className="cursor-pointer gap-1 text-[#B54708]"
-                      onSelect={handleRaiseIssue}
-                    >
-                      <ClipboardSearch />
-                      Raise an issue
-                    </DropdownMenuItem>
-                  )}
+                  {isDesigner &&
+                    (isProjectCompleted ? (
+                      <CompletedProjectDisputeTooltip>
+                        <DropdownMenuItem
+                          disabled
+                          className="gap-1 text-[#B54708]"
+                        >
+                          <ClipboardSearch />
+                          Refund Buyer
+                        </DropdownMenuItem>
+                      </CompletedProjectDisputeTooltip>
+                    ) : (
+                      <DropdownMenuItem
+                        className="cursor-pointer gap-1 text-[#B54708]"
+                        onSelect={handleOpenRefund}
+                      >
+                        <ClipboardSearch />
+                        Refund Buyer
+                      </DropdownMenuItem>
+                    ))}
+                  {isDesigner &&
+                    (isProjectCompleted ? (
+                      <CompletedProjectDisputeTooltip>
+                        <DropdownMenuItem
+                          disabled
+                          className="gap-1 text-[#B54708]"
+                        >
+                          <ClipboardSearch />
+                          Cancel Milestone
+                        </DropdownMenuItem>
+                      </CompletedProjectDisputeTooltip>
+                    ) : (
+                      <DropdownMenuItem
+                        className="cursor-pointer gap-1 text-[#B54708]"
+                        onSelect={handleOpenCancellation}
+                      >
+                        <ClipboardSearch />
+                        Cancel Milestone
+                      </DropdownMenuItem>
+                    ))}
+                  {canRaiseIssue &&
+                    (isProjectCompleted ? (
+                      <CompletedProjectDisputeTooltip>
+                        <DropdownMenuItem
+                          disabled
+                          className="gap-1 text-[#B54708]"
+                        >
+                          <ClipboardSearch />
+                          Raise an issue
+                        </DropdownMenuItem>
+                      </CompletedProjectDisputeTooltip>
+                    ) : (
+                      <DropdownMenuItem
+                        className="cursor-pointer gap-1 text-[#B54708]"
+                        onSelect={handleRaiseIssue}
+                      >
+                        <ClipboardSearch />
+                        Raise an issue
+                      </DropdownMenuItem>
+                    ))}
                 </DropdownMenuContent>
               </DropdownMenu>
               {isDesigner && project && (
-                <RefundRequestDialog
-                  open={refundOpen}
-                  onOpenChange={setRefundOpen}
-                  projectId={project.id}
-                  projectName={project.title || "No Title"}
-                  milestones={milestoneOptions}
-                  currency={project.currency}
-                />
+                <>
+                  <RefundRequestDialog
+                    open={refundOpen}
+                    onOpenChange={setRefundOpen}
+                    projectId={project.id}
+                    projectName={project.title || "No Title"}
+                    milestones={milestoneOptions}
+                    currency={project.currency}
+                  />
+                  <MilestoneCancellationRequestDialog
+                    open={cancellationOpen}
+                    onOpenChange={setCancellationOpen}
+                    projectName={project.title || "No Title"}
+                    milestones={cancelMilestoneOptions}
+                    escrowAmount={project.escrowBalance || 0}
+                    currency={project.currency}
+                  />
+                </>
               )}
               {!isDesigner && project && (
                 <>

@@ -104,6 +104,7 @@ const ActiveJobsPage = () => {
           designer={project?.designer.user}
           projectId={project?.id}
           projectName={project?.title ?? undefined}
+          projectStatus={project?.status}
           currency={project?.currency || null}
           escrowBalance={project?.escrowBalance || 0}
           isDesigner={isDesigner}
