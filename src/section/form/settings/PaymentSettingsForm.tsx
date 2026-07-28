@@ -83,7 +83,7 @@ const PaymentSettingsForm = () => {
         const onboardingUrl = data?.data?.data?.onboardingUrl;
         setConnectOtpDialogOpen(false);
         if (onboardingUrl) {
-          window.location.href = onboardingUrl;
+          window.open(onboardingUrl, "_blank", "noopener,noreferrer");
         }
       },
     });
@@ -104,7 +104,7 @@ const PaymentSettingsForm = () => {
     if (hasStartedStripeOnboarding) {
       const onboardingUrl = paymentAccount?.stripeOnboardingUrl;
       if (onboardingUrl) {
-        window.open(onboardingUrl, "_blank");
+        window.open(onboardingUrl, "_blank", "noopener,noreferrer");
         return;
       }
       openConnectStripeOtpDialog();
@@ -117,7 +117,7 @@ const PaymentSettingsForm = () => {
     }
     const onboardingUrl = paymentAccount?.stripeOnboardingUrl;
     if (onboardingUrl) {
-      window.location.href = onboardingUrl;
+      window.open(onboardingUrl, "_blank", "noopener,noreferrer");
       return;
     }
     openConnectStripeOtpDialog();

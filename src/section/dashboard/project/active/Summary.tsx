@@ -101,21 +101,27 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
     () => milestonesData?.data?.data ?? [],
     [milestonesData?.data?.data],
   );
-  const milestoneOptions = useMemo(
-    () =>
-      milestones.map((milestone) => ({
-        id: milestone.id,
-        title: formatMilestoneSelectLabel(milestone, milestones),
-        amount: Number(milestone.amount) || 0,
-        transactionStatus: milestone.transactionStatus,
-      })),
-    [milestones],
-  );
-
   const disputedMilestoneIds = useMemo(
     () =>
       getActiveDisputedMilestoneIds(projectDisputesResponse?.data?.data ?? []),
     [projectDisputesResponse?.data?.data],
+  );
+
+  const milestoneOptions = useMemo(
+    () =>
+      milestones
+        .filter(
+          (milestone) =>
+            milestone.status === EMileStoneStatus.APPROVED &&
+            isMilestoneEligibleForDispute(milestone, disputedMilestoneIds),
+        )
+        .map((milestone) => ({
+          id: milestone.id,
+          title: formatMilestoneSelectLabel(milestone, milestones),
+          amount: Number(milestone.amount) || 0,
+          transactionStatus: milestone.transactionStatus,
+        })),
+    [milestones, disputedMilestoneIds],
   );
 
   const issueMilestoneOptions = useMemo(
@@ -138,7 +144,13 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
       milestones
         .filter(
           (milestone) =>
-            milestone.status !== EMileStoneStatus.APPROVED &&
+            [
+              EMileStoneStatus.ACTIVE,
+              EMileStoneStatus.PENDING,
+              EMileStoneStatus.IN_REVIEW,
+              EMileStoneStatus.REJECTED,
+              EMileStoneStatus.IN_ACTIVE,
+            ].includes(milestone.status) &&
             isMilestoneEligibleForDispute(milestone, disputedMilestoneIds),
         )
         .map((milestone) => ({
