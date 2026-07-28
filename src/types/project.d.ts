@@ -596,6 +596,7 @@ export type UmojaLinnSharedWorkImage = {
 export type UmojaLinnSharedWork = {
   id: string;
   designerId: string;
+  description: string;
   images: UmojaLinnSharedWorkImage[];
   clothingTypes: Array<{ id: string; name: string } & UmojaLinnTimestamp>;
 } & UmojaLinnTimestamp;
