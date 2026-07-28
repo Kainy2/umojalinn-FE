@@ -122,6 +122,10 @@ const InsufficientWalletBalance = ({
       </div>
 
       <div className="space-y-2">
+        <p className="text-center text-xs text-gray-600">
+          Note: Kindly transfer exact amount to the account details above and
+          upload your payment receipt
+        </p>
         <FileUploadPicker
           accept="image/png,image/jpeg,image/jpg,application/pdf"
           multiple={false}
@@ -140,10 +144,7 @@ const InsufficientWalletBalance = ({
             {receipt[0].name} selected
           </p>
         )}
-        <p className="text-center text-xs text-muted-foreground">
-          Note: Kindly transfer exact amount to the account details above and
-          upload your payment receipt
-        </p>
+
       </div>
 
       <Button

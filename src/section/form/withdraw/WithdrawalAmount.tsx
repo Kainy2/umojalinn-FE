@@ -84,7 +84,7 @@ const WithdrawalAmountForm = (props: { currency: UmojaLinnCurrency }) => {
       onSuccess: (data) => {
         setConnectOtpDialogOpen(false);
         if (data.data.data.onboardingUrl) {
-          window.location.href = data.data.data.onboardingUrl;
+          window.open(data.data.data.onboardingUrl, "_blank", "noopener,noreferrer");
         }
       },
     });

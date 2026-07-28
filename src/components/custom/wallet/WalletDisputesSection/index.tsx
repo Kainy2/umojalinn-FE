@@ -6,6 +6,8 @@ import { formatCurrencyValue } from "@/lib/number";
 import { getCurrencySymbol } from "@/lib/string";
 import DisputeStatusBadge from "@/section/dashboard/project/disputes/DisputeStatusBadge";
 import { useGetWalletDisputes } from "@/tanstack/hooks/useDispute";
+import Link from "next/link";
+import { uuidToBase62Safe } from "@/lib/uuid";
 import { IWalletDisputesSectionProps } from "./@types";
 
 const WalletDisputesSection = ({
@@ -13,6 +15,8 @@ const WalletDisputesSection = ({
   hideBalance,
 }: IWalletDisputesSectionProps) => {
   const { data: disputesResponse, isPending } = useGetWalletDisputes();
+
+  const baseSlug = "active-jobs";
 
   const currencyDisputes = useMemo(
     () =>
@@ -32,9 +36,10 @@ const WalletDisputesSection = ({
           const title = dispute.project?.title ?? "Active dispute";
 
           return (
-            <div
+            <Link
               key={dispute.id}
-              className="flex flex-wrap justify-between items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3"
+              href={dispute.project?.id ? `/${baseSlug}/${uuidToBase62Safe(dispute.project.id)}/details` : "#"}
+              className="flex flex-wrap justify-between items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 hover:bg-gray-100 transition-colors"
             >
               <span className="  text-sm font-medium text-foreground-body">
                 {title}
@@ -50,7 +55,7 @@ const WalletDisputesSection = ({
                 </span>
                 <DisputeStatusBadge status={dispute.status} />
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>

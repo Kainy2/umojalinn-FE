@@ -61,7 +61,7 @@ const WithdrawalPage = () => {
         setConnectOtpDialogOpen(false);
         const onboardingUrl = data?.data?.data?.onboardingUrl;
         if (onboardingUrl) {
-          window.location.href = onboardingUrl;
+          window.open(onboardingUrl, "_blank", "noopener,noreferrer");
         }
       },
     });
@@ -109,7 +109,7 @@ const WithdrawalPage = () => {
     }
     const url = paymentAccount?.stripeOnboardingUrl;
     if (url) {
-      window.location.href = url;
+      window.open(url, "_blank", "noopener,noreferrer");
       return;
     }
     openConnectStripeOtpDialog();
