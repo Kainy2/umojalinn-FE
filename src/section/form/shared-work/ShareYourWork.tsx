@@ -300,7 +300,7 @@ const ShareYourWorkForm = () => {
               </div>
             </FormItemWrapper>
 
-            <FormItemWrapper title="Description">
+            <FormItemWrapper title="Description" className="mb-8">
               <TextField
                 value={work.description}
                 onChange={handleDescriptionChange(work.localId)}

@@ -10,9 +10,14 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import PortfolioItem from "@/section/dashboard/profile/PortfolioItem";
+import { Separator } from "@/components/ui/separator";
+import { useRouter } from "next/navigation";
+import { Plus } from "lucide-react";
 
 const SettingsProfilePortfolioPage = () => {
   const { data: session } = useSession();
+  const router = useRouter();
+
   const isDesigner = session?.user?.profileRole === "DESIGNER";
 
   // Buyer branch — unchanged
@@ -60,11 +65,23 @@ const SettingsProfilePortfolioPage = () => {
     }
 
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {sharedWork.map((work) => (
-          <PortfolioItem key={work.id} work={work} />
-        ))}
-      </div>
+      <section className="space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {sharedWork.map((work) => (
+            <PortfolioItem key={work.id} work={work} />
+          ))}
+        </div>
+
+        <Separator className="bg-border/50" />
+        <div className="text-right">
+          <Button
+            onClick={() => router.push("/settings/profile/portfolio")}
+          >
+            <Plus className="h-4 w-4" />
+            Share your Work
+          </Button>
+        </div>
+      </section>
     );
   }
 
@@ -78,33 +95,46 @@ const SettingsProfilePortfolioPage = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      {buyerPortfolioData?.data?.data?.map((portfolio) => (
-        <div key={portfolio?.id} className="flex flex-col gap-4">
-          <div className="aspect-[3/4] md:aspect-auto md:h-56 relative">
-            <Image
-              alt={portfolio?.title || ""}
-              src={portfolio?.Gallery?.[0]?.imageUrl || "/img/svg/null.svg"}
-              fill
-              className="object-cover absolute top-0"
-            />
+    <section>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {buyerPortfolioData?.data?.data?.map((portfolio) => (
+          <div key={portfolio?.id} className="flex flex-col gap-4">
+            <div className="aspect-[3/4] md:aspect-auto md:h-56 relative">
+              <Image
+                alt={portfolio?.title || ""}
+                src={portfolio?.Gallery?.[0]?.imageUrl || "/img/svg/null.svg"}
+                fill
+                className="object-cover absolute top-0"
+              />
+            </div>
+            <div>
+              <h3 className="font-semibold mb-1 text-foreground">
+                {portfolio?.title}
+              </h3>
+              <p className="text-foreground-body line-clamp-3">
+                {portfolio?.about}
+              </p>
+            </div>
+            <div className="flex flex-wrap">
+              {portfolio?.clothingTypes?.map((type) => (
+                <Badge key={type?.id}>{type?.name}</Badge>
+              ))}
+            </div>
           </div>
-          <div>
-            <h3 className="font-semibold mb-1 text-foreground">
-              {portfolio?.title}
-            </h3>
-            <p className="text-foreground-body line-clamp-3">
-              {portfolio?.about}
-            </p>
-          </div>
-          <div className="flex flex-wrap">
-            {portfolio?.clothingTypes?.map((type) => (
-              <Badge key={type?.id}>{type?.name}</Badge>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
+        ))}
+
+      </div>
+
+      <Separator className="bg-border/50" />
+      <div>
+        <Button
+          onClick={() => router.push("/settings/profile/portfolio")}
+        >
+          Share your Work
+        </Button>
+      </div>
+    </section>
+
   );
 };
 
