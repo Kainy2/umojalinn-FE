@@ -11,6 +11,7 @@ import {
   shouldAutoStartWelcomeTour,
   hasRecentlyCompletedWelcomeTour,
 } from "@/lib/tour";
+import { useGetMe } from "@/tanstack/hooks/useUser";
 
 const WALLET_TOUR_START_PATH = "/wallet";
 
@@ -19,6 +20,8 @@ const WalletTourLauncher = () => {
   const { data: session, status } = useSession();
   const pathname = usePathname();
   const [isPageReady, setIsPageReady] = useState(false);
+  const { data: meResponse, isPending } = useGetMe();
+  const user = meResponse?.data?.data;
 
   useEffect(() => {
     const handlePageReady = (event: Event) => {
@@ -34,7 +37,7 @@ const WalletTourLauncher = () => {
   }, []);
 
   useEffect(() => {
-    if (status !== "authenticated") {
+    if (status !== "authenticated" || isPending || !user) {
       return;
     }
 
@@ -50,11 +53,11 @@ const WalletTourLauncher = () => {
       return;
     }
 
-    if (!shouldAutoStartWalletTour()) {
+    if (!shouldAutoStartWalletTour(user)) {
       return;
     }
 
-    if (shouldAutoStartWelcomeTour() || hasRecentlyCompletedWelcomeTour()) {
+    if (shouldAutoStartWelcomeTour(user) || hasRecentlyCompletedWelcomeTour()) {
       return;
     }
 
@@ -74,6 +77,8 @@ const WalletTourLauncher = () => {
     session?.user?.profileRole,
     startNextStep,
     status,
+    isPending,
+    user,
   ]);
 
   return null;

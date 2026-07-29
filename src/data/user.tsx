@@ -32,6 +32,8 @@ export const MOCK_USER: UmojaLinnUser = {
   },
   designerProfile: null, // Assuming this user is not a designer
   verified: true,
+  guidedTourCompletedAt: null,
+  guidedTourProgress: null,
   createdAt: "2025-01-01T10:00:00Z",
   updatedAt: "2025-01-01T10:00:00Z",
 };

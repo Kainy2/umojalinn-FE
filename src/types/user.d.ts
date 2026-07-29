@@ -1,6 +1,7 @@
 import { languageProficiency } from "@/lib/schema";
 import { UmojaLinnTimestamp } from "./util";
 import { UmojaLinnProject, UmojaLinnProjectReview, UmojaLinnSharedWork } from "./project";
+import type { TGuidedTourStep } from "@/constant/tour/@types";
 
 export type UmojaLinnUserRole = "BUYER" | "DESIGNER";
 
@@ -73,6 +74,11 @@ export type UmojaLinnUser = {
     | null
     | (UmojaLinnUserRoleProfile & UmojaLinnUserDesignerAddonProfile);
   verified: boolean;
+  guidedTourCompletedAt: null | string;
+  guidedTourProgress: null | {
+    designer?: Partial<Record<TGuidedTourStep, string>>;
+    buyer?: Partial<Record<TGuidedTourStep, string>>;
+  };
 } & UmojaLinnTimestamp;
 
 export type UmojaLinnLoginResponse = {

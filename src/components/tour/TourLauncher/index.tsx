@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { useNextStep } from "nextstepjs";
 
 import { shouldAutoStartWelcomeTour } from "@/lib/tour";
+import { useGetMe } from "@/tanstack/hooks/useUser";
 
 const DESIGNER_WELCOME_TOUR_START_PATHS = ["/dashboard", "/"];
 const BUYER_WELCOME_TOUR_START_PATHS = ["/projects", "/"];
@@ -13,12 +14,13 @@ const BUYER_WELCOME_TOUR_START_PATHS = ["/projects", "/"];
 const TourLauncher = () => {
   const { startNextStep, isNextStepVisible } = useNextStep();
   const { data: session, status } = useSession();
+  const { data: meResponse, isPending } = useGetMe();
+  const user = meResponse?.data?.data;
   const pathname = usePathname();
-
   const profileRole = session?.user?.profileRole;
 
   useEffect(() => {
-    if (status !== "authenticated") {
+    if (status !== "authenticated" || isPending || !user) {
       return;
     }
 
@@ -29,7 +31,7 @@ const TourLauncher = () => {
       return;
     }
 
-    if (isNextStepVisible || !shouldAutoStartWelcomeTour()) {
+    if (isNextStepVisible || !shouldAutoStartWelcomeTour(user)) {
       return;
     }
 
@@ -48,7 +50,7 @@ const TourLauncher = () => {
     }, 600);
 
     return () => window.clearTimeout(timer);
-  }, [isNextStepVisible, pathname, profileRole, startNextStep, status]);
+  }, [isNextStepVisible, pathname, profileRole, startNextStep, status, isPending, user]);
 
   return null;
 };

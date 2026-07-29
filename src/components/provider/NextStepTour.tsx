@@ -51,7 +51,6 @@ import {
   setCreateProjectTourProjectId,
   setReviewBidTourBidId,
   setSizingTemplateTourTemplateId,
-  setTourStatus,
   tourNameToGuidedTourStep,
   setRecentlyCompletedWelcomeTour,
 } from "@/lib/tour";
@@ -455,7 +454,6 @@ const NextStepTourProvider = ({ children }: LayoutProps) => {
       }
 
       dispatchTourMobileMenuOpen(false);
-      setTourStatus(tourName as TTourName, "completed");
       persistGuidedTourStep(tourName as TTourName);
 
       if (tourName === "welcome") {
@@ -493,7 +491,6 @@ const NextStepTourProvider = ({ children }: LayoutProps) => {
       }
 
       dispatchTourMobileMenuOpen(false);
-      setTourStatus(tourName as TTourName, "skipped");
       persistGuidedTourStep(tourName as TTourName);
 
       if (tourName === "welcome") {

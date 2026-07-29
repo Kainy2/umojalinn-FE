@@ -13,6 +13,7 @@ import {
   shouldAutoStartWelcomeTour,
   hasRecentlyCompletedWelcomeTour,
 } from "@/lib/tour";
+import { useGetMe } from "@/tanstack/hooks/useUser";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import {
   useGetAllDesignerSizingTemplates,
@@ -27,6 +28,8 @@ const SizingTemplateTourLauncher = () => {
   const pathname = usePathname();
   const isDesigner = session?.user?.profileRole === "DESIGNER";
   const isBuyer = session?.user?.profileRole === "BUYER";
+  const { data: meResponse, isPending } = useGetMe();
+  const user = meResponse?.data?.data;
 
   const { data: designerTemplatesData, isPending: isDesignerTemplatesPending } =
     useGetAllDesignerSizingTemplates({
@@ -73,7 +76,7 @@ const SizingTemplateTourLauncher = () => {
   }, [buyerTemplates]);
 
   useEffect(() => {
-    if (status !== "authenticated") {
+    if (status !== "authenticated" || isPending || !user) {
       return;
     }
 
@@ -85,11 +88,11 @@ const SizingTemplateTourLauncher = () => {
       return;
     }
 
-    if (!shouldAutoStartSizingTemplateTour()) {
+    if (!shouldAutoStartSizingTemplateTour(user)) {
       return;
     }
 
-    if (shouldAutoStartWelcomeTour() || hasRecentlyCompletedWelcomeTour()) {
+    if (shouldAutoStartWelcomeTour(user) || hasRecentlyCompletedWelcomeTour()) {
       return;
     }
 
@@ -136,6 +139,8 @@ const SizingTemplateTourLauncher = () => {
     pathname,
     startNextStep,
     status,
+    isPending,
+    user,
   ]);
 
   return null;

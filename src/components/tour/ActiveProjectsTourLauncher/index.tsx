@@ -12,6 +12,7 @@ import {
   hasRecentlyCompletedWelcomeTour,
 } from "@/lib/tour";
 import { uuidToBase62Safe } from "@/lib/uuid";
+import { useGetMe } from "@/tanstack/hooks/useUser";
 import { useGetAllDesignerProject } from "@/tanstack/hooks/useProject";
 
 const ACTIVE_PROJECTS_TOUR_START_PATH = "/dashboard";
@@ -20,6 +21,8 @@ const ActiveProjectsTourLauncher = () => {
   const { startNextStep, isNextStepVisible } = useNextStep();
   const { data: session, status } = useSession();
   const pathname = usePathname();
+  const { data: meResponse, isPending: isUserPending } = useGetMe();
+  const user = meResponse?.data?.data;
 
   const { data: liveProjectsData, isPending } = useGetAllDesignerProject({
     projectStatus: "LIVE",
@@ -36,7 +39,7 @@ const ActiveProjectsTourLauncher = () => {
   }, [liveProjectsData?.data?.data]);
 
   useEffect(() => {
-    if (status !== "authenticated") {
+    if (status !== "authenticated" || isUserPending || !user) {
       return;
     }
 
@@ -52,11 +55,11 @@ const ActiveProjectsTourLauncher = () => {
       return;
     }
 
-    if (!shouldAutoStartActiveProjectsTour()) {
+    if (!shouldAutoStartActiveProjectsTour(user)) {
       return;
     }
 
-    if (shouldAutoStartWelcomeTour() || hasRecentlyCompletedWelcomeTour()) {
+    if (shouldAutoStartWelcomeTour(user) || hasRecentlyCompletedWelcomeTour()) {
       return;
     }
 
@@ -78,6 +81,8 @@ const ActiveProjectsTourLauncher = () => {
     session?.user?.profileRole,
     startNextStep,
     status,
+    isUserPending,
+    user,
   ]);
 
   return null;
