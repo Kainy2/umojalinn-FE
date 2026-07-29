@@ -11,8 +11,12 @@ import {
   useGetPaymentAccountInfo,
   useConnectStripeAccount,
 } from "@/tanstack/hooks/useProject";
-import { useGetWalletDisputeSummary } from "@/tanstack/hooks/useDispute";
+import {
+  useGetWalletDisputeSummary,
+  useGetWalletDisputes,
+} from "@/tanstack/hooks/useDispute";
 import { useGetMe } from "@/tanstack/hooks/useUser";
+import { uuidToBase62Safe } from "@/lib/uuid";
 import React, { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { capitalizeFirstLetter, getCurrencySymbol } from "@/lib/string";
@@ -41,6 +45,9 @@ const WithdrawalPage = () => {
 
   const { data: userData } = useGetMe({ enabled: secondaryQueriesEnabled });
   const { data: disputeSummaryResponse } = useGetWalletDisputeSummary({
+    enabled: secondaryQueriesEnabled,
+  });
+  const { data: disputesResponse } = useGetWalletDisputes({
     enabled: secondaryQueriesEnabled,
   });
   const { data: paymentAccountData, isPending: isPaymentAccountPending } =
@@ -91,6 +98,18 @@ const WithdrawalPage = () => {
   const paymentAccount = paymentAccountData?.data?.data?.[0];
   const disputeSummary = disputeSummaryResponse?.data?.data;
   const selectedCurrencyDisputeSummary = disputeSummary?.[selectedCurrency];
+
+  const disputes = disputesResponse?.data?.data ?? [];
+  const selectedCurrencyDisputes = disputes.filter(
+    (dispute) => dispute.currency === selectedCurrency,
+  );
+  const activeDispute = selectedCurrencyDisputes.find(
+    (d) => d.status !== "RESOLVED",
+  ) || selectedCurrencyDisputes[0];
+
+  const payNowUrl = activeDispute?.project?.id
+    ? `/active-jobs/refund/${uuidToBase62Safe(activeDispute.project.id)}/insufficient-balance?disputeId=${activeDispute.id}&amount=${activeDispute.totalDisputed}&currency=${selectedCurrency}`
+    : undefined;
 
   const isDesigner = session?.user?.profileRole === "DESIGNER";
 
@@ -189,6 +208,7 @@ const WithdrawalPage = () => {
                 currency={selectedCurrency}
                 onCurrencyChange={setSelectedCurrency}
                 currencyDisputeSummary={selectedCurrencyDisputeSummary}
+                payNowUrl={payNowUrl}
               />
               <div id="tour-wallet-currency-carousel">
                 <CurrencyCarousel>

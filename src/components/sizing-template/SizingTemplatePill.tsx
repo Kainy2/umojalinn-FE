@@ -25,6 +25,7 @@ import {
 import {
   getClearedSizingTemplatePayload,
   isMatchingSizingGender,
+  hasPendingMeasurements,
 } from "@/lib/sizing-template-utils";
 
 import { useGetMe } from "@/tanstack/hooks/useUser";
@@ -279,15 +280,17 @@ const SizingTemplatePill = ({
       )
         return "UPDATED";
 
-      // 6. Designer requests changes to measurement points
+      // 6. Designer has active recommendations OR there is a pending measurement tally mismatch
       if (
         sizingTemplateId &&
-        hasDesignerRecommendations &&
-        !hasRepliedRecommendations
+        (
+          (hasDesignerRecommendations && !hasRepliedRecommendations) ||
+          hasPendingMeasurements(requestedMeasurementPoints, submittedMeasurementPoints)
+        )
       )
         return "CHANGES_RECOMMENDED";
 
-      // 5. Template added AND measurement points filled
+      // 5. Template added AND all measurement points filled
       if (sizingTemplateId && submittedMeasurementPoints?.length)
         return "VIEW_TEMPLATE";
 
@@ -317,23 +320,26 @@ const SizingTemplatePill = ({
       }
 
       // Live project
-      // 2. Designer recommended changes and buyer has not made them
+      // 2a. Designer recommended changes via metadata.reviews and buyer has not made them
+      // 2b. OR designer requested new measurement points that buyer hasn't fully submitted yet (tally mismatch)
       if (
         isProjectLive &&
         sizingTemplateId &&
-        hasDesignerRecommendations &&
-        !hasRepliedRecommendations
+        (
+          (hasDesignerRecommendations && !hasRepliedRecommendations) ||
+          hasPendingMeasurements(requestedMeasurementPoints, submittedMeasurementPoints)
+        )
       )
         return "VIEW_SIZING_RECOMMENDATIONS";
 
-      // 1. Designer requested measurement points and they are not filled
+      // 1. Designer requested measurement points and buyer has not filled any yet
       if (
         requestedMeasurementPoints?.length &&
         (!sizingTemplateId || !submittedMeasurementPoints?.length)
       )
         return "ADD_REQUESTED_MEASUREMENTS";
 
-      // 3. Buyer completes requested measurements or changes
+      // 3. Buyer completes all requested measurements or changes
       if (sizingTemplateId && submittedMeasurementPoints?.length)
         return "VIEW_TEMPLATE";
 

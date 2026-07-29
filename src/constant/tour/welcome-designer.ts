@@ -22,6 +22,7 @@ export const buildDesignerWelcomeTour = (isDesktop = true): Tour => {
     steps: [
       {
         icon: null,
+        selector: undefined,
         title: "Welcome to Umoja linn! 👋",
         content:
           "This quick tour will show you around so you can start managing your jobs with ease",

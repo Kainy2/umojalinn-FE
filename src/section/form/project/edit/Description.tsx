@@ -262,62 +262,64 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
             startAdornment={<UserPlus className="text-gray-400 h-5 w-5" />}
           />
         </FormItemWrapper>
-        <FormItemWrapper title="Title" description="Project name">
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field, fieldState, formState }) => (
-              <FormTextField
-                containerClassName="w-full"
-                {...field}
-                error={fieldState.error || formState.errors.gender}
-                maxLength={30}
-                hint={`${field.value?.length || 0}/30 characters`}
-                divider
-                endAdornment={
-                  <FormField
-                    control={form.control}
-                    name="gender"
-                    render={({ field }) => {
-                      const options = [
-                        { value: "MALE", label: "Male" },
-                        { value: "FEMALE", label: "Female" },
-                      ];
-                      return (
-                        <CustomReactSelect
-                          {...field}
-                          value={options?.find(
-                            (opt) => opt?.value === field?.value
-                          )}
-                          placeholder="Gender"
-                          onChange={(newValue: unknown) => {
-                            const typedValue = newValue as {
-                              value: string;
-                              label: string;
-                            };
-                            field.onChange(typedValue?.value);
-                          }}
-                          adornment
-                          options={options}
-                        />
-                      );
-                    }}
-                  />
-                }
-              />
-            )}
-          />
-        </FormItemWrapper>
-        <FormItemWrapper
-          title="About Project"
-          description="Tell the designer what you want and how you want it done. You can attach your inspo photos on the next page!"
-        >
-          <FormField
-            control={form.control}
-            name="about"
-            render={({ field, fieldState }) => <Textarea {...field} error={fieldState.error} />}
-          />
-        </FormItemWrapper>
+        <div id="tour-create-project-description">
+          <FormItemWrapper title="Title" description="Project name">
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field, fieldState, formState }) => (
+                <FormTextField
+                  containerClassName="w-full"
+                  {...field}
+                  error={fieldState.error || formState.errors.gender}
+                  maxLength={30}
+                  hint={`${field.value?.length || 0}/30 characters`}
+                  divider
+                  endAdornment={
+                    <FormField
+                      control={form.control}
+                      name="gender"
+                      render={({ field }) => {
+                        const options = [
+                          { value: "MALE", label: "Male" },
+                          { value: "FEMALE", label: "Female" },
+                        ];
+                        return (
+                          <CustomReactSelect
+                            {...field}
+                            value={options?.find(
+                              (opt) => opt?.value === field?.value
+                            )}
+                            placeholder="Gender"
+                            onChange={(newValue: unknown) => {
+                              const typedValue = newValue as {
+                                value: string;
+                                label: string;
+                              };
+                              field.onChange(typedValue?.value);
+                            }}
+                            adornment
+                            options={options}
+                          />
+                        );
+                      }}
+                    />
+                  }
+                />
+              )}
+            />
+          </FormItemWrapper>
+          <FormItemWrapper
+            title="About Project"
+            description="Tell the designer what you want and how you want it done. You can attach your inspo photos on the next page!"
+          >
+            <FormField
+              control={form.control}
+              name="about"
+              render={({ field, fieldState }) => <Textarea {...field} error={fieldState.error} />}
+            />
+          </FormItemWrapper>
+        </div>
         <FormItemWrapper
           title="Select Categories"
           description="Choose clothing type"

@@ -9,6 +9,9 @@ export type TMilestoneOption = {
   title: string;
   amount: number;
   transactionStatus: UmojaLinnMilestone["transactionStatus"];
+  isDelivery?: boolean;
+  isActive?: boolean;
+  isIncomplete?: boolean;
 };
 
 export type TRequestProjectRefundPayload = {

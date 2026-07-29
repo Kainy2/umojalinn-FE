@@ -9,8 +9,10 @@ import {
   setCreateProjectTourProjectId,
   shouldAutoStartCreateProjectTour,
   shouldAutoStartWelcomeTour,
+  hasRecentlyCompletedWelcomeTour,
 } from "@/lib/tour";
 import { uuidToBase62Safe } from "@/lib/uuid";
+import { useGetMe } from "@/tanstack/hooks/useUser";
 import { useGetAllBuyerProject } from "@/tanstack/hooks/useProject";
 
 const CREATE_PROJECT_TOUR_START_PATH =
@@ -20,6 +22,8 @@ const CreateProjectTourLauncher = () => {
   const { startNextStep, isNextStepVisible } = useNextStep();
   const { data: session, status } = useSession();
   const pathname = usePathname();
+  const { data: meResponse, isPending: isUserPending } = useGetMe();
+  const user = meResponse?.data?.data;
 
   const { data: draftsData, isPending } = useGetAllBuyerProject(
     { projectStatus: "DRAFT" },
@@ -37,7 +41,7 @@ const CreateProjectTourLauncher = () => {
   }, [draftsData?.data?.data]);
 
   useEffect(() => {
-    if (status !== "authenticated") {
+    if (status !== "authenticated" || isUserPending || !user) {
       return;
     }
 
@@ -53,21 +57,15 @@ const CreateProjectTourLauncher = () => {
       return;
     }
 
-    if (!shouldAutoStartCreateProjectTour()) {
+    if (!shouldAutoStartCreateProjectTour(user)) {
       return;
     }
 
-    if (shouldAutoStartWelcomeTour()) {
+    if (shouldAutoStartWelcomeTour(user) || hasRecentlyCompletedWelcomeTour()) {
       return;
     }
 
     if (!CREATE_PROJECT_TOUR_START_PATH.test(pathname)) {
-      return;
-    }
-
-    const pathProjectId = pathname.split("/").pop();
-
-    if (pathProjectId !== firstDraftId) {
       return;
     }
 
@@ -85,6 +83,8 @@ const CreateProjectTourLauncher = () => {
     session?.user?.profileRole,
     startNextStep,
     status,
+    isUserPending,
+    user,
   ]);
 
   return null;

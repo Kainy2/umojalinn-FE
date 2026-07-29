@@ -9,8 +9,10 @@ import {
   setCreateBidTourProjectId,
   shouldAutoStartCreateBidTour,
   shouldAutoStartWelcomeTour,
+  hasRecentlyCompletedWelcomeTour,
 } from "@/lib/tour";
 import { uuidToBase62Safe } from "@/lib/uuid";
+import { useGetMe } from "@/tanstack/hooks/useUser";
 import { useGetAllDesignerProject } from "@/tanstack/hooks/useProject";
 
 const CREATE_BID_TOUR_START_PATH = "/jobs";
@@ -19,6 +21,8 @@ const CreateBidTourLauncher = () => {
   const { startNextStep, isNextStepVisible } = useNextStep();
   const { data: session, status } = useSession();
   const pathname = usePathname();
+  const { data: meResponse, isPending: isUserPending } = useGetMe();
+  const user = meResponse?.data?.data;
 
   const { data: jobsData, isPending } = useGetAllDesignerProject({
     projectStatus: "ADS",
@@ -37,7 +41,7 @@ const CreateBidTourLauncher = () => {
   }, [jobsData?.data?.data]);
 
   useEffect(() => {
-    if (status !== "authenticated") {
+    if (status !== "authenticated" || isUserPending || !user) {
       return;
     }
 
@@ -53,11 +57,11 @@ const CreateBidTourLauncher = () => {
       return;
     }
 
-    if (!shouldAutoStartCreateBidTour()) {
+    if (!shouldAutoStartCreateBidTour(user)) {
       return;
     }
 
-    if (shouldAutoStartWelcomeTour()) {
+    if (shouldAutoStartWelcomeTour(user) || hasRecentlyCompletedWelcomeTour()) {
       return;
     }
 
@@ -79,6 +83,8 @@ const CreateBidTourLauncher = () => {
     session?.user?.profileRole,
     startNextStep,
     status,
+    isUserPending,
+    user,
   ]);
 
   return null;

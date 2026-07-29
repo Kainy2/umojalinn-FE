@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { useNextStep } from "nextstepjs";
 
 import {
+  hasRecentlyCompletedWelcomeTour,
   setActiveProjectsTourProjectId,
   shouldAutoStartActiveProjectsTour,
   shouldAutoStartCreateProjectTour,
@@ -14,6 +15,7 @@ import {
   shouldAutoStartWelcomeTour,
 } from "@/lib/tour";
 import { uuidToBase62Safe } from "@/lib/uuid";
+import { useGetMe } from "@/tanstack/hooks/useUser";
 import { useGetBuyerBids } from "@/tanstack/hooks/useBid";
 import { useGetAllBuyerProject } from "@/tanstack/hooks/useProject";
 import { useGetAllSizingTemplates } from "@/tanstack/hooks/useSizingTemplates";
@@ -24,6 +26,8 @@ const BuyerActiveProjectsTourLauncher = () => {
   const { startNextStep, isNextStepVisible } = useNextStep();
   const { data: session, status } = useSession();
   const pathname = usePathname();
+  const { data: meResponse, isPending } = useGetMe();
+  const user = meResponse?.data?.data;
 
   const { data: liveProjectsData, isPending: isLiveProjectsPending } =
     useGetAllBuyerProject(
@@ -64,7 +68,7 @@ const BuyerActiveProjectsTourLauncher = () => {
     !!buyerSizingTemplatesData?.data?.data?.length;
 
   useEffect(() => {
-    if (status !== "authenticated") {
+    if (status !== "authenticated" || isPending || !user) {
       return;
     }
 
@@ -80,23 +84,23 @@ const BuyerActiveProjectsTourLauncher = () => {
       return;
     }
 
-    if (!shouldAutoStartActiveProjectsTour()) {
+    if (!shouldAutoStartActiveProjectsTour(user)) {
       return;
     }
 
-    if (shouldAutoStartWelcomeTour()) {
+    if (shouldAutoStartWelcomeTour(user) || hasRecentlyCompletedWelcomeTour()) {
       return;
     }
 
-    if (shouldAutoStartCreateProjectTour() && hasBuyerDraftProject) {
+    if (shouldAutoStartCreateProjectTour(user) && hasBuyerDraftProject) {
       return;
     }
 
-    if (shouldAutoStartReviewBidTour() && hasPendingBid) {
+    if (shouldAutoStartReviewBidTour(user) && hasPendingBid) {
       return;
     }
 
-    if (shouldAutoStartSizingTemplateTour() && hasBuyerSizingTemplate) {
+    if (shouldAutoStartSizingTemplateTour(user) && hasBuyerSizingTemplate) {
       return;
     }
 
@@ -121,6 +125,8 @@ const BuyerActiveProjectsTourLauncher = () => {
     session?.user?.profileRole,
     startNextStep,
     status,
+    isPending,
+    user,
   ]);
 
   return null;

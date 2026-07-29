@@ -32,6 +32,7 @@ export const buildBuyerWelcomeTour = (isDesktop = true): Tour => {
     steps: [
       {
         icon: null,
+        selector: undefined,
         title: "Welcome to Umoja Inn! 👋",
         content:
           "This quick tour will show you around so you can confidently start bringing your style to life",

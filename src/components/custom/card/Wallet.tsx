@@ -35,6 +35,7 @@ interface IWalletCardProps {
   currency?: UmojaLinnCurrency;
   onCurrencyChange?: (currency: UmojaLinnCurrency) => void;
   currencyDisputeSummary?: IWalletDisputeCurrencySummary;
+  payNowUrl?: string;
 }
 
 export const currencyOptions = [
@@ -88,6 +89,7 @@ const WalletCard = (props: IWalletCardProps) => {
     currency = "NAIRA",
     onCurrencyChange,
     currencyDisputeSummary,
+    payNowUrl,
   } = props;
 
   const currentOption = currencyOptions.find((opt) => opt.value === currency);
@@ -213,7 +215,7 @@ const WalletCard = (props: IWalletCardProps) => {
         </div>
 
         <div className="flex items-center lg:justify-normal justify-between gap-4 lg:mb-4">
-          <h3 className="text-[24px] font-semibold lg:text-4xl lg:font-bold text-navy-900">
+          <h3 className={`text-[24px] font-semibold lg:text-4xl lg:font-bold ${availableBalance < 0 ? "text-error-700" : "text-navy-900"}`}>
             {hideBalance
               ? "***************"
               : `${getCurrencySymbol(currency)}${formatCurrencyValue(availableBalance)}`}
@@ -296,10 +298,31 @@ const WalletCard = (props: IWalletCardProps) => {
         )}
       </div>
 
-      {lockedAmount > 0 && (
-        <div className="border-t border-[#FDE272] bg-warning-25 px-4 py-3 text-sm font-medium text-[#A15C07]">
-          Some funds are temporarily locked due to an active dispute
+      {availableBalance < 0 ? (
+        <div className="border-t border-[#FDA29B] bg-[#FEF3F2] px-4 py-4 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex flex-col gap-1">
+            <h4 className="font-semibold text-[#B42217] text-sm sm:text-base">
+              You have a negative balance due to a dispute
+            </h4>
+            <p className="text-[#B42217] text-xs sm:text-sm">
+              Clear the balance to enable withdrawals and continue using your wallet
+            </p>
+          </div>
+          {payNowUrl && (
+            <Button
+              asChild
+              className="bg-[#D92D20] text-white hover:bg-[#B42217] rounded-md px-4 py-2 text-sm font-semibold shrink-0 w-full sm:w-auto text-center"
+            >
+              <Link href={payNowUrl}>Pay now</Link>
+            </Button>
+          )}
         </div>
+      ) : (
+        lockedAmount > 0 && (
+          <div className="border-t border-[#FDE272] bg-warning-25 px-4 py-3 text-sm font-medium text-[#A15C07]">
+            Some funds are temporarily locked due to an active dispute
+          </div>
+        )
       )}
     </div>
   );
@@ -368,11 +391,10 @@ export const CurrencyCard = ({
   return (
     <div
       onClick={onClick}
-      className={`border rounded-lg w-[249px] bg-white flex flex-col shadow-sm shrink-0 transition-all overflow-hidden ${
-        isSelected
+      className={`border rounded-lg w-[249px] bg-white flex flex-col shadow-sm shrink-0 transition-all overflow-hidden ${isSelected
           ? "border border-[#FEEE95] ring-2 ring-[#FEEE95]/50"
           : "border-input hover:border-[#FEEE95]/60"
-      } ${onClick ? "cursor-pointer" : ""}`}
+        } ${onClick ? "cursor-pointer" : ""}`}
     >
       <div className="flex flex-col gap-6 p-6">
         <div className="flex items-center justify-between">
@@ -392,7 +414,7 @@ export const CurrencyCard = ({
               ? `Available ${option?.fullName}`
               : option?.fullName}
           </span>
-          <h3 className="text-3xl font-bold text-navy-900">
+          <h3 className={`text-3xl font-bold ${amount < 0 ? "text-error-700" : "text-navy-900"}`}>
             {hideBalance ? (
               "********"
             ) : (

@@ -553,7 +553,7 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                     deliverySubmission={editableDeliverySubmission}
                     variableSubmissions={item?.variableSubmissions}
                     isAwaitingFunding={false}
-                    disableDesignerSubmission={disableDesignerSubmission}
+                    disableDesignerSubmission={index === 0 ? false : disableDesignerSubmission}
                     onActionClick={(action) => console.log(action)}
                     onAcceptMilestoneSuccess={() =>
                       onAcceptMilestoneSuccess(isDelivery, index)

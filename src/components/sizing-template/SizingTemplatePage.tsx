@@ -391,7 +391,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     );
   }
 
-  // FILL MODE - Buyer fills in requested measurement points
+  // FILL MODE - Buyer fills in requested measurement points for the first time (nothing submitted yet)
   if (
     templateMode === TEMPLATE_MODE.FILL &&
     sizingTemplateResult?.id &&
@@ -416,7 +416,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     );
   }
 
-  // UPDATE MODE - Buyer updates fields with recommendations
+  // UPDATE MODE - Buyer updates fields with recommendations or fills a tally mismatch
   if (
     templateMode === TEMPLATE_MODE.UPDATE &&
     sizingTemplateResult?.id &&

@@ -248,7 +248,7 @@ export const getAvailableWalletBalanceForCurrency = (
   lockedAmount = 0,
 ) => {
   const balance = getWalletBalanceForCurrency(wallet, currency);
-  return Math.max(0, balance - lockedAmount);
+  return balance - lockedAmount;
 };
 
 export const getWalletCurrencyLabel = (currency: UmojaLinnCurrency) => {

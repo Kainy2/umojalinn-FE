@@ -136,6 +136,19 @@ export const getPendingMeasurementsCount = (
     .length;
 };
 
+/**
+ * Returns true when there are requested measurement points that haven't all
+ * been submitted yet (tally mismatch).
+ * Use this as the single source of truth for triggering recommendation/changes pills.
+ */
+export const hasPendingMeasurements = (
+  requestedPoints?: string[],
+  submittedPoints?: string[],
+): boolean => {
+  if (!requestedPoints?.length) return false;
+  return getPendingMeasurementsCount(requestedPoints, submittedPoints) > 0;
+};
+
 type TSizingTemplateMeasurementGate = {
   requestedMeasurementPoints?: string[];
   submittedMeasurementPoints?: string[];

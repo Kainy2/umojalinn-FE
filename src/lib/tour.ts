@@ -45,7 +45,6 @@ export const tourNameToGuidedTourStep = (
   return steps[tourId] ?? null;
 };
 
-const STORAGE_KEY = "umoja-designer-tours";
 
 export const pickBuyerSizingTemplate = (
   templates: UmojaLinnSizingTemplate[] | undefined,
@@ -63,66 +62,61 @@ export const pickBuyerSizingTemplate = (
   );
 };
 
-type TTourState = Partial<Record<TTourName, TTourStatus>>;
+export type TTourState = Partial<Record<TTourName, TTourStatus>>;
 
-const readTourState = (): TTourState => {
-  if (typeof window === "undefined") {
-    return {};
-  }
 
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      return {};
+
+
+import type { UmojaLinnUser } from "@/types/user";
+
+export const getTourStatus = (
+  tourId: TTourName,
+  user?: UmojaLinnUser | null,
+): TTourStatus | null => {
+  if (user && user.role) {
+    const roleKey = user.role.toLowerCase() as "buyer" | "designer";
+    const stepEnum = tourNameToGuidedTourStep(tourId, user.role);
+    if (stepEnum && user.guidedTourProgress?.[roleKey]?.[stepEnum]) {
+      return "completed";
     }
-
-    return JSON.parse(raw) as TTourState;
-  } catch {
-    return {};
+    return null;
   }
+  return null;
+  // return readTourState()[tourId] ?? null;
 };
 
-const writeTourState = (state: TTourState) => {
-  if (typeof window === "undefined") {
-    return;
-  }
+export const shouldAutoStartWelcomeTour = (user?: UmojaLinnUser | null): boolean =>
+  getTourStatus("welcome", user) === null;
 
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+let recentlyCompletedWelcomeTour = false;
+
+export const setRecentlyCompletedWelcomeTour = (value: boolean) => {
+  recentlyCompletedWelcomeTour = value;
 };
 
-export const getTourStatus = (tourId: TTourName): TTourStatus | null =>
-  readTourState()[tourId] ?? null;
+export const hasRecentlyCompletedWelcomeTour = (): boolean =>
+  recentlyCompletedWelcomeTour;
 
-export const setTourStatus = (tourId: TTourName, status: TTourStatus) => {
-  writeTourState({
-    ...readTourState(),
-    [tourId]: status,
-  });
-};
+export const shouldAutoStartCreateBidTour = (user?: UmojaLinnUser | null): boolean =>
+  getTourStatus("create-a-bid", user) === null;
 
-export const shouldAutoStartWelcomeTour = (): boolean =>
-  getTourStatus("welcome") === null;
+export const shouldAutoStartCreateProjectTour = (user?: UmojaLinnUser | null): boolean =>
+  getTourStatus("create-a-project", user) === null;
 
-export const shouldAutoStartCreateBidTour = (): boolean =>
-  getTourStatus("create-a-bid") === null;
+export const shouldAutoStartReviewBidTour = (user?: UmojaLinnUser | null): boolean =>
+  getTourStatus("review-bid", user) === null;
 
-export const shouldAutoStartCreateProjectTour = (): boolean =>
-  getTourStatus("create-a-project") === null;
+export const shouldAutoStartSizingTemplateTour = (user?: UmojaLinnUser | null): boolean =>
+  getTourStatus("sizing-template", user) === null;
 
-export const shouldAutoStartReviewBidTour = (): boolean =>
-  getTourStatus("review-bid") === null;
+export const shouldAutoStartWalletTour = (user?: UmojaLinnUser | null): boolean =>
+  getTourStatus("wallet", user) === null;
 
-export const shouldAutoStartSizingTemplateTour = (): boolean =>
-  getTourStatus("sizing-template") === null;
+export const shouldAutoStartActiveProjectsTour = (user?: UmojaLinnUser | null): boolean =>
+  getTourStatus("active-projects", user) === null;
 
-export const shouldAutoStartWalletTour = (): boolean =>
-  getTourStatus("wallet") === null;
-
-export const shouldAutoStartActiveProjectsTour = (): boolean =>
-  getTourStatus("active-projects") === null;
-
-export const isTourFinished = (tourId: TTourName): boolean => {
-  const status = getTourStatus(tourId);
+export const isTourFinished = (tourId: TTourName, user?: UmojaLinnUser | null): boolean => {
+  const status = getTourStatus(tourId, user);
   return status === "completed" || status === "skipped";
 };
 
@@ -283,11 +277,6 @@ export const clearActiveProjectsTourSession = () => {
   window.sessionStorage.removeItem(ACTIVE_PROJECTS_TOUR_PROJECT_ID_KEY);
 };
 
-export const resetTourStatus = (tourId: TTourName) => {
-  const state = readTourState();
-  delete state[tourId];
-  writeTourState(state);
-};
 
 export const TOUR_OPEN_INVITE_CLIENT_EVENT = "tour:open-invite-client";
 export const TOUR_MOBILE_MENU_EVENT = "tour:mobile-menu";

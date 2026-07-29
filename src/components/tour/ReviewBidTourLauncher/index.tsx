@@ -10,8 +10,10 @@ import {
   shouldAutoStartCreateProjectTour,
   shouldAutoStartReviewBidTour,
   shouldAutoStartWelcomeTour,
+  hasRecentlyCompletedWelcomeTour,
 } from "@/lib/tour";
 import { uuidToBase62Safe } from "@/lib/uuid";
+import { useGetMe } from "@/tanstack/hooks/useUser";
 import { useGetBuyerBids } from "@/tanstack/hooks/useBid";
 
 const REVIEW_BID_TOUR_START_PATH = "/projects/bids";
@@ -20,6 +22,8 @@ const ReviewBidTourLauncher = () => {
   const { startNextStep, isNextStepVisible } = useNextStep();
   const { data: session, status } = useSession();
   const pathname = usePathname();
+  const { data: meResponse, isPending: isUserPending } = useGetMe();
+  const user = meResponse?.data?.data;
 
   const { data: bidsData, isPending } = useGetBuyerBids(
     { bidStatus: ["PENDING"] },
@@ -37,7 +41,7 @@ const ReviewBidTourLauncher = () => {
   }, [bidsData?.data?.data]);
 
   useEffect(() => {
-    if (status !== "authenticated") {
+    if (status !== "authenticated" || isUserPending || !user) {
       return;
     }
 
@@ -53,11 +57,15 @@ const ReviewBidTourLauncher = () => {
       return;
     }
 
-    if (!shouldAutoStartReviewBidTour()) {
+    if (!shouldAutoStartReviewBidTour(user)) {
       return;
     }
 
-    if (shouldAutoStartWelcomeTour() || shouldAutoStartCreateProjectTour()) {
+    if (
+      shouldAutoStartWelcomeTour(user) ||
+      shouldAutoStartCreateProjectTour(user) ||
+      hasRecentlyCompletedWelcomeTour()
+    ) {
       return;
     }
 
@@ -79,6 +87,8 @@ const ReviewBidTourLauncher = () => {
     session?.user?.profileRole,
     startNextStep,
     status,
+    isUserPending,
+    user,
   ]);
 
   return null;

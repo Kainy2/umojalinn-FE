@@ -196,6 +196,7 @@ export const useCompleteGuidedTour = (
     ...options,
     mutationFn: completeGuidedTour,
     onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [USER, ME] });
       options?.onSuccess?.(data, variables, context);
     },
     onError: (error, variables, context) => {
