@@ -85,9 +85,6 @@ export const getTourStatus = (
   // return readTourState()[tourId] ?? null;
 };
 
-export const shouldAutoStartWelcomeTour = (user?: UmojaLinnUser | null): boolean =>
-  getTourStatus("welcome", user) === null;
-
 let recentlyCompletedWelcomeTour = false;
 
 export const setRecentlyCompletedWelcomeTour = (value: boolean) => {
@@ -96,6 +93,9 @@ export const setRecentlyCompletedWelcomeTour = (value: boolean) => {
 
 export const hasRecentlyCompletedWelcomeTour = (): boolean =>
   recentlyCompletedWelcomeTour;
+
+export const shouldAutoStartWelcomeTour = (user?: UmojaLinnUser | null): boolean =>
+  !recentlyCompletedWelcomeTour && getTourStatus("welcome", user) === null;
 
 export const shouldAutoStartCreateBidTour = (user?: UmojaLinnUser | null): boolean =>
   getTourStatus("create-a-bid", user) === null;
