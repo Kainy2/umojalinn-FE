@@ -9,6 +9,7 @@ import {
   setCreateProjectTourProjectId,
   shouldAutoStartCreateProjectTour,
   shouldAutoStartWelcomeTour,
+  hasRecentlyCompletedWelcomeTour,
 } from "@/lib/tour";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { useGetAllBuyerProject } from "@/tanstack/hooks/useProject";
@@ -57,17 +58,11 @@ const CreateProjectTourLauncher = () => {
       return;
     }
 
-    if (shouldAutoStartWelcomeTour()) {
+    if (shouldAutoStartWelcomeTour() || hasRecentlyCompletedWelcomeTour()) {
       return;
     }
 
     if (!CREATE_PROJECT_TOUR_START_PATH.test(pathname)) {
-      return;
-    }
-
-    const pathProjectId = pathname.split("/").pop();
-
-    if (pathProjectId !== firstDraftId) {
       return;
     }
 

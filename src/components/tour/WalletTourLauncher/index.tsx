@@ -6,7 +6,11 @@ import { useSession } from "next-auth/react";
 import { useNextStep } from "nextstepjs";
 
 import { TOUR_PAGE_READY_EVENT } from "@/components/tour/TourReadyMarker/@types";
-import { shouldAutoStartWalletTour, shouldAutoStartWelcomeTour } from "@/lib/tour";
+import {
+  shouldAutoStartWalletTour,
+  shouldAutoStartWelcomeTour,
+  hasRecentlyCompletedWelcomeTour,
+} from "@/lib/tour";
 
 const WALLET_TOUR_START_PATH = "/wallet";
 
@@ -50,7 +54,7 @@ const WalletTourLauncher = () => {
       return;
     }
 
-    if (shouldAutoStartWelcomeTour()) {
+    if (shouldAutoStartWelcomeTour() || hasRecentlyCompletedWelcomeTour()) {
       return;
     }
 

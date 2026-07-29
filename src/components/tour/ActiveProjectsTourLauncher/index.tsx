@@ -9,6 +9,7 @@ import {
   setActiveProjectsTourProjectId,
   shouldAutoStartActiveProjectsTour,
   shouldAutoStartWelcomeTour,
+  hasRecentlyCompletedWelcomeTour,
 } from "@/lib/tour";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { useGetAllDesignerProject } from "@/tanstack/hooks/useProject";
@@ -55,7 +56,7 @@ const ActiveProjectsTourLauncher = () => {
       return;
     }
 
-    if (shouldAutoStartWelcomeTour()) {
+    if (shouldAutoStartWelcomeTour() || hasRecentlyCompletedWelcomeTour()) {
       return;
     }
 

@@ -10,6 +10,7 @@ import {
   shouldAutoStartCreateProjectTour,
   shouldAutoStartReviewBidTour,
   shouldAutoStartWelcomeTour,
+  hasRecentlyCompletedWelcomeTour,
 } from "@/lib/tour";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { useGetBuyerBids } from "@/tanstack/hooks/useBid";
@@ -57,7 +58,11 @@ const ReviewBidTourLauncher = () => {
       return;
     }
 
-    if (shouldAutoStartWelcomeTour() || shouldAutoStartCreateProjectTour()) {
+    if (
+      shouldAutoStartWelcomeTour() ||
+      shouldAutoStartCreateProjectTour() ||
+      hasRecentlyCompletedWelcomeTour()
+    ) {
       return;
     }
 

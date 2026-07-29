@@ -22,7 +22,7 @@ import {
   UmojaLinnSizingTemplate,
   UmojalinnStandardSize,
 } from "@/types/project";
-import { filterTemplatesForProject } from "@/lib/sizing-template-utils";
+import { filterTemplatesForProject, hasPendingMeasurements } from "@/lib/sizing-template-utils";
 
 type SizingTemplateTagProps = {
   projectId: string;
@@ -169,7 +169,16 @@ const SizingTemplateTag = (props: SizingTemplateTagProps) => {
     );
   }
 
-  if (projectData?.data?.data?.sizingTemplate?.metadata?.reviews) {
+  const sizingTemplate = projectData?.data?.data?.sizingTemplate;
+  const hasReviews =
+    !!sizingTemplate?.metadata?.reviews &&
+    Object.keys(sizingTemplate.metadata.reviews).length > 0;
+  const hasMeasurementMismatch = hasPendingMeasurements(
+    sizingTemplate?.requestedMeasurementPoints,
+    sizingTemplate?.submittedMeasurementPoints,
+  );
+
+  if (hasReviews || hasMeasurementMismatch) {
     return (
       <div>
         <SizingTemplateDialog id={projectData?.data?.data?.sizingTemplateId}>

@@ -7,7 +7,6 @@ const Layout = async ({ children }: LayoutProps) => {
   return (
     <CreateProjectProvider>
       <h1
-        id="tour-create-project-description"
         className="text-subtitle-1 font-bold mb-8"
       >
         Create Project

@@ -103,6 +103,15 @@ export const setTourStatus = (tourId: TTourName, status: TTourStatus) => {
 export const shouldAutoStartWelcomeTour = (): boolean =>
   getTourStatus("welcome") === null;
 
+let recentlyCompletedWelcomeTour = false;
+
+export const setRecentlyCompletedWelcomeTour = (value: boolean) => {
+  recentlyCompletedWelcomeTour = value;
+};
+
+export const hasRecentlyCompletedWelcomeTour = (): boolean =>
+  recentlyCompletedWelcomeTour;
+
 export const shouldAutoStartCreateBidTour = (): boolean =>
   getTourStatus("create-a-bid") === null;
 

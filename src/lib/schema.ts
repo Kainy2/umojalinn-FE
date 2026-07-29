@@ -215,11 +215,11 @@ export const updateProfileSchema = z.object({
     //   }
     // })
     ,
-  country: z.string().min(1, "Country is required").optional(),
-  state: z.string().min(1, "State is required").optional(),
-  city: z.string().min(1, "City is required").optional(),
-  zipCode: z.string().min(1, "Zip/Postal code is required").optional(),
-  address: z.string().min(1, "Home address is required").optional(),
+  country: z.string().optional(),
+  state: z.string().optional(),
+  city: z.string().optional(),
+  zipCode: z.string().optional(),
+  address: z.string().optional(),
 });
 
 export const updateProfileKeys = updateProfileSchema?.keyof().options;

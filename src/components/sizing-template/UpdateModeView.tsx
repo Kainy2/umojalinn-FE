@@ -198,15 +198,28 @@ const UpdateModeView = ({
       return;
     }
 
-    // Include unchanged values so buyers can confirm the same measurements.
+    // Build the full payload:
+    // 1. Seed with all previously submitted requested points (preserves existing submissions)
+    // 2. Overlay editable fields (reviews + newly requested) with the user's updated values
+    // This ensures the backend receives the complete set and doesn't wipe previously submitted points.
     const updatesToSubmit: Record<string, number> = {};
 
+    // Seed: carry forward all already-valued requested points from currentValues
+    requestedMeasurementPoints.forEach((field) => {
+      const existingValue = currentValues[field as keyof MeasurementValues];
+      if (typeof existingValue === "number" && existingValue > 0) {
+        updatesToSubmit[field] = existingValue;
+      }
+    });
+
+    // Overlay: apply the user's edits (new/reviewed fields)
     editableFields.forEach((field) => {
       const nextValue = values[field as keyof MeasurementValues];
       if (typeof nextValue === "number" && nextValue > 0) {
         updatesToSubmit[field] = nextValue;
       }
     });
+
     updateTemplate({ projectId, measurements: updatesToSubmit });
   };
 

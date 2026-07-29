@@ -26,23 +26,6 @@ import { cn } from "@/lib/utils";
 const TOUR_CARD_VIEWPORT_MARGIN_PX = 16;
 const TOUR_CARD_MAX_WIDTH_PX = 22 * 16; // 22rem
 
-const resetTourCardParent = (el: HTMLElement) => {
-  const parent = el.parentElement;
-  if (parent?.getAttribute("data-name") !== "nextstep-card") {
-    return;
-  }
-
-  parent.style.left = "";
-  parent.style.right = "";
-  parent.style.top = "";
-  parent.style.bottom = "";
-  parent.style.width = "";
-  parent.style.maxWidth = "";
-  parent.style.minWidth = "";
-  parent.style.transform = "";
-  parent.style.margin = "";
-};
-
 const resetTourCardPosition = (el: HTMLElement) => {
   el.style.position = "";
   el.style.left = "";
@@ -54,16 +37,21 @@ const resetTourCardPosition = (el: HTMLElement) => {
   el.style.transform = "";
   el.style.zIndex = "";
   el.style.margin = "";
-  resetTourCardParent(el);
+  el.style.boxSizing = "";
+  // Do NOT touch the parent — nextstepjs owns its transform/position for
+  // desktop pointer placement. Clearing it was causing the card to snap to (0,0).
 };
 
 /**
  * Escape nextstepjs absolute/motion placement so the card stays on-screen.
  *
  * nextstep mounts the card inside a motion pointer that uses transforms.
- * That makes `position: fixed` relative to the pointer box (often 0×0 on the
- * welcome step), so left/right viewport pinning collapses into a sliver.
- * Measure the containing-block origin, then place with an explicit width.
+ * That makes `position: fixed` relative to the pointer box.
+ * We measure the containing-block origin via getBoundingClientRect so the
+ * desiredLeft/Top offset math is correct regardless of the parent's transform.
+ * We deliberately do NOT touch the parent element — nextstepjs owns its
+ * transform for desktop pointer placement, and overriding it causes the card
+ * to snap to (0,0) on desktop when the effect resets.
  */
 const placeTourCardInViewport = (
   el: HTMLElement,
@@ -74,20 +62,6 @@ const placeTourCardInViewport = (
     window.innerWidth - margin * 2,
     TOUR_CARD_MAX_WIDTH_PX,
   );
-
-  const parent = el.parentElement;
-  if (parent?.getAttribute("data-name") === "nextstep-card") {
-    // Neutralize library side offsets (left: 100%, transform, maxWidth: 100%).
-    parent.style.left = "0";
-    parent.style.right = "auto";
-    parent.style.top = "0";
-    parent.style.bottom = "auto";
-    parent.style.width = "auto";
-    parent.style.maxWidth = "none";
-    parent.style.minWidth = "0";
-    parent.style.transform = "none";
-    parent.style.margin = "0";
-  }
 
   el.style.position = "fixed";
   el.style.right = "auto";

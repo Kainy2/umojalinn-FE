@@ -30,7 +30,22 @@ export const MilestoneMultiSelect = ({
       onChange([...value, milestoneId]);
       return;
     }
-    onChange(value.filter((id) => id !== milestoneId));
+
+    const nextValue = value.filter((id) => id !== milestoneId);
+    const milestone = milestones.find((m) => m.id === milestoneId);
+
+    if (milestone?.isIncomplete && !milestone.isDelivery) {
+      const deliveryMilestone = milestones.find((m) => m.isDelivery);
+      if (deliveryMilestone && nextValue.includes(deliveryMilestone.id)) {
+        const activeMilestone = milestones.find((m) => m.isActive);
+        if (activeMilestone && activeMilestone.id !== deliveryMilestone.id) {
+          onChange(nextValue.filter((id) => id !== deliveryMilestone.id));
+          return;
+        }
+      }
+    }
+
+    onChange(nextValue);
   };
 
   return (
@@ -58,18 +73,44 @@ export const MilestoneMultiSelect = ({
           <div className="flex max-h-48 flex-col gap-1 overflow-y-auto">
             {milestones.map((milestone) => {
               const checked = value.includes(milestone.id);
+              let disabled = false;
+
+              if (milestone.isDelivery && !checked) {
+                const activeMilestone = milestones.find((m) => m.isActive);
+                if (activeMilestone && activeMilestone.id !== milestone.id) {
+                  const incompleteMilestones = milestones.filter(
+                    (m) => m.isIncomplete && !m.isDelivery
+                  );
+                  const allIncompleteSelected = incompleteMilestones.every((m) =>
+                    value.includes(m.id)
+                  );
+                  if (!allIncompleteSelected) {
+                    disabled = true;
+                  }
+                }
+              }
+
               return (
                 <label
                   key={milestone.id}
                   htmlFor={`refund-milestone-${milestone.id}`}
-                  className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-2 text-sm hover:bg-accent"
+                  className={cn(
+                    "flex items-center gap-2 rounded-md px-2 py-2 text-sm",
+                    disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-accent"
+                  )}
+                  onClick={(e) => {
+                    if (disabled) e.preventDefault();
+                  }}
                 >
                   <Checkbox
                     id={`refund-milestone-${milestone.id}`}
                     checked={checked}
-                    onCheckedChange={(next) =>
-                      toggleMilestone(milestone.id, !!next)
-                    }
+                    disabled={disabled}
+                    onCheckedChange={(next) => {
+                      if (!disabled) {
+                        toggleMilestone(milestone.id, !!next);
+                      }
+                    }}
                   />
                   <span className="truncate">{milestone.title}</span>
                 </label>

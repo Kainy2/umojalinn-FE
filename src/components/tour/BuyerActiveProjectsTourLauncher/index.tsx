@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { useNextStep } from "nextstepjs";
 
 import {
+  hasRecentlyCompletedWelcomeTour,
   setActiveProjectsTourProjectId,
   shouldAutoStartActiveProjectsTour,
   shouldAutoStartCreateProjectTour,
@@ -84,7 +85,7 @@ const BuyerActiveProjectsTourLauncher = () => {
       return;
     }
 
-    if (shouldAutoStartWelcomeTour()) {
+    if (shouldAutoStartWelcomeTour() || hasRecentlyCompletedWelcomeTour()) {
       return;
     }
 

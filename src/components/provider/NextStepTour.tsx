@@ -53,6 +53,7 @@ import {
   setSizingTemplateTourTemplateId,
   setTourStatus,
   tourNameToGuidedTourStep,
+  setRecentlyCompletedWelcomeTour,
 } from "@/lib/tour";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { useGetBuyerBids } from "@/tanstack/hooks/useBid";
@@ -459,6 +460,7 @@ const NextStepTourProvider = ({ children }: LayoutProps) => {
 
       if (tourName === "welcome") {
         setShowWelcomeComplete(true);
+        setRecentlyCompletedWelcomeTour(true);
       }
 
       if (tourName === "create-a-bid") {
@@ -493,6 +495,10 @@ const NextStepTourProvider = ({ children }: LayoutProps) => {
       dispatchTourMobileMenuOpen(false);
       setTourStatus(tourName as TTourName, "skipped");
       persistGuidedTourStep(tourName as TTourName);
+
+      if (tourName === "welcome") {
+        setRecentlyCompletedWelcomeTour(true);
+      }
 
       if (tourName === "create-a-bid") {
         clearCreateBidTourSession();

@@ -4,6 +4,7 @@ import React from "react";
 import { UmojaLinnProject, UmojaLinnSizingTemplate } from "@/types/project";
 import { Plus, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { hasPendingMeasurements } from "@/lib/sizing-template-utils";
 
 // Status types for buyers and designers
 export type BuyerStatusType =
@@ -134,20 +135,18 @@ export const getBuyerStatus = (
 	const isProjectLive = template?.projects?.some((p) => p.status === "LIVE");
 
 
-	// Priority 1: Designer has recommended changes
+	// Priority 1: Designer has recommended changes via metadata.reviews
 	if (hasReviews) {
 		return "CHANGES_RECOMMENDED";
 	}
 
-	// Priority 2: Designer requested measurements but buyer hasn't submitted all
+	// Priority 2: Designer requested measurements but buyer hasn't submitted all of them (tally mismatch)
 	if (
 		isProjectLive && template?.status === "IN_USE" &&
-		!!requestedMeasurementPoints.length &&
-		!submittedMeasurementPoints.length
+		hasPendingMeasurements(requestedMeasurementPoints, submittedMeasurementPoints)
 	) {
-		return "ADD_REQUESTED_MEASUREMENTS";
+		return "CHANGES_RECOMMENDED";
 	}
-
 
 	// Priority 3: Template is draft or incomplete
 	if (template?.status === "DRAFT") {
@@ -183,11 +182,10 @@ export const getDesignerStatus = (
 		return "REQUEST_MEASUREMENT_POINTS";
 	}
 
-	// Priority 2: Measurement points requested but buyer hasn't submitted yet
+	// Priority 2: Measurement points requested but buyer hasn't submitted all of them (tally mismatch)
 	if (
 		template?.status === "IN_USE" &&
-		!!requestedMeasurementPoints.length &&
-		!submittedMeasurementPoints.length
+		hasPendingMeasurements(requestedMeasurementPoints, submittedMeasurementPoints)
 	) {
 		return "MEASUREMENT_REQUESTED";
 	}
@@ -198,7 +196,7 @@ export const getDesignerStatus = (
 			return "UPDATED";
 		}
 
-		// Recommending changes if there are recommendations that haven't been replied to correctly
+		// Recommending changes if there are recommendations that haven't been replied to
 		if (hasDesignerRecommendations && !hasRepliedRecommendations) {
 			return "CHANGES_RECOMMENDED";
 		}

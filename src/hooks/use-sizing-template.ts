@@ -12,6 +12,7 @@ import {
 } from "@/types/project";
 import { TEMPLATE_MODE, TemplateMode } from "@/constant";
 import { parseStringToNumber } from "@/lib/utils";
+import { hasPendingMeasurements } from "@/lib/sizing-template-utils";
 import {
   useCreateSizingTemplate,
   useGetSizingTemplateById,
@@ -178,17 +179,31 @@ export const useSizingTemplateDialog = (
 
     // Restricted modes only after job is LIVE
     if (isInUse && isProjectLive) {
-      // UPDATE: Buyer has recommendations to address
-      if (hasReviews) {
+      // UPDATE: Buyer has reviews to address OR tally mismatch after a partial submission
+      // (some measurements submitted, but new requested points were added since)
+      if (
+        hasReviews ||
+        (hasSubmittedPoints &&
+          hasPendingMeasurements(
+            requestedMeasurementPoints,
+            submittedMeasurementPoints,
+          ))
+      ) {
         return TEMPLATE_MODE.UPDATE;
       }
 
-      // FILL: Buyer needs to fill requested measurement points
-      if (hasRequestedPoints && !hasSubmittedPoints) {
+      // FILL: First time filling — measurement points requested but buyer hasn't submitted anything yet
+      if (
+        !hasSubmittedPoints &&
+        hasPendingMeasurements(
+          requestedMeasurementPoints,
+          submittedMeasurementPoints,
+        )
+      ) {
         return TEMPLATE_MODE.FILL;
       }
 
-      // VIEW_ONLY: Template is in use, all submitted, no pending reviews
+      // VIEW_ONLY: Template is in use, all requested points submitted, no pending reviews
       if (hasSubmittedPoints && !hasReviews) {
         return TEMPLATE_MODE.VIEW_ONLY;
       }

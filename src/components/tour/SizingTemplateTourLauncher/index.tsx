@@ -11,6 +11,7 @@ import {
   setSizingTemplateTourTemplateId,
   shouldAutoStartSizingTemplateTour,
   shouldAutoStartWelcomeTour,
+  hasRecentlyCompletedWelcomeTour,
 } from "@/lib/tour";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import {
@@ -88,7 +89,7 @@ const SizingTemplateTourLauncher = () => {
       return;
     }
 
-    if (shouldAutoStartWelcomeTour()) {
+    if (shouldAutoStartWelcomeTour() || hasRecentlyCompletedWelcomeTour()) {
       return;
     }
 

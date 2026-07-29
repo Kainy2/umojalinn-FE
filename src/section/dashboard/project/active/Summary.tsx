@@ -110,16 +110,18 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
   const milestoneOptions = useMemo(
     () =>
       milestones
-        .filter(
-          (milestone) =>
-            milestone.status === EMileStoneStatus.APPROVED &&
-            isMilestoneEligibleForDispute(milestone, disputedMilestoneIds),
+        .filter((milestone) =>
+          isMilestoneEligibleForDispute(milestone, disputedMilestoneIds) &&
+          ["FUNDED", "PAID"].includes(milestone.transactionStatus)
         )
         .map((milestone) => ({
           id: milestone.id,
           title: formatMilestoneSelectLabel(milestone, milestones),
           amount: Number(milestone.amount) || 0,
           transactionStatus: milestone.transactionStatus,
+          isDelivery: !!milestone.deliveryMethod || milestone.deliveryMileStoneType === "VARIABLE",
+          isActive: [EMileStoneStatus.ACTIVE, EMileStoneStatus.PENDING, EMileStoneStatus.IN_REVIEW, EMileStoneStatus.REJECTED].includes(milestone.status),
+          isIncomplete: ![EMileStoneStatus.APPROVED].includes(milestone.status)
         })),
     [milestones, disputedMilestoneIds],
   );
@@ -135,6 +137,9 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
           title: formatMilestoneSelectLabel(milestone, milestones),
           amount: Number(milestone.amount) || 0,
           transactionStatus: milestone.transactionStatus,
+          isDelivery: !!milestone.deliveryMethod || milestone.deliveryMileStoneType === "VARIABLE",
+          isActive: [EMileStoneStatus.ACTIVE, EMileStoneStatus.PENDING, EMileStoneStatus.IN_REVIEW, EMileStoneStatus.REJECTED].includes(milestone.status),
+          isIncomplete: ![EMileStoneStatus.APPROVED].includes(milestone.status)
         })),
     [milestones, disputedMilestoneIds],
   );
@@ -158,6 +163,9 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
           title: formatMilestoneSelectLabel(milestone, milestones),
           amount: Number(milestone.amount) || 0,
           transactionStatus: milestone.transactionStatus,
+          isDelivery: !!milestone.deliveryMethod || milestone.deliveryMileStoneType === "VARIABLE",
+          isActive: [EMileStoneStatus.ACTIVE, EMileStoneStatus.PENDING, EMileStoneStatus.IN_REVIEW, EMileStoneStatus.REJECTED].includes(milestone.status),
+          isIncomplete: ![EMileStoneStatus.APPROVED].includes(milestone.status)
         })),
     [milestones, disputedMilestoneIds],
   );
@@ -425,18 +433,16 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
                   isDesigner
                     ? "/settings/profile"
                     : `/designers/${uuidToBase62Safe(
-                        data?.data?.data?.designer?.user?.id || "",
-                      )}`,
+                      data?.data?.data?.designer?.user?.id || "",
+                    )}`,
                 )
               }
               label={
                 !isDesigner
-                  ? `${data?.data?.data?.designer?.user?.firstName || ""} ${
-                      data?.data?.data?.designer?.user?.lastName || ""
-                    }`
-                  : `${data?.data?.data?.buyer?.user?.firstName || ""} ${
-                      data?.data?.data?.buyer?.user?.lastName || ""
-                    }`
+                  ? `${data?.data?.data?.designer?.user?.firstName || ""} ${data?.data?.data?.designer?.user?.lastName || ""
+                  }`
+                  : `${data?.data?.data?.buyer?.user?.firstName || ""} ${data?.data?.data?.buyer?.user?.lastName || ""
+                  }`
               }
               avatar={{
                 src: !isDesigner
