@@ -12,7 +12,7 @@ import {
 } from "@/types/project";
 import { TEMPLATE_MODE, TemplateMode } from "@/constant";
 import { parseStringToNumber } from "@/lib/utils";
-import { hasPendingMeasurements } from "@/lib/sizing-template-utils";
+import { hasPendingMeasurements, resolveRequestedMeasurementPoints, isMeasurementRevisionCycle, hasOpenSizingReviews } from "@/lib/sizing-template-utils";
 import {
   useCreateSizingTemplate,
   useGetSizingTemplateById,
@@ -125,29 +125,22 @@ export const useSizingTemplateDialog = (
   }, [sizingTemplateResult]);
 
   // Derived state for measurement points
-  const requestedMeasurementPointsFromTemplate =
-    sizingTemplateResult?.requestedMeasurementPoints ?? [];
-  const requestedMeasurementPointsFromBid =
-    bid?.requestedMeasurementPoints ?? [];
-  const requestedMeasurementPointsFromProject =
-    project?.requestedMeasurementPoints ?? [];
-  const requestedMeasurementPoints =
-    requestedMeasurementPointsFromTemplate.length > 0
-      ? requestedMeasurementPointsFromTemplate
-      : requestedMeasurementPointsFromBid.length > 0
-        ? requestedMeasurementPointsFromBid
-        : requestedMeasurementPointsFromProject;
+  const requestedMeasurementPoints = resolveRequestedMeasurementPoints(
+    sizingTemplateResult?.requestedMeasurementPoints,
+    bid?.requestedMeasurementPoints,
+    project?.requestedMeasurementPoints,
+  );
   const submittedMeasurementPoints =
     sizingTemplateResult?.submittedMeasurementPoints || [];
   const hasRequestedPoints = requestedMeasurementPoints.length > 0;
   const hasSubmittedPoints = submittedMeasurementPoints.length > 0;
-  const hasReviews =
-    sizingTemplateResult?.metadata?.reviews &&
-    Object.values(sizingTemplateResult.metadata.reviews).some(Boolean);
+  const hasReviews = hasOpenSizingReviews(
+    sizingTemplateResult?.metadata?.reviews,
+  );
   const isInUse = sizingTemplateResult?.status === "IN_USE";
   const isProjectLive = project?.status === "LIVE";
-  // Buyers can fully edit until the job goes LIVE (even when template is IN_USE during ADS)
-  const canBuyerFullyEdit = !isDesigner && (!isInUse || !isProjectLive);
+  // Buyers fully edit draft/library templates only — not while the template is on a project
+  const canBuyerFullyEdit = !isDesigner && !isInUse;
 
   // New templateMode with proper priority logic
   const templateMode: TemplateMode = useMemo(() => {
@@ -177,17 +170,21 @@ export const useSizingTemplateDialog = (
       return TEMPLATE_MODE.EDIT;
     }
 
+    // IN_USE before go-live: view height/size only — hide requested measurement points
+    if (isInUse && !isProjectLive) {
+      return TEMPLATE_MODE.VIEW_ONLY;
+    }
+
     // Restricted modes only after job is LIVE
     if (isInUse && isProjectLive) {
-      // UPDATE: Buyer has reviews to address OR tally mismatch after a partial submission
-      // (some measurements submitted, but new requested points were added since)
+      // UPDATE: revision cycle — reviews or new pending points after a prior submission
       if (
-        hasReviews ||
-        (hasSubmittedPoints &&
-          hasPendingMeasurements(
-            requestedMeasurementPoints,
-            submittedMeasurementPoints,
-          ))
+        isMeasurementRevisionCycle({
+          isProjectLive,
+          hasOpenReviews: !!hasReviews,
+          requestedPoints: requestedMeasurementPoints,
+          submittedPoints: submittedMeasurementPoints,
+        })
       ) {
         return TEMPLATE_MODE.UPDATE;
       }
@@ -209,7 +206,7 @@ export const useSizingTemplateDialog = (
       }
     }
 
-    // EDIT: Default for draft/live templates, or IN_USE before project goes LIVE
+    // EDIT: Default for draft/live templates
     return TEMPLATE_MODE.EDIT;
   }, [
     isDesigner,
@@ -221,6 +218,8 @@ export const useSizingTemplateDialog = (
     recommendationMode,
     props?.id,
     props?.bidId,
+    requestedMeasurementPoints,
+    submittedMeasurementPoints,
   ]);
 
   // Legacy modalType for backward compatibility

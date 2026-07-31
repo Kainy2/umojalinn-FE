@@ -329,7 +329,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
     (templateMode === TEMPLATE_MODE.EDIT || isCreatingNew);
   const canEditGender = isEditable && canBuyerFullyEdit;
   const isChangesUpdated = sizingTemplateResult?.isChangesUpdated;
-  const isRestrictedInUse = isInUse && isProjectLive;
+  const isRestrictedInUse = isInUse;
 
   // Page title and description based on mode
   const getPageTitle = () => {
@@ -849,16 +849,19 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                 isDraft) && (
                 <div className="flex flex-col gap-2">
                   {TEMPLATE.filter((templateItem) => {
-                    // Full edit (new, draft, live, or IN_USE before project LIVE): show all
+                    // Full edit (new, draft, library): show all
                     if (canBuyerFullyEdit || isNewTemplate || isDraft)
                       return true;
 
                     // After job is LIVE: only show requested measurement points
-                    if (isRestrictedInUse && hasRequestedPoints) {
+                    if (isInUse && isProjectLive && hasRequestedPoints) {
                       return requestedMeasurementPoints.includes(
                         templateItem.prop,
                       );
                     }
+
+                    // IN_USE before go-live: hide requested measurement points
+                    if (isInUse && !isProjectLive) return false;
 
                     // Default: show all
                     return true;

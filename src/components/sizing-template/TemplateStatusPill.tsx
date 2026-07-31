@@ -4,7 +4,12 @@ import React from "react";
 import { UmojaLinnProject, UmojaLinnSizingTemplate } from "@/types/project";
 import { Plus, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { hasPendingMeasurements } from "@/lib/sizing-template-utils";
+import {
+	hasOpenSizingReviews,
+	isFirstMeasurementFillCycle,
+	isMeasurementRevisionCycle,
+	hasPendingMeasurements,
+} from "@/lib/sizing-template-utils";
 
 // Status types for buyers and designers
 export type BuyerStatusType =
@@ -129,26 +134,33 @@ export const getBuyerStatus = (
 		template?.requestedMeasurementPoints || [];
 	const submittedMeasurementPoints =
 		template?.submittedMeasurementPoints || [];
-	const hasReviews =
-		template?.metadata?.reviews &&
-		!!Object.keys(template.metadata.reviews).length;
+	const hasOpenReviews = hasOpenSizingReviews(template?.metadata?.reviews);
 	const isProjectLive = template?.projects?.some((p) => p.status === "LIVE");
 
-
-	// Priority 1: Designer has recommended changes via metadata.reviews
-	if (hasReviews) {
-		return "CHANGES_RECOMMENDED";
-	}
-
-	// Priority 2: Designer requested measurements but buyer hasn't submitted all of them (tally mismatch)
+	// LIVE revision: reviews or new pending points after a prior submission
 	if (
-		isProjectLive && template?.status === "IN_USE" &&
-		hasPendingMeasurements(requestedMeasurementPoints, submittedMeasurementPoints)
+		isMeasurementRevisionCycle({
+			isProjectLive: !!isProjectLive,
+			hasOpenReviews,
+			requestedPoints: requestedMeasurementPoints,
+			submittedPoints: submittedMeasurementPoints,
+		})
 	) {
 		return "CHANGES_RECOMMENDED";
 	}
 
-	// Priority 3: Template is draft or incomplete
+	// LIVE first fill: points requested, buyer has not submitted yet
+	if (
+		isProjectLive &&
+		template?.status === "IN_USE" &&
+		isFirstMeasurementFillCycle({
+			requestedPoints: requestedMeasurementPoints,
+			submittedPoints: submittedMeasurementPoints,
+		})
+	) {
+		return "ADD_REQUESTED_MEASUREMENTS";
+	}
+
 	if (template?.status === "DRAFT") {
 		return "ADD_SIZING_TEMPLATE";
 	}
@@ -166,15 +178,10 @@ export const getDesignerStatus = (
 		template?.requestedMeasurementPoints || [];
 	const submittedMeasurementPoints =
 		template?.submittedMeasurementPoints || [];
-	const hasDesignerRecommendations =
-		template?.metadata?.reviews &&
-		!!Object.keys(template.metadata.reviews).length;
-	const hasRepliedRecommendations =
-		!template?.metadata?.reviews ||
-		Object.keys(template.metadata.reviews).length === 0;
+	const hasOpenReviews = hasOpenSizingReviews(template?.metadata?.reviews);
+	const isProjectLive = !!template?.projects?.some((p) => p.status === "LIVE");
 	const isChangesUpdated = template?.isChangesUpdated;
 
-	// Priority 1: Template is in use but no measurement points requested yet
 	if (
 		template?.status === "IN_USE" &&
 		!requestedMeasurementPoints.length
@@ -182,23 +189,34 @@ export const getDesignerStatus = (
 		return "REQUEST_MEASUREMENT_POINTS";
 	}
 
-	// Priority 2: Measurement points requested but buyer hasn't submitted all of them (tally mismatch)
-	if (
-		template?.status === "IN_USE" &&
-		hasPendingMeasurements(requestedMeasurementPoints, submittedMeasurementPoints)
-	) {
-		return "MEASUREMENT_REQUESTED";
-	}
-
-	// Priority 3: Check for new updates or unanswered recommendations
 	if (template?.status === "IN_USE") {
-		if (hasRepliedRecommendations && isChangesUpdated) {
+		if (!hasOpenReviews && isChangesUpdated) {
 			return "UPDATED";
 		}
 
-		// Recommending changes if there are recommendations that haven't been replied to
-		if (hasDesignerRecommendations && !hasRepliedRecommendations) {
+		if (
+			isMeasurementRevisionCycle({
+				isProjectLive,
+				hasOpenReviews,
+				requestedPoints: requestedMeasurementPoints,
+				submittedPoints: submittedMeasurementPoints,
+			})
+		) {
 			return "CHANGES_RECOMMENDED";
+		}
+
+		if (
+			isFirstMeasurementFillCycle({
+				requestedPoints: requestedMeasurementPoints,
+				submittedPoints: submittedMeasurementPoints,
+			}) ||
+			(!isProjectLive &&
+				hasPendingMeasurements(
+					requestedMeasurementPoints,
+					submittedMeasurementPoints,
+				))
+		) {
+			return "MEASUREMENT_REQUESTED";
 		}
 	}
 

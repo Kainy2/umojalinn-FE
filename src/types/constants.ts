@@ -100,8 +100,8 @@ export const REMINDER_COOLDOWN_MINUTES = 30;
  * - RECOMMEND: Designer adds recommendations/comments on specific measurements
  * - FILL: Buyer fills in the requested measurement points
  * - UPDATE: Buyer updates fields that have designer recommendations
- * - EDIT: Buyer has full edit access (draft/live templates not in use)
- * - VIEW_ONLY: Read-only view for buyer (all submitted, no pending reviews)
+ * - EDIT: Buyer has full edit access (draft/library templates not in use)
+ * - VIEW_ONLY: Read-only for buyer — IN_USE before go-live (no requested points), or all submitted with no pending reviews
  */
 export const TEMPLATE_MODE = {
   SELECT: "SELECT",

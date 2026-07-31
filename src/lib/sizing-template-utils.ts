@@ -139,7 +139,9 @@ export const getPendingMeasurementsCount = (
 /**
  * Returns true when there are requested measurement points that haven't all
  * been submitted yet (tally mismatch).
- * Use this as the single source of truth for triggering recommendation/changes pills.
+ * Pending alone does not mean "changes recommended" — use
+ * `isMeasurementRevisionCycle` for revision pills and
+ * `isFirstMeasurementFillCycle` for first-fill pills.
  */
 export const hasPendingMeasurements = (
   requestedPoints?: string[],
@@ -147,6 +149,65 @@ export const hasPendingMeasurements = (
 ): boolean => {
   if (!requestedPoints?.length) return false;
   return getPendingMeasurementsCount(requestedPoints, submittedPoints) > 0;
+};
+
+/** Buyer has submitted at least one requested measurement point. */
+export const hasPriorMeasurementSubmission = (
+  submittedPoints?: string[],
+): boolean => (submittedPoints?.length ?? 0) > 0;
+
+/** Designer has open review comments on the template. */
+export const hasOpenSizingReviews = (
+  reviews?: Record<string, string> | null,
+): boolean => !!reviews && Object.keys(reviews).length > 0;
+
+/**
+ * LIVE revision cycle: open reviews, or new pending points after the buyer
+ * already submitted. Drives Changes Recommended / View Sizing Recommendations.
+ */
+export const isMeasurementRevisionCycle = ({
+  isProjectLive,
+  hasOpenReviews,
+  requestedPoints,
+  submittedPoints,
+}: {
+  isProjectLive: boolean;
+  hasOpenReviews: boolean;
+  requestedPoints?: string[];
+  submittedPoints?: string[];
+}): boolean => {
+  if (!isProjectLive) return false;
+  if (hasOpenReviews) return true;
+  return (
+    hasPriorMeasurementSubmission(submittedPoints) &&
+    hasPendingMeasurements(requestedPoints, submittedPoints)
+  );
+};
+
+/**
+ * First-fill cycle: points are requested but the buyer has not submitted any yet.
+ * Drives Measurement Requested / Add Requested Measurements.
+ */
+export const isFirstMeasurementFillCycle = ({
+  requestedPoints,
+  submittedPoints,
+}: {
+  requestedPoints?: string[];
+  submittedPoints?: string[];
+}): boolean =>
+  !!requestedPoints?.length &&
+  !hasPriorMeasurementSubmission(submittedPoints);
+
+/**
+ * Resolve requested points from template → bid → project (first non-empty wins).
+ */
+export const resolveRequestedMeasurementPoints = (
+  ...sources: Array<string[] | undefined | null>
+): string[] => {
+  for (const source of sources) {
+    if (source && source.length > 0) return source;
+  }
+  return [];
 };
 
 type TSizingTemplateMeasurementGate = {
