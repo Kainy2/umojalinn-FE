@@ -26,6 +26,10 @@ import {
   getClearedSizingTemplatePayload,
   isMatchingSizingGender,
   hasPendingMeasurements,
+  hasOpenSizingReviews,
+  isMeasurementRevisionCycle,
+  isFirstMeasurementFillCycle,
+  resolveRequestedMeasurementPoints,
 } from "@/lib/sizing-template-utils";
 
 import { useGetMe } from "@/tanstack/hooks/useUser";
@@ -247,9 +251,11 @@ const SizingTemplatePill = ({
 
   // Determine pill state
   const getPillState = (): PillState | null => {
-    const requestedMeasurementPoints =
-      sizingTemplate?.requestedMeasurementPoints ||
-      bid?.requestedMeasurementPoints;
+    const requestedMeasurementPoints = resolveRequestedMeasurementPoints(
+      sizingTemplate?.requestedMeasurementPoints,
+      bid?.requestedMeasurementPoints,
+      project?.requestedMeasurementPoints,
+    );
     const submittedMeasurementPoints =
       sizingTemplate?.submittedMeasurementPoints;
 
@@ -261,89 +267,78 @@ const SizingTemplatePill = ({
     )
       return null;
 
-    const hasDesignerRecommendations =
-      sizingTemplate?.metadata?.reviews &&
-      !!Object.keys(sizingTemplate.metadata.reviews).length;
-    const hasRepliedRecommendations =
-      !sizingTemplate?.metadata?.reviews ||
-      Object.keys(sizingTemplate.metadata.reviews).length === 0;
+    const hasOpenReviews = hasOpenSizingReviews(
+      sizingTemplate?.metadata?.reviews,
+    );
+    const isRevisionCycle = isMeasurementRevisionCycle({
+      isProjectLive,
+      hasOpenReviews,
+      requestedPoints: requestedMeasurementPoints,
+      submittedPoints: submittedMeasurementPoints,
+    });
+    const isFirstFill = isFirstMeasurementFillCycle({
+      requestedPoints: requestedMeasurementPoints,
+      submittedPoints: submittedMeasurementPoints,
+    });
+    const hasPending = hasPendingMeasurements(
+      requestedMeasurementPoints,
+      submittedMeasurementPoints,
+    );
 
     if (isDesigner) {
       if (project?.sizingTemplatePdfUrl && project.status === "COMPLETED")
         return "VIEW_PDF";
 
-      // 7. Buyer updates measurement points after changes recommended, but designer has not viewed them yet
+      // Buyer updated after changes; designer has not viewed them yet
       if (
         sizingTemplateId &&
-        hasRepliedRecommendations &&
+        !hasOpenReviews &&
         sizingTemplate?.isChangesUpdated
       )
         return "UPDATED";
 
-      // 6. Designer has active recommendations OR there is a pending measurement tally mismatch
-      if (
-        sizingTemplateId &&
-        (
-          (hasDesignerRecommendations && !hasRepliedRecommendations) ||
-          hasPendingMeasurements(requestedMeasurementPoints, submittedMeasurementPoints)
-        )
-      )
-        return "CHANGES_RECOMMENDED";
+      // LIVE only: open reviews, or new points after buyer already submitted
+      if (sizingTemplateId && isRevisionCycle) return "CHANGES_RECOMMENDED";
 
-      // 5. Template added AND all measurement points filled
-      if (sizingTemplateId && submittedMeasurementPoints?.length)
+      // Template added and all requested points filled
+      if (sizingTemplateId && submittedMeasurementPoints?.length && !hasPending)
         return "VIEW_TEMPLATE";
 
-      // 3 & 4. Template and measurement points requested but buyer has not added / filled them
+      // First-fill / bid wait: points requested, buyer has not responded yet
       if (
-        requestedMeasurementPoints?.length &&
-        (!sizingTemplateId || !submittedMeasurementPoints?.length)
+        requestedMeasurementPoints.length &&
+        (isFirstFill || (!isProjectLive && hasPending))
       )
         return "MEASUREMENT_REQUESTED";
 
-      // 2. Sizing template requested but measurement points not defined
+      // Sizing template requested but measurement points not defined
       if (
         (sizingTemplateRequested || sizingTemplateId) &&
-        !requestedMeasurementPoints?.length
+        !requestedMeasurementPoints.length
       )
         return "REQUEST_MEASUREMENT_POINTS";
 
-      // 1. No sizing template attached
       return "REQUEST_SIZING_TEMPLATE";
     } else {
       if (project?.sizingTemplatePdfUrl && project.status === "COMPLETED")
         return "VIEW_PDF";
 
+      // Bid / ADS: add or view template only — never measurement-request pills
       if (!isProjectLive) {
         if (sizingTemplateId) return "VIEW_TEMPLATE";
         return "ADD_TEMPLATE";
       }
 
-      // Live project
-      // 2a. Designer recommended changes via metadata.reviews and buyer has not made them
-      // 2b. OR designer requested new measurement points that buyer hasn't fully submitted yet (tally mismatch)
-      if (
-        isProjectLive &&
-        sizingTemplateId &&
-        (
-          (hasDesignerRecommendations && !hasRepliedRecommendations) ||
-          hasPendingMeasurements(requestedMeasurementPoints, submittedMeasurementPoints)
-        )
-      )
+      // LIVE revision: reviews or new pending points after a prior submission
+      if (sizingTemplateId && isRevisionCycle)
         return "VIEW_SIZING_RECOMMENDATIONS";
 
-      // 1. Designer requested measurement points and buyer has not filled any yet
-      if (
-        requestedMeasurementPoints?.length &&
-        (!sizingTemplateId || !submittedMeasurementPoints?.length)
-      )
-        return "ADD_REQUESTED_MEASUREMENTS";
+      // LIVE first fill: points requested, buyer has not submitted yet
+      if (isFirstFill) return "ADD_REQUESTED_MEASUREMENTS";
 
-      // 3. Buyer completes all requested measurements or changes
       if (sizingTemplateId && submittedMeasurementPoints?.length)
         return "VIEW_TEMPLATE";
 
-      // Default for Buyer (should add template if no template attached)
       if (!sizingTemplateId) return "ADD_TEMPLATE";
 
       return "VIEW_TEMPLATE";
