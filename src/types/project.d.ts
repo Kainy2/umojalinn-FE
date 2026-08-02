@@ -466,10 +466,18 @@ export type UmojaLinnSpecialistType = {
   name: string;
 } & UmojaLinnTimestamp;
 
+export type UmojaLinnPaymentFees = {
+  amount: number;
+  collectionFee: number;
+  totalCharge: number;
+  serviceFee: number;
+};
+
 export type UmojaLinnPayment = {
   checkoutUrl: string;
   amount: number;
   currency: UmojaLinnCurrency;
+  fees?: UmojaLinnPaymentFees;
 };
 
 export type UmojaLinnNgnBank = {

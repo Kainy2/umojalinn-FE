@@ -175,10 +175,15 @@ const Invoice = (props: InvoiceProps) => {
       ? props.project.approvedBudget
       : totalFromMilestones;
 
-  const totalCommission = grossTotal * 0.17;
+  const deliveryMilestone = props?.milestones?.[props?.milestones?.length - 1];
+  // Delivery milestones are not subject to platform commission.
+  const deliveryAmount = deliveryMilestone?.deliveryMethod
+    ? deliveryMilestone?.amount || 0
+    : 0;
+  const commissionableTotal = Math.max(grossTotal - deliveryAmount, 0);
+  const totalCommission = commissionableTotal * 0.17;
   const baseSubTotal = grossTotal - totalCommission;
 
-  const deliveryMilestone = props?.milestones?.[props?.milestones?.length - 1];
   const currency =
     // "N"
     getCurrencySymbol(props.project?.currency) === "₦"
@@ -300,7 +305,8 @@ const Invoice = (props: InvoiceProps) => {
           <View style={styles.tableBody}>
             {props?.milestones?.map((milestone, index) => {
               const total = milestone?.amount || 0;
-              const commission = total * 0.17;
+              const isDeliveryMilestone = !!milestone?.deliveryMethod;
+              const commission = isDeliveryMilestone ? 0 : total * 0.17;
               const price = total - commission;
 
               return (
@@ -320,7 +326,7 @@ const Invoice = (props: InvoiceProps) => {
                     }
                   >
                     <Text style={styles.fontBold}>
-                      {milestone?.deliveryMethod
+                      {isDeliveryMilestone
                         ? "Delivery milestone"
                         : `Milestone ${index + 1}`}
                     </Text>

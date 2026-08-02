@@ -263,6 +263,42 @@ export const useGetInfiniteDesignerProjects = (
   });
 };
 
+export const useGetInfiniteBuyerProjects = (
+  apiParams?: Partial<{
+    limit: number;
+    projectStatus:
+      | UmojaLinnProject["status"]
+      | Array<UmojaLinnProject["status"]>;
+    projectType:
+      | UmojaLinnProject["projectType"]
+      | Array<UmojaLinnProject["projectType"]>;
+  }>,
+  options?: { enabled?: boolean },
+) => {
+  const { data: me } = useSession();
+
+  return useInfiniteQuery({
+    initialPageParam: undefined as string | undefined,
+    enabled: me?.user?.profileRole === "BUYER" && options?.enabled !== false,
+    queryKey: [PROJECT, BUYER, "infinite", { apiParams }],
+    queryFn: ({ pageParam: lastId }) =>
+      getAllBuyerProjects({
+        ...apiParams,
+        ...(lastId ? { lastId } : {}),
+      }),
+    getNextPageParam: (lastPage, allPages) => {
+      const loadedCount = allPages.reduce(
+        (acc, page) => acc + (page.data.data?.length ?? 0),
+        0,
+      );
+      const { total, lastId, data } = lastPage.data;
+      if (!data?.length || !lastId) return undefined;
+      if (typeof total === "number" && loadedCount >= total) return undefined;
+      return lastId;
+    },
+  });
+};
+
 export const useGetProjectMilestones = (
   projectId: string,
   options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnMilestone>>,

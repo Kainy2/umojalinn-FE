@@ -33,6 +33,8 @@ import { VariableDeliveryForm } from "./VariableDeliveryForm";
 import { EDeliveryMileStoneType, EMileStoneStatus } from "@/types/enum";
 import { useFundMilestone } from "@/tanstack/hooks/useProject";
 import { canBuyerFundMilestone } from "@/components/util/milestone";
+import FundingFeesDialog from "@/components/custom/dialog/FundingFeesDialog";
+import { useFundingFeesCheckout } from "@/hooks/useFundingFeesCheckout";
 
 export enum MilestoneStatus {
   INACTIVE = "INACTIVE",
@@ -246,12 +248,17 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
     // setOpenFundMilestoneModal(true);
     // setSelectedMilestoneId(deliveryMilestone.id);
   };
+  const {
+    feesDialogOpen,
+    setFeesDialogOpen,
+    payment,
+    handleFundSuccess,
+    handleProceedToCheckout,
+  } = useFundingFeesCheckout();
+
   const fundMilestone = useFundMilestone({
     onSuccess: (data) => {
-      const url = data?.data?.data?.checkoutUrl;
-      if (url) {
-        window.open(url, "_blank", "noopener,noreferrer");
-      }
+      handleFundSuccess(data?.data?.data);
     },
     onError: (err) => {
       console.error(err);
@@ -603,6 +610,13 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
           onOpenChange={handleBuyerIssueOpenChange}
         />
       )}
+      <FundingFeesDialog
+        open={feesDialogOpen}
+        onOpenChange={setFeesDialogOpen}
+        fees={payment?.fees}
+        currency={payment?.currency}
+        onProceed={handleProceedToCheckout}
+      />
     </>
   );
 };

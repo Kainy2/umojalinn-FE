@@ -787,7 +787,7 @@ const SizingTemplatePill = ({
       default:
         return (
           <AvatarIconTag
-            label="Loading Status..."
+            label="Loading..."
             icon={<Loader2 className="animate-spin" />}
           />
         );

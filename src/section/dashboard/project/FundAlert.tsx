@@ -1,6 +1,7 @@
 "use client";
 import Alert from "@/components/custom/Alert";
 import ActiveProjectFundPlaceholder from "@/components/tour/ActiveProjectFundPlaceholder";
+import FundingFeesDialog from "@/components/custom/dialog/FundingFeesDialog";
 
 import { Button } from "@/components/ui/button";
 
@@ -15,6 +16,7 @@ import React, { useMemo } from "react";
 import { useFundMilestone, useFundProject } from "@/tanstack/hooks/useProject";
 import { canBuyerFundMilestone } from "@/components/util/milestone";
 import { EDeliveryMileStoneType, EMileStoneStatus } from "@/types/enum";
+import { useFundingFeesCheckout } from "@/hooks/useFundingFeesCheckout";
 
 const FundProjectAlert = () => {
   const pathname = usePathname();
@@ -23,6 +25,14 @@ const FundProjectAlert = () => {
   const { data: projectData } = useGetProjectById(params?.id);
 
   const { data: projectMilestonesData } = useGetProjectMilestones(params?.id);
+
+  const {
+    feesDialogOpen,
+    setFeesDialogOpen,
+    payment,
+    handleFundSuccess,
+    handleProceedToCheckout,
+  } = useFundingFeesCheckout();
 
   const firstFundMilestone = useMemo(
     () =>
@@ -50,7 +60,7 @@ const FundProjectAlert = () => {
     });
   const fundMilestone = useFundMilestone({
     onSuccess: (data) => {
-      window.open(data.data.data.checkoutUrl, "_blank", "noopener,noreferrer");
+      handleFundSuccess(data?.data?.data);
     },
     onError: (err) => {
       console.log(err);
@@ -58,7 +68,7 @@ const FundProjectAlert = () => {
   });
   const fundProject = useFundProject(params.id, {
     onSuccess: (data) => {
-      window.open(data.data.data.checkoutUrl, "_blank", "noopener,noreferrer");
+      handleFundSuccess(data?.data?.data);
     },
     onError: (err) => {
       console.log(err);
@@ -86,18 +96,27 @@ const FundProjectAlert = () => {
                 className="w-full md:w-auto"
                 variant="outline"
                 disabled={!canFundFirstMilestone}
+                loading={fundMilestone.isPending}
                 onClick={() => fundMilestone.mutate(firstFundMilestone?.id || "")}
               >
                 Fund Milestone
               </Button>
               <Button
                 className="w-full md:w-auto"
+                loading={fundProject.isPending}
                 onClick={() => fundProject.mutate()}
               >
                 Fund Project
               </Button>
             </div>
           }
+        />
+        <FundingFeesDialog
+          open={feesDialogOpen}
+          onOpenChange={setFeesDialogOpen}
+          fees={payment?.fees}
+          currency={payment?.currency}
+          onProceed={handleProceedToCheckout}
         />
       </div>
     );
