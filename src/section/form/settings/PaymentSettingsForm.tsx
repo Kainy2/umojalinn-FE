@@ -361,6 +361,14 @@ const PaymentSettingsForm = () => {
           >
             Back
           </button>
+          <Button
+            type="button"
+            onClick={() => handleOpenDisconnectDialog("STRIPE")}
+            className="bg-[#EAAA08] hover:bg-[#EAAA08]/90 text-white font-bold h-12 px-8 flex items-center gap-3 rounded-md"
+          >
+            <StripeIcon />
+            Disconnect Stripe
+          </Button>
 
           {currency !== "NAIRA" &&
             (hasActiveAccount ? (

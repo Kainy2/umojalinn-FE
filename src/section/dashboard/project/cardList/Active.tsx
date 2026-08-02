@@ -4,7 +4,7 @@ import CustomCardHolder from "@/components/custom/card/Holder";
 import { useInfiniteData } from "@/hooks/use-infinite-data";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import {
-  useGetAllBuyerProject,
+  useGetInfiniteBuyerProjects,
   useGetInfiniteDesignerProjects,
 } from "@/tanstack/hooks/useProject";
 import { useSession } from "next-auth/react";
@@ -27,35 +27,31 @@ const ActiveProjectCardList = (props: ActiveProjectCardListProps) => {
     baseUrlSlug === "active-jobs" ||
     (baseUrlSlug === "escrow" && session?.user?.profileRole === "DESIGNER");
 
-  const { data: buyerProjects, isPending: loadingBuyerProjects } =
-    useGetAllBuyerProject(
-      {
-        projectStatus: "LIVE",
-      },
-      {
-        enabled:
-          baseUrlSlug === "projects" ||
-          (baseUrlSlug === "escrow" && session?.user?.profileRole === "BUYER"),
-      },
-    );
+  const isBuyerInfinite =
+    baseUrlSlug === "projects" ||
+    (baseUrlSlug === "escrow" && session?.user?.profileRole === "BUYER");
 
-  const { data: escrowBuyerProjects, isPending: loadingEscrowBuyerProjects } =
-    useGetAllBuyerProject(
-      {
-        projectStatus: "LIVE",
-      },
-      {
-        enabled:
-          baseUrlSlug === "escrow" && session?.user?.profileRole === "BUYER",
-      },
-    );
+  const {
+    data: infiniteBuyerProjects,
+    isPending: loadingInfiniteBuyerProjects,
+    isFetchingNextPage: isFetchingNextBuyerPage,
+    fetchNextPage: fetchNextBuyerPage,
+    hasNextPage: hasNextBuyerPage,
+  } = useGetInfiniteBuyerProjects(
+    {
+      projectStatus: "LIVE",
+    },
+    {
+      enabled: isBuyerInfinite,
+    },
+  );
 
   const {
     data: infiniteDesignerProjects,
     isPending: loadingInfiniteDesignerProjects,
-    isFetchingNextPage,
-    fetchNextPage,
-    hasNextPage,
+    isFetchingNextPage: isFetchingNextDesignerPage,
+    fetchNextPage: fetchNextDesignerPage,
+    hasNextPage: hasNextDesignerPage,
   } = useGetInfiniteDesignerProjects(
     {
       projectStatus: "LIVE",
@@ -65,25 +61,24 @@ const ActiveProjectCardList = (props: ActiveProjectCardListProps) => {
     },
   );
 
+  const buyerProjects = useInfiniteData(infiniteBuyerProjects);
   const designerProjects = useInfiniteData(infiniteDesignerProjects);
 
-  const projectsData =
-    baseUrlSlug === "projects"
-      ? buyerProjects?.data?.data
-      : baseUrlSlug === "escrow"
-        ? session?.user?.profileRole === "DESIGNER"
-          ? designerProjects
-          : escrowBuyerProjects?.data?.data
-        : designerProjects;
+  const projectsData = isDesignerInfinite ? designerProjects : buyerProjects;
 
-  const isPending =
-    baseUrlSlug === "projects"
-      ? loadingBuyerProjects
-      : baseUrlSlug === "escrow"
-        ? session?.user?.profileRole === "DESIGNER"
-          ? loadingInfiniteDesignerProjects
-          : loadingEscrowBuyerProjects
-        : loadingInfiniteDesignerProjects;
+  const isPending = isDesignerInfinite
+    ? loadingInfiniteDesignerProjects
+    : loadingInfiniteBuyerProjects;
+
+  const hasNextPage = isDesignerInfinite
+    ? hasNextDesignerPage
+    : hasNextBuyerPage;
+  const isFetchingNextPage = isDesignerInfinite
+    ? isFetchingNextDesignerPage
+    : isFetchingNextBuyerPage;
+  const fetchNextPage = isDesignerInfinite
+    ? fetchNextDesignerPage
+    : fetchNextBuyerPage;
 
   if (baseUrlSlug === "escrow" && pathName?.match(/^\/escrow\/paid-out$/))
     return null;
@@ -124,7 +119,7 @@ const ActiveProjectCardList = (props: ActiveProjectCardListProps) => {
           }
         />
       ))}
-      {isDesignerInfinite && hasNextPage && (
+      {(isDesignerInfinite || isBuyerInfinite) && hasNextPage && (
         <button
           onClick={() => fetchNextPage()}
           disabled={isFetchingNextPage}

@@ -26,9 +26,9 @@ const EscrowPage = () => {
   const totalReleased = projectMilestonesData?.data?.data?.reduce?.(
     (acc, milestone) => {
       if (milestone?.transactionStatus !== "PAID") return acc;
-      return acc + (milestone?.amount || 0);
+      return acc + Number(milestone?.amount || 0);
     },
-    0
+    0,
   );
 
   if (isLoadingProjectMilestones || isLoadingProject)
