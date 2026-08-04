@@ -84,23 +84,34 @@ const BuyerActiveProjectsTourLauncher = () => {
       return;
     }
 
-    if (!shouldAutoStartActiveProjectsTour(user)) {
+    const profileRole = session?.user?.profileRole;
+
+    if (!shouldAutoStartActiveProjectsTour(user, profileRole)) {
       return;
     }
 
-    if (shouldAutoStartWelcomeTour(user) || hasRecentlyCompletedWelcomeTour()) {
+    if (
+      shouldAutoStartWelcomeTour(user, profileRole) ||
+      hasRecentlyCompletedWelcomeTour()
+    ) {
       return;
     }
 
-    if (shouldAutoStartCreateProjectTour(user) && hasBuyerDraftProject) {
+    if (
+      shouldAutoStartCreateProjectTour(user, profileRole) &&
+      hasBuyerDraftProject
+    ) {
       return;
     }
 
-    if (shouldAutoStartReviewBidTour(user) && hasPendingBid) {
+    if (shouldAutoStartReviewBidTour(user, profileRole) && hasPendingBid) {
       return;
     }
 
-    if (shouldAutoStartSizingTemplateTour(user) && hasBuyerSizingTemplate) {
+    if (
+      shouldAutoStartSizingTemplateTour(user, profileRole) &&
+      hasBuyerSizingTemplate
+    ) {
       return;
     }
 

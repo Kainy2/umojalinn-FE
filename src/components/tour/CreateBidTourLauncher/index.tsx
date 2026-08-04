@@ -57,11 +57,16 @@ const CreateBidTourLauncher = () => {
       return;
     }
 
-    if (!shouldAutoStartCreateBidTour(user)) {
+    const profileRole = session?.user?.profileRole;
+
+    if (!shouldAutoStartCreateBidTour(user, profileRole)) {
       return;
     }
 
-    if (shouldAutoStartWelcomeTour(user) || hasRecentlyCompletedWelcomeTour()) {
+    if (
+      shouldAutoStartWelcomeTour(user, profileRole) ||
+      hasRecentlyCompletedWelcomeTour()
+    ) {
       return;
     }
 

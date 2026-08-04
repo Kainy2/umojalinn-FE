@@ -31,7 +31,7 @@ const TourLauncher = () => {
       return;
     }
 
-    if (isNextStepVisible || !shouldAutoStartWelcomeTour(user)) {
+    if (isNextStepVisible || !shouldAutoStartWelcomeTour(user, profileRole)) {
       return;
     }
 

@@ -340,9 +340,10 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
   };
 
   const getPageDescription = () => {
-    if (isCreatingNew) return "Add your measurements and save for later use";
+    if (isCreatingNew)
+      return "Add gender, standard size and height, then save your template. The remaining measurement points are for designers to request when creating your future outfits.";
     if (isDraft || canBuyerFullyEdit)
-      return "Update your measurements and save changes";
+      return "Update gender, standard size and height, then save your template. The remaining measurement points are for designers to request when creating your future outfits.";
     if (isRestrictedInUse)
       return "This template is currently in use with a project";
     return "View and manage your sizing template";
@@ -866,7 +867,13 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                     // Default: show all
                     return true;
                   }).map((templateItem, index) => {
-                    const isDisabled = !isEditable;
+                    // Library create/edit: only height is editable among body points
+                    const isLibraryFullEdit =
+                      canBuyerFullyEdit || isNewTemplate || isDraft;
+                    const isLibraryLockedBodyPoint =
+                      isLibraryFullEdit && templateItem.prop !== "height";
+                    const isDisabled =
+                      !isEditable || isLibraryLockedBodyPoint;
                     const itemValue =
                       value?.[templateItem.prop as keyof typeof value];
                     const reviews = sizingTemplateResult?.metadata?.reviews as
@@ -878,6 +885,7 @@ const SizingTemplatePage = (props: SizingTemplatePageProps) => {
                       <MeasurementPointRow
                         key={templateItem.prop}
                         disabled={isDisabled}
+                        hideValue={isLibraryLockedBodyPoint}
                         onValueChange={handleChange(
                           templateItem.prop as BothGenderSizingTemplateProps,
                         )}

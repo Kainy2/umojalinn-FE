@@ -72,17 +72,20 @@ import type { UmojaLinnUser } from "@/types/user";
 export const getTourStatus = (
   tourId: TTourName,
   user?: UmojaLinnUser | null,
+  profileRole?: TGuidedTourProfileType | null,
 ): TTourStatus | null => {
-  if (user && user.role) {
-    const roleKey = user.role.toLowerCase() as "buyer" | "designer";
-    const stepEnum = tourNameToGuidedTourStep(tourId, user.role);
-    if (stepEnum && user.guidedTourProgress?.[roleKey]?.[stepEnum]) {
-      return "completed";
-    }
+  // Use session profileRole (BUYER/DESIGNER), not user.role — the API account
+  // role is often "USER", while guidedTourProgress is keyed by profile.
+  if (!user || !profileRole) {
     return null;
   }
+
+  const roleKey = profileRole.toLowerCase() as "buyer" | "designer";
+  const stepEnum = tourNameToGuidedTourStep(tourId, profileRole);
+  if (stepEnum && user.guidedTourProgress?.[roleKey]?.[stepEnum]) {
+    return "completed";
+  }
   return null;
-  // return readTourState()[tourId] ?? null;
 };
 
 let recentlyCompletedWelcomeTour = false;
@@ -94,29 +97,49 @@ export const setRecentlyCompletedWelcomeTour = (value: boolean) => {
 export const hasRecentlyCompletedWelcomeTour = (): boolean =>
   recentlyCompletedWelcomeTour;
 
-export const shouldAutoStartWelcomeTour = (user?: UmojaLinnUser | null): boolean =>
-  !recentlyCompletedWelcomeTour && getTourStatus("welcome", user) === null;
+export const shouldAutoStartWelcomeTour = (
+  user?: UmojaLinnUser | null,
+  profileRole?: TGuidedTourProfileType | null,
+): boolean =>
+  !recentlyCompletedWelcomeTour &&
+  getTourStatus("welcome", user, profileRole) === null;
 
-export const shouldAutoStartCreateBidTour = (user?: UmojaLinnUser | null): boolean =>
-  getTourStatus("create-a-bid", user) === null;
+export const shouldAutoStartCreateBidTour = (
+  user?: UmojaLinnUser | null,
+  profileRole?: TGuidedTourProfileType | null,
+): boolean => getTourStatus("create-a-bid", user, profileRole) === null;
 
-export const shouldAutoStartCreateProjectTour = (user?: UmojaLinnUser | null): boolean =>
-  getTourStatus("create-a-project", user) === null;
+export const shouldAutoStartCreateProjectTour = (
+  user?: UmojaLinnUser | null,
+  profileRole?: TGuidedTourProfileType | null,
+): boolean => getTourStatus("create-a-project", user, profileRole) === null;
 
-export const shouldAutoStartReviewBidTour = (user?: UmojaLinnUser | null): boolean =>
-  getTourStatus("review-bid", user) === null;
+export const shouldAutoStartReviewBidTour = (
+  user?: UmojaLinnUser | null,
+  profileRole?: TGuidedTourProfileType | null,
+): boolean => getTourStatus("review-bid", user, profileRole) === null;
 
-export const shouldAutoStartSizingTemplateTour = (user?: UmojaLinnUser | null): boolean =>
-  getTourStatus("sizing-template", user) === null;
+export const shouldAutoStartSizingTemplateTour = (
+  user?: UmojaLinnUser | null,
+  profileRole?: TGuidedTourProfileType | null,
+): boolean => getTourStatus("sizing-template", user, profileRole) === null;
 
-export const shouldAutoStartWalletTour = (user?: UmojaLinnUser | null): boolean =>
-  getTourStatus("wallet", user) === null;
+export const shouldAutoStartWalletTour = (
+  user?: UmojaLinnUser | null,
+  profileRole?: TGuidedTourProfileType | null,
+): boolean => getTourStatus("wallet", user, profileRole) === null;
 
-export const shouldAutoStartActiveProjectsTour = (user?: UmojaLinnUser | null): boolean =>
-  getTourStatus("active-projects", user) === null;
+export const shouldAutoStartActiveProjectsTour = (
+  user?: UmojaLinnUser | null,
+  profileRole?: TGuidedTourProfileType | null,
+): boolean => getTourStatus("active-projects", user, profileRole) === null;
 
-export const isTourFinished = (tourId: TTourName, user?: UmojaLinnUser | null): boolean => {
-  const status = getTourStatus(tourId, user);
+export const isTourFinished = (
+  tourId: TTourName,
+  user?: UmojaLinnUser | null,
+  profileRole?: TGuidedTourProfileType | null,
+): boolean => {
+  const status = getTourStatus(tourId, user, profileRole);
   return status === "completed" || status === "skipped";
 };
 

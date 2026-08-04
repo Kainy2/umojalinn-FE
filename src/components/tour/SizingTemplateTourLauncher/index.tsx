@@ -88,11 +88,16 @@ const SizingTemplateTourLauncher = () => {
       return;
     }
 
-    if (!shouldAutoStartSizingTemplateTour(user)) {
+    const profileRole = session?.user?.profileRole;
+
+    if (!shouldAutoStartSizingTemplateTour(user, profileRole)) {
       return;
     }
 
-    if (shouldAutoStartWelcomeTour(user) || hasRecentlyCompletedWelcomeTour()) {
+    if (
+      shouldAutoStartWelcomeTour(user, profileRole) ||
+      hasRecentlyCompletedWelcomeTour()
+    ) {
       return;
     }
 
