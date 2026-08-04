@@ -25,6 +25,7 @@ type ReviewRatingStarsProps = {
   setRating?: (rating: number) => void;
   disabled?: boolean;
   small?: boolean;
+  smallValue?: boolean;
 };
 
 export const ReviewRatingStars = (props: ReviewRatingStarsProps) => {
@@ -52,8 +53,8 @@ export const ReviewRatingStars = (props: ReviewRatingStarsProps) => {
       {props.rating != null && (
         <p
           className={cn(
-            "text-subtitle-1 font-semibold",
-            props.small && "text-lg",
+            "font-semibold",
+            (props.small || props.smallValue) ? "text-base" : "text-subtitle-1",
           )}
         >
           {props.rating ? props.rating.toFixed(1) : "0"}

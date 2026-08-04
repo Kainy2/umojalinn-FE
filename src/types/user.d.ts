@@ -112,6 +112,7 @@ export type UmojaLinnDesignerProfile = {
   projects: UmojaLinnProject[];
   bids: UmojaLinnBid[];
   languages: unknown[];
+  inviterTag?: string;
 };
 
 export type UmojaLinnNotification = {

@@ -47,9 +47,9 @@ const PortfolioItem = ({ work }: PortfolioItemProps) => {
             <p className="text-sm text-foreground-body mb-1">
               {formatDate(work.createdAt, "MMM d, yyyy")}
             </p>
-            {coverImage?.description && (
+            {work?.description && (
               <p className="text-foreground-body text-sm line-clamp-3">
-                {coverImage.description}
+                {work.description}
               </p>
             )}
           </div>

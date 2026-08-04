@@ -17,7 +17,7 @@ const MOCK_FILTERS = [
 ];
 
 const DiscoverDesignersPage = () => {
-  const [activeTab, setActiveTab] = useState<DiscoverTab>("discover");
+  const [activeTab, setActiveTab] = useState<DiscoverTab>("my-hires");
   const [filters, setFilters] = useState(MOCK_FILTERS);
 
   const removeFilter = (id: string) =>
@@ -28,14 +28,14 @@ const DiscoverDesignersPage = () => {
       {/* Header banner */}
       <div className="relative overflow-hidden rounded mb-6 bg-gray-100 flex items-center justify-between min-h-[160px]">
         <div className="px-6 py-8 z-10">
-          <h1 className="text-2xl font-bold text-foreground mb-1">
-            Discover Designers
+          <h1 className="text-lg font-bold text-foreground mb-1">
+            Browse Designers
           </h1>
           <p className="text-foreground-body text-sm">
-            Find the perfect designer to bring your style to life
+            Work with your favourite designer to bring your style to life
           </p>
         </div>
-        <div className="relative h-40 w-64 shrink-0 hidden sm:block">
+        <div className="relative h-40 w-0/3 shrink-0 hidden sm:block">
           <Image
             src="/img/png/designer-cover.png"
             alt="Designers"
@@ -51,7 +51,7 @@ const DiscoverDesignersPage = () => {
         active={activeTab}
         onChange={(val) => setActiveTab(val as DiscoverTab)}
         tabs={[
-          { title: "Discover", value: "discover" },
+          // { title: "Discover", value: "discover" },
           { title: "My Hires", value: "my-hires" },
           { title: "Favorites", value: "favorites" },
         ]}

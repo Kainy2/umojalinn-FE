@@ -1,7 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
-import { Heart } from "lucide-react";
+import Link from "next/link";
+import { Heart, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -13,6 +14,8 @@ import { UmojaLinnCurrency, UmojaLinnProject } from "@/types/project";
 import { UmojaLinnDesignerProfile } from "@/types/user";
 import PortfolioItem from "./PortfolioItem";
 import WorkHistoryItem from "./WorkHistoryItem";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const ABOUT_TRUNCATE_LENGTH = 200;
 
@@ -32,10 +35,14 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
     "work-history",
   );
   const [aboutExpanded, setAboutExpanded] = useState(false);
+  const session = useSession();
+  const router = useRouter();
+
+  const isDesigner = session.data?.user?.profileRole === "DESIGNER";
 
   const fullName = `${designer.user.firstName} ${designer.user.lastName}`;
   const location =
-    [designer.user.address?.city, designer.user.address?.state, designer.user.address?.country]
+    [designer.user.address?.state, designer.user.address?.country]
       .filter(Boolean)
       .join(", ") + "." || "N/A";
 
@@ -108,15 +115,18 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
         </div>
 
         {/* Action buttons */}
-        <div className="flex gap-3 flex-wrap">
-          <Button variant="outline" size="sm">
-            <Heart className="h-4 w-4 text-primary" />
-          </Button>
-          <Button variant="outline" size="sm">
-            Book Consultation
-          </Button>
-          <Button size="sm">Hire Me</Button>
-        </div>
+       {!isDesigner && (
+          <div className="flex gap-3 flex-wrap">
+            <Button variant="outline" size="sm">
+              <Heart className="h-4 w-4 text-primary" />
+            </Button>
+            <Button size="sm" asChild>
+              <Link href={`/project/create${designer.inviterTag ? `?inviterTag=${designer.inviterTag}` : ''}`}>
+                Hire Me
+              </Link>
+            </Button>
+          </div>
+        )}
       </div>
 
       <Separator className="bg-border/50" />
@@ -138,7 +148,7 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-8 gap-y-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-8 gap-y-4 mt-4">
           {stats.map((stat) => (
             <div key={stat.label}>
               <p className="text-sm text-foreground-body">{stat.label}</p>
@@ -148,9 +158,9 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
         </div>
 
         {/* Rating */}
-        <div>
+        <div className="mt-4">
           <p className="text-sm text-foreground-body">Ratings</p>
-          <ReviewRatingStars rating={avgRating} disabled small />
+          <ReviewRatingStars smallValue rating={avgRating} disabled small />
         </div>
 
         {/* Specialties */}
@@ -198,7 +208,7 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
 
       {/* Portfolio tab */}
       {activeTab === "portfolio" && (
-        <div>
+        <div className="space-y-8">
           {designer.designerSharedWork.length === 0 ? (
             <div className="flex items-center justify-center h-72 text-muted-foreground">
               <p>No portfolio to show</p>
@@ -210,6 +220,15 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
               ))}
             </div>
           )}
+
+
+          <Separator className="bg-border/50" />
+          <div className="text-right">
+            <Button onClick={() => router.push("/settings/profile/portfolio")}>
+              <Plus className="h-4 w-4" />
+              Share your Work
+            </Button>
+          </div>
         </div>
       )}
     </div>

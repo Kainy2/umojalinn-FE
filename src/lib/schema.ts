@@ -1,3 +1,4 @@
+import { MAX_PROFILE_ABOUT_COUNT } from "@/constant";
 import { z } from "zod";
 
 // import { isPhoneValid } from "./utils";
@@ -178,7 +179,7 @@ export const languageProficiency = [
 ] as const;
 
 export const updateProfileSchema = z.object({
-  about: z.string().max(300, "Bio must be at most 300 characters").optional(),
+  about: z.string().max(MAX_PROFILE_ABOUT_COUNT, "Bio must be at most 1000 characters").optional(),
   firstName: z.string().min(1, "First Name is required").optional(),
   lastName: z.string().min(1, "Last Name is required").optional(),
   brandName: z.string().optional(),

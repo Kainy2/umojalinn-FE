@@ -13,7 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { getCurrencySymbol } from "@/lib/string";
 import { UmojaLinnDeliveryMethod } from "@/types/project";
 import { Separator } from "@radix-ui/react-separator";
-import { Plus } from "lucide-react";
+import { Info, Plus } from "lucide-react";
 import { formatCurrencyValue } from "@/lib/number";
 import { useBidEdit } from "@/hooks/use-bid-edit";
 import { VariableDeliverySelect } from "@/components/custom/bids/VariableDeliverySelect";
@@ -164,7 +164,7 @@ const BidPage = () => {
       </div>
 
       <div className="font-semibold">
-        <div className="bg-slate-200/30 text-sm p-4 flex flex-col gap-4">
+        <div className="bg-slate-200/30 p-4 flex flex-col gap-4">
           <p className="flex justify-between ">
             <span className="text-foreground-body">Total Price</span>
             <span>
