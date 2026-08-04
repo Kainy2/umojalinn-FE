@@ -17,6 +17,8 @@ export const MilestoneMultiSelect = ({
   value,
   onChange,
   placeholder = "Select milestone(s) to refund",
+  label = "Related Milestone(s)",
+  enforceDeliveryRules = true,
 }: IMilestoneMultiSelectProps) => {
   const selectedLabels = milestones
     .filter((milestone) => value.includes(milestone.id))
@@ -32,15 +34,18 @@ export const MilestoneMultiSelect = ({
     }
 
     const nextValue = value.filter((id) => id !== milestoneId);
-    const milestone = milestones.find((m) => m.id === milestoneId);
 
-    if (milestone?.isIncomplete && !milestone.isDelivery) {
-      const deliveryMilestone = milestones.find((m) => m.isDelivery);
-      if (deliveryMilestone && nextValue.includes(deliveryMilestone.id)) {
-        const activeMilestone = milestones.find((m) => m.isActive);
-        if (activeMilestone && activeMilestone.id !== deliveryMilestone.id) {
-          onChange(nextValue.filter((id) => id !== deliveryMilestone.id));
-          return;
+    if (enforceDeliveryRules) {
+      const milestone = milestones.find((m) => m.id === milestoneId);
+
+      if (milestone?.isIncomplete && !milestone.isDelivery) {
+        const deliveryMilestone = milestones.find((m) => m.isDelivery);
+        if (deliveryMilestone && nextValue.includes(deliveryMilestone.id)) {
+          const activeMilestone = milestones.find((m) => m.isActive);
+          if (activeMilestone && activeMilestone.id !== deliveryMilestone.id) {
+            onChange(nextValue.filter((id) => id !== deliveryMilestone.id));
+            return;
+          }
         }
       }
     }
@@ -50,9 +55,7 @@ export const MilestoneMultiSelect = ({
 
   return (
     <div className="grid w-full gap-1.5">
-      <Label className="font-semibold text-foreground-body">
-        Related Milestone(s)
-      </Label>
+      <Label className="font-semibold text-foreground-body">{label}</Label>
       <Popover>
         <PopoverTrigger asChild>
           <button
@@ -75,14 +78,14 @@ export const MilestoneMultiSelect = ({
               const checked = value.includes(milestone.id);
               let disabled = false;
 
-              if (milestone.isDelivery && !checked) {
+              if (enforceDeliveryRules && milestone.isDelivery && !checked) {
                 const activeMilestone = milestones.find((m) => m.isActive);
                 if (activeMilestone && activeMilestone.id !== milestone.id) {
                   const incompleteMilestones = milestones.filter(
-                    (m) => m.isIncomplete && !m.isDelivery
+                    (m) => m.isIncomplete && !m.isDelivery,
                   );
                   const allIncompleteSelected = incompleteMilestones.every((m) =>
-                    value.includes(m.id)
+                    value.includes(m.id),
                   );
                   if (!allIncompleteSelected) {
                     disabled = true;
@@ -93,17 +96,19 @@ export const MilestoneMultiSelect = ({
               return (
                 <label
                   key={milestone.id}
-                  htmlFor={`refund-milestone-${milestone.id}`}
+                  htmlFor={`milestone-multi-select-${milestone.id}`}
                   className={cn(
                     "flex items-center gap-2 rounded-md px-2 py-2 text-sm",
-                    disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-accent"
+                    disabled
+                      ? "opacity-50 cursor-not-allowed"
+                      : "cursor-pointer hover:bg-accent",
                   )}
                   onClick={(e) => {
                     if (disabled) e.preventDefault();
                   }}
                 >
                   <Checkbox
-                    id={`refund-milestone-${milestone.id}`}
+                    id={`milestone-multi-select-${milestone.id}`}
                     checked={checked}
                     disabled={disabled}
                     onCheckedChange={(next) => {

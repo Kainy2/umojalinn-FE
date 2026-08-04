@@ -18,8 +18,7 @@ import { Separator } from "@/components/ui/separator";
 import { CustomSelectField } from "@/components/custom/Select";
 import TextAreaField from "@/components/custom/input/TextAreaField";
 import MilestoneInputSectionImageUpload from "@/components/custom/picker/MilestoneInputSectionImageUpload";
-import { formatCurrencyValue } from "@/lib/number";
-import { getCurrencySymbol } from "@/lib/string";
+import { MilestoneMultiSelect } from "@/components/custom/dialog/RefundRequest/MilestoneMultiSelect";
 import { useCreateDesignerDispute } from "@/tanstack/hooks/useDispute";
 import ClipboardSearch from "@/assets/ClipboardSearch";
 import { DISPUTE_REASONS, TDisputeReason } from "@/types/dispute";
@@ -33,8 +32,6 @@ export const MilestoneCancellationRequestDialog = ({
   projectName,
   milestoneName: fixedMilestoneName,
   milestones,
-  escrowAmount,
-  currency,
   children,
   open: controlledOpen,
   onOpenChange: controlledOnOpenChange,
@@ -46,24 +43,34 @@ export const MilestoneCancellationRequestDialog = ({
 
   const requiresMilestoneSelect = !!milestones?.length && !fixedMilestoneId;
 
-  const [selectedMilestoneId, setSelectedMilestoneId] = useState("");
+  const [selectedMilestoneIds, setSelectedMilestoneIds] = useState<string[]>(
+    [],
+  );
   const [reason, setReason] = useState<TDisputeReason | "">("");
   const [description, setDescription] = useState("");
   const [isClientAware, setIsClientAware] = useState<TClientAwareness>("no");
   const [confirmed, setConfirmed] = useState(false);
   const [files, setFiles] = useState<FileList | null>(null);
 
-  const selectedMilestone = useMemo(
-    () => milestones?.find((item) => item.id === selectedMilestoneId),
-    [milestones, selectedMilestoneId],
+  const selectedMilestoneNames = useMemo(
+    () =>
+      milestones
+        ?.filter((item) => selectedMilestoneIds.includes(item.id))
+        .map((item) => item.title) ?? [],
+    [milestones, selectedMilestoneIds],
   );
 
-  const milestoneId = fixedMilestoneId ?? selectedMilestoneId;
+  const milestoneIds = fixedMilestoneId
+    ? [fixedMilestoneId]
+    : selectedMilestoneIds;
   const milestoneName =
-    fixedMilestoneName ?? selectedMilestone?.title ?? undefined;
+    fixedMilestoneName ??
+    (selectedMilestoneNames.length > 0
+      ? selectedMilestoneNames.join(", ")
+      : undefined);
 
   const resetForm = useCallback(() => {
-    setSelectedMilestoneId("");
+    setSelectedMilestoneIds([]);
     setReason("");
     setDescription("");
     setIsClientAware("no");
@@ -80,11 +87,8 @@ export const MilestoneCancellationRequestDialog = ({
     },
   );
 
-  const currencySymbol = getCurrencySymbol(currency);
-  const formattedEscrow = `${currencySymbol}${formatCurrencyValue(escrowAmount)}`;
-
   const canSubmit =
-    !!milestoneId &&
+    milestoneIds.length > 0 &&
     !!reason &&
     !!description.trim() &&
     !!isClientAware &&
@@ -92,14 +96,14 @@ export const MilestoneCancellationRequestDialog = ({
     !isPending;
 
   const handleSubmit = () => {
-    if (!reason || !milestoneId || !canSubmit) return;
+    if (!reason || milestoneIds.length === 0 || !canSubmit) return;
 
     const reasonLabel =
       DISPUTE_REASONS.find((item) => item.value === reason)?.label ?? reason;
 
     createDesignerDispute({
       type: "DESIGNER_CANCELLATION_REQUEST",
-      milestoneIds: [milestoneId],
+      milestoneIds,
       reasonCategory: reasonLabel,
       reasonDetail: description.trim(),
       attachmentFiles: files ?? undefined,
@@ -132,7 +136,9 @@ export const MilestoneCancellationRequestDialog = ({
                 {milestoneName ? (
                   <>
                     {": "}
-                    <span className="text-foreground-body">{milestoneName}</span>
+                    <span className="text-foreground-body">
+                      {milestoneName}
+                    </span>
                   </>
                 ) : null}
               </p>
@@ -143,19 +149,13 @@ export const MilestoneCancellationRequestDialog = ({
 
           <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-6 py-5">
             {requiresMilestoneSelect && milestones && (
-              <CustomSelectField
-                label={{
-                  children: "Milestone",
-                  className: "font-semibold text-base text-foreground-body",
-                }}
-                placeholder="Select Milestone"
-                value={selectedMilestoneId || undefined}
-                onValueChange={setSelectedMilestoneId}
-                options={milestones.map((item) => ({
-                  value: item.id,
-                  children: item.title,
-                }))}
-                trigger={{ className: "rounded-none h-12" }}
+              <MilestoneMultiSelect
+                milestones={milestones}
+                value={selectedMilestoneIds}
+                onChange={setSelectedMilestoneIds}
+                label="Milestone(s)"
+                placeholder="Select milestone(s) to cancel"
+                enforceDeliveryRules
               />
             )}
 
@@ -235,10 +235,8 @@ export const MilestoneCancellationRequestDialog = ({
                 htmlFor="milestone-cancellation-confirm"
                 className="cursor-pointer text-sm font-normal leading-snug text-foreground-body"
               >
-                I understand that this will cancel the milestone and related
-                funds in escrow (
-                <span className="font-semibold">{formattedEscrow}</span>) will
-                be released back to the client.
+                I understand that this will cancel the selected milestone(s) and
+                related funds in escrow will be released back to the client.
               </Label>
             </div>
           </div>

@@ -62,7 +62,7 @@ export const useBidEdit = () => {
         bid.milestones.map((milestone) => ({
           title: milestone?.title || "",
           description: milestone?.description || "",
-          price: milestone?.amount || 0,
+          price: Number(milestone?.amount) || 0,
           id: milestone?.id,
         })),
       );
@@ -72,7 +72,7 @@ export const useBidEdit = () => {
       setDeliveryMethod(bid?.deliveryMilestone?.deliveryMethod);
     }
     if (bid?.deliveryMilestone?.amount) {
-      setDeliveryMilestonePrice(bid?.deliveryMilestone?.amount);
+      setDeliveryMilestonePrice(Number(bid?.deliveryMilestone?.amount) || 0);
     }
     if (bid?.additionalNotesToClient) {
       setNote(bid?.additionalNotesToClient);
@@ -219,10 +219,11 @@ export const useBidEdit = () => {
       price: number;
     }) => {
       const milestoneId = milestones[index]?.id ?? props.id;
+      const amount = Number(props.price) || 0;
       const variables = {
         title: props.title,
         description: props.description,
-        amount: props.price,
+        amount,
         ...(milestoneId ? { id: milestoneId } : {}),
       };
       if (milestoneId) {
@@ -237,7 +238,7 @@ export const useBidEdit = () => {
                 ...milestone,
                 title: props.title,
                 description: props.description,
-                price: props.price,
+                price: amount,
                 ...(milestoneId ? { id: milestoneId } : {}),
               }
             : milestone,
@@ -312,7 +313,7 @@ export const useBidEdit = () => {
                 ...currentMilestone,
                 title: oldMilestone?.title ?? "",
                 description: oldMilestone?.description ?? "",
-                price: oldMilestone?.amount ?? 0,
+                price: Number(oldMilestone?.amount) || 0,
               }
             : milestone,
         );

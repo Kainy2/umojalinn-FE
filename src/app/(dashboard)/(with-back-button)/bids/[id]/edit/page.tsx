@@ -64,6 +64,11 @@ const BidPage = () => {
     paymentStatus,
   } = useBidEdit();
 
+  // Delivery milestones are not subject to platform commission.
+  const commissionableTotal = Math.max(totalPrice - deliveryMilestonePrice, 0);
+  const commission =
+    (commissionableTotal * SERVICE_FEE_PERCENTAGE) / 100;
+
   if (isPending) {
     return (
       <div className="flex flex-col gap-8">
@@ -171,7 +176,7 @@ const BidPage = () => {
             <span className="text-foreground-body">Commission</span>
             <span>
               -{getCurrencySymbol(project?.currency)}
-              {formatCurrencyValue((totalPrice * SERVICE_FEE_PERCENTAGE) / 100)}
+              {formatCurrencyValue(commission)}
             </span>
           </p>
         </div>
@@ -180,9 +185,7 @@ const BidPage = () => {
           <span className="text-foreground-body">You receive</span>
           <span>
             {getCurrencySymbol(project?.currency)}
-            {formatCurrencyValue(
-              totalPrice * (1 - SERVICE_FEE_PERCENTAGE / 100),
-            )}
+            {formatCurrencyValue(totalPrice - commission)}
           </span>
         </p>
       </div>

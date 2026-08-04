@@ -336,8 +336,6 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
                     onOpenChange={setCancellationOpen}
                     projectName={project.title || "No Title"}
                     milestones={cancelMilestoneOptions}
-                    escrowAmount={project.escrowBalance || 0}
-                    currency={project.currency}
                   />
                 </>
               )}

@@ -16,6 +16,9 @@ import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
 import { cn } from "@/lib/utils";
 import { formatCurrencyValue } from "@/lib/number";
+import { useGetAppConfig } from "@/tanstack/hooks/useUser";
+
+const DEFAULT_COMMISSION_RATE = 17;
 
 // Create styles
 const styles = StyleSheet.create({
@@ -158,10 +161,15 @@ type InvoiceProps = {
   project?: UmojaLinnProject;
   milestones?: UmojaLinnMilestone[];
   isDesigner?: boolean;
+  /** Platform commission as a percentage (e.g. 17 for 17%). */
+  commissionRate?: number;
 };
 
 // Create Document Component
 const Invoice = (props: InvoiceProps) => {
+  const commissionRate = props.commissionRate ?? DEFAULT_COMMISSION_RATE;
+  const commissionMultiplier = commissionRate / 100;
+
   const totalFromMilestones =
     props?.milestones?.reduce(
       (amount, milestone) => amount + (milestone?.amount || 0),
@@ -181,7 +189,7 @@ const Invoice = (props: InvoiceProps) => {
     ? deliveryMilestone?.amount || 0
     : 0;
   const commissionableTotal = Math.max(grossTotal - deliveryAmount, 0);
-  const totalCommission = commissionableTotal * 0.17;
+  const totalCommission = commissionableTotal * commissionMultiplier;
   const baseSubTotal = grossTotal - totalCommission;
 
   const currency =
@@ -306,7 +314,9 @@ const Invoice = (props: InvoiceProps) => {
             {props?.milestones?.map((milestone, index) => {
               const total = milestone?.amount || 0;
               const isDeliveryMilestone = !!milestone?.deliveryMethod;
-              const commission = isDeliveryMilestone ? 0 : total * 0.17;
+              const commission = isDeliveryMilestone
+                ? 0
+                : total * commissionMultiplier;
               const price = total - commission;
 
               return (
@@ -381,7 +391,7 @@ const Invoice = (props: InvoiceProps) => {
                 </View>
 
                 <View style={styles.dateWrapper}>
-                  <Text>COMMISSION (17%)</Text>
+                  <Text>COMMISSION ({commissionRate}%)</Text>
                   <Text>
                     ( {currency}
                     {formatCurrencyValue(totalCommission)})
@@ -423,11 +433,17 @@ const Invoice = (props: InvoiceProps) => {
 export const InvoiceButton = (
   props: { className?: string; noFullWidth?: boolean } & InvoiceProps,
 ) => {
+  const { data: appConfig } = useGetAppConfig();
+  const commissionRate =
+    props.commissionRate ??
+    appConfig?.data?.data?.platformCommissionRate ??
+    DEFAULT_COMMISSION_RATE;
+
   if (!props.project || !props.milestones)
     return <Skeleton className="h-12 w-full rounded-sm" />;
   return (
     <PDFDownloadLink
-      document={<Invoice {...props} />}
+      document={<Invoice {...props} commissionRate={commissionRate} />}
       fileName={`${props?.project?.title}.pdf`}
     >
       {({ loading }) =>

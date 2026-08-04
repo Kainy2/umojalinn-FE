@@ -37,4 +37,7 @@ export interface IMilestoneMultiSelectProps {
   value: string[];
   onChange: (milestoneIds: string[]) => void;
   placeholder?: string;
+  label?: string;
+  /** When true (default), applies refund delivery-milestone selection rules. */
+  enforceDeliveryRules?: boolean;
 }
