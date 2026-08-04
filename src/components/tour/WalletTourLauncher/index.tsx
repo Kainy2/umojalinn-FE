@@ -53,11 +53,16 @@ const WalletTourLauncher = () => {
       return;
     }
 
-    if (!shouldAutoStartWalletTour(user)) {
+    const profileRole = session?.user?.profileRole;
+
+    if (!shouldAutoStartWalletTour(user, profileRole)) {
       return;
     }
 
-    if (shouldAutoStartWelcomeTour(user) || hasRecentlyCompletedWelcomeTour()) {
+    if (
+      shouldAutoStartWelcomeTour(user, profileRole) ||
+      hasRecentlyCompletedWelcomeTour()
+    ) {
       return;
     }
 

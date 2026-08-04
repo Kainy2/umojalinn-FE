@@ -57,13 +57,15 @@ const ReviewBidTourLauncher = () => {
       return;
     }
 
-    if (!shouldAutoStartReviewBidTour(user)) {
+    const profileRole = session?.user?.profileRole;
+
+    if (!shouldAutoStartReviewBidTour(user, profileRole)) {
       return;
     }
 
     if (
-      shouldAutoStartWelcomeTour(user) ||
-      shouldAutoStartCreateProjectTour(user) ||
+      shouldAutoStartWelcomeTour(user, profileRole) ||
+      shouldAutoStartCreateProjectTour(user, profileRole) ||
       hasRecentlyCompletedWelcomeTour()
     ) {
       return;

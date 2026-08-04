@@ -69,7 +69,10 @@ const MeasurementPointRow = forwardRef<
     !props.isNewlyUpdated &&
     (props.value ?? 0) === 0;
 
-  const isRowDimmed = !!props.isPendingBuyerReply || isDesignerZeroRowDimmed;
+  const isRowDimmed =
+    !!props.isPendingBuyerReply ||
+    isDesignerZeroRowDimmed ||
+    (!!props.disabled && !!props.hideValue);
 
   const handleCommentClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -119,6 +122,7 @@ const MeasurementPointRow = forwardRef<
               "text-sm font-medium transition-colors cursor-pointer",
               "text-foreground-body",
               props.isPendingBuyerReply && "text-gray-400 font-normal",
+              props.disabled && props.hideValue && "text-gray-400 font-normal",
               props.isNewlyUpdated && "text-green-700 font-semibold",
               props.hasComment &&
                 props.recommendMode &&
@@ -256,7 +260,7 @@ const MeasurementPointRow = forwardRef<
         <Dialog>
           <DialogTrigger asChild>
             <button
-              className={cn(isRowDimmed ? "text-gray-300" : "text-primary")}
+              className={cn(isRowDimmed ? "text-gray-500" : "text-primary")}
             >
               {!!props.metadata.review ? (
                 <div className="size-8 rounded-lg border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 transition-colors shadow-sm">

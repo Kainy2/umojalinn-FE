@@ -55,11 +55,16 @@ const ActiveProjectsTourLauncher = () => {
       return;
     }
 
-    if (!shouldAutoStartActiveProjectsTour(user)) {
+    const profileRole = session?.user?.profileRole;
+
+    if (!shouldAutoStartActiveProjectsTour(user, profileRole)) {
       return;
     }
 
-    if (shouldAutoStartWelcomeTour(user) || hasRecentlyCompletedWelcomeTour()) {
+    if (
+      shouldAutoStartWelcomeTour(user, profileRole) ||
+      hasRecentlyCompletedWelcomeTour()
+    ) {
       return;
     }
 
