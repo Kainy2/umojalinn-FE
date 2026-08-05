@@ -184,7 +184,7 @@ const DisputeResponseForm = ({
           <br />
           If a full or partial refund is approved for any incomplete
           milestone(s) involved in this dispute, that milestone(s) will be
-          closed.
+          closed .
         </p>
       </div>
 
