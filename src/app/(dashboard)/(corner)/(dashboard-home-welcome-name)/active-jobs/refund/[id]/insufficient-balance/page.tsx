@@ -43,7 +43,7 @@ const InsufficientWalletBalancePage = () => {
     mutate(
       jsonToFormData({
         amountPaid: topUpAmount,
-        receipt: receipt[0],
+        "refund-receipt": receipt[0],
       }),
     );
   };
@@ -51,7 +51,11 @@ const InsufficientWalletBalancePage = () => {
   if (!disputeId) {
     return (
       <div className="flex flex-col gap-6">
-        <Button variant="ghost" className="w-fit px-0 hover:bg-transparent" asChild>
+        <Button
+          variant="ghost"
+          className="w-fit px-0 hover:bg-transparent"
+          asChild
+        >
           <Link href={`/active-jobs/${params.id}`}>
             <ArrowLeft className="mr-1 size-4" />
             Back
@@ -66,7 +70,11 @@ const InsufficientWalletBalancePage = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <Button variant="ghost" className="w-fit px-0 hover:bg-transparent" asChild>
+      <Button
+        variant="ghost"
+        className="w-fit px-0 hover:bg-transparent"
+        asChild
+      >
         <Link href={`/active-jobs/${params.id}`}>
           <ArrowLeft className="mr-1 size-4" />
           Back

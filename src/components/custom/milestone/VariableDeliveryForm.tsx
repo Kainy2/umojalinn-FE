@@ -33,6 +33,7 @@ type VariableDeliveryFormProps = {
   isDeliveryMilestone: boolean;
   currency: UmojaLinnCurrency;
   isCurrentMilestone: boolean;
+  isDisputed?: boolean;
   variableSubmissions?: VariableDeliveryMileStoneSubmissions[];
   editedVariablePrice: number;
   setEditedVariablePrice: (value: number) => void;
@@ -48,6 +49,7 @@ export const VariableDeliveryForm = ({
   isDeliveryMilestone,
   currency = "NAIRA",
   isCurrentMilestone,
+  isDisputed = false,
   variableSubmissions,
   editedVariablePrice,
   setEditedVariablePrice,
@@ -69,21 +71,29 @@ export const VariableDeliveryForm = ({
 
   // --- Derived state ---
   const isEditable =
-    isDesigner && isCurrentMilestone && !hasSubmission && isVariableDelivery;
+    isDesigner &&
+    isCurrentMilestone &&
+    !hasSubmission &&
+    isVariableDelivery &&
+    !isDisputed;
   const isDisabled =
-    isDeliveryMilestone && !isCurrentMilestone && isVariableDelivery;
+    isVariableDelivery &&
+    (!isCurrentMilestone || isDisputed) &&
+    isDeliveryMilestone;
   const isExpectingResponse =
     !isDesigner &&
     isCurrentMilestone &&
     isDeliveryMilestone &&
     !hasSubmission &&
-    isVariableDelivery;
+    isVariableDelivery &&
+    !isDisputed;
   const isDecisionStage =
     !isDesigner &&
     isCurrentMilestone &&
     isDeliveryMilestone &&
     hasSubmission &&
-    isVariableDelivery;
+    isVariableDelivery &&
+    !isDisputed;
 
   const deliveryMethodText = capitalizeFirstLetter(
     currentSubmission?.deliveryMethod ?? selectedVariableDeliveryMethod,

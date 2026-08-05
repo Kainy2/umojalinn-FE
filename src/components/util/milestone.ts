@@ -92,7 +92,7 @@ export const getPillWrapperStyle = (
     case MilestoneStatus.DISPUTED:
       return "border-error-400 text-error-400";
     case MilestoneStatus.REFUNDED:
-      return "border-success text-success";
+      return "border-gray-400 text-gray-400";
     case MilestoneStatus.PROCESSING:
             return "border-error-400 text-error-400";
     case MilestoneStatus.INACTIVE:
@@ -118,7 +118,7 @@ export const getPillValueStyle = (
     case MilestoneStatus.DISPUTED:
       return "bg-error-400 text-error-50";
     case MilestoneStatus.REFUNDED:
-      return "bg-success text-success-50";
+      return "bg-gray-400 text-gray-50";
     case MilestoneStatus.PROCESSING:
             return "bg-error-400 text-error-50";
 

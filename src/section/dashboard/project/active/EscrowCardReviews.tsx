@@ -6,6 +6,7 @@ import ReviewDialog, {
 import GalleryImages from "@/components/custom/GalleryImages";
 import { Button } from "@/components/ui/button";
 import { UmojaLinnMilestone, UmojaLinnProject } from "@/types/project";
+import { EDeliveryMileStoneType, EMileStoneStatus } from "@/types/enum";
 import { CircleAlert } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
@@ -19,6 +20,16 @@ type EscrowReviewProps = {
   project?: UmojaLinnProject;
 	milestones: UmojaLinnMilestone[];
 };
+
+const isDeliveryMilestone = (milestone: UmojaLinnMilestone) =>
+	!!milestone.deliveryMethod ||
+	milestone.deliveryMileStoneType === EDeliveryMileStoneType.VARIABLE;
+
+/** Approved milestones, or refunded delivery milestones, count as complete for review prompts. */
+const isMilestoneCompleteForReview = (milestone: UmojaLinnMilestone) =>
+	milestone.status === EMileStoneStatus.APPROVED ||
+	(milestone.status === EMileStoneStatus.REFUNDED &&
+		isDeliveryMilestone(milestone));
 
 const EscrowCardReviews = (props: EscrowReviewProps) => {
 		const searchParams = useSearchParams();
@@ -51,11 +62,8 @@ const EscrowCardReviews = (props: EscrowReviewProps) => {
 			(review) => review?.reviewType === "CLOTHING_QUALITY"
 		);
 	
-		const isIncompleteMilestone = props?.milestones?.find?.(
-			(milestone) => milestone?.status !== "APPROVED"
-		);
-	
-		const hasAllMilestoneCompleted = !isIncompleteMilestone;
+		const hasAllMilestoneCompleted =
+			props.milestones?.every(isMilestoneCompleteForReview) ?? false;
 		const allReviews = useMemo(() => 
 			props.reviews?.filter(review=>{
 			const isDesigner = session?.user?.profileRole === "DESIGNER";
