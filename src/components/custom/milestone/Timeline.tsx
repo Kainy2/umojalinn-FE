@@ -307,7 +307,9 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
             isDesigner &&
             !isProjectCompleted &&
             milestone?.status !== MilestoneStatus.COMPLETED &&
-            isMilestoneEligibleForDispute(item, disputedMilestoneIds);
+            isMilestoneEligibleForDispute(item, disputedMilestoneIds) &&
+            // Delivery milestone: only show cancel actions when it is the active one
+            (!isDelivery || !!milestone.isCurrent);
           const showMilestoneActions =
             canRaiseBuyerDispute || canRaiseDesignerDispute;
 

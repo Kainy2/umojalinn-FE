@@ -129,11 +129,10 @@ export const requiresDisputeResponse = (
   dispute: IUmojaLinnDispute,
   currentUserId?: string,
 ) =>
-  dispute.status === "OPEN" ||
-  (dispute.status === "IN_REVIEW" &&
-    !!currentUserId &&
-    currentUserId === dispute.respondentUserId &&
-    !dispute.responses?.length);
+  !!currentUserId &&
+  currentUserId === dispute.respondentUserId &&
+  !dispute.responses?.length &&
+  (dispute.status === "OPEN" || dispute.status === "IN_REVIEW");
 
 export const getDisputeFullRefundAmount = (dispute: IUmojaLinnDispute) =>
   parseDisputeAmount(dispute.requestedRefundAmount ?? dispute.escrowAmount);

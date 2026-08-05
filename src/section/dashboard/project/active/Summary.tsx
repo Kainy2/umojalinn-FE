@@ -11,6 +11,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -41,30 +42,52 @@ import { useParams } from "next/navigation";
 import React, { useMemo, useState } from "react";
 import { SizingTemplatePill } from "@/components/sizing-template";
 import { useRouter } from "next/navigation";
+import { useIsTouchDevice } from "@/hooks/use-touch-device";
 
 type ActiveProjectSummaryProps = {
   isDesigner?: boolean;
 };
 
+const COMPLETED_PROJECT_TITLE = "Completed Project";
+const COMPLETED_PROJECT_DESCRIPTION =
+  "Requests cannot be raised for already completed projects";
+
 const CompletedProjectDisputeTooltip = ({
   children,
-}: React.PropsWithChildren) => (
-  <TooltipProvider delayDuration={0}>
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <span className="flex w-full">{children}</span>
-      </TooltipTrigger>
-      <TooltipContent
-        side="top"
-        className="max-w-[240px] border-0 bg-[#0F172A] px-3 py-2 text-white"
-      >
-        <p className="font-semibold">Completed Project</p>
-        <p className="text-xs text-white/90">
-          Requests cannot be raised for already completed projects
-        </p>
-      </TooltipContent>
-    </Tooltip>
-  </TooltipProvider>
+  enabled = true,
+}: React.PropsWithChildren<{ enabled?: boolean }>) => {
+  if (!enabled) return <>{children}</>;
+
+  return (
+    <TooltipProvider delayDuration={0}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span className="flex w-full">{children}</span>
+        </TooltipTrigger>
+        <TooltipContent
+          side="top"
+          className="max-w-[240px] border-0 bg-[#0F172A] px-3 py-2 text-white"
+        >
+          <p className="font-semibold">{COMPLETED_PROJECT_TITLE}</p>
+          <p className="text-xs text-white/90">
+            {COMPLETED_PROJECT_DESCRIPTION}
+          </p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};
+
+const CompletedProjectDisputeNote = () => (
+  <>
+    <div className="px-2 py-1.5">
+      <p className="text-sm font-semibold">{COMPLETED_PROJECT_TITLE}</p>
+      <p className="text-xs text-foreground-body">
+        {COMPLETED_PROJECT_DESCRIPTION}
+      </p>
+    </div>
+    <DropdownMenuSeparator />
+  </>
 );
 
 const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
@@ -78,6 +101,7 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
   const [pendingIssue, setPendingIssue] =
     useState<TBuyerProjectIssueFormData | null>(null);
   const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
+  const isTouchDevice = useIsTouchDevice();
   const { data, isPending } = useGetProjectById(params?.id);
   const { data: milestonesData } = useGetProjectMilestones(params?.id);
   const { data: projectDisputesResponse } = useGetProjectDisputes(
@@ -259,9 +283,14 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-[200px]">
+                  {isProjectCompleted && isTouchDevice && (
+                    <CompletedProjectDisputeNote />
+                  )}
                   {isDesigner &&
                     (isProjectCompleted ? (
-                      <CompletedProjectDisputeTooltip>
+                      <CompletedProjectDisputeTooltip
+                        enabled={!isTouchDevice}
+                      >
                         <DropdownMenuItem
                           disabled
                           className="gap-1 text-[#B54708]"
@@ -281,7 +310,9 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
                     ))}
                   {isDesigner &&
                     (isProjectCompleted ? (
-                      <CompletedProjectDisputeTooltip>
+                      <CompletedProjectDisputeTooltip
+                        enabled={!isTouchDevice}
+                      >
                         <DropdownMenuItem
                           disabled
                           className="gap-1 text-[#B54708]"
@@ -301,7 +332,9 @@ const ActiveProjectSummary = (props: ActiveProjectSummaryProps) => {
                     ))}
                   {canRaiseIssue &&
                     (isProjectCompleted ? (
-                      <CompletedProjectDisputeTooltip>
+                      <CompletedProjectDisputeTooltip
+                        enabled={!isTouchDevice}
+                      >
                         <DropdownMenuItem
                           disabled
                           className="gap-1 text-[#B54708]"

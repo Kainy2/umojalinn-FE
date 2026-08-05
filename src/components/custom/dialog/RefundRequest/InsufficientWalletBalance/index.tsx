@@ -1,13 +1,14 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { FileText, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FileUploadPicker from "@/components/custom/picker/FileUpload";
 import { formatCurrencyValue } from "@/lib/number";
 import { getCurrencySymbol } from "@/lib/string";
 import { getWalletCurrencyLabel } from "@/components/util/wallet";
 import { UmojaLinnCurrency } from "@/types/project";
-import { cn } from "@/lib/utils";
+import { cn, formatFileSize } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { IInsufficientWalletBalanceProps } from "./@types";
 import ReceivingAccountField from "./ReceivingAccountField";
@@ -21,6 +22,7 @@ const InsufficientWalletBalance = ({
   isPending = false,
 }: IInsufficientWalletBalanceProps) => {
   const [receipt, setReceipt] = useState<FileList | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const currencyLabel = getWalletCurrencyLabel(
     (currency ?? "USD") as UmojaLinnCurrency,
@@ -32,18 +34,33 @@ const InsufficientWalletBalance = ({
   const formattedBalance = `${currencySymbol}${formatCurrencyValue(availableBalance)}`;
   const formattedTopUp = `${currencySymbol}${formatCurrencyValue(topUpAmount)}`;
 
+  const receiptFile = receipt?.[0] ?? null;
+
+  useEffect(() => {
+    if (!previewUrl) return;
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [previewUrl]);
+
+  const applyReceipt = (files: FileList | null) => {
+    setReceipt(files);
+    const file = files?.[0];
+    setPreviewUrl(
+      file?.type.startsWith("image/") ? URL.createObjectURL(file) : null,
+    );
+  };
+
   const handleReceiptSelect = (file: File | FileList | null) => {
     if (file instanceof FileList) {
-      setReceipt(file);
+      applyReceipt(file);
       return;
     }
     if (file instanceof File) {
       const dataTransfer = new DataTransfer();
       dataTransfer.items.add(file);
-      setReceipt(dataTransfer.files);
+      applyReceipt(dataTransfer.files);
       return;
     }
-    setReceipt(null);
+    applyReceipt(null);
   };
 
   const canSubmit = useMemo(
@@ -126,25 +143,61 @@ const InsufficientWalletBalance = ({
           Note: Kindly transfer exact amount to the account details above and
           upload your payment receipt
         </p>
-        <FileUploadPicker
-          accept="image/png,image/jpeg,image/jpg,application/pdf"
-          multiple={false}
-          onSelect={handleReceiptSelect}
-          cta="Upload"
-          details={
-            <>
-              or drag and drop payment receipt <br /> PNG, JPG or PDF
-            </>
-          }
-          rounded
-          className="w-full"
-        />
-        {receipt && receipt.length > 0 && (
-          <p className="text-sm text-muted-foreground">
-            {receipt[0].name} selected
-          </p>
-        )}
+        {receiptFile ? (
+          <div className="flex items-center gap-3 rounded-lg border border-gray-200 p-3">
+            {previewUrl ? (
+              <a
+                href={previewUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="shrink-0"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={previewUrl}
+                  alt={receiptFile.name}
+                  className="size-16 rounded-md border border-gray-100 object-cover"
+                />
+              </a>
+            ) : (
+              <span className="flex size-16 shrink-0 items-center justify-center rounded-md bg-gray-100">
+                <FileText className="size-6 text-gray-400" />
+              </span>
+            )}
 
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-foreground-body">
+                {receiptFile.name}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {formatFileSize(receiptFile)}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              aria-label="Remove receipt"
+              className="text-error [&>svg]:size-4"
+              onClick={() => applyReceipt(null)}
+            >
+              <Trash2 />
+            </button>
+          </div>
+        ) : (
+          <FileUploadPicker
+            accept="image/png,image/jpeg,image/jpg,application/pdf"
+            multiple={false}
+            onSelect={handleReceiptSelect}
+            cta="Upload"
+            details={
+              <>
+                or drag and drop payment receipt <br /> PNG, JPG or PDF
+              </>
+            }
+            rounded
+            className="w-full"
+          />
+        )}
       </div>
 
       <Button

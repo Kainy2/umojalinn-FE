@@ -181,6 +181,10 @@ const DisputeResponseForm = ({
           <span className="font-semibold text-[#A15C07]">Important: </span>
           Everything except your preferred resolution will be visible to the
           buyer.
+          <br />
+          If a full or partial refund is approved for any incomplete
+          milestone(s) involved in this dispute, that milestone(s) will be
+          closed.
         </p>
       </div>
 
