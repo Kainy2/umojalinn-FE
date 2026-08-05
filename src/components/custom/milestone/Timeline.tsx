@@ -595,8 +595,6 @@ const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
           milestoneId={cancellationMilestone.id}
           projectName={projectName ?? "Project"}
           milestoneName={cancellationMilestone.title}
-          escrowAmount={escrowBalance ?? 0}
-          currency={currency}
           open={cancellationOpen}
           onOpenChange={handleCancellationOpenChange}
         />
