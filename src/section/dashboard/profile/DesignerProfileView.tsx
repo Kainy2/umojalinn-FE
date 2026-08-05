@@ -2,11 +2,11 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, Plus } from "lucide-react";
+// import { Heart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { ReviewRatingStars } from "@/components/custom/dialog/Review";
+import { AverageRatingStars } from "@/components/custom/dialog/Review";
 import TabButtonSelect from "@/components/custom/tab/ButtonSelect";
 // import { formatCurrencyValue } from "@/lib/number";
 import { getCurrencySymbol } from "@/lib/string";
@@ -15,7 +15,6 @@ import { UmojaLinnDesignerProfile } from "@/types/user";
 import PortfolioItem from "./PortfolioItem";
 import WorkHistoryItem from "./WorkHistoryItem";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 
 const ABOUT_TRUNCATE_LENGTH = 200;
 
@@ -36,7 +35,6 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
   );
   const [aboutExpanded, setAboutExpanded] = useState(false);
   const session = useSession();
-  const router = useRouter();
 
   const isDesigner = session.data?.user?.profileRole === "DESIGNER";
 
@@ -79,10 +77,16 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
       {/* Banner */}
       <div className="relative h-60 overflow-hidden rounded-sm">
         <Image
+          src="/img/png/designer-cover-mobile.png"
+          alt="Cover image"
+          fill
+          className="object-cover -z-10 md:hidden"
+        />
+        <Image
           src="/img/png/designer-cover.png"
           alt="Cover image"
           fill
-          className="object-cover -z-10"
+          className="object-cover -z-10 hidden md:inline-block"
         />
       </div>
 
@@ -115,18 +119,16 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
         </div>
 
         {/* Action buttons */}
-       {!isDesigner && (
-          <div className="flex gap-3 flex-wrap">
-            <Button variant="outline" size="sm">
-              <Heart className="h-4 w-4 text-primary" />
-            </Button>
-            <Button size="sm" asChild>
-              <Link href={`/project/create${designer.inviterTag ? `?inviterTag=${designer.inviterTag}` : ''}`}>
-                Hire Me
-              </Link>
-            </Button>
-          </div>
-        )}
+        <div className="flex gap-3 flex-wrap">
+          {/* <Button disabled variant="outline" size="sm">
+            <Heart className="h-4 w-4 text-primary" />
+          </Button> */}
+          <Button disabled={isDesigner} className="cursor-disabled" size="sm" asChild>
+            <Link href={(!isDesigner && designer.inviterTag) ? `/project/create?inviterTag=${designer.inviterTag}`: ''}>
+              Hire Me
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <Separator className="bg-border/50" />
@@ -160,7 +162,8 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
         {/* Rating */}
         <div className="mt-4">
           <p className="text-sm text-foreground-body">Ratings</p>
-          <ReviewRatingStars smallValue rating={avgRating} disabled small />
+          {/* <ReviewRatingStars smallValue rating={avgRating} disabled small /> */}
+          <AverageRatingStars smallValue rating={avgRating} disabled small />
         </div>
 
         {/* Specialties */}
@@ -220,15 +223,6 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
               ))}
             </div>
           )}
-
-
-          <Separator className="bg-border/50" />
-          <div className="text-right">
-            <Button onClick={() => router.push("/settings/profile/portfolio")}>
-              <Plus className="h-4 w-4" />
-              Share your Work
-            </Button>
-          </div>
         </div>
       )}
     </div>

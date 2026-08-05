@@ -25,8 +25,38 @@ const DiscoverDesignersPage = () => {
 
   return (
     <div className="flex flex-col gap-0">
+      <div className="relative mb-10">
+        {/* Banner */}
+        <div className="relative h-60 overflow-hidden rounded-sm">
+          <Image
+            src="/img/png/designer-cover-mobile.png"
+            alt="Designers"
+            fill
+            className="object-cover -z-10 md:hidden"
+          />
+          <Image
+            src="/img/png/designer-cover.png"
+            alt="Designers"
+            fill
+            className="object-cover -z-10 hidden md:inline-block"
+          />
+        </div>
+
+        {/* Header banner */}
+        <div className="-mt-32 px-4 flex md:flex-row flex-col gap-3 md:items-center items-start justify-between">
+          <div className="px-6 py-8 z-10">
+            <h1 className="text-lg font-bold text-foreground mb-1">
+              Browse Designers
+            </h1>
+            <p className="text-foreground-body text-sm">
+              Work with your favourite designer to bring your style to life
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Header banner */}
-      <div className="relative overflow-hidden rounded mb-6 bg-gray-100 flex items-center justify-between min-h-[160px]">
+      {/* <div className="relative overflow-hidden rounded mb-6 bg-gray-100 flex items-center justify-between min-h-[160px]">
         <div className="px-6 py-8 z-10">
           <h1 className="text-lg font-bold text-foreground mb-1">
             Browse Designers
@@ -35,15 +65,24 @@ const DiscoverDesignersPage = () => {
             Work with your favourite designer to bring your style to life
           </p>
         </div>
-        <div className="relative h-40 w-0/3 shrink-0 hidden sm:block">
+    
+
+
+        <div className="relative top-0 h-40 w-full z-0 shrink- hidden sm:block">
+          <Image
+            src="/img/png/designer-cover-mobile.png"
+            alt="Designers"
+            fill
+            className="object-cover object-left md:hidden"
+          />
           <Image
             src="/img/png/designer-cover.png"
             alt="Designers"
             fill
-            className="object-cover object-left"
+            className="object-cover object-left hidden md:inline-block"
           />
         </div>
-      </div>
+      </div> */}
 
       {/* Tabs */}
       <TabButtonSelect
@@ -53,7 +92,7 @@ const DiscoverDesignersPage = () => {
         tabs={[
           // { title: "Discover", value: "discover" },
           { title: "My Hires", value: "my-hires" },
-          { title: "Favorites", value: "favorites" },
+          // { title: "Favorites", value: "favorites" },
         ]}
       />
 

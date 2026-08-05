@@ -1,16 +1,18 @@
 import React, { useMemo } from 'react'
 import Alert from "@/components/custom/Alert";
 import ReviewDialog, {
-  ReviewRatingStars,
+	AverageRatingStars,
 } from "@/components/custom/dialog/Review";
 import GalleryImages from "@/components/custom/GalleryImages";
 import { Button } from "@/components/ui/button";
 import { UmojaLinnMilestone, UmojaLinnProject } from "@/types/project";
 import { CircleAlert } from "lucide-react";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
+// import Image from "next/image";
 import { cn, isVideoLink } from '@/lib/utils';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import AvatarIconTag from '@/components/custom/tag/AvatarIcon';
+import { uuidToBase62Safe } from '@/lib/uuid';
 
 
 type EscrowReviewProps = {
@@ -22,6 +24,8 @@ type EscrowReviewProps = {
 
 const EscrowCardReviews = (props: EscrowReviewProps) => {
 		const searchParams = useSearchParams();
+		const router = useRouter();
+
 		const shouldWriteReviews =
 			searchParams.get("shouldWriteReviews") === "true"; // boolean
 		const isExperienceFeedback =
@@ -70,23 +74,25 @@ const EscrowCardReviews = (props: EscrowReviewProps) => {
 		]);
 
 	return (
-			<div className={cn(
-				"flex flex-col gap-8 text-sm md:mt-0",
-				(allReviews?.length || hasAllMilestoneCompleted) && "mt-16"
-			)}>
-				{allReviews?.map?.((review) => (
-					<div
-						key={review?.id}
-						className="text-foreground-body flex flex-col gap-2"
-					>
-						{review?.reviewType === "EXPERIENCE" &&
-							((review?.buyerId && session?.user?.profileRole === "BUYER") ||
-								(review?.designerId &&
-									session?.user?.profileRole === "DESIGNER") ? (
-								<p>Your Experience Feedback</p>
-							) : (
-								<div className="">
-									<div className="flex items-center gap-2 mb-4">
+    <div
+      className={cn(
+        "flex flex-col gap-8 text-sm md:mt-0",
+        (allReviews?.length || hasAllMilestoneCompleted) && "mt-16",
+      )}
+    >
+      {allReviews?.map?.((review) => (
+        <div
+          key={review?.id}
+          className="text-foreground-body flex flex-col gap-2"
+        >
+          {review?.reviewType === "EXPERIENCE" &&
+            ((review?.buyerId && session?.user?.profileRole === "BUYER") ||
+            (review?.designerId &&
+              session?.user?.profileRole === "DESIGNER") ? (
+              <p>Your Experience Feedback</p>
+            ) : (
+              <div className="space-y-4">
+                {/* <div className="flex items-center gap-2 mb-4">
 										<Image
 											src={review?.buyer?.user?.profilePhotoUri ||
 												review?.designer?.user?.profilePhotoUri ||
@@ -99,23 +105,52 @@ const EscrowCardReviews = (props: EscrowReviewProps) => {
 											{(review?.buyer || review?.designer)?.user?.firstName}{" "}
 											{(review?.buyer || review?.designer)?.user?.lastName}
 										</h4>
-									</div>
-									<p>
-										{review?.buyerId && "Client's"}{" "}
-										{review?.designerId && "Designer's"} Experience feedback
-									</p>
-								</div>
-							))}
-						{review?.reviewType === "CLOTHING_QUALITY" && (
-							<p>Clothing Quality feedback</p>
-						)}
-						<p className="p-2 bg-white border border-input rounded-sm text-foreground-body">
-							{review.message}
-						</p>
-						<ReviewRatingStars small rating={review.rating || 0} disabled />
-						<div className="flex gap-4 overflow-scroll">
-							<>
-								{/* <Image
+									</div> */}
+
+                {/* User avatar */}
+                <AvatarIconTag
+                  onClick={() =>
+                    router.push(
+                      isDesigner
+                        ? "/settings/profile"
+                        : `/designers/${uuidToBase62Safe(
+                            review?.designer?.user?.id || "",
+                          )}`,
+                    )
+                  }
+                  label={
+                    !isDesigner
+                      ? `${review?.designer?.user?.firstName || ""} ${
+                          review?.designer?.user?.lastName || ""
+                        }`
+                      : `${review?.buyer?.user?.firstName || ""} ${
+                          review?.buyer?.user?.lastName || ""
+                        }`
+                  }
+                  avatar={{
+                    src: (!isDesigner
+                      ? review?.designer?.user?.profilePhotoUri
+                      : review?.buyer?.user?.profilePhotoUri) 
+											|| "/img/webp/user.webp",
+                  }}
+                />
+
+                <p>
+                  {review?.buyerId && "Client's"}{" "}
+                  {review?.designerId && "Designer's"} Experience feedback
+                </p>
+              </div>
+            ))}
+          {review?.reviewType === "CLOTHING_QUALITY" && (
+            <p>Clothing Quality feedback</p>
+          )}
+          <p className="p-2 bg-white border border-input rounded-sm text-foreground-body">
+            {review.message}
+          </p>
+          <AverageRatingStars small rating={review.rating || 0} disabled />
+          <div className="flex gap-4 overflow-scroll">
+            <>
+              {/* <Image
             key={image}
             src={image}
             alt=""
@@ -123,7 +158,7 @@ const EscrowCardReviews = (props: EscrowReviewProps) => {
             width={100}
             className="object-cover"
         /> */}
-								{/* {review.images?.map?.((image, i) => (
+              {/* {review.images?.map?.((image, i) => (
             <Dialog key={image}>
             <DialogTrigger asChild>
                 <button
@@ -154,89 +189,95 @@ const EscrowCardReviews = (props: EscrowReviewProps) => {
             </DialogContent>
         </Dialog>
         ))} */}
-							</>
+            </>
 
+            <GalleryImages
+              height={100}
+              width={100}
+              images={review.images?.map?.((image, i) => ({
+                imageUrl: image,
+                // title: `Review-${i}`,
+                type: isVideoLink(image) ? "video" : "image",
+                id: `Review-${i}`,
+              }))}
+            />
+          </div>
+        </div>
+      ))}
 
-							<GalleryImages
-								height={100}
-								width={100}
-								images={review.images?.map?.((image, i) => ({
-									imageUrl: image,
-									// title: `Review-${i}`,
-									type: isVideoLink(image) ? "video" : "image",
-									id: `Review-${i}`,
-								}))} />
-						</div>
-					</div>
-				))}
+      {((isBuyer && !hasBuyerDoneExperience) ||
+        (isDesigner && !hasDesignerDoneExperience)) &&
+        hasAllMilestoneCompleted && (
+          <div className="flex flex-col gap-2 text-foreground-body">
+            <p>Your Experience Feedback</p>
+            <Alert
+              small
+              title="Please take note"
+              message={
+                isBuyer
+                  ? "We kindly request that you share how your experience was working with this designer."
+                  : "We kindly request that you share how your experience was working with this client."
+              }
+              type="error"
+              icon={<CircleAlert />}
+            />
+            <ReviewDialog
+              reviewType="EXPERIENCE"
+              projectId={props.projectId || ""}
+              fullWidthActions
+              hideCancel
+              confirmText="Submit"
+              noOfStars={
+                shouldWriteReviews && isExperienceFeedback
+                  ? noOfStars
+                  : undefined
+              }
+              open={openExperience}
+              onOpenChange={setOpenExperience}
+            >
+              <Button fullWidth>Submit Feedback</Button>
+            </ReviewDialog>
+          </div>
+        )}
 
-				{((isBuyer && !hasBuyerDoneExperience) ||
-					(isDesigner && !hasDesignerDoneExperience)) &&
-					hasAllMilestoneCompleted && (
-						<div className="flex flex-col gap-2 text-foreground-body">
-							<p>Your Experience Feedback</p>
-							<Alert
-								small
-								title="Please take note"
-								message={
-									isBuyer
-										? "We kindly request that you share how your experience was working with this designer."
-										: "We kindly request that you share how your experience was working with this client."
-								}
-								type="error"
-								icon={<CircleAlert />}
-							/>
-							<ReviewDialog
-								reviewType="EXPERIENCE"
-								projectId={props.projectId || ""}
-								fullWidthActions
-								hideCancel
-								confirmText="Submit"
-								noOfStars={(shouldWriteReviews && isExperienceFeedback) ? noOfStars : undefined}
-								open={openExperience}
-								onOpenChange={setOpenExperience}
-							>
-								<Button fullWidth>Submit Feedback</Button>
-							</ReviewDialog>
-						</div>
-					)}
-
-				{isBuyer &&
-					!hasBuyerDoneClothingQuality &&
-					hasAllMilestoneCompleted && (
-						<div className="flex flex-col gap-2 text-foreground-body">
-							<p>Your Clothing Quality Feedback</p>
-							<Alert
-								title="Please take note"
-								message="We kindly request that you provide this review after receiving your order to assist us in enhancing our services to you."
-								type="error"
-								icon={<CircleAlert />}
-								small
-							/>
-							<ReviewDialog
-								reviewType="CLOTHING_QUALITY"
-								projectId={props.projectId || ""}
-								fullWidthActions
-								hideCancel
-								confirmText="Submit"
-								noOfStars={(shouldWriteReviews && !isExperienceFeedback) ? noOfStars : undefined}
-								open={openClothingQuality}
-								onOpenChange={setOpenClothingQuality}
-								alert={{
-									title: "Please take note",
-									message:
-										"We kindly request that you provide this review after receiving your order to assist us in enhancing our services to you.",
-									type: "error",
-									icon: <CircleAlert />,
-									small: true,
-								}}
-							>
-								<Button fullWidth>Submit Feedback</Button>
-							</ReviewDialog>
-						</div>
-					)}
-			</div>   
-	)
+      {isBuyer && !hasBuyerDoneClothingQuality && hasAllMilestoneCompleted && (
+        <div className="flex flex-col gap-2 text-foreground-body">
+          <p>Your Clothing Quality Feedback</p>
+          <Alert
+            title="Please take note"
+            message="We kindly request that you provide this review after receiving your order to assist us in enhancing our services to you."
+            type="error"
+            icon={<CircleAlert />}
+            small
+          />
+          <ReviewDialog
+            reviewType="CLOTHING_QUALITY"
+            projectId={props.projectId || ""}
+            fullWidthActions
+            hideCancel
+            confirmText="Submit"
+            noOfStars={
+              shouldWriteReviews && !isExperienceFeedback
+                ? noOfStars
+                : undefined
+            }
+            open={openClothingQuality}
+            onOpenChange={setOpenClothingQuality}
+            alert={{
+              title: "Please take note",
+              message:
+                "We kindly request that you provide this review after receiving your order to assist us in enhancing our services to you.",
+              type: "error",
+              icon: <CircleAlert />,
+              small: true,
+            }}
+          >
+            <Button fullWidth>Submit Feedback</Button>
+          </ReviewDialog>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default EscrowCardReviews
