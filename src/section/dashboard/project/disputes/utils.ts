@@ -20,7 +20,59 @@ export const DISPUTE_RESOLUTION_LABELS: Record<TDisputeResolution, string> = {
   PARTIAL_REFUND: "Partial refund",
   FULL_REFUND: "Full refund",
   APPROVE_CANCELLATION: "Cancellation approved",
+  REJECT_CANCELLATION: "Cancellation rejected",
   NO_REFUND: "No refund",
+};
+
+const DISPUTE_RESOLUTIONS = Object.keys(
+  DISPUTE_RESOLUTION_LABELS,
+) as TDisputeResolution[];
+
+export const parseDisputeResolution = (
+  value: unknown,
+): TDisputeResolution | null => {
+  if (typeof value !== "string") return null;
+  return DISPUTE_RESOLUTIONS.includes(value as TDisputeResolution)
+    ? (value as TDisputeResolution)
+    : null;
+};
+
+export const getResolutionOutcomeTitle = (
+  resolution: TDisputeResolution | null,
+  approvedAmount: number,
+) => {
+  switch (resolution) {
+    case "FULL_REFUND":
+    case "PARTIAL_REFUND":
+      return "Outcome: Refund Issued";
+    case "NO_REFUND":
+      return "Outcome: No Refund Issued";
+    case "APPROVE_CANCELLATION":
+      return "Outcome: Cancellation Approved";
+    case "REJECT_CANCELLATION":
+      return "Outcome: Cancellation Rejected";
+    default:
+      return approvedAmount > 0
+        ? "Outcome: Refund Issued"
+        : "Outcome: No Refund Issued";
+  }
+};
+
+export const isRefundIssuedResolution = (
+  resolution: TDisputeResolution | null,
+  approvedAmount: number,
+) => {
+  if (resolution === "FULL_REFUND" || resolution === "PARTIAL_REFUND") {
+    return true;
+  }
+  if (
+    resolution === "NO_REFUND" ||
+    resolution === "REJECT_CANCELLATION" ||
+    resolution === "APPROVE_CANCELLATION"
+  ) {
+    return false;
+  }
+  return approvedAmount > 0;
 };
 
 export const getDisputeReasonLabel = (dispute: IUmojaLinnDispute) => {
@@ -128,6 +180,22 @@ export const getDisputeMilestoneDisplays = (
       status: milestone.status,
     },
   ];
+};
+
+export const getDisputeMilestoneAmount = (dispute: IUmojaLinnDispute) => {
+  const milestones = getDisputeMilestoneDisplays(dispute);
+  if (milestones.length) {
+    return milestones.reduce((sum, milestone) => sum + milestone.amount, 0);
+  }
+  return parseDisputeAmount(dispute.escrowAmount);
+};
+
+/** Prefer approvedRefundAmount; for FULL_REFUND it can be null — fall back to milestone amount. */
+export const getApprovedRefundAmount = (dispute: IUmojaLinnDispute) => {
+  if (dispute.approvedRefundAmount != null) {
+    return parseDisputeAmount(dispute.approvedRefundAmount);
+  }
+  return getDisputeMilestoneAmount(dispute);
 };
 
 export const mapPreferredResolutionToApi = (

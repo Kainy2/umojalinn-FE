@@ -11,7 +11,12 @@ import {
 import { formatCurrencyValue } from "@/lib/number";
 import { getCurrencySymbol } from "@/lib/string";
 import { IDisputeActivitiesProps, TDisputeActivityItem } from "./@types";
-import { parseDisputeAmount } from "./utils";
+import {
+  getApprovedRefundAmount,
+  getResolutionOutcomeTitle,
+  isRefundIssuedResolution,
+  parseDisputeResolution,
+} from "./utils";
 
 const getResponseTitle = (
   responderType?: string | null,
@@ -55,9 +60,7 @@ const buildActivityItems = (dispute: IDisputeActivitiesProps["dispute"]) => {
     (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
   );
   const responses = dispute.responses ?? [];
-  const approvedAmount = parseDisputeAmount(
-    dispute.refundApproved ?? dispute.approvedRefundAmount,
-  );
+  const approvedAmount = getApprovedRefundAmount(dispute);
 
   const items: TDisputeActivityItem[] = [];
 
@@ -89,24 +92,28 @@ const buildActivityItems = (dispute: IDisputeActivitiesProps["dispute"]) => {
     }
 
     if (isResolutionEvent(event.eventType)) {
+      const resolution =
+        parseDisputeResolution(event.metadata?.resolution) ??
+        parseDisputeResolution(dispute.resolution);
+      const refundIssued = isRefundIssuedResolution(
+        resolution,
+        approvedAmount,
+      );
+
       items.push({
         id: event.id,
         date: event.createdAt,
-        title:
-          approvedAmount > 0
-            ? "Outcome: Refund Issued"
-            : "Outcome: No Refund Issued",
+        title: getResolutionOutcomeTitle(resolution, approvedAmount),
         kind: "outcome",
-        refundedAmount: approvedAmount,
+        refundedAmount: refundIssued ? approvedAmount : undefined,
         reason:
           dispute.externalNotes ??
           (event.metadata?.externalNotes as string | undefined) ??
           dispute.reasonDetail ??
           undefined,
-        paymentNote:
-          approvedAmount > 0
-            ? "Funds will be returned to the buyer's original payment method within 5–7 business days."
-            : undefined,
+        paymentNote: refundIssued
+          ? "Funds will be returned to the buyer's original payment method within 5–7 business days."
+          : undefined,
       });
     }
   });

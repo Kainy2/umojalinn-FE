@@ -35,12 +35,13 @@ const VerifyErrorResendForm = (props: { email?: string }) => {
       </h1>
 
       <p className="mb-6">
-        We encountered an error trying to verify{" "}
+        {/* We encountered an error trying to verify{" "}
         {email ? (
           <span className="font-semibold">{email}</span>
         ) : (
           <span>your email address.</span>
-        )}
+        )} */}
+        Oops, it looks like your verification link has expired
       </p>
 
       {!!email ? (

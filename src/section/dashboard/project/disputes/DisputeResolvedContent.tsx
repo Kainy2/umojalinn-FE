@@ -9,10 +9,10 @@ import { cn } from "@/lib/utils";
 import { IDisputeResolvedContentProps } from "./@types";
 import {
   formatMilestoneStatusLabel,
+  getApprovedRefundAmount,
   getDisputeMilestoneDisplays,
   getDisputeReasonLabel,
   getDisputeResolutionLabel,
-  parseDisputeAmount,
 } from "./utils";
 
 const DisputeResolvedContent = ({
@@ -23,9 +23,7 @@ const DisputeResolvedContent = ({
   const reasonLabel = getDisputeReasonLabel(dispute);
   const disputeMilestones = getDisputeMilestoneDisplays(dispute);
   const resolutionLabel = getDisputeResolutionLabel(dispute.resolution);
-  const approvedRefundAmount = parseDisputeAmount(
-    dispute.refundApproved ?? dispute.approvedRefundAmount,
-  );
+  const approvedRefundAmount = getApprovedRefundAmount(dispute);
 
   return (
     <div className="flex flex-col gap-6">

@@ -57,6 +57,7 @@ export type TDisputeResolution =
   | "PARTIAL_REFUND"
   | "FULL_REFUND"
   | "APPROVE_CANCELLATION"
+  | "REJECT_CANCELLATION"
   | "NO_REFUND";
 
 export type TPreferredResolution =

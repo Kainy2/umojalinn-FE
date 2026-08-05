@@ -66,10 +66,16 @@ const MilestoneAction: React.FC<
     !variableSubmissions?.length ||
     currentVariableSubmission?.status === "REJECTED";
 
+  const isDisputed = status === MilestoneStatus.DISPUTED;
   const isAcceptingVariableDelivery =
-    isVariableDelivery && currentVariableSubmission?.status === "PENDING";
+    isVariableDelivery &&
+    !isDisputed &&
+    currentVariableSubmission?.status === "PENDING";
   const isSubmittingVariableType =
-    isVariableDelivery && isNoSubmission && !isAwaitingFunding;
+    isVariableDelivery &&
+    !isDisputed &&
+    isNoSubmission &&
+    !isAwaitingFunding;
 
   const { mutate: submitMilestone, isPending: isSubmittingMilestone } =
     useSubmitMilestone(id, {
