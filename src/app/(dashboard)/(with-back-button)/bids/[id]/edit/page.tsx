@@ -13,7 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { getCurrencySymbol } from "@/lib/string";
 import { UmojaLinnDeliveryMethod } from "@/types/project";
 import { Separator } from "@radix-ui/react-separator";
-import { Info, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { formatCurrencyValue } from "@/lib/number";
 import { useBidEdit } from "@/hooks/use-bid-edit";
 import { VariableDeliverySelect } from "@/components/custom/bids/VariableDeliverySelect";
@@ -66,8 +66,7 @@ const BidPage = () => {
 
   // Delivery milestones are not subject to platform commission.
   const commissionableTotal = Math.max(totalPrice - deliveryMilestonePrice, 0);
-  const commission =
-    (commissionableTotal * SERVICE_FEE_PERCENTAGE) / 100;
+  const commission = (commissionableTotal * SERVICE_FEE_PERCENTAGE) / 100;
 
   if (isPending) {
     return (
