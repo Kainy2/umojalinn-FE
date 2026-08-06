@@ -13,7 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { getCurrencySymbol } from "@/lib/string";
 import { UmojaLinnDeliveryMethod } from "@/types/project";
 import { Separator } from "@radix-ui/react-separator";
-import { Plus } from "lucide-react";
+import { Info, Plus } from "lucide-react";
 import { formatCurrencyValue } from "@/lib/number";
 import { useBidEdit } from "@/hooks/use-bid-edit";
 import { VariableDeliverySelect } from "@/components/custom/bids/VariableDeliverySelect";
@@ -178,6 +178,10 @@ const BidPage = () => {
               {formatCurrencyValue(commission)}
             </span>
           </p>
+          <div className="text-gray-400 text-sm flex flex-row gap-1 items-center">
+            <Info className="w-3 h-3" />
+            <p>The Delivery milestone does not incur any commission.</p>
+          </div>
         </div>
         <p className="flex justify-between p-4 py-2 bg-gray-200">
           {" "}
