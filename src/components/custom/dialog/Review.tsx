@@ -28,6 +28,65 @@ type ReviewRatingStarsProps = {
   smallValue?: boolean;
 };
 
+
+export const AverageRatingStars = (props: ReviewRatingStarsProps) => {
+  const MAX_RATING = 5;
+  const noOfStars = Math.ceil(props.rating);
+  const ratingPercent = props.rating / MAX_RATING * 100
+  
+  // const fraction = (noOfStars - props.rating ) / MAX_RATING * 100;
+
+  return (
+    <div className="flex items-center gap-3 w-48">
+      <div className="flex relative -ml-0.5">
+        <div className="flex">
+          {new Array(5).fill(0).map((_, index) => (
+            <button key={index} className={"focus:outline-none px-0.5"}>
+              <RatingStar
+                stroke="#FAC515"
+                className={cn(
+                  "size-6 text-transparent",
+                  props.small && "size-4",
+                )}
+              />
+            </button>
+          ))}
+        </div>
+
+        <div 
+        style={{ width: `${ratingPercent}%` }}
+        className="absolute z-10 top-0 left-0 flex overflow-hidden "
+        >
+          {new Array(noOfStars).fill(0).map((_, index) => (
+            <button key={index} className={"focus:outline-none px-0.5"}>
+              <RatingStar
+                stroke="#FAC515"
+                className={cn(
+                  "size-6 text-primary-600",
+                  props.small && "size-4"
+                )}
+              />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {props.rating != null && (
+        <p
+          className={cn(
+            "font-semibold",
+            props.small || props.smallValue ? "text-base" : "text-subtitle-1",
+          )}
+        >
+          {props.rating ? props.rating.toFixed(1) : "0"}
+        </p>
+      )}
+    </div>
+  );
+};
+
+
+
 export const ReviewRatingStars = (props: ReviewRatingStarsProps) => {
   return (
     <div className="flex items-center gap-3 w-48">

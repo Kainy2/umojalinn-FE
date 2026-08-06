@@ -66,16 +66,19 @@ const SettingsProfilePortfolioPage = () => {
 
     return (
       <section className="space-y-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 gap-y-12">
           {sharedWork.map((work) => (
-            <PortfolioItem key={work.id} work={work} />
+            <div key={work.id} className="space-y-4">
+              <PortfolioItem work={work} />
+              <Separator className="bg-border/50" />
+            </div>
           ))}
         </div>
 
         <Separator className="bg-border/50" />
         <div className="text-right">
           <Button
-            onClick={() => router.push("/settings/profile/portfolio")}
+            onClick={() => router.push("/share-your-work")}
           >
             <Plus className="h-4 w-4" />
             Share your Work
@@ -128,7 +131,7 @@ const SettingsProfilePortfolioPage = () => {
       <Separator className="bg-border/50" />
       <div>
         <Button
-          onClick={() => router.push("/settings/profile/portfolio")}
+          onClick={() => router.push("/share-your-work")}
         >
           Share your Work
         </Button>

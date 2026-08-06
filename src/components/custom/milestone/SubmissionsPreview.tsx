@@ -15,6 +15,8 @@ import { cn, isVideoLink } from "@/lib/utils";
 import GalleryImages from "../GalleryImages";
 import { DeliveryDetails, EmptyDeliveryDetails } from "./DeliveryDetails";
 import { UmojaLinnMilestone } from "@/types/project";
+import Link from "next/link";
+import { uuidToBase62Safe } from "@/lib/uuid";
 
 type MilestoneSubmissionsPreviewProps = {
   milestoneId: string;
@@ -36,20 +38,29 @@ const MilestoneSubmissionsPreviewUser = (
   props: MilestoneSubmissionsPreviewUserProps,
 ) => {
   return (
-    <div className="flex items-center gap-2">
-      <Image
-        alt=""
-        src={props?.user?.profilePhotoUri || "/img/webp/user.webp"}
-        height={25}
-        width={25}
-        className="rounded-full shrink-0 relative"
-      />
-      <h5 className="whitespace-nowrap truncate font-semibold">
-        {props?.isMe
-          ? "You"
-          : `${props?.user?.firstName || ""} ${props?.user?.lastName || ""}`}
-      </h5>
-    </div>
+    <Link
+      className="w-fit"
+      href={
+        props.user?.buyerProfile?.id
+          ? "/settings/profile"
+          : `/designers/${uuidToBase62Safe(props.user?.designerProfile?.userId || "")}`
+      }
+    >
+      <div className="flex items-center gap-2">
+        <Image
+          alt=""
+          src={props?.user?.profilePhotoUri || "/img/webp/user.webp"}
+          height={25}
+          width={25}
+          className="rounded-full shrink-0 relative"
+        />
+        <h5 className="whitespace-nowrap truncate font-semibold">
+          {props?.isMe
+            ? "You"
+            : `${props?.user?.firstName || ""} ${props?.user?.lastName || ""}`}
+        </h5>
+      </div>
+    </Link>
   );
 };
 

@@ -9,7 +9,7 @@ import {
 import { UmojaLinnSharedWork } from "@/types/project";
 import { formatDate } from "date-fns";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import Slider from "react-slick";
 
 const sliderSettings = {
@@ -27,8 +27,9 @@ type PortfolioItemProps = {
 
 const PortfolioItem = ({ work }: PortfolioItemProps) => {
   const [activeImage, setActiveImage] = useState(0);
-  const coverImage =
-    work.images.find((img) => img.isCoverImage) ?? work.images[0];
+  const coverImage = useMemo(() => 
+    work.images.find((img) => img.isCoverImage) ?? work.images[0]
+, [work.images]);
 
   return (
     <Dialog>
