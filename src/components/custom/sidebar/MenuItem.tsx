@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { useGetAllDesignerProject } from "@/tanstack/hooks/useProject";
-import { SheetClose } from "@/components/ui/sheet";
+import { DrawerClose } from "@/components/ui/drawer";
 import { getSidebarTourTargetId } from "@/constant/tour/targets";
 import type { TTourTargetId } from "@/constant/tour/@types";
 
@@ -56,9 +56,7 @@ const CustomSidebarMenuItem = (props: CustomSidebarMenuItemProps) => {
     }
   }, [privateJobAdsWithoutBidProjectsData?.data?.data?.length, props?.title]);
 
-  const MenuButton = props.isMobile ? SheetClose : SidebarMenuButton;
-
-  // const AdLinkWrapper = props.isMobile ? SheetClose : "div";
+  const MenuButton = props.isMobile ? DrawerClose : SidebarMenuButton;
 
   const tourTargetId =
     props.tourTargetId ?? getSidebarTourTargetId(props.title);
