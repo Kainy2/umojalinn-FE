@@ -16,6 +16,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { logOut } from "@/lib/auth";
@@ -26,10 +27,16 @@ import {
 
 const MobileMenu = () => {
   const { data: session } = useSession();
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [lockedForTour, setLockedForTour] = useState(false);
 
   // const isDesigner = session?.user?.profileRole === "DESIGNER";
+
+  useEffect(() => {
+    setOpen(false);
+    setLockedForTour(false);
+  }, [pathname]);
 
   useEffect(() => {
     const handleTourMobileMenu = (event: Event) => {

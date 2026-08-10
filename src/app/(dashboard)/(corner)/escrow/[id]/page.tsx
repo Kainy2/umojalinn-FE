@@ -8,6 +8,7 @@ import {
   useGetProjectById,
   useGetProjectMilestones,
 } from "@/tanstack/hooks/useProject";
+import { EMileStoneStatus } from "@/types/enum";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -81,7 +82,8 @@ const EscrowPage = () => {
                 </p>
                 <p
                   className={cn(
-                    ["FUNDED", "PAID"].includes(milestone?.transactionStatus) &&
+                    (milestone?.transactionStatus === "PAID" ||
+                      milestone?.status === EMileStoneStatus.REFUNDED) &&
                       "line-through",
                   )}
                 >

@@ -4,6 +4,7 @@ import { formatCurrencyValue } from "@/lib/number";
 import { getCurrencySymbol } from "@/lib/string";
 import { cn } from "@/lib/utils";
 import { UmojaLinnMilestone, UmojaLinnProject } from "@/types/project";
+import { EMileStoneStatus } from "@/types/enum";
 import { CircleAlert, MoreVertical } from "lucide-react";
 import React, { useMemo } from "react";
 import EscrowCardReviews from "./EscrowCardReviews";
@@ -72,7 +73,8 @@ const EscrowCard = (props: EscrowCardProps) => {
               </p>
               <p
                 className={cn(
-                  ["FUNDED", "PAID"].includes(milestone?.transactionStatus) &&
+                  (milestone?.transactionStatus === "PAID" ||
+                    milestone?.status === EMileStoneStatus.REFUNDED) &&
                     "line-through",
                 )}
               >
