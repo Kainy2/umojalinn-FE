@@ -8,12 +8,16 @@ import { RadioGroupItem } from "@/components/ui/radio-group";
 import { MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES } from "@/constant";
 import { useFileSizeError } from "@/hooks/useFilePicker";
 import { useGetClothingTypes } from "@/tanstack/hooks/useProject";
-import { useCreateSharedWork } from "@/tanstack/hooks/useSharedWork";
+import {
+  useCreateSharedWork,
+  useGetSharedWorkById,
+  useUpdateSharedWork,
+} from "@/tanstack/hooks/useSharedWork";
 import { cn, fileToPreviewUrl } from "@/lib/utils";
 import { Plus, Trash2, X } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import React, { useCallback, useId, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import React, { useCallback, useEffect, useId, useState } from "react";
 import ProjectEditFooter from "@/section/form/project/edit/ProjectEditFooter";
 import {
   Dialog,
@@ -25,12 +29,14 @@ import {
 import { Button } from "@/components/ui/button";
 import TextField from "@/components/custom/input/TextField";
 import { toast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type SharedWorkImageEntry = {
   id: string | number;
+  imageId?: string; // ID from the API for existing images
   fileName: string;
   isCoverImage: boolean;
-  image: string | File;
+  image: string | File; // string = existing imageUrl, File = newly added
 };
 
 type WorkEntry = {
@@ -44,24 +50,54 @@ const isWorkValid = (work: WorkEntry) => {
   return (
     work.images.length > 0 &&
     work.images.some((img) => img.isCoverImage) &&
-    // Make description optional
-    // work.images.every((img) => img.description.trim().length > 0) &&
     work.selectedClothingTypes.length > 0
   );
 };
 
 const ShareYourWorkForm = () => {
-  const id = useId();
+  const formId = useId();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const editId = searchParams.get("edit");
+  const isEditMode = !!editId;
 
-  const { mutate: createSharedWork, isPending: isSubmitting } = useCreateSharedWork();
+  const { mutate: createSharedWork, isPending: isCreating } = useCreateSharedWork();
+  const { mutate: updateSharedWork, isPending: isUpdating } = useUpdateSharedWork();
+  const { data: editData, isPending: isLoadingEdit } = useGetSharedWorkById(editId ?? undefined);
   const { data: clothingTypesData } = useGetClothingTypes();
   const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES);
+
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [works, setWorks] = useState<WorkEntry[]>([
     { localId: 0, images: [], selectedClothingTypes: [], description: "" },
   ]);
+  const [removedImageIds, setRemovedImageIds] = useState<string[]>([]);
+  const [editPopulated, setEditPopulated] = useState(false);
 
+  // Populate form data from edit response
+  useEffect(() => {
+    if (!isEditMode || !editData?.data?.data || editPopulated) return;
+
+    const work = editData.data.data;
+    setWorks([
+      {
+        localId: 0,
+        images: work.images.map((img, i) => ({
+          id: i,
+          imageId: img.id,
+          fileName: img.imageUrl.split("/").pop() || `image-${i}`,
+          isCoverImage: img.isCoverImage,
+          image: img.imageUrl, // existing image as string URL
+        })),
+        selectedClothingTypes: work.clothingTypes.map((t) => t.id),
+        description: work.description || "",
+      },
+    ]);
+    setRemovedImageIds([]);
+    setEditPopulated(true);
+  }, [isEditMode, editData, editPopulated]);
+
+  const isSubmitting = isCreating || isUpdating;
   const isFormValid = works.every(isWorkValid);
 
   const handleAddWork = useCallback(() => {
@@ -129,8 +165,12 @@ const ShareYourWorkForm = () => {
       setWorks((prev) =>
         prev.map((work) => {
           if (work.localId !== workLocalId) return work;
+          const deletedImage = work.images[imageIndex];
+          // Track removed existing images for edit mode
+          if (deletedImage?.imageId) {
+            setRemovedImageIds((ids) => [...ids, deletedImage.imageId!]);
+          }
           const filtered = work.images.filter((_, i) => i !== imageIndex);
-          // If deleted image was cover and there are remaining images, assign cover to first
           const hasCover = filtered.some((img) => img.isCoverImage);
           return {
             ...work,
@@ -178,33 +218,74 @@ const ShareYourWorkForm = () => {
     (e: React.MouseEvent<HTMLButtonElement>) => {
       e.preventDefault();
 
-      const formData = new FormData();
+      if (isEditMode && editId) {
+        // Edit mode: PUT with individual form fields
+        const work = works[0];
+        const formData = new FormData();
 
-      // All files flat under a single "images" field
-      works.forEach((work) => {
-        work.images.forEach(({ image }) => {
+        formData.append("description", work.description);
+
+        work.selectedClothingTypes.forEach((id, i) => {
+          formData.append(`clothingTypes[${i}]`, id);
+        });
+
+        removedImageIds.forEach((id, i) => {
+          formData.append(`imageIdsToRemove[${i}]`, id);
+        });
+
+        // Only append new File images
+        const newImages = work.images.filter(
+          (img) => img.image instanceof File,
+        );
+        newImages.forEach(({ image }) => {
           formData.append("images", image as File);
         });
-      });
 
-      // Metadata as a JSON string in "sharedWorks"
-      const sharedWorks = works.map((work) => ({
-        clothingTypes: work.selectedClothingTypes,
-        description: work.description,
-        imagesMeta: work.images.map(({ fileName, isCoverImage }) => ({
-          fileName,
-          isCoverImage,
-        })),
-      }));
-      formData.append("sharedWorks", JSON.stringify(sharedWorks));
+        // imagesMeta only for new images
+        if (newImages.length > 0) {
+          const imagesMeta = newImages.map(({ fileName, isCoverImage }) => ({
+            fileName,
+            isCoverImage,
+          }));
+          formData.append("imagesMeta", JSON.stringify(imagesMeta));
+        }
 
-      createSharedWork(formData, {
-        onSuccess() {
-          setShowSuccessModal(true);
-        },
-      });
+        updateSharedWork(
+          { id: editId, body: formData },
+          {
+            onSuccess() {
+              setShowSuccessModal(true);
+            },
+          },
+        );
+      } else {
+        // Create mode: POST with sharedWorks JSON
+        const formData = new FormData();
+
+        works.forEach((work) => {
+          work.images.forEach(({ image }) => {
+            formData.append("images", image as File);
+          });
+        });
+
+        const sharedWorks = works.map((work) => ({
+          clothingTypes: work.selectedClothingTypes,
+          description: work.description,
+          imagesMeta: work.images.map(({ fileName, isCoverImage }) => ({
+            fileName,
+            isCoverImage,
+          })),
+        }));
+        formData.append("sharedWorks", JSON.stringify(sharedWorks));
+
+        createSharedWork(formData, {
+          onSuccess() {
+            setShowSuccessModal(true);
+          },
+        });
+      }
     },
-    [works, createSharedWork],
+    [works, createSharedWork, updateSharedWork, isEditMode, editId, removedImageIds],
   );
 
   const clothingTypeOptions =
@@ -213,16 +294,32 @@ const ShareYourWorkForm = () => {
       label: type.name,
     })) ?? [];
 
+  if (isEditMode && isLoadingEdit) {
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-52 w-full" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="mb-8">
-        <h1 className="text-lg font-bold mb-1">Share your work</h1>
+        <h1 className="text-lg font-bold mb-1">
+          {isEditMode ? "Edit your work" : "Share your work"}
+        </h1>
       </div>
 
       {works.map((work, workIndex) => {
         const preview = work.images.map((val) => ({
           ...val,
-          src: fileToPreviewUrl(val.image),
+          src:
+            typeof val.image === "string"
+              ? val.image // existing imageUrl
+              : fileToPreviewUrl(val.image),
         }));
 
         return (
@@ -266,20 +363,19 @@ const ShareYourWorkForm = () => {
                       <div className="flex items-center justify-end">
                         <RadioGroup>
                           <div className="flex flex-row items-center space-x-2">
-                            <Label htmlFor={`cover-radio-${work.localId}-${imageIndex}-${id}`}>
+                            <Label htmlFor={`cover-radio-${work.localId}-${imageIndex}-${formId}`}>
                               Use as cover image
                             </Label>
                             <RadioGroupItem
                               value=""
                               checked={value.isCoverImage}
                               onClick={handleCoverImageToggle(work.localId, imageIndex)}
-                              id={`cover-radio-${work.localId}-${imageIndex}-${id}`}
+                              id={`cover-radio-${work.localId}-${imageIndex}-${formId}`}
                             />
                           </div>
                         </RadioGroup>
                       </div>
                     </div>
-
                   </div>
                 ))}
 
@@ -321,17 +417,19 @@ const ShareYourWorkForm = () => {
         );
       })}
 
-      <div className="my-8">
-        <Button
-          type="button"
-          variant="ghost"
-          className="text-primary border border-dashed border-primary w-full"
-          onClick={handleAddWork}
-        >
-          <Plus className="h-4 w-4 mr-2" />
+      {!isEditMode && (
+        <div className="my-8">
+          <Button
+            type="button"
+            variant="ghost"
+            className="text-primary border border-dashed border-primary w-full"
+            onClick={handleAddWork}
+          >
+            <Plus className="h-4 w-4 mr-2" />
             Add More Work
-        </Button>
-      </div>
+          </Button>
+        </div>
+      )}
 
       <ProjectEditFooter
         leftButtonProps={{
@@ -339,7 +437,7 @@ const ShareYourWorkForm = () => {
           onClick: () => router.back(),
         }}
         rightPrimaryButtonProps={{
-          text: "Publish",
+          text: isEditMode ? "Update" : "Publish",
           loading: isSubmitting,
           disabled: !isFormValid,
           onClick: handleSubmit,
@@ -357,18 +455,17 @@ const ShareYourWorkForm = () => {
             className="absolute z-10 right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
             onClick={() => {
               setShowSuccessModal(false);
-              router.push("/dashboard");
+              router.push(isEditMode ? "/settings/profile/portfolio" : "/dashboard");
             }}
           >
             <X className="h-4 w-4" />
             <span className="sr-only">Close</span>
           </button>
           <DialogHeader>
-
             <Image src="/gif/good-tick.gif" alt="Success" width={300} height={300} className="mx-auto" />
 
             <DialogTitle className="pb-8 text-[20px] md:text-lg text-center">
-              Your work has been published
+              {isEditMode ? "Your work has been updated" : "Your work has been published"}
             </DialogTitle>
           </DialogHeader>
 

@@ -115,6 +115,31 @@ export type UmojaLinnDesignerProfile = {
   inviterTag?: string;
 };
 
+export type UmojaLinnPreviousHire = {
+  id: string;
+  userId: string;
+  experienceLevel: string | null;
+  about: string | null;
+  brandName: string | null;
+  specialistTypeId: string | null;
+  profileStrength: number;
+  isAvailable: boolean;
+  tier: number;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    id: string;
+    tag: string;
+    firstName: string;
+    lastName: string;
+    profilePhotoUri: string | null;
+    address: { country?: string; city?: string; state?: string } | null;
+  };
+  clothingTypes: Array<{ id: string; name: string }>;
+  specialistType: { id: string; name: string } | null;
+  portfolioCoverImages?: string[];
+};
+
 export type UmojaLinnNotification = {
   id: string;
   userId: string;

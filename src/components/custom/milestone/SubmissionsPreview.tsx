@@ -17,6 +17,7 @@ import { DeliveryDetails, EmptyDeliveryDetails } from "./DeliveryDetails";
 import { UmojaLinnMilestone } from "@/types/project";
 import Link from "next/link";
 import { uuidToBase62Safe } from "@/lib/uuid";
+import { useSession } from "next-auth/react";
 
 type MilestoneSubmissionsPreviewProps = {
   milestoneId: string;
@@ -37,11 +38,14 @@ type MilestoneSubmissionsPreviewUserProps = {
 const MilestoneSubmissionsPreviewUser = (
   props: MilestoneSubmissionsPreviewUserProps,
 ) => {
+  const session  = useSession();
+  const isDesigner = session?.data?.user?.profileRole === "DESIGNER";
+  
   return (
     <Link
       className="w-fit"
       href={
-        props.user?.buyerProfile?.id
+        isDesigner
           ? "/settings/profile"
           : `/designers/${uuidToBase62Safe(props.user?.designerProfile?.userId || "")}`
       }

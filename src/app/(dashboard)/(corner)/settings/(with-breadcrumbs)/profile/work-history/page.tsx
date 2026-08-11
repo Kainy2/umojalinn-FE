@@ -26,7 +26,7 @@ const SettingsProfileWorkHistoryPage = () => {
       profileType: session?.user?.profileRole || "BUYER",
     },
     {
-      enabled: !!session?.user?.profileRole,
+      enabled: true,
     },
   );
 

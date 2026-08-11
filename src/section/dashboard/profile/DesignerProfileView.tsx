@@ -119,12 +119,23 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
         </div>
 
         {/* Action buttons */}
-        <div className="flex gap-3 flex-wrap">
+        <div className={"flex gap-3 flex-wrap"}>
           {/* <Button disabled variant="outline" size="sm">
             <Heart className="h-4 w-4 text-primary" />
           </Button> */}
-          <Button disabled={isDesigner} className="cursor-disabled" size="sm" asChild>
-            <Link href={(!isDesigner && designer.inviterTag) ? `/project/create?inviterTag=${designer.inviterTag}`: ''}>
+          <Button
+            disabled={isDesigner}
+            className={isDesigner ? "cursor-not-allowed" : ""}
+            size="sm"
+            asChild
+          >
+            <Link
+              href={
+                !isDesigner && designer.inviterTag
+                  ? `/project/create?inviterTag=${designer.inviterTag}`
+                  : ""
+              }
+            >
               Hire Me
             </Link>
           </Button>
@@ -138,7 +149,9 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
         {/* About */}
         <div>
           <h2 className="font-semibold text-foreground mb-2">About me</h2>
-          <p className="text-foreground-body text-sm whitespace-pre-line">{displayedAbout}</p>
+          <p className="text-foreground-body text-sm whitespace-pre-line">
+            {displayedAbout}
+          </p>
           {shouldTruncate && (
             <button
               className="text-primary text-sm font-medium mt-1"
@@ -217,9 +230,12 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
               <p>No portfolio to show</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-4 gap-y-12">
               {designer.designerSharedWork.map((work) => (
-                <PortfolioItem key={work.id} work={work} />
+                <div key={work.id} className="space-y-4">
+                  <PortfolioItem work={work} />
+                  <Separator className="bg-border/50" />
+                </div>
               ))}
             </div>
           )}

@@ -596,6 +596,7 @@ export type TDeletePaymentAccountPayload = {
 export type TDeleteStripeConnectedAccountPayload = TDeletePaymentAccountPayload;
 
 export type UmojaLinnSharedWorkImage = {
+  id: string;
   imageUrl: string;
   description: string;
   isCoverImage: boolean;

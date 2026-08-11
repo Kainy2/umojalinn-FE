@@ -1,6 +1,9 @@
 "use client";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import TabButtonSelect from "@/components/custom/tab/ButtonSelect";
+import HireCard from "@/section/dashboard/designers/HireCard";
+import { useGetPreviousHires } from "@/tanstack/hooks/useSharedWork";
 import { Search, X } from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
@@ -19,6 +22,11 @@ const MOCK_FILTERS = [
 const DiscoverDesignersPage = () => {
   const [activeTab, setActiveTab] = useState<DiscoverTab>("my-hires");
   const [filters, setFilters] = useState(MOCK_FILTERS);
+
+  const { data: hiresData, isPending: isLoadingHires } = useGetPreviousHires({
+    enabled: activeTab === "my-hires",
+  });
+  const hires = hiresData?.data?.data ?? [];
 
   const removeFilter = (id: string) =>
     setFilters((prev) => prev.filter((f) => f.id !== id));
@@ -55,35 +63,6 @@ const DiscoverDesignersPage = () => {
         </div>
       </div>
 
-      {/* Header banner */}
-      {/* <div className="relative overflow-hidden rounded mb-6 bg-gray-100 flex items-center justify-between min-h-[160px]">
-        <div className="px-6 py-8 z-10">
-          <h1 className="text-lg font-bold text-foreground mb-1">
-            Browse Designers
-          </h1>
-          <p className="text-foreground-body text-sm">
-            Work with your favourite designer to bring your style to life
-          </p>
-        </div>
-    
-
-
-        <div className="relative top-0 h-40 w-full z-0 shrink- hidden sm:block">
-          <Image
-            src="/img/png/designer-cover-mobile.png"
-            alt="Designers"
-            fill
-            className="object-cover object-left md:hidden"
-          />
-          <Image
-            src="/img/png/designer-cover.png"
-            alt="Designers"
-            fill
-            className="object-cover object-left hidden md:inline-block"
-          />
-        </div>
-      </div> */}
-
       {/* Tabs */}
       <TabButtonSelect
         type="DEFAULT"
@@ -116,11 +95,37 @@ const DiscoverDesignersPage = () => {
         </div>
       )}
 
-      {/* Content */}
-      <div className="flex flex-col items-center justify-center h-72 text-muted-foreground gap-3">
-        <Search className="h-12 w-12 text-muted-foreground/40" />
-        <p>No Result found</p>
-      </div>
+      {/* My Hires content */}
+      {activeTab === "my-hires" && (
+        <div className="mt-4">
+          {isLoadingHires ? (
+            <div className="flex flex-col gap-4">
+              {[0, 1, 2].map((i) => (
+                <Skeleton key={i} className="h-32 w-full rounded-lg" />
+              ))}
+            </div>
+          ) : hires.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-72 text-muted-foreground gap-3">
+              <Search className="h-12 w-12 text-muted-foreground/40" />
+              <p>No previous hires found</p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {hires.map((hire) => (
+                <HireCard key={hire.id} hire={hire} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Other tabs — empty state */}
+      {activeTab !== "my-hires" && (
+        <div className="flex flex-col items-center justify-center h-72 text-muted-foreground gap-3">
+          <Search className="h-12 w-12 text-muted-foreground/40" />
+          <p>No Result found</p>
+        </div>
+      )}
     </div>
   );
 };

@@ -66,10 +66,10 @@ const SettingsProfilePortfolioPage = () => {
 
     return (
       <section className="space-y-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 gap-y-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-4 gap-y-12">
           {sharedWork.map((work) => (
             <div key={work.id} className="space-y-4">
-              <PortfolioItem work={work} />
+              <PortfolioItem work={work} editable />
               <Separator className="bg-border/50" />
             </div>
           ))}
