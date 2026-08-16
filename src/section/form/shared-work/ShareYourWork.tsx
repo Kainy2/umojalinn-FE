@@ -396,7 +396,7 @@ const ShareYourWorkForm = () => {
               </div>
             </FormItemWrapper>
 
-            <FormItemWrapper title="Description" className="mb-8">
+            <FormItemWrapper title="Description" description="Tell us about the work you’re about to share" className="mb-8">
               <TextField
                 value={work.description}
                 onChange={handleDescriptionChange(work.localId)}

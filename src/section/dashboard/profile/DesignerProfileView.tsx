@@ -63,13 +63,21 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
       return total + Number(p.amountFunded ?? 0);
     }, 0) ?? 0;
 
+  const allWorkHistory = [
+    ...(designer.workHistory?.withBuyer ?? []),
+    ...(designer.workHistory?.other ?? []),
+  ];
+  const reviewCount = allWorkHistory.reduce(
+    (sum, entry) => sum + entry.reviews.length, 0
+  );
+
   const stats = [
     { label: "Location", value: location },
     { label: "Total Earnings", value: (getCurrencySymbol(currency) ?? "") + totalEarnings },
     { label: "Total Jobs", value: designer.projects.length },
     { label: "Success rate", value: "N/A" },
     { label: "Years of Experience", value: EXPERIENCE_LEVEL_LABELS[designer.experienceLevel ?? ""] ?? designer.experienceLevel ?? "N/A" },
-    { label: "Reviews", value: designer.reviews.length },
+    { label: "Reviews", value: reviewCount },
   ];
 
   return (
@@ -210,14 +218,33 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
       {/* Work History tab */}
       {activeTab === "work-history" && (
         <div className="flex flex-col gap-8">
-          {designer.reviews.length === 0 ? (
+          {allWorkHistory.length === 0 ? (
             <div className="flex items-center justify-center h-72 text-muted-foreground">
               <p>No work history to show</p>
             </div>
           ) : (
-            designer.reviews.map((review) => (
-              <WorkHistoryItem key={review.id} review={review} />
-            ))
+            <>
+              {(designer.workHistory?.withBuyer?.length ?? 0) > 0 && (
+                <div className="flex flex-col gap-4">
+                  <h2 className="text-subtitle-2 font-semibold text-foreground">
+                    Previous Project together
+                  </h2>
+                  {designer.workHistory!.withBuyer.map((entry) => (
+                    <WorkHistoryItem key={entry.projectId} entry={entry} />
+                  ))}
+                </div>
+              )}
+              {(designer.workHistory?.other?.length ?? 0) > 0 && (
+                <div className="flex flex-col gap-4">
+                  <h2 className="text-subtitle-2 font-semibold text-foreground">
+                    Work History
+                  </h2>
+                  {designer.workHistory!.other.map((entry) => (
+                    <WorkHistoryItem key={entry.projectId} entry={entry} />
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
       )}

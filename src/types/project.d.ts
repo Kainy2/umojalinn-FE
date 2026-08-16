@@ -461,6 +461,39 @@ export type NewUmojaLinnProjectReview = {
   reviews: Array<UmojaLinnProjectReview>;
 };
 
+export type WorkHistoryCounterparty = {
+  userId: string;
+  profileId: string;
+  firstName: string;
+  lastName: string;
+  profilePhotoUri: string | null;
+  tag: string;
+};
+
+export type WorkHistoryReview = {
+  id: string;
+  rating: number;
+  message: string;
+  images: string[];
+  reviewType: "EXPERIENCE" | "CLOTHING_QUALITY";
+  createdAt: string;
+};
+
+export type WorkHistoryEntry = {
+  projectId: string;
+  projectTitle: string;
+  allReviewsSubmitted: boolean;
+  currency?: UmojaLinnCurrency;
+  approvedBudget: number;
+  counterparty: WorkHistoryCounterparty;
+  reviews: WorkHistoryReview[];
+};
+
+export type WorkHistory = {
+  withBuyer: WorkHistoryEntry[];
+  other: WorkHistoryEntry[];
+};
+
 export type UmojaLinnSpecialistType = {
   id: string;
   name: string;

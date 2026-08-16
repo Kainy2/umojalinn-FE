@@ -1,6 +1,6 @@
 import { languageProficiency } from "@/lib/schema";
 import { UmojaLinnTimestamp } from "./util";
-import { UmojaLinnProject, UmojaLinnProjectReview, UmojaLinnSharedWork } from "./project";
+import { UmojaLinnProject, UmojaLinnProjectReview, UmojaLinnSharedWork, WorkHistory } from "./project";
 import type { TGuidedTourStep } from "@/constant/tour/@types";
 
 export type UmojaLinnUserRole = "BUYER" | "DESIGNER";
@@ -101,13 +101,15 @@ export type UmojaLinnDesignerProfile = {
     firstName: string;
     lastName: string;
     email: string;
+    tag?: string;
     profilePhotoUri: string | null;
     address: { country?: string; city?: string; state?: string } | null;
   };
   clothingTypes: Array<{ id: string; name: string } & UmojaLinnTimestamp>;
   specialistType: { id: string; name: string } | null;
   designerSharedWork: UmojaLinnSharedWork[];
-  reviews: UmojaLinnProjectReview[];
+  reviews?: UmojaLinnProjectReview[];
+  workHistory?: WorkHistory;
   projectInvitations: unknown[];
   projects: UmojaLinnProject[];
   bids: UmojaLinnBid[];

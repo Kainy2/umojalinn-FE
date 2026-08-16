@@ -3,7 +3,7 @@ import { convertApiParams } from "@/lib/request";
 import { base62ToUuidSafe } from "@/lib/uuid";
 import type { TCompleteGuidedTourBody } from "@/constant/tour/@types";
 import { NotificationSettingsProps, PasswordUpdateProps } from "@/types/form";
-import { NewUmojaLinnProjectReview } from "@/types/project";
+import { WorkHistoryEntry } from "@/types/project";
 import { UmojaLinnUser, UmojaLinnUserRole } from "@/types/user";
 import {
   ArrayApiResponse,
@@ -128,7 +128,7 @@ export const getUserReviews = async (
   }
   return axios.get<
     unknown,
-    AxiosResponse<ArrayApiResponse<NewUmojaLinnProjectReview>>
+    AxiosResponse<ArrayApiResponse<WorkHistoryEntry>>
   >(`/user/reviews${convertApiParams(apiParams)}`);
 };
 
