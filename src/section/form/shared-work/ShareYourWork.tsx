@@ -223,7 +223,9 @@ const ShareYourWorkForm = () => {
         const work = works[0];
         const formData = new FormData();
 
-        formData.append("description", work.description);
+        if (work.description) {
+          formData.append("description", work.description);
+        }
 
         work.selectedClothingTypes.forEach((id, i) => {
           formData.append(`clothingTypes[${i}]`, id);
@@ -270,11 +272,11 @@ const ShareYourWorkForm = () => {
 
         const sharedWorks = works.map((work) => ({
           clothingTypes: work.selectedClothingTypes,
-          description: work.description,
           imagesMeta: work.images.map(({ fileName, isCoverImage }) => ({
             fileName,
             isCoverImage,
           })),
+          ...(work.description ? { description: work.description } : undefined),
         }));
         formData.append("sharedWorks", JSON.stringify(sharedWorks));
 

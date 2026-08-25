@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { AverageRatingStars } from "@/components/custom/dialog/Review";
 import TabButtonSelect from "@/components/custom/tab/ButtonSelect";
 // import { formatCurrencyValue } from "@/lib/number";
-import { getCurrencySymbol } from "@/lib/string";
+import { capitalizeFirstLetter, getCurrencySymbol } from "@/lib/string";
 import { UmojaLinnCurrency, UmojaLinnProject } from "@/types/project";
 import { UmojaLinnDesignerProfile } from "@/types/user";
 import PortfolioItem from "./PortfolioItem";
@@ -42,6 +42,7 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
   const location =
     [designer.user.address?.state, designer.user.address?.country]
       .filter(Boolean)
+      .map(val => val ? capitalizeFirstLetter(val): '')
       .join(", ") + "." || "N/A";
 
   const aboutText = designer.about || "No bio provided yet.";
@@ -187,19 +188,47 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
           <AverageRatingStars smallValue rating={avgRating} disabled small />
         </div>
 
-        {/* Specialties */}
-        {designer.clothingTypes.length > 0 && (
+        {/* {
+    "id": "fb9ab78d-8a89-4e1b-9475-291fd6357ebe",
+    "name": "Women's wears",
+    "createdAt": "2025-07-12T12:12:36.307Z",
+    "updatedAt": "2025-07-12T12:12:36.307Z"
+} */}
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4 mt-4">
+
           <div>
-            <p className="text-sm text-foreground-body mb-2">Specialty</p>
-            <div className="flex flex-wrap gap-2">
-              {designer.clothingTypes.map((type) => (
-                <Badge key={type.id} variant="outline">
-                  {type.name}
-                </Badge>
-              ))}
-            </div>
+            {/* Specialty */}
+            {designer.specialistType && (
+              <div>
+                <p className="text-sm text-foreground-body mb-2">Specialty</p>
+                <div className="flex flex-wrap gap-2">
+                    <Badge variant="outline">
+                      {designer.specialistType.name}
+                    </Badge>
+                </div>
+              </div>
+            )}
           </div>
-        )}
+
+          <div>
+            {/* Clothing types */}
+            {designer.clothingTypes.length > 0 && (
+              <div>
+                <p className="text-sm text-foreground-body mb-2">Clothing Types</p>
+                <div className="flex flex-wrap gap-2">
+                  {designer.clothingTypes.map((type) => (
+                    <Badge key={type.id} variant="outline">
+                      {type.name}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+        </div>
+
       </div>
 
       <Separator className="bg-border/50" />
