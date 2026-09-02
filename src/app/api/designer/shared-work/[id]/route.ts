@@ -23,6 +23,26 @@ export const GET = async (
   }
 };
 
+export const PUT = async (
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) => {
+  try {
+    await setBearerToken(req);
+    const id = (await params)?.id;
+    const body = await req.formData();
+
+    const response = await customAxios.put<
+      unknown,
+      AxiosResponse<SingleApiResponse<UmojaLinnSharedWork>>
+    >(`/designer/shared-work/${id}`, body);
+
+    return NextResponse.json(response.data);
+  } catch (error) {
+    return handleAPIError(error);
+  }
+};
+
 export const DELETE = async (
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },

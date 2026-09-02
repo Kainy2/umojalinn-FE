@@ -142,8 +142,8 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
             ) : (
               <Link
                 href={
-                  designer.inviterTag
-                    ? `/project/create?inviterTag=${designer.inviterTag}`
+                  designer.user?.tag
+                    ? `/project/create?inviterTag=${designer.user?.tag}`
                     : ""
                 }
               >
