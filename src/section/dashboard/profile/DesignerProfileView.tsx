@@ -133,20 +133,23 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
             <Heart className="h-4 w-4 text-primary" />
           </Button> */}
           <Button
-            disabled={isDesigner}
             className={isDesigner ? "cursor-not-allowed" : ""}
             size="sm"
             asChild
           >
-            <Link
-              href={
-                !isDesigner && designer.inviterTag
-                  ? `/project/create?inviterTag=${designer.inviterTag}`
-                  : ""
-              }
-            >
-              Hire Me
-            </Link>
+            {isDesigner ? (
+              <p>Hire Me</p>
+            ) : (
+              <Link
+                href={
+                  designer.inviterTag
+                    ? `/project/create?inviterTag=${designer.inviterTag}`
+                    : ""
+                }
+              >
+                Hire Me
+              </Link>
+            )}
           </Button>
         </div>
       </div>
@@ -188,15 +191,7 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
           <AverageRatingStars smallValue rating={avgRating} disabled small />
         </div>
 
-        {/* {
-    "id": "fb9ab78d-8a89-4e1b-9475-291fd6357ebe",
-    "name": "Women's wears",
-    "createdAt": "2025-07-12T12:12:36.307Z",
-    "updatedAt": "2025-07-12T12:12:36.307Z"
-} */}
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4 mt-4">
-
           <div>
             {/* Specialty */}
             {designer.specialistType && (
