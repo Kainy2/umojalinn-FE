@@ -211,3 +211,17 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.slick-dots li button:before {
+  color: white !important;
+  opacity: 1;
+}
+.slick-dots li.slick-active button:before {
+  color: white !important;
+}
+
+/* NextStep wraps the card in a zero-width spotlight for steps without a target */
+[data-name="nextstep-card"] {
+  max-width: min(100vw - 2rem, 22rem) !important;
+  min-width: 16rem;
+}

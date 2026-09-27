@@ -4,7 +4,7 @@ import FormItemWrapper from "@/components/custom/FormItemWrapper";
 import TextField, { FormTextField } from "@/components/custom/input/TextField";
 import { Textarea } from "@/components/ui/textarea";
 import { Info, UserPlus } from "lucide-react";
-import React, { useEffect, useCallback, useState } from "react";
+import React, { useEffect, useCallback, useMemo, useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import {
   useGetClothingTypes,
@@ -15,19 +15,35 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { projectFormDetailsKeys, projectFormDetailsSchema } from "@/lib/schema";
 import { ProjectFormDetailsProps } from "@/types/form";
 import { useForm } from "react-hook-form";
-import { Form, FormField } from "@/components/ui/form";
+import { Form, FormErrorMessage, FormField } from "@/components/ui/form";
 import { addYears } from "date-fns";
 
 import { FormCustomTagSelectField } from "@/components/custom/tag/Select";
 import { jsonToFormData } from "@/lib/utils";
 import CustomSelect from "@/components/custom/Select";
-import ProjectEditFooter from "./Footer";
+import ProjectEditFooter from "./ProjectEditFooter";
+// import ProjectEditFooter from "./Footer";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { uuidToBase62Safe } from "@/lib/uuid";
-import { useGetAllSizingTemplates } from "@/tanstack/hooks/useSizingTemplates";
+import { useGetAllSizingTemplates, useUpdateSizingTemplate } from "@/tanstack/hooks/useSizingTemplates";
 import CustomSelectCountry from "@/components/custom/SelectCountry";
 import CustomReactSelect from "@/components/custom/ReactSelect";
+import { useCreateProjectContext } from "@/hooks/create-project/useCreateProjectContext";
+import {
+  getClearedSizingTemplatePayload,
+  getNoMatchingSizingTemplateDescription,
+  getOppositeGenderTemplateWarningDescription,
+  isMatchingSizingGender,
+  TSizingGender,
+} from "@/lib/sizing-template-utils";
+import OppositeGenderSizingWarning from "@/components/custom/dialog/OppositeGenderSizingWarning";
+import HeightAndSizeModal from "@/components/sizing-template/HeightAndSizeModal";
+import { DEFAULT_HEIGHT, DEFAULT_UNIT } from "@/constant";
+import {
+  UmojaLinnSizingTemplate,
+  UmojalinnStandardSize,
+} from "@/types/project";
 
 export type ProjectFormProps = {
   id: string;
@@ -35,19 +51,33 @@ export type ProjectFormProps = {
 };
 
 const ProjectDescriptionForm = (props: ProjectFormProps) => {
-  const { data, isPending: loadingProject } = useGetProjectById(props?.id);
+  const { data, isLoading: loadingProject } = useGetProjectById(props?.id);
   const { data: clothingTypes } = useGetClothingTypes();
   const { mutate: updateProject, isPending: isUpdating } = useUpdateProjectById(
     props?.id
   );
-
   const [useSizingTemplate, setUseSizingTemplate] = useState(false);
+  const [showGenderWarning, setShowGenderWarning] = useState(false);
+  const [pendingSizingTemplateId, setPendingSizingTemplateId] = useState<
+    string | null
+  >(null);
+  const [showHeightModal, setShowHeightModal] = useState(false);
+  const [conversionTemplateId, setConversionTemplateId] = useState<
+    string | null
+  >(null);
+
+  const { mutate: updateSizingTemplate, isPending: isUpdatingSizingTemplate } =
+    useUpdateSizingTemplate(conversionTemplateId ?? undefined);
 
   const router = useRouter();
+  const { projectFormDetails, setProjectFormDetails } = useCreateProjectContext()
+
+  const isAds = data?.data?.data.status === 'ADS'
 
   const form = useForm<ProjectFormDetailsProps>({
     resolver: zodResolver(projectFormDetailsSchema),
     defaultValues: {},
+    mode: "onBlur",
   });
 
   const { data: sizingTemplateData, isPending: loadingSizingTemplate } =
@@ -55,7 +85,19 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
       sizingTemplateStatus: "LIVE",
     });
 
+  const projectGender = (form.watch("gender") ||
+    data?.data?.data?.gender) as TSizingGender | null | undefined;
+  const allSizingTemplates = useMemo(
+    () => sizingTemplateData?.data?.data ?? [],
+    [sizingTemplateData?.data?.data],
+  );
+
   useEffect(() => {
+    if (isAds && projectFormDetails.firstName) {
+      form.reset(projectFormDetails)
+      return
+    }
+
     if (data?.data?.data) {
       Object.entries(data.data.data).forEach(([key, value]) => {
         if (
@@ -64,7 +106,10 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
           projectFormDetailsKeys?.includes(key as keyof ProjectFormDetailsProps)
         ) {
           if (key === "sizingTemplateId" && !!value) setUseSizingTemplate(true);
-          form.setValue(key as keyof ProjectFormDetailsProps, value.toString());
+          form.setValue(
+            key as keyof ProjectFormDetailsProps,
+            typeof value === "boolean" ? value : value.toString()
+          );
         }
         if (key === "deliveryAddress" && !!value && typeof value === "object") {
           Object.entries(value).forEach(([key, value]) => {
@@ -90,15 +135,24 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
       form.setValue("firstName", data?.data?.data?.buyer?.user?.firstName);
       form.setValue("lastName", data?.data?.data?.buyer?.user?.lastName);
     }
-  }, [data?.data?.data, form]);
+  }, [data?.data?.data, form, isAds, projectFormDetails]);
+
 
   const onSubmit = useCallback(
     (mode: "SAVE" | "DRAFT") => (values: ProjectFormDetailsProps) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+      if (isAds) {
+        setProjectFormDetails(prev => ({ ...prev, ...values }))
+        router.push(`/project/${uuidToBase62Safe(props?.id)}/gallery`);
+        return
+      }
+
       const { firstName, lastName, designerId, ...otherValues } = values;
-      const val = jsonToFormData({
-        ...otherValues,
-      });
+      void firstName; void lastName; void designerId;
+
+      const val = jsonToFormData(otherValues);
+
+
       updateProject(val, {
         onSuccess() {
           router.push(
@@ -110,11 +164,15 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
         },
       });
     },
-    [props?.id, props.isOnboarding, router, updateProject]
+    [props?.id, props.isOnboarding, router, updateProject, setProjectFormDetails, isAds]
   );
 
-// http://localhost:3000/project/67GVLHjOlYJVaign9DZK9T
-// http://localhost:3000/project/hoXw3ODhKDFm8LkfGAmLN
+  useEffect(() => {
+    if (form.watch("sizingTemplateId")) setUseSizingTemplate(true);
+    else setUseSizingTemplate(false);
+  }, [form.watch("sizingTemplateId")]);
+
+
   if (loadingProject) {
     return (
       <div className="flex flex-col gap-6">
@@ -168,10 +226,11 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
             <FormField
               control={form.control}
               name="firstName"
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <FormTextField
                   containerClassName="w-full"
                   {...field}
+                  error={fieldState.error}
                   placeholder="First Name"
                   disabled
                 />
@@ -180,10 +239,11 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
             <FormField
               control={form.control}
               name="lastName"
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <FormTextField
                   containerClassName="w-full"
                   {...field}
+                  error={fieldState.error}
                   placeholder="Last Name"
                   disabled
                 />
@@ -202,61 +262,64 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
             startAdornment={<UserPlus className="text-gray-400 h-5 w-5" />}
           />
         </FormItemWrapper>
-        <FormItemWrapper title="Title" description="Project name">
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormTextField
-                containerClassName="w-full"
-                {...field}
-                maxLength={30}
-                hint={`${field.value?.length || 0}/30 characters`}
-                divider
-                endAdornment={
-                  <FormField
-                    control={form.control}
-                    name="gender"
-                    render={({ field }) => {
-                      const options = [
-                        { value: "MALE", label: "Male" },
-                        { value: "FEMALE", label: "Female" },
-                      ];
-                      return (
-                        <CustomReactSelect
-                          {...field}
-                          value={options?.find(
-                            (opt) => opt?.value === field?.value
-                          )}
-                          placeholder="Gender"
-                          onChange={(newValue: unknown) => {
-                            const typedValue = newValue as {
-                              value: string;
-                              label: string;
-                            };
-                            field.onChange(typedValue?.value);
-                          }}
-                          adornment
-                          options={options}
-                        />
-                      );
-                    }}
-                  />
-                }
-              />
-            )}
-          />
-        </FormItemWrapper>
-        <FormItemWrapper
-          title="About Project"
-          description="Tell the designer what you want and how you want it done"
-        >
-          <FormField
-            control={form.control}
-            name="about"
-            render={({ field }) => <Textarea {...field} />}
-          />
-        </FormItemWrapper>
+        <div id="tour-create-project-description">
+          <FormItemWrapper title="Title" description="Project name">
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field, fieldState, formState }) => (
+                <FormTextField
+                  containerClassName="w-full"
+                  {...field}
+                  error={fieldState.error || formState.errors.gender}
+                  maxLength={30}
+                  hint={`${field.value?.length || 0}/30 characters`}
+                  divider
+                  endAdornment={
+                    <FormField
+                      control={form.control}
+                      name="gender"
+                      render={({ field }) => {
+                        const options = [
+                          { value: "MALE", label: "Male" },
+                          { value: "FEMALE", label: "Female" },
+                        ];
+                        return (
+                          <CustomReactSelect
+                            {...field}
+                            value={options?.find(
+                              (opt) => opt?.value === field?.value
+                            )}
+                            placeholder="Gender"
+                            onChange={(newValue: unknown) => {
+                              const typedValue = newValue as {
+                                value: string;
+                                label: string;
+                              };
+                              field.onChange(typedValue?.value);
+                            }}
+                            adornment
+                            options={options}
+                          />
+                        );
+                      }}
+                    />
+                  }
+                />
+              )}
+            />
+          </FormItemWrapper>
+          <FormItemWrapper
+            title="About Project"
+            description="Tell the designer what you want and how you want it done. You can attach your inspo photos on the next page!"
+          >
+            <FormField
+              control={form.control}
+              name="about"
+              render={({ field, fieldState }) => <Textarea {...field} error={fieldState.error} />}
+            />
+          </FormItemWrapper>
+        </div>
         <FormItemWrapper
           title="Select Categories"
           description="Choose clothing type"
@@ -264,18 +327,23 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
           <FormField
             control={form.control}
             name="clothingTypes"
-            render={({ field }) => (
-              <FormCustomTagSelectField
-                hint={`${field.value?.length || 0}/8 tags`}
-                options={
-                  clothingTypes?.data?.data?.map?.((type) => ({
-                    value: type?.id,
-                    label: type.name,
-                  })) || []
-                }
-                value={field.value || []}
-                onChange={(val: string[]) => field.onChange(val)}
-              />
+            render={({ field, fieldState }) => (
+              <>
+                <FormCustomTagSelectField
+                  error={fieldState.error}
+                  hint={`${field.value?.length || 0}/8 tags`}
+                  options={
+                    clothingTypes?.data?.data?.map?.((type) => ({
+                      value: type?.id,
+                      label: type.name,
+                    })) || []
+                  }
+                  value={field.value || []}
+                  onChange={(val: string[]) => field.onChange(val)}
+                />
+                {fieldState.error && <FormErrorMessage message={fieldState.error?.message} />}
+              </>
+
             )}
           />
         </FormItemWrapper>
@@ -286,17 +354,21 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
           <FormField
             control={form.control}
             name="dueDate"
-            render={({ field }) => (
-              <FormCustomDatePickerField
-                {...field}
-                type="default"
-                value={field.value ? new Date(field.value) : undefined}
-                onChange={(val: Date) => field.onChange(val)}
-                calendar={{
-                  fromYear: new Date().getFullYear(),
-                  toYear: addYears(new Date(), 2).getFullYear(),
-                }}
-              />
+            render={({ field, fieldState }) => (
+              <>
+                <FormCustomDatePickerField
+                  {...field}
+                  error={fieldState.error}
+                  type="default"
+                  value={field.value ? new Date(field.value) : undefined}
+                  onChange={(val: Date) => field.onChange(val)}
+                  calendar={{
+                    fromYear: new Date().getFullYear(),
+                    toYear: addYears(new Date(), 2).getFullYear(),
+                  }}
+                />
+                {fieldState.error && <FormErrorMessage message={fieldState.error?.message} />}
+              </>
             )}
           />
         </FormItemWrapper>
@@ -308,51 +380,61 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
             <FormField
               control={form.control}
               name="country"
-              render={({ field }) => {
+              render={({ field, fieldState }) => {
                 return (
-                  <CustomSelectCountry
-                    {...field}
-                    value={field.value}
-                    onChange={(newValue: unknown) => {
-                      const typedValue = newValue as {
-                        value: string;
-                        label: string;
-                      };
-                      field.onChange(typedValue?.value);
-                    }}
-                    placeholder="Country"
-                  />
+                  <>
+                    <CustomSelectCountry
+                      {...field}
+                      error={fieldState.error}
+                      value={field.value}
+                      onChange={(newValue: unknown) => {
+                        const typedValue = newValue as {
+                          value: string;
+                          label: string;
+                        };
+                        field.onChange(typedValue?.value);
+                      }}
+                      placeholder="Country"
+                    />
+                    {fieldState.error && <FormErrorMessage message={fieldState.error?.message} />}
+                  </>
                 );
               }}
             />
             <FormField
               control={form.control}
               name="city"
-              render={({ field }) => (
-                <TextField {...field} placeholder="City" />
+              render={({ field, fieldState }) => (
+                <>
+                  <TextField {...field} error={fieldState.error} placeholder="City" />
+                  {fieldState.error && <FormErrorMessage message={fieldState.error?.message} />}
+                </>
               )}
             />
             <div className="flex flex-col lg:flex-row gap-4">
               <FormField
                 control={form.control}
                 name="state"
-                render={({ field }) => (
-                  <TextField {...field} placeholder="Province / State" />
+                render={({ field, fieldState }) => (
+                  <TextField {...field} error={fieldState.error} placeholder="Province / State" />
                 )}
               />
               <FormField
                 control={form.control}
                 name="zipCode"
-                render={({ field }) => (
-                  <TextField {...field} placeholder="Zip code" />
+                render={({ field, fieldState }) => (
+                  <TextField {...field} error={fieldState.error} placeholder="Zip code" />
                 )}
               />
             </div>
             <FormField
               control={form.control}
               name="address"
-              render={({ field }) => (
-                <TextField {...field} placeholder="Address" />
+              render={({ field, fieldState }) => (
+                <>
+                  <TextField {...field} error={fieldState.error} placeholder="Address" />
+                  {fieldState.error && <FormErrorMessage message={fieldState.error?.message} />}
+                </>
               )}
             />
           </div>
@@ -364,19 +446,21 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
           <FormField
             control={form.control}
             name="additionalNotes"
-            render={({ field }) => <Textarea {...field} />}
+            render={({ field, fieldState }) =>
+              <Textarea {...field} error={fieldState.error} />
+            }
           />
         </FormItemWrapper>
 
         {!props.isOnboarding && (
           <FormItemWrapper
             title="Sizing Template"
-            description="Choose appropriate sizing templates."
+            description="Choose available sizing template."
           >
             <FormField
               control={form.control}
               name="sizingTemplateId"
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <div className="flex flex-col gap-4">
                   <Switch
                     onCheckedChange={setUseSizingTemplate}
@@ -388,25 +472,46 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
                         <Info className="text-primary h-6 w-6" />
                         <span className="text-sm">
                           {
-                            !sizingTemplateData?.data?.data?.length ?
-                              "You have no sizing templates available, you can add sizing template later from the Sizing templates tab" :
+                            !allSizingTemplates.length ?
+                              getNoMatchingSizingTemplateDescription() :
                               "Include Sizing template in your Project description or at project start"
                           }
                         </span>
                       </div>
-                      <CustomSelect
-                      key={String(sizingTemplateData?.data?.data?.length)}
-                        {...field}
-                        disabled={loadingSizingTemplate}
-                        onValueChange={field.onChange}
-                        options={sizingTemplateData?.data?.data?.map(
-                          (template) => ({
-                            children: template?.name,
-                            value: template?.id,
-                          })
-                        )}
-                        placeholder="Select sizing templates"
-                      />
+                      {
+                        allSizingTemplates.length ?
+                          (<CustomSelect
+                            key={String(allSizingTemplates.length)}
+                            {...field}
+                            error={fieldState.error}
+                            disabled={loadingSizingTemplate}
+                            onValueChange={(value) => {
+                              const template = allSizingTemplates.find(
+                                (t) => t.id === value,
+                              );
+                              if (
+                                projectGender &&
+                                template &&
+                                !isMatchingSizingGender(
+                                  template.gender,
+                                  projectGender,
+                                )
+                              ) {
+                                setPendingSizingTemplateId(value);
+                                setShowGenderWarning(true);
+                                return;
+                              }
+                              field.onChange(value);
+                            }}
+                            options={allSizingTemplates.map(
+                              (template) => ({
+                                children: template?.name,
+                                value: template?.id,
+                              })
+                            )}
+                            placeholder="Select sizing templates"
+                          />) : (<></>)
+                      }
                     </>
                   )}
                 </div>
@@ -415,13 +520,112 @@ const ProjectDescriptionForm = (props: ProjectFormProps) => {
           </FormItemWrapper>
         )}
 
+        <FormItemWrapper
+          title="Will you be providing your own material?"
+          description="Toggle yes if you are providing your own material"
+        >
+          <FormField
+            control={form.control}
+            name="willProvideMaterials"
+            render={({ field: { onChange, value } }) => (
+              <Switch
+                key={String(value)}
+                onCheckedChange={onChange}
+                checked={value}
+                showHelpText
+                checkedHelpText="Yes"
+                uncheckedHelpText="No"
+              />
+            )}
+          />
+        </FormItemWrapper>
+
         <ProjectEditFooter
-          handleSave={form.handleSubmit(onSubmit("SAVE"))}
-          handleDraft={form.handleSubmit(onSubmit("DRAFT"))}
-          loading={isUpdating}
-          hideBack={props.isOnboarding}
+          leftButtonProps={{ hidden: true }}
+          // leftButtonProps={{ hidden: !props.isOnboarding }}
+          rightSecondaryButtonProps={{
+            text: isAds ? "Cancel" : "Save & Exit",
+            disabled: isUpdating,
+            onClick: (e) => {
+              if (isAds) router.push(`/projects/ads/${uuidToBase62Safe(props?.id)}`);
+              else { form.handleSubmit(onSubmit("DRAFT"))(e) };
+            },
+          }}
+          rightPrimaryButtonProps={{
+            text: isAds ? "Next" : undefined,
+            disabled: isUpdating,
+            onClick: form.handleSubmit(onSubmit("SAVE")),
+          }}
         />
       </form>
+
+      <OppositeGenderSizingWarning
+        open={showGenderWarning}
+        onOpenChange={setShowGenderWarning}
+        description={(() => {
+          const template = allSizingTemplates.find(
+            (t) => t.id === pendingSizingTemplateId,
+          );
+          if (template && projectGender) {
+            return getOppositeGenderTemplateWarningDescription(
+              template.gender,
+              projectGender,
+            );
+          }
+          return "";
+        })()}
+        onConfirm={() => {
+          if (pendingSizingTemplateId) {
+            setConversionTemplateId(pendingSizingTemplateId);
+            setPendingSizingTemplateId(null);
+            setShowGenderWarning(false);
+            setShowHeightModal(true);
+            return;
+          }
+          setShowGenderWarning(false);
+        }}
+      />
+
+      <HeightAndSizeModal
+        height={DEFAULT_HEIGHT}
+        unit={
+          allSizingTemplates.find((t) => t.id === conversionTemplateId)?.unit ??
+          DEFAULT_UNIT
+        }
+        onSubmit={(
+          height: number,
+          ukSize: UmojalinnStandardSize,
+          unit: UmojaLinnSizingTemplate["unit"],
+        ) => {
+          if (!conversionTemplateId || !projectGender) return;
+
+          updateSizingTemplate(
+            {
+              ...getClearedSizingTemplatePayload(projectGender),
+              height,
+              ukStandardSize: ukSize,
+              unit,
+            },
+            {
+              onSuccess: () => {
+                form.setValue("sizingTemplateId", conversionTemplateId);
+                setConversionTemplateId(null);
+                setShowHeightModal(false);
+              },
+            },
+          );
+        }}
+        disabled={false}
+        triggerOpen={showHeightModal}
+        onOpenChange={(open) => {
+          if (!isUpdatingSizingTemplate) {
+            setShowHeightModal(open);
+            if (!open) setConversionTemplateId(null);
+          }
+        }}
+        isLoading={isUpdatingSizingTemplate}
+        gender={projectGender}
+      />
     </Form>
   );
 };

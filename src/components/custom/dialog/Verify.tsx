@@ -16,6 +16,7 @@ export type VerifyDialogProps = {
   onOpenChange?: (open: boolean) => void;
   children?: React.ReactNode;
   onConfirm?: React.ComponentProps<"button">["onClick"];
+  pendingConfirm: boolean;
   title: string;
   description: React.ReactNode;
   additionalComponent?: React.ReactNode;
@@ -54,6 +55,7 @@ const VerifyDialog = (props: VerifyDialogProps) => {
               variant={props.destructive ? "destructive" : "default"}
               type="submit"
               onClick={props?.onConfirm}
+              loading={props.pendingConfirm}
               disabled={props.disableActions}
             >
               {props.confirmText || "Continue"}

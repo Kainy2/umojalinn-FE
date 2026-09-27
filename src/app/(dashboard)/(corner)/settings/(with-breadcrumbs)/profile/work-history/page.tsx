@@ -2,12 +2,8 @@
 import { ReviewRatingStars } from "@/components/custom/dialog/Review";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatCurrencyValue } from "@/lib/number";
-import { getCurrencySymbol } from "@/lib/string";
-import { cn } from "@/lib/utils";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { useGetUserReviews } from "@/tanstack/hooks/useProject";
-import { UmojaLinnProject } from "@/types/project";
 import { formatDate } from "date-fns";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -24,97 +20,88 @@ const SettingsProfileWorkHistoryPage = () => {
     },
   );
 
-  const getProjectHref = (id?: string, status?: UmojaLinnProject["status"]) => {
-    if (!id || !status) return null;
-    const baseHref = status === "COMPLETED" ? "completed-jobs" : "active-jobs";
-    return `/${baseHref}/${uuidToBase62Safe(id)}`;
-  };
+  const projectReviews = userReviews?.data?.data ?? [];
 
   if (isPending)
     return (
       <div className="flex flex-col gap-8">
         {new Array(6).fill("").map((_, i) => (
-          <Skeleton className="h-56" key={_ + i} />
+          <Skeleton className="h-56" key={i} />
         ))}
       </div>
     );
 
-  if (!userReviews?.data?.data?.length)
+  if (!projectReviews.length)
     return (
       <div className="flex items-center justify-center h-72 text-muted-foreground">
-        <p>No reviews</p>
+        <p>No reviews to show</p>
       </div>
     );
 
   return (
     <div className="flex flex-col gap-8">
-      {userReviews?.data?.data?.map((proj) => {
-        const firstReview = proj?.reviews?.[0];
+      {projectReviews.map((proj) => {
+        const lastReview = proj.reviews[proj.reviews.length - 1];
+        const avgRating =
+          proj.reviews.length > 0
+            ? proj.reviews.reduce((sum, r) => sum + r.rating, 0) / proj.reviews.length
+            : 0;
 
-        const href = getProjectHref(
-          proj?.projectId,
-          firstReview?.project?.status,
-        );
+        const href = proj.projectId
+          ? `/completed-jobs/${uuidToBase62Safe(proj.projectId)}`
+          : null;
 
         return (
           <div
-            key={proj?.projectId}
+            key={proj.projectId}
             className="border border-input p-4 text-foreground-body"
           >
             <h3 className="text-subtitle-2 text-foreground font-semibold mb-2.5">
-              {proj?.projectTitle}
+              {proj.projectTitle}
             </h3>
-  
+
             <div className="space-y-4">
-              {proj.reviews?.map((review) => (
-                <div key={review?.id}>
-                  <h4 className="font-medium mb-1">
-                    {review?.reviewType === "EXPERIENCE"
-                      ? "Experience"
-                      : "Clothing Quality"}{" "}
-                    feedback
+              {proj.reviews.map((review) => (
+                <div key={review.id}>
+                  <h4 className="font-medium text-primary mb-1">
+                    {review.reviewType === "EXPERIENCE"
+                      ? "Experience feedback"
+                      : "Clothing Quality feedback"}
                   </h4>
-                  <p className="mb-2">&quot;{review?.message}&quot;</p>
-
-                  <p className="text-sm mb-2">
-                    {formatDate(review?.createdAt, "MMM d, yyyy")} - Present
-                  </p>
-                  <ReviewRatingStars small rating={review?.rating} disabled />
-
+                  <p className="mb-2">&quot;{review.message}&quot;</p>
                 </div>
               ))}
             </div>
 
-
-            <Separator className="bg-border/50  mb-2 mt-8" />
-            <div className="flex  justify-between text-sm gap-8">
-              <p className="font-semibold">
-                {getCurrencySymbol(firstReview?.project?.currency)}
-                {formatCurrencyValue(firstReview?.project?.approvedBudget)}
+            {lastReview && (
+              <p className="text-sm mb-2 mt-4">
+                {formatDate(lastReview.createdAt, "MMM d, yyyy")} - Present
               </p>
-              {/* Always show link except variables to show link are unavailable  */}
-              {session?.user?.profileRole === "DESIGNER" && !href ? (
-                  <p className="text-foreground-body">
-                    Designer{" "}
-                    <span className="font-semibold text-foreground">
-                      {
-                        firstReview?.project?.designer?.user
-                          ?.firstName
-                      }{" "}
-                      {firstReview?.project?.designer?.user?.lastName}
-                    </span>
-                  </p>
-                ) : (
-                  <Link
-                    href={href || "#"}
-                    className={cn(
-                      "font-bold text-primary",
-                      !href && "text-muted cursor-not-allowed"
-                    )}
-                  >
-                    View details
-                  </Link>
-                )}
+            )}
+
+            <ReviewRatingStars small rating={Math.round(avgRating * 10) / 10} disabled />
+
+            <Separator className="bg-border/50 mb-2 mt-8" />
+            <div className="flex justify-between text-sm gap-8">
+              <p className="font-semibold">
+                {proj.approvedBudget ?? "-"}
+              </p>
+              {proj.counterparty ? (
+                <p className="text-foreground-body">
+                  <span className="font-semibold text-foreground">
+                    {proj.counterparty.firstName} {proj.counterparty.lastName}
+                  </span>
+                </p>
+              ) : null}
+              {href ? (
+                <Link href={href} className="font-bold text-primary">
+                  View details
+                </Link>
+              ) : (
+                <span className="font-bold text-muted cursor-not-allowed">
+                  View details
+                </span>
+              )}
             </div>
           </div>
         );

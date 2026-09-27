@@ -8,24 +8,56 @@ import {
   DESIGNERS_SIDEBAR_CONTENT,
 } from "@/constant/navigation";
 import { cn } from "@/lib/utils";
+import { Plus } from "lucide-react";
+import { useGetAppConfig } from "@/tanstack/hooks/useUser";
 
 const CustomSidebarMenu = (props: {
   profileRole?: UmojaLinnUserRole | null;
   isMobile?: boolean;
 }) => {
+  const isBuyer = props.profileRole === "BUYER";
+  const { data: appConfigData } = useGetAppConfig({ enabled: isBuyer });
+  const umojaInviterTag = appConfigData?.data?.data?.umojaInviterTag;
+
   if (!props.profileRole) {
     return null;
   }
 
   const Menu = props.isMobile ? "div" : SidebarMenu;
+  const isDesigner = props.profileRole === "DESIGNER";
+  const items = isDesigner ? DESIGNERS_SIDEBAR_CONTENT : BUYERS_SIDEBAR_CONTENT;
 
-  const items =
-    props.profileRole === "DESIGNER"
-      ? DESIGNERS_SIDEBAR_CONTENT
-      : BUYERS_SIDEBAR_CONTENT;
-
+  // {
+  //   title: "Share your work",
+  //   url: "/share-your-work",
+  //   icon: <ImageIcon />,
+  //   regex: /^\/share-your-work$/,
+  // },
   return (
     <Menu className={cn(props.isMobile && "flex flex-col gap-1 pb-8")}>
+      {isDesigner && (
+        <div className="border text-primary mb-4">
+          <CustomSidebarMenuItem
+            title="Share your work"
+            url="/share-your-work"
+            icon={<Plus className="text-primary h-5 w-5" />}
+            isMobile={props.isMobile}
+            tourTargetId="tour-designer-share-work"
+          />
+        </div>
+      )}
+
+      {isBuyer && (
+        <div className="border text-primary mb-4">
+          <CustomSidebarMenuItem
+            title="Create Project"
+            url={`/register?inviterTag=${umojaInviterTag ?? ""}`}
+            icon={<Plus className="text-primary h-5 w-5" />}
+            isMobile={props.isMobile}
+          />
+        </div>
+      )}
+
       {items.map((item) => (
         <CustomSidebarMenuItem
           {...item}

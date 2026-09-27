@@ -1,16 +1,21 @@
 import {
   changePassword,
+  completeGuidedTour,
   deleteProjectInvitationById,
   getMe,
   getNotificationSettings,
   onboard,
   updateNotificationSettings,
   updateUserDetails,
+  verifyWalletPassword,
+  getAppConfig,
+  sendCallNotification,
 } from "@/actions/user";
 import { queryClient } from "@/components/provider/TanstackQueryClient";
+import type { TCompleteGuidedTourBody } from "@/constant/tour/@types";
 import {
-  GenericUseMutationProps,
   GenericUseQueryProps,
+  GenericUseMutationProps,
 } from "@/types/tanstack";
 import { UmojaLinnNotification, UmojaLinnUser } from "@/types/user";
 import { ArrayApiResponse, SingleApiResponse } from "@/types/util";
@@ -18,11 +23,24 @@ import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
-import { ME, NOTIFICATION, USER } from "../keys";
-import { getNotifications, markNotificationAsRead } from "@/actions/project";
+import { APP_CONFIG, ME, NOTIFICATION, USER } from "../keys";
+import { getNotifications, markAllNotificationsAsRead, markNotificationAsRead } from "@/actions/project";
 import useHandleError from "@/hooks/useHandleError";
 import { NotificationSettingsProps, PasswordUpdateProps } from "@/types/form";
 import { logOut } from "@/lib/auth";
+import { TAppConfig } from "@/types/app-config";
+
+export const useGetAppConfig = (
+  options?: GenericUseQueryProps<SingleApiResponse<TAppConfig>>,
+) => {
+  const { data: me } = useSession();
+  return useQuery({
+    ...options,
+    enabled: !!me?.user && options?.enabled !== false,
+    queryKey: [USER, APP_CONFIG],
+    queryFn: () => getAppConfig(),
+  });
+};
 
 export const useGetMe = (
   options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnUser>>,
@@ -43,9 +61,9 @@ export const useGetMe = (
         logOut(
           me?.user?.profileRole,
           {
-          callbackUrl: `/login?redirectTo=${path}`,
-          redirect: true,
-        });
+            callbackUrl: `/login?redirectTo=${path}`,
+            redirect: true,
+          });
       }
       return false;
     },
@@ -78,13 +96,26 @@ export const useMarkNotificationAsRead = (
   });
 };
 
+export const useMarkAllNotificationsAsRead = (
+  // options?: GenericUseMutationProps<SingleApiResponse, { ids: string[]; }>,
+) => {
+  return useMutation({
+    // ...options,
+    mutationFn: markAllNotificationsAsRead,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [NOTIFICATION] });
+      // options?.onSuccess?.(data, variables, context);
+    },
+  });
+};
+
 export const useGetInfiniteNotifications = (lastId?: string) => {
   const { data: me } = useSession();
   return useInfiniteQuery({
     initialPageParam: lastId,
     enabled: !!me?.user,
     queryKey: [NOTIFICATION],
-    queryFn: ({pageParam}) => getNotifications(pageParam),
+    queryFn: ({ pageParam }) => getNotifications(pageParam),
     getNextPageParam: (lastPage) => lastPage?.data.lastId,
   });
 };
@@ -155,6 +186,26 @@ export const useUpdateNotificationSettings = (
   });
 };
 
+export const useCompleteGuidedTour = (
+  options?: GenericUseMutationProps<
+    SingleApiResponse,
+    TCompleteGuidedTourBody
+  >,
+) => {
+  return useMutation({
+    ...options,
+    mutationFn: completeGuidedTour,
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [USER, ME] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      // Soft fail: localStorage remains source of truth for auto-start.
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
 export const useGetNotificationSettings = (
   options?: GenericUseQueryProps<SingleApiResponse<NotificationSettingsProps>>,
 ) => {
@@ -179,6 +230,38 @@ export const useDeleteProjectInvitation = (
       queryClient.invalidateQueries({ queryKey: [USER, ME] });
       options?.onSuccess?.(data, variables, context);
     },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useVerifyWalletPassword = (
+  options?: GenericUseMutationProps<SingleApiResponse, { email: string; password: string }>
+) => {
+  const { handleError } = useHandleError("Verify Wallet Access");
+  return useMutation({
+    ...options,
+    mutationFn: (variables) => verifyWalletPassword(variables),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [USER, ME] }); // if needed
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useSendCallNotification = (
+  options?: GenericUseMutationProps<SingleApiResponse, { receiverId: string; callId: string }>
+) => {
+  const { handleError } = useHandleError("Call Notification");
+  return useMutation({
+    ...options,
+    mutationFn: (variables) => sendCallNotification(variables),
     onError: (error, variables, context) => {
       handleError(error);
       options?.onError?.(error, variables, context);

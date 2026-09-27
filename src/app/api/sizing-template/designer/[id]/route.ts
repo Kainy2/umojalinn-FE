@@ -11,11 +11,13 @@ export const GET = async (
     await setBearerToken(req);
 
     const id = (await params)?.id;
+    const { searchParams } = new URL(req.url);
+    const view = searchParams.get("view");
 
     const response = await customAxios.get<
       unknown,
       AxiosResponse<SingleApiResponse, unknown>
-    >(`/sizing-template/designer/${id}`);
+    >(`/sizing-template/designer/${id}${view === "true" ? "?view=true" : ""}`);
 
     return NextResponse.json(response.data);
   } catch (error) {

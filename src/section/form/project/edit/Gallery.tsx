@@ -2,7 +2,7 @@
 import TextField from "@/components/custom/input/TextField";
 import { Label } from "@/components/ui/label";
 import { RadioGroupItem } from "@/components/ui/radio-group";
-import { cn, fileToPreviewUrl, jsonToFormData } from "@/lib/utils";
+import { cn, fileToPreviewUrl, getProjectImageDetailUpdate, jsonToFormData } from "@/lib/utils";
 import {
   useGetProjectById,
   useUpdateProjectById,
@@ -11,7 +11,8 @@ import { RadioGroup } from "@radix-ui/react-radio-group";
 import { Trash2 } from "lucide-react";
 import Image from "next/image";
 import React, { useCallback, useId, useMemo, useState } from "react";
-import ProjectEditFooter from "./Footer";
+import ProjectEditFooter from "./ProjectEditFooter";
+// import ProjectEditFooter from "./Footer";
 import FormItemWrapper from "@/components/custom/FormItemWrapper";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
@@ -20,19 +21,22 @@ import { uuidToBase62Safe } from "@/lib/uuid";
 import { ProjectFormProps } from "./Description";
 import FileUploadPicker from "@/components/custom/picker/FileUpload";
 import { useFileSizeError } from "@/hooks/useFilePicker";
-import { MAX_FILE_SIZE_FOR_FILE_UPLOAD } from "@/constant";
+import { MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES } from "@/constant";
+import { useCreateProjectContext } from "@/hooks/create-project/useCreateProjectContext";
 
 const ProjectGalleryForm = (props: ProjectFormProps) => {
   const id = useId();
+  const [submittingButtonType, setSubmittingButtonType] = useState<'DRAFT' | 'SAVE'>('SAVE')
   const { data, isPending: loadingProject } = useGetProjectById(props?.id);
   const { mutate: updateProject, isPending: isUpdating } = useUpdateProjectById(
     props?.id
   );
   const { toast } = useToast();
   const router = useRouter();
+  const { projectFormDetails, setProjectFormDetails } = useCreateProjectContext()
+  const isAds = data?.data.data.status === 'ADS'
 
-  const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD);
-
+  const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES);
   const [values, setValues] = useState<
     {
       id: string | number;
@@ -44,18 +48,21 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
   >([]);
 
   useMemo(() => {
-    if (data?.data?.data?.Gallery) {
-      setValues(
-        data?.data?.data?.Gallery?.map((gallery) => ({
-          id: gallery?.id,
-          title: gallery.title,
-          fileName: gallery.imageUrl,
-          isCoverImage: gallery.isCoverImage,
-          image: gallery.imageUrl,
-        })) || []
-      );
+    if (isAds && !!projectFormDetails.gallery?.length) {
+      setValues(projectFormDetails.gallery)
+      return
     }
-  }, [data?.data?.data?.Gallery]);
+
+    if (data?.data?.data?.Gallery) {
+      setValues(data?.data?.data?.Gallery.map((gallery) => ({
+        id: gallery?.id,
+        title: gallery.title,
+        fileName: gallery.imageUrl,
+        isCoverImage: gallery.isCoverImage,
+        image: gallery.imageUrl,
+      })) || []);
+    }
+  }, [data?.data?.data?.Gallery, projectFormDetails.gallery, isAds]);
 
   const preview = useMemo(() => {
     return values?.map((val) => ({
@@ -72,7 +79,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
     (file: File | null) => {
       const fileObject = file as File;
 
-      if (fileObject.size / (1024 * 1024) < 50) {
+      if (fileObject.size < MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES) {
         setValues((prev) => [
           ...prev,
           {
@@ -87,7 +94,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
       } else {
         toast({
           title: "File error",
-          description: `Maximum file size is 50MB, this file is ${(
+          description: `Maximum file size is ${MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES / (1024 * 1024)}MB, this file is ${(
             fileObject.size /
             (1024 * 1024)
           ).toFixed(2)}MB. . You can compress the image using an image editor and try uploading again.`,
@@ -117,6 +124,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
   const handleCoverImageToggle =
     (index: number) => (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       e.preventDefault();
+
       setValues((prev) =>
         prev.map((val, i) =>
           i === index
@@ -126,36 +134,49 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
       );
     };
 
+
+
   const handleSubmit = useCallback(
     (mode: "SAVE" | "DRAFT") =>
       (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.preventDefault();
-        const oldIdList = values
-          ?.map((val) => val?.id)
-          .filter((val) => typeof val === "string");
-        const toAdd = values?.filter((val) => typeof val?.image !== "string");
+        setSubmittingButtonType(mode)
+
+        if (isAds) {
+          setProjectFormDetails(prev => ({ ...prev, gallery: values }))
+          router.push(`/project/${uuidToBase62Safe(props?.id)}/requirements-and-budget`);
+          return
+        }
+
+        // const oldIdList = values
+        //   ?.map((val) => val?.id)
+        //   .filter((val) => typeof val === "string");
+        // const toAdd = values?.filter((val) => typeof val?.image !== "string");
+
+
         updateProject(
           jsonToFormData({
-            imagesMeta: toAdd?.map(({ title, fileName, isCoverImage }) => ({
-              title,
-              fileName,
-              isCoverImage,
-            })),
-            "gallery-images": toAdd.map(({ image }) => image),
-            imagesToRemove: data?.data?.data?.Gallery?.filter(
-              (gallery) => !oldIdList.includes(gallery?.id)
-            )?.map(({ id }) => id),
+            ...getProjectImageDetailUpdate(values, data?.data?.data?.Gallery),
+
+            // imagesMeta: toAdd?.map(({ title, fileName, isCoverImage }) => ({
+            //   title,
+            //   fileName,
+            //   isCoverImage,
+            // })),
+            // "gallery-images": toAdd.map(({ image }) => image),
+            // imagesToRemove: data?.data?.data?.Gallery?.filter(
+            //   (gallery) => !oldIdList.includes(gallery?.id)
+            // )?.map(({ id }) => id),
           }),
           {
             onSuccess() {
               router.push(
                 mode === "DRAFT"
-                  ? "/projects"
-                  : `${
-                      !!props.isOnboarding ? "/onboard" : ""
-                    }/project/${uuidToBase62Safe(
-                      props?.id
-                    )}/requirements-and-budget`
+                  ? "/projects/drafts"
+                  : `${!!props.isOnboarding ? "/onboard" : ""
+                  }/project/${uuidToBase62Safe(
+                    props?.id
+                  )}/requirements-and-budget`
               );
             },
           }
@@ -168,6 +189,9 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
       router,
       updateProject,
       values,
+      isAds,
+      setProjectFormDetails,
+
     ]
   );
 
@@ -188,14 +212,17 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
         title="Project Gallery"
         description="Upload styling inspiration to help designers."
       >
-        <div className="flex flex-col gap-8 mb-8">
+        <div
+          id="tour-create-project-gallery"
+          className="flex flex-col gap-8 mb-8"
+        >
           {preview.map((value, index) => (
             <div key={value?.id} className="flex flex-col gap-4">
               <TextField
                 value={value.title}
                 onChange={handleTitleChange(index)}
-                maxLength={100}
-                hint={`${value?.title?.length || 0}/100 characters`}
+                maxLength={500}
+                hint={`${value?.title?.length || 0}/500 characters`}
               />
               <div>
                 <div className="relative h-52 mb-4">
@@ -231,6 +258,7 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
               </div>
             </div>
           ))}
+
           <div
             className={cn(
               "flex flex-col gap-4",
@@ -238,10 +266,10 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
             )}
           >
             <TextField
-              maxLength={100}
+              maxLength={500}
               value={entryTitle}
-              onChange={(e) => setEntryTitle(e.currentTarget.value)}
-              hint={`${entryTitle?.length || 0} / 100 characters`}
+              onChange={(e) => setEntryTitle(e.target.value)}
+              hint={`${entryTitle?.length || 0} / 500 characters`}
             />
             <FileUploadPicker
               accept="image/*"
@@ -255,10 +283,34 @@ const ProjectGalleryForm = (props: ProjectFormProps) => {
           </div>
         </div>
       </FormItemWrapper>
-      <ProjectEditFooter
+      {/* <ProjectEditFooter
         handleSave={handleSubmit("SAVE")}
         handleDraft={handleSubmit("DRAFT")}
         loading={isUpdating}
+      /> */}
+
+
+      <ProjectEditFooter
+        leftButtonProps={{
+          onClick: (e) => {
+            if (isAds) handleSubmit("SAVE")(e);
+            else handleSubmit("DRAFT")(e);
+            router.back()
+          }
+        }}
+        rightSecondaryButtonProps={{
+          text: isAds ? "Cancel" : "Save & Exit",
+          loading: isUpdating && submittingButtonType === "DRAFT",
+          onClick: (e) => {
+            if (isAds) router.push(`/projects/ads/${uuidToBase62Safe(props?.id)}`);
+            else handleSubmit("DRAFT")(e);
+          },
+        }}
+        rightPrimaryButtonProps={{
+          text: isAds ? "Next" : undefined,
+          loading: isUpdating && submittingButtonType === "SAVE",
+          onClick: handleSubmit("SAVE"),
+        }}
       />
     </>
   );

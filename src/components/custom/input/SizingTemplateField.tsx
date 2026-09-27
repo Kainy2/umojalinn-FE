@@ -54,11 +54,11 @@ const SizingTemplateInputField = forwardRef<
         {props.label}
       </label>
       <div className="flex items-center gap-2">
-        <div className="text-sm rounded-full relative">
+        <div className="text-sm rounded-full relative min-w-28 shrink-0">
           {props.disabled ? (
             <span
               className={cn(
-                "text-primary text-right pr-10",
+                "inline-block min-w-28 text-primary text-right pr-10",
                 props.unit === "INCH" && "pr-14",
               )}
             >
@@ -68,7 +68,7 @@ const SizingTemplateInputField = forwardRef<
             <input
               ref={ref}
               className={cn(
-                "text-primary text-right placeholder:text-primary focus-visible:outline-none focus-visible:bg-gray-100 rounded-full p-1 pr-10",
+                "w-28 text-primary text-right placeholder:text-primary focus-visible:outline-none focus-visible:bg-gray-100 rounded-full p-1 pr-10",
                 props.unit === "INCH" && "pr-14",
               )}
               id={id}

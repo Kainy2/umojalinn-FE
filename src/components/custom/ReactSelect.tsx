@@ -11,6 +11,7 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
+import { FieldError } from "react-hook-form";
 
 export type CustomReactSelectProps = Props &
   Partial<{
@@ -18,6 +19,7 @@ export type CustomReactSelectProps = Props &
     fullWidth: boolean;
     startAdornment: React.ReactNode;
     wrapperClassName: string;
+    error: FieldError;
   }>;
 
 export type CustomReactSelectFieldProps = CustomReactSelectProps & FieldProps;
@@ -61,7 +63,7 @@ const CustomReactSelect = (props: CustomReactSelectProps) => {
       className={cn(
         "text-foreground-body", // Adjust width and text size
         !props.adornment &&
-          "focus-within:ring-2 focus-within:ring-ring ring-offset-background focus-within:ring-offset-2 focus-within:outline-none focus-within:border-none transition-all duration-100",
+        "focus-within:ring-2 focus-within:ring-ring ring-offset-background focus-within:ring-offset-2 focus-within:outline-none focus-within:border-none transition-all duration-100",
         props.adornment && "!focus-within:ring-none !border-transparent !h-9",
         props.fullWidth && "w-full",
         props.className
@@ -108,10 +110,11 @@ export const CustomReactSelectField: React.FC<CustomReactSelectFieldProps> = ({
   label,
   hint,
   wrapperClassName,
+  // error,  
   ...selectProps
 }) => {
   return (
-    <div className={cn("grid w-full items-center gap-1.5", wrapperClassName)}>
+    <div className={cn("grid w-full items-center  gap-1.5", wrapperClassName)}>
       {label &&
         (typeof label === "string" ? (
           <Label>{label}</Label>

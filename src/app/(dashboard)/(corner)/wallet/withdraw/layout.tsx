@@ -1,3 +1,4 @@
+import WithdrawAvailableBalance from "@/components/custom/wallet/WithdrawAvailableBalance";
 import { Slash, Wallet } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import React from "react";
@@ -17,7 +18,7 @@ const Layout = ({ children }: LayoutProps) => {
       <h1 className="text-subtitle-1 font-bold text-foreground mb-1">
         Withdrawal method
       </h1>
-      <p className="text-foreground-body">Update your withdrawal methods</p>
+      <WithdrawAvailableBalance />
       <Separator className="bg-gray-200 my-8" />
       {children}
     </div>

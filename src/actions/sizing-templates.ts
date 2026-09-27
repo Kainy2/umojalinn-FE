@@ -2,6 +2,7 @@ import { clientAxios, getServerAxiosWithToken } from "@/lib/axios";
 import { convertApiParams } from "@/lib/request";
 import { base62ToUuidSafe } from "@/lib/uuid";
 import {
+  UmojaLinnCurrency,
   UmojaLinnFemaleSizingTemplateProps,
   UmojaLinnMaleSizingTemplateProps,
   UmojaLinnSizingTemplate,
@@ -39,7 +40,7 @@ export const updateSizingTemplate = async (
   return axios.put<
     unknown,
     AxiosResponse<SingleApiResponse<UmojaLinnSizingTemplate>>
-  >(`/sizing-template/${id}/update`, body);
+  >(`/sizing-template/${base62ToUuidSafe(id)}/update`, body);
 };
 
 export const getSizingTemplates = async (
@@ -91,6 +92,7 @@ export const getBuyerSizingTemplateById = async (
 
 export const getDesignerSizingTemplateById = async (
   id: string,
+  view?: boolean,
   options?: ServerActionOption
 ) => {
   let axios = clientAxios;
@@ -100,7 +102,7 @@ export const getDesignerSizingTemplateById = async (
   return axios.get<
     unknown,
     AxiosResponse<SingleApiResponse<UmojaLinnSizingTemplate>>
-  >(`/sizing-template/designer/${base62ToUuidSafe(id)}`);
+  >(`/sizing-template/designer/${base62ToUuidSafe(id)}${view ? "?view=true" : ""}`);
 };
 
 export const requestChangeOnSizingTemplate = async (
@@ -169,5 +171,122 @@ export const addSizingTemplateToProject = async (
       projectId: base62ToUuidSafe(projectId),
       sizingTemplateId: base62ToUuidSafe(sizingTemplateId),
     }
+  );
+};
+
+export const requestMeasurementPoints = async (
+  projectId: string,
+  requestedMeasurementPoints: string[],
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/sizing-template/request-measurement-points`,
+    {
+      projectId: base62ToUuidSafe(projectId),
+      requestedMeasurementPoints,
+    }
+  );
+};
+
+export const requestMeasurementPointsOnBid = async (
+  bidId: string,
+  measurements: Partial<
+    UmojaLinnMaleSizingTemplateProps & UmojaLinnFemaleSizingTemplateProps
+  >,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/project/bid/${base62ToUuidSafe(bidId)}/request-measurement-points`,
+    measurements
+  );
+};
+
+export const getRequestedMeasurementPoints = async (
+  projectId: string,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.get<unknown, AxiosResponse<SingleApiResponse<string[]>>>(
+    `/sizing-template/project/${base62ToUuidSafe(projectId)}/requested-points`
+  );
+};
+
+export const submitMeasurementPoints = async (
+  templateId: string,
+  projectId: string,
+  measurements: Partial<
+    UmojaLinnMaleSizingTemplateProps & UmojaLinnFemaleSizingTemplateProps
+  >,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/sizing-template/${base62ToUuidSafe(templateId)}/submit-measurement-points?projectId=${base62ToUuidSafe(projectId)}`,
+    measurements
+  );
+};
+
+export const saveMeasurementPoints = async (
+  templateId: string,
+  measurements: Partial<
+    UmojaLinnMaleSizingTemplateProps & UmojaLinnFemaleSizingTemplateProps
+  >,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/sizing-template/${base62ToUuidSafe(templateId)}/save-measurement-points`,
+    measurements
+  );
+};
+
+export const sendSizingTemplateReminder = async (
+  templateId: string,
+  projectId: string,
+  reminderType: import("@/constant").SizingTemplateReminderType,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/sizing-template/${base62ToUuidSafe(templateId)}/send-reminder`,
+    {
+      projectId: base62ToUuidSafe(projectId),
+      reminderType,
+    }
+  );
+};
+
+export const purchaseSizingTemplate = async (
+  body: { currency: UmojaLinnCurrency; numberOfTemplates: number },
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse<{ checkoutUrl: string }>>>(
+    `/sizing-template/purchase`,
+    body
   );
 };

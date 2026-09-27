@@ -1,10 +1,6 @@
 name: Pre-Commit Checks
 
 on:
-  push:
-    branches:
-      - main
-      - dev
   pull_request:
     branches:
       - main
@@ -32,3 +28,17 @@ jobs:
 
       - name: Run Type Check
         run: yarn type-check
+
+      - name: Create .env file at runtime
+        run: |
+          # 1. Clear any existing build-env file to prevent duplicates
+          true > .env.production
+          
+          # 2. Extract and dump all GitHub Secrets into the file
+          echo '${{ toJSON(secrets) }}' | jq -r 'to_entries | .[] | "\(.key)=\(.value)"' >> .env.production
+          
+          # 3. Extract and append all GitHub Variables into the file
+          echo '${{ toJSON(vars) }}' | jq -r 'to_entries | .[] | "\(.key)=\(.value)"' >> .env.production
+
+      - name: Run next build
+        run: yarn build

@@ -1,24 +1,27 @@
 "use client";
+/**
+ * BidTabProjectDetailsSection - Displays project details in bid sidebar.
+ * Uses the reusable SizingTemplatePill component for sizing template states.
+ */
+
 import LabelValue from "@/components/custom/LabelValue";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import React from "react";
 import { format } from "date-fns";
 import { getCurrencySymbol } from "@/lib/string";
-import { CircleAlert, EyeOff } from "lucide-react";
+import { EyeOff } from "lucide-react";
 import { useGetBidById } from "@/tanstack/hooks/useBid";
 import { Skeleton } from "@/components/ui/skeleton";
 import GalleryImages from "@/components/custom/GalleryImages";
-import SizingTemplateDialog from "@/components/custom/dialog/SizingTemplate";
-import AvatarIconTag from "@/components/custom/tag/AvatarIcon";
-import CheckCircle from "@/icons/CheckCircle";
 import { formatCurrencyValue } from "@/lib/number";
+import { cn } from "@/lib/utils";
+import { SizingTemplatePill } from "@/components/sizing-template";
 
 const BidTabProjectDetailsSection = () => {
   const { id } = useParams<{ id: string }>();
   const { data: bidData, isPending } = useGetBidById(id);
   const bid = bidData?.data?.data;
-
   const project = bid?.project;
 
   if (isPending) {
@@ -55,7 +58,7 @@ const BidTabProjectDetailsSection = () => {
   }
 
   return (
-    <div className="flex flex-col gap-8">
+    <div id="tour-review-bid-project-details" className="flex flex-col gap-8">
       <div className="relative bg-stone-100 border-l-4 border-stone-600 p-4">
         {project.projectType === "PRIVATE" && (
           <span className="absolute rounded-full p-2 [&>svg]:size-5 text-primary bg-background top-2 right-2">
@@ -68,7 +71,15 @@ const BidTabProjectDetailsSection = () => {
           {formatCurrencyValue(project?.budget)}
         </p>
       </div>
-      <p className="mb-2">{project?.about}</p>
+
+      <div>
+        <p className="text-sm my-1">Client</p>
+        <p className="text-base font-semibold">
+          {project?.buyer?.user?.firstName} {project?.buyer?.user?.lastName}
+        </p>
+      </div>
+
+      <p className="mb-2 break-words">{project?.about}</p>
       <LabelValue
         label="Delivery location"
         value={[
@@ -76,15 +87,29 @@ const BidTabProjectDetailsSection = () => {
           project?.deliveryAddress?.country || "",
         ]}
       />
-      {/* <LabelValue label="Language" value={[["English", "Basic"]]} /> */}
-      {/* <LabelValue label="Total jobs" value={"16 Jobs"} /> */}
       <LabelValue
         label="Project deadline"
         value={
           project?.dueDate ? format(project?.dueDate, "dd MMM, yyyy") : "None"
         }
       />
-      {/* <LabelValue label="Yeas of Experience" value={"2 - 3 years"} /> */}
+
+      <div className="items-center gap-2">
+        <p className="text-foreground-body text-sm mb-2">
+          Will buyer provide materials?
+        </p>
+        <div
+          className={cn(
+            "mb-2 font-semibold text-subtitle-2",
+            bid.project.willProvideMaterials
+              ? "text-green-500"
+              : "text-red-600",
+          )}
+        >
+          {bid.project.willProvideMaterials ? "Yes" : "No"}
+        </div>
+      </div>
+
       <LabelValue
         label="Clothing types"
         value={project?.clothingTypes?.map((type) => type?.name) || "None"}
@@ -93,36 +118,12 @@ const BidTabProjectDetailsSection = () => {
         label="Additional note"
         value={project?.additionalNotes || "None"}
       />
+
+      {/* Sizing Template Pill */}
       <span>
-        {project?.sizingTemplateId ? (
-          <SizingTemplateDialog id={project?.sizingTemplateId}>
-            <AvatarIconTag
-              label="View sizing template"
-              icon={<CheckCircle className="text-success" />}
-            />
-          </SizingTemplateDialog>
-        ) : bid?.sizingTemplateRequested ? (
-          <AvatarIconTag
-            label="Sizing template requested"
-            icon={
-              <span className="text-white [&>svg]:size-5 size-7 rounded-full bg-primary flex items-center justify-center">
-                <CircleAlert />
-              </span>
-            }
-            disabled
-          />
-        ) : (
-          <AvatarIconTag
-            label="No sizing template"
-            icon={
-              <span className="text-white [&>svg]:size-5 size-7 rounded-full bg-error flex items-center justify-center">
-                <CircleAlert />
-              </span>
-            }
-            disabled
-          />
-        )}
+        <SizingTemplatePill projectId={project.id} bidId={bid.id} />
       </span>
+
       <div>
         <h3 className="mb-2 font-semibold text-subtitle-2">
           Styling Inspirations
@@ -130,24 +131,22 @@ const BidTabProjectDetailsSection = () => {
         <p className="text-sm mb-4 text-foreground-body">
           Snapshots of your work
         </p>
-        <div className="grid grid-cols-2 gap-4">
-          {project?.Gallery?.map?.((gallery) => (
-            <GalleryImages
-              title={gallery?.title}
-              src={gallery?.imageUrl}
-              wrapperClassName="aspect-square w-full h-auto"
-              key={gallery.id}
-            />
-          )) || (
-            <Image
-              src="/img/svg/null.svg"
-              alt=""
-              height={500}
-              width={500}
-              className="w-full col-span-2 aspect-square object-cover"
-            />
-          )}
-        </div>
+        {project?.Gallery ? (
+          <GalleryImages
+            height={100}
+            width={100}
+            images={project.Gallery}
+            wrapperClassName="aspect-square w-full h-auto"
+          />
+        ) : (
+          <Image
+            src="/img/svg/null.svg"
+            alt=""
+            height={500}
+            width={500}
+            className="w-full col-span-2 aspect-square object-cover"
+          />
+        )}
       </div>
     </div>
   );

@@ -13,43 +13,61 @@ import { Switch } from "@/components/ui/switch";
 import { getCurrencySymbol } from "@/lib/string";
 import { UmojaLinnDeliveryMethod } from "@/types/project";
 import { Separator } from "@radix-ui/react-separator";
-import { Plus } from "lucide-react";
+import { Info, Plus } from "lucide-react";
 import { formatCurrencyValue } from "@/lib/number";
 import { useBidEdit } from "@/hooks/use-bid-edit";
-
-const SERVICE_FEE = 0;
+import { VariableDeliverySelect } from "@/components/custom/bids/VariableDeliverySelect";
+import { useGetAppConfig } from "@/tanstack/hooks/useUser";
+import { StripeStatusModal } from "@/components/custom/dialog/StripeStatusModal";
 
 const BidPage = () => {
-
+  const { data: appConfig } = useGetAppConfig();
+  const SERVICE_FEE_PERCENTAGE =
+    appConfig?.data?.data?.platformCommissionRate || 17;
   const {
     bid,
     project,
     handleCancel,
-    handleUpdateAction,
-		handleAdd,
-		handleToggle,
-		handleSave,
-		handleUpdate,
-		milestones,
-		totalPrice,
-		addNote,
-		setAddNote,
-		note,
-		setNote,
-		excess,
-		showExcessDialog,
-		setShowExcessDialog,
-		deliveryMethod,
-		setDeliveryMethod,
-		deliveryMilestonePrice,
-		setDeliveryMilestonePrice,
-		mode,
-		editMode,
-		editing,
-		isPending,
-		deleteMilestone,
+    // handleUpdateAction,
+    handleAdd,
+    handleToggle,
+    handleSave,
+    handleUpdate,
+    handleExcessConfirm,
+    handleFinalSubmit,
+    milestones,
+    totalPrice,
+    addNote,
+    setAddNote,
+    note,
+    setNote,
+    excess,
+    showExcessDialog,
+    setShowExcessDialog,
+    deliveryMethod,
+    setDeliveryMethod,
+    deliveryMilestonePrice,
+    setDeliveryMilestonePrice,
+    editMode,
+    editing,
+    isPending,
+    deleteMilestone,
+    isUpdatingBid,
+    isSubmittingBid,
+    isPendingDelete,
+    isPendingUpdateBid,
+    isPendingCreateBid,
+    selectedDeliveryMethodType,
+    setSelectedDeliveryMethodType,
+    showStripeModal,
+    setShowStripeModal,
+    paymentStatus,
   } = useBidEdit();
-  
+
+  // Delivery milestones are not subject to platform commission.
+  const commissionableTotal = Math.max(totalPrice - deliveryMilestonePrice, 0);
+  const commission = (commissionableTotal * SERVICE_FEE_PERCENTAGE) / 100;
+
   if (isPending) {
     return (
       <div className="flex flex-col gap-8">
@@ -68,14 +86,6 @@ const BidPage = () => {
     );
   }
 
-  // if (bid?.designerId !== meData?.data?.data?.designerProfile?.id) {
-  //   return (
-  //     <p className="h-60 flex items-center justify-center text-gray-400">
-  //       No edit access
-  //     </p>
-  //   );
-  // }
-
   return (
     <div className="flex flex-col gap-8">
       {bid?.rejectionReason && (
@@ -86,21 +96,38 @@ const BidPage = () => {
         />
       )}
       {milestones.map((milestone, index) => (
-       <MilestoneCard
-					hideActions={(!!editing && index !== editing) || !editMode}
-					onDelete={() =>
-						milestone?.id && deleteMilestone(milestone?.id)
-					}
-					onCancel={()=> handleCancel(index)}
-					onSave={handleSave(index)}
-					key={index}
-					view={index !== editing || !editMode}
-					{...milestone}
-					onEdit={handleToggle(index)}
-					currency={project?.currency || null}
-				/>
+        <MilestoneCard
+          loadingDelete={isPendingDelete}
+          hideActions={(!!editing && index !== editing) || !editMode}
+          onDelete={() => milestone?.id && deleteMilestone(milestone?.id)}
+          onCancel={() => handleCancel(index)}
+          onSave={handleSave(index)}
+          loadingSave={isPendingUpdateBid || isPendingCreateBid}
+          key={index}
+          view={index !== editing || !editMode}
+          tourMilestoneFieldsTargetId={
+            index === 0 ? "tour-create-bid-milestone-fields" : undefined
+          }
+          tourPaymentTargetId={
+            index === 0 ? "tour-create-bid-milestone-payment" : undefined
+          }
+          {...milestone}
+          onEdit={handleToggle(index)}
+          currency={project?.currency || null}
+        />
       ))}
-      <div className="card p-8">
+
+      {editMode && !editing && (
+        <button
+          className="text-left w-fit flex text-sm text-primary  [&>svg]:size-5 gap-2"
+          onClick={handleAdd}
+        >
+          <Plus />
+          Add another milestone
+        </button>
+      )}
+
+      <div id="tour-create-bid-delivery-milestone" className="card p-8">
         <div className="text-gray-400">
           <h3 className="mb-2 font-semibold  text-subtitle-1">
             Delivery Milestone
@@ -110,9 +137,14 @@ const BidPage = () => {
             {project?.deliveryAddress?.country}
           </h3>
           <p className="text-sm mb-4">
-            The complete location information of the client will be made
-            available at the commencement of the project.
+            The Client&apos;s full address will be shown once the project is
+            Active
           </p>
+
+          <VariableDeliverySelect
+            selectedDeliveryType={selectedDeliveryMethodType}
+            onChangeDeliveryType={setSelectedDeliveryMethodType}
+          />
         </div>
         <DeliveryMethodPicker
           disabled={!!editing || !editMode}
@@ -129,17 +161,9 @@ const BidPage = () => {
           onPriceChange={setDeliveryMilestonePrice}
         />
       </div>
-      {editMode && !editing && (
-        <button
-          className="text-left w-fit flex text-sm text-primary  [&>svg]:size-5 gap-2"
-          onClick={handleAdd}
-        >
-          <Plus />
-          Add another milestone
-        </button>
-      )}
+
       <div className="font-semibold">
-        <div className="bg-slate-200/30 text-sm p-4 flex flex-col gap-4">
+        <div className="bg-slate-200/30 p-4 flex flex-col gap-4">
           <p className="flex justify-between ">
             <span className="text-foreground-body">Total Price</span>
             <span>
@@ -148,19 +172,23 @@ const BidPage = () => {
             </span>
           </p>
           <p className="flex justify-between">
-            <span className="text-foreground-body">Service fee</span>
+            <span className="text-foreground-body">Commission</span>
             <span>
               -{getCurrencySymbol(project?.currency)}
-              {formatCurrencyValue(totalPrice * SERVICE_FEE)}
+              {formatCurrencyValue(commission)}
             </span>
           </p>
+          <div className="text-gray-400 text-sm flex flex-row gap-1 items-center">
+            <Info className="w-3 h-3" />
+            <p>The Delivery milestone does not incur any commission.</p>
+          </div>
         </div>
         <p className="flex justify-between p-4 py-2 bg-gray-200">
           {" "}
           <span className="text-foreground-body">You receive</span>
           <span>
             {getCurrencySymbol(project?.currency)}
-            {formatCurrencyValue(totalPrice * (1 - SERVICE_FEE))}
+            {formatCurrencyValue(totalPrice - commission)}
           </span>
         </p>
       </div>
@@ -172,7 +200,7 @@ const BidPage = () => {
           {formatCurrencyValue(totalPrice)}
         </span>
       </p>
-       {bid?.additionalNotesToClient && (
+      {bid?.additionalNotesToClient && (
         <Alert
           type="error"
           title="Your rationale"
@@ -195,6 +223,7 @@ const BidPage = () => {
           <Switch
             id="add-note-switch"
             checked={addNote}
+            disabled={!editMode || isUpdatingBid || isSubmittingBid}
             onCheckedChange={() => setAddNote((prev) => !prev)}
           />{" "}
           <Label htmlFor="add-note-switch">Add note</Label>
@@ -202,24 +231,40 @@ const BidPage = () => {
         {editMode && (
           <div className="flex gap-4">
             {bid?.status === "DRAFT" && (
-              <Button variant="outline" onClick={() => handleUpdate("UPDATE")}>
+              <Button
+                variant="outline"
+                disabled={isUpdatingBid || isSubmittingBid}
+                onClick={() => handleUpdate("UPDATE")}
+              >
                 Save & Exit
               </Button>
             )}
-            <Button variant="default" onClick={() => handleUpdate("LIVE")}>
+            <Button
+              id="tour-create-bid-submit"
+              variant="default"
+              loading={isUpdatingBid || isSubmittingBid}
+              onClick={() => handleUpdate("LIVE")}
+            >
               Submit
             </Button>
           </div>
         )}
         <TotalPriceError
+          pendingConfirm={false}
+          // pendingConfirm={isUpdatingBid || isSubmittingBid}
           negotiable={!!bid?.project?.negotiable}
           open={showExcessDialog}
           onOpenChange={setShowExcessDialog}
           excess={excess}
           currency={bid?.project?.currency}
-          onConfirm={() => {
-            handleUpdateAction(mode);
-          }}
+          onConfirm={handleExcessConfirm}
+        />
+        <StripeStatusModal
+          currency={project?.currency || "USD"}
+          open={showStripeModal}
+          onOpenChange={setShowStripeModal}
+          onProceed={handleFinalSubmit}
+          {...paymentStatus}
         />
       </div>
     </div>

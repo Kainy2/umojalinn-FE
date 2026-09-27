@@ -17,11 +17,12 @@ export const BUYERS_SIDEBAR_CONTENT: CustomSidebarMenuItemProps[] = [
     icon: <Activity />,
     regex: /(^\/$|^\/project\/.*|^\/projects$|^\/projects\/.*|^\/bids\/.*)/,
   },
-  // {
-  //   title: "Designers",
-  //   url: "#",
-  //   icon: <SearchRefracted />,
-  // },
+  {
+    title: "Designers",
+    url: "/designers",
+    icon: <SearchRefracted />,
+    regex: /(^\/designers$)/,
+  },
   {
     title: "Sizing Templates",
     url: "/sizing-templates",
@@ -70,7 +71,7 @@ export const DESIGNERS_SIDEBAR_CONTENT: CustomSidebarMenuItemProps[] = [
     url: "/dashboard",
     icon: <Grid01 />,
     regex:
-      /(^\/$|^\/dashboard|^\/dashboard\/.*|^\/bids$|^\/bids\/.*|^\/active-jobs$|^\/active-jobs\/.*)/,
+      /(^\/$|^\/dashboard|^\/dashboard\/.*|^\/bids$|^\/bids\/.*|^\/active-jobs$|^\/active-jobs\/.*|^\/share-your-work$)/,
   },
   {
     title: "Jobs",

@@ -5,18 +5,20 @@ import PopoverMenu from "@/components/custom/PopoverMenu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import Help from "@/section/dashboard/appbar/Help";
 import InviteClient from "@/section/dashboard/appbar/InviteClient";
 import { useGetMe } from "@/tanstack/hooks/useUser";
 import {
   ChevronDown,
   LogOut,
-  // Search
+  User,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import React from "react";
 import MobileMenu from "../sidebar/Mobile";
 import Image from "next/image";
 import { logOut } from "@/lib/auth";
+import Settings01 from "@/icons/Settings01";
 
 const DashboardAppbarContent = () => {
   const { data: meData } = useGetMe();
@@ -55,8 +57,28 @@ const DashboardAppbarContent = () => {
           </>
         )}
         <NotificationPopover />
+        <Help />
         <PopoverMenu
           menus={[
+            // ...(session?.user?.profileRole === "DESIGNER"
+            //   ? [
+            //       {
+            //         href: "/settings/profile",
+            //         children: "View profile",
+            //         icon: <User className="text-foreground-body" />,
+            //       },
+            //     ]
+            //   : []),
+            {
+              href: "/settings/profile",
+              children: "View profile",
+              icon: <User className="text-foreground-body" />,
+            },
+            {
+              href: "/settings",
+              children: "Settings",
+              icon: <Settings01 className="text-foreground-body" />,
+            },
             {
               onClick: () => logOut(session?.user?.profileRole),
               children: "Logout",

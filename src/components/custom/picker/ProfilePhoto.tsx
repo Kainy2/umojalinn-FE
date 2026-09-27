@@ -1,5 +1,5 @@
 "use client";
-import { MAX_FILE_SIZE_FOR_FILE_UPLOAD } from "@/constant";
+import { MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES } from "@/constant";
 import useFilePicker, { useFileSizeError } from "@/hooks/useFilePicker";
 import { cn, jsonToFormData } from "@/lib/utils";
 import { useGetMe, useUpdateUserDetails } from "@/tanstack/hooks/useUser";
@@ -18,6 +18,7 @@ const ProfilePhotoPicker = (props: {
 }) => {
   const { Input, onClick, previewUrl } = useFilePicker({
     onSelect: (file) => props.onSelect?.(file as File),
+    accept: "image/*",
   });
 
   const url = props.controlled ? props.src : previewUrl;
@@ -74,7 +75,7 @@ export const ProfilePhotoEdit = () => {
   const { data: dataMe, isFetching } = useGetMe();
   const { mutate: updateProfile, isPending: isUpdating } =
     useUpdateUserDetails();
-  const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD);
+  const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES);
 
   return (
     <ProfilePhotoPicker

@@ -9,10 +9,18 @@ import {
   postSizingTemplateLive,
   requestChangeOnSizingTemplate,
   updateSizingTemplate,
+  requestMeasurementPoints,
+  requestMeasurementPointsOnBid,
+  getRequestedMeasurementPoints,
+  submitMeasurementPoints,
+  saveMeasurementPoints,
+  sendSizingTemplateReminder,
+  purchaseSizingTemplate,
 } from "@/actions/sizing-templates";
 import { queryClient } from "@/components/provider/TanstackQueryClient";
 import useHandleError from "@/hooks/useHandleError";
 import {
+  UmojaLinnCurrency,
   UmojaLinnFemaleSizingTemplateProps,
   UmojaLinnMaleSizingTemplateProps,
   UmojaLinnSizingTemplate,
@@ -105,20 +113,20 @@ export const useGetAllSizingTemplates = (
     lastId: string;
     limit: number;
     sizingTemplateStatus:
-      | UmojaLinnSizingTemplate["status"]
-      | Array<UmojaLinnSizingTemplate["status"]>;
+    | UmojaLinnSizingTemplate["status"]
+    | Array<UmojaLinnSizingTemplate["status"]>;
   }>,
   options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnSizingTemplate>>
 ) => {
   const { data: me } = useSession();
   return useQuery({
-		...options,
-		enabled:
-			!!me?.user &&
-			me?.user?.profileRole === 'BUYER' &&
-			options?.enabled !== false,
-		queryKey: [SIZING_TEMPLATE, apiParams],
-		queryFn: () => getSizingTemplates(apiParams),
+    ...options,
+    enabled:
+      !!me?.user &&
+      me?.user?.profileRole === 'BUYER' &&
+      options?.enabled !== false,
+    queryKey: [SIZING_TEMPLATE, apiParams],
+    queryFn: () => getSizingTemplates(apiParams),
   });
 };
 
@@ -136,17 +144,21 @@ export const useGetAllDesignerSizingTemplates = (
 
 export const useGetSizingTemplateById = (
   id?: string,
-  options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnSizingTemplate>>
+  options?: GenericUseQueryProps<SingleApiResponse<UmojaLinnSizingTemplate>> & {
+    view?: boolean;
+  }
 ) => {
   const { data: me } = useSession();
+  const { view, ...queryOptions } = options || {};
+
   return useQuery({
-    ...options,
-    enabled: !!me?.user && !!id && options?.enabled !== false,
-    queryKey: [SIZING_TEMPLATE, id],
+    ...queryOptions,
+    enabled: !!me?.user && !!id && queryOptions.enabled !== false,
+    queryKey: [SIZING_TEMPLATE, id, view],
     queryFn: () =>
-      (me?.user?.profileRole === "BUYER"
-        ? getBuyerSizingTemplateById
-        : getDesignerSizingTemplateById)(id || ""),
+      me?.user?.profileRole === "BUYER"
+        ? getBuyerSizingTemplateById(id || "")
+        : getDesignerSizingTemplateById(id || "", view),
   });
 };
 
@@ -201,7 +213,144 @@ export const useAddSizingTemplateToProject = (
         variables.projectId
       ),
     onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [BID] });
       queryClient.invalidateQueries({ queryKey: [PROJECT] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useRequestMeasurementPoints = (
+  options?: GenericUseMutationProps<
+    SingleApiResponse,
+    { projectId: string; requestedMeasurementPoints: string[] }
+  >
+) => {
+  const { handleError } = useHandleError("Request Measurement Points");
+  return useMutation({
+    ...options,
+    mutationFn: (variables) =>
+      requestMeasurementPoints(
+        variables.projectId,
+        variables.requestedMeasurementPoints
+      ),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [PROJECT] });
+      queryClient.invalidateQueries({ queryKey: [SIZING_TEMPLATE] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useRequestMeasurementPointsOnBid = (
+  options?: GenericUseMutationProps<
+    SingleApiResponse,
+    { bidId: string; measurements: Partial<UmojaLinnMaleSizingTemplateProps & UmojaLinnFemaleSizingTemplateProps> }
+  >
+) => {
+  const { handleError } = useHandleError("Request Measurement Points on Bid");
+  return useMutation({
+    ...options,
+    mutationFn: (variables) =>
+      requestMeasurementPointsOnBid(variables.bidId, variables.measurements),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [BID] });
+      queryClient.invalidateQueries({ queryKey: [PROJECT] });
+      queryClient.invalidateQueries({ queryKey: [SIZING_TEMPLATE] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useGetRequestedMeasurementPoints = (
+  projectId?: string,
+  options?: GenericUseQueryProps<SingleApiResponse<string[]>>
+) => {
+  return useQuery({
+    ...options,
+    enabled: !!projectId && options?.enabled !== false,
+    queryKey: [SIZING_TEMPLATE, "requested-points", projectId],
+    queryFn: () => getRequestedMeasurementPoints(projectId || ""),
+  });
+};
+
+export const useSubmitMeasurementPoints = (
+  templateId: string,
+  options?: GenericUseMutationProps<
+    SingleApiResponse,
+    { projectId: string; measurements: Partial<UmojaLinnMaleSizingTemplateProps & UmojaLinnFemaleSizingTemplateProps> }
+  >
+) => {
+  const { handleError } = useHandleError("Submit Measurement Points");
+  return useMutation({
+    ...options,
+    mutationFn: (variables) =>
+      submitMeasurementPoints(templateId, variables.projectId, variables.measurements),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [SIZING_TEMPLATE] });
+      queryClient.invalidateQueries({ queryKey: [PROJECT] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useSaveMeasurementPoints = (
+  templateId: string,
+  options?: GenericUseMutationProps<
+    SingleApiResponse,
+    Partial<UmojaLinnMaleSizingTemplateProps & UmojaLinnFemaleSizingTemplateProps>
+  >
+) => {
+  const { handleError } = useHandleError("Save Measurement Points");
+  return useMutation({
+    ...options,
+    mutationFn: (measurements) =>
+      saveMeasurementPoints(templateId, measurements),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [SIZING_TEMPLATE] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useSendSizingTemplateReminder = (
+  templateId: string,
+  options?: GenericUseMutationProps<
+    SingleApiResponse,
+    { projectId: string; reminderType: import("@/constant").SizingTemplateReminderType }
+  >
+) => {
+  const { handleError } = useHandleError("Send Reminder");
+  return useMutation({
+    ...options,
+    mutationFn: (variables) =>
+      sendSizingTemplateReminder(
+        templateId,
+        variables.projectId,
+        variables.reminderType
+      ),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [SIZING_TEMPLATE] });
       options?.onSuccess?.(data, variables, context);
     },
     onError: (error, variables, context) => {
@@ -214,8 +363,8 @@ export const useAddSizingTemplateToProject = (
 export const useRequestSizingTemplateInProject = (
   options?: GenericUseMutationProps<SingleApiResponse, string>
 ) => {
-    const { id } = useParams<{ id: string }>();
-    const { data: me } = useSession();
+  const { id } = useParams<{ id: string }>();
+  const { data: me } = useSession();
   const { handleError } = useHandleError("Request Sizing Template");
   const queryclient = useQueryClient();
   return useMutation({
@@ -225,9 +374,32 @@ export const useRequestSizingTemplateInProject = (
       handleError(error);
       options?.onError?.(error, variables, context);
     },
-    onSuccess:(...args) => {
-      queryclient.invalidateQueries({ queryKey: [BID, { id, role: me?.user?.profileRole }]});
+    onSuccess: (...args) => {
+      queryclient.invalidateQueries({ queryKey: [BID, { id, role: me?.user?.profileRole }] });
+      queryclient.invalidateQueries({ queryKey: [PROJECT] });
+      queryclient.invalidateQueries({ queryKey: [SIZING_TEMPLATE] });
       options?.onSuccess?.(...args);
     }
+  });
+};
+
+export const usePurchaseSizingTemplate = (
+  options?: GenericUseMutationProps<
+    SingleApiResponse<{ checkoutUrl: string }>,
+    { currency: UmojaLinnCurrency; numberOfTemplates: number }
+  >
+) => {
+  const { handleError } = useHandleError("Purchase Sizing Template");
+  return useMutation({
+    ...options,
+    mutationFn: purchaseSizingTemplate,
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [SIZING_TEMPLATE] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
   });
 };

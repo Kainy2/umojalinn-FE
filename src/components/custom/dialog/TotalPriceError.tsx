@@ -18,6 +18,7 @@ type TotalPriceErrorProps = DialogProps & {
   excess: number;
   currency: UmojaLinnCurrency | null;
   onConfirm: () => void;
+  pendingConfirm: boolean;
   negotiable?: boolean;
 };
 
@@ -63,6 +64,7 @@ const TotalPriceError = (props: TotalPriceErrorProps) => {
                 className="w-full lg:w-auto"
                 variant="default"
                 type="button"
+                loading={props.pendingConfirm}
                 onClick={props?.onConfirm}
               >
                 Continue

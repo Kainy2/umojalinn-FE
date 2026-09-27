@@ -39,7 +39,7 @@ const SizigTemplateTab = () => {
   if (session?.user?.profileRole === "DESIGNER") {
     return (
       <p className="text-foreground-body mb-4">
-        All active project templates will be be displayed here
+        All active projects will have a sizing template displayed here
       </p>
     );
   }

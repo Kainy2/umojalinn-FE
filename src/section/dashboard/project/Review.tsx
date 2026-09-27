@@ -3,15 +3,31 @@ import Collapsible from "@/components/custom/Collapsible";
 import LabelBadge from "@/components/custom/LabelBadge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getCurrencySymbol } from "@/lib/string";
-import { UmojaLinnProject } from "@/types/project";
+import { UmojaLinnCurrency, UmojaLinnProject } from "@/types/project";
 import { formatDate } from "date-fns";
 import React from "react";
 import GalleryImages from "@/components/custom/GalleryImages";
+import { formatCurrencyValue } from "@/lib/number";
+import { StateType } from "@/layout/create-project/CreateProjectProvider";
+import { useGetClothingTypes } from "@/tanstack/hooks/useProject";
+import { cn } from "@/lib/utils";
+import { uuidToBase62Safe } from "@/lib/uuid";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 const ProjectReviewView = (props: {
   project?: UmojaLinnProject;
+  projectFormDetails?: StateType;
   loading?: boolean;
 }) => {
+  const { projectFormDetails } = props
+  const { data } = useGetClothingTypes()
+  const router = useRouter();
+  const { data: session } = useSession();
+  
+  const isDesigner = session?.user?.profileRole === "DESIGNER";
+  const allClothingTypes = data?.data?.data
+
   if (props.loading) {
     return (
       <>
@@ -51,77 +67,154 @@ const ProjectReviewView = (props: {
       </>
     );
   }
+
   return (
     <>
-      <div className="p-4 bg-gray-100 mb-4">
+      <div className="p-4 mt-2 lg:mt-0 bg-gray-100 mb-4">
         <h3 className="text-md font-semibold text-foreground-body mb-1">
-          {props?.project?.title || "No title"}
+          {projectFormDetails?.title || props?.project?.title || "No title"}
         </h3>
-        <p className="text-muted-foreground text-sm mb-8">
-          {props?.project?.about || "No description"}
+        <p className="text-muted-foreground text-sm mb-8 break-words whitespace-pre-wrap">
+          {projectFormDetails?.about ||
+            props?.project?.about ||
+            "No description"}
         </p>
         <div className="flex gap-4 flex-col lg:flex-row justify-between">
           <p className="text-sm text-muted-foreground">
             Project due:{" "}
             <span className="font-semibold">
-              {props?.project?.dueDate
-                ? formatDate(props?.project?.dueDate, "MMM dd, yyyy")
-                : "None"}
+              {projectFormDetails?.dueDate
+                ? formatDate(projectFormDetails?.dueDate, "MMM dd, yyyy")
+                : props?.project?.dueDate
+                  ? formatDate(props?.project?.dueDate, "MMM dd, yyyy")
+                  : "None"}
             </span>
           </p>
           <p className="text-sm text-muted-foreground">
             Project budget:{" "}
             <span className="font-semibold">
-              {getCurrencySymbol(props?.project?.currency)}
-              {props?.project?.budget || "0"}
+              {getCurrencySymbol(
+                (projectFormDetails?.currency as UmojaLinnCurrency) ||
+                  props?.project?.currency,
+              )}
+              {formatCurrencyValue(
+                (projectFormDetails?.budget as number) ||
+                  props?.project?.budget,
+              ) || "0"}
             </span>
           </p>
         </div>
       </div>
-      {props?.project?.Gallery?.length && (
+      {!!(
+        props?.project?.Gallery?.length || projectFormDetails?.gallery?.length
+      ) && (
         <div>
           <h3 className="text-md font-semibold text-foreground mb-2">
             Project Gallery
           </h3>
-          <div className="flex flex-row gap-4 overflow-scroll">
-            {props?.project?.Gallery?.map?.((gallery) => (
-              <GalleryImages
-                key={gallery?.id}
-                width={310}
-                height={170}
-                src={gallery.imageUrl}
-                title={gallery?.title}
-                wrapperClassName="aspect-video "
-              />
-            ))}
+          <div className="flex flex-row gap-4">
+            {/* { id: string; projectId: string; imageUrl: string; title: string; isCoverImage: boolean; } */}
+            {/* {props?.project?.Gallery?.map?.((gallery) => ( */}
+            <GalleryImages
+              images={
+                projectFormDetails?.gallery?.length
+                  ? projectFormDetails?.gallery.map((gal, i) => ({
+                      id: (gal?.id ?? "") as string,
+                      projectId: props.project?.id || "0",
+                      imageUrl:
+                        typeof gal.image === "string"
+                          ? gal.image
+                          : URL.createObjectURL(gal.image),
+                      title: gal?.title,
+                      isCoverImage: gal?.isCoverImage,
+                      createdAt: props?.project?.Gallery?.[i]?.createdAt ?? "",
+                      updatedAt: props?.project?.Gallery?.[i]?.updatedAt ?? "",
+                    }))
+                  : props?.project?.Gallery
+                    ? props.project.Gallery
+                    : []
+              }
+              // key={gallery?.id}
+              width={310}
+              height={170}
+              // src={gallery.imageUrl}
+              // title={gallery?.title}
+              wrapperClassName="aspect-video "
+            />
+            {/* ))} */}
           </div>
         </div>
       )}
       <Collapsible title="Delivery Details">
         <LabelBadge
           title="Country"
-          value={props?.project?.deliveryAddress?.country}
+          value={
+            projectFormDetails?.country ||
+            props?.project?.deliveryAddress?.country
+          }
         />
         <LabelBadge
           title="City"
-          value={props?.project?.deliveryAddress?.city}
+          value={
+            projectFormDetails?.city || props?.project?.deliveryAddress?.city
+          }
         />
         <LabelBadge
           title="Province / State / Zip code"
           value={[
-            props?.project?.deliveryAddress?.state,
-            props?.project?.deliveryAddress?.zipCode,
+            projectFormDetails?.state || props?.project?.deliveryAddress?.state,
+            projectFormDetails?.zipCode ||
+              props?.project?.deliveryAddress?.zipCode,
           ]}
         />
         <LabelBadge
           title="Address"
-          value={props?.project?.deliveryAddress?.address}
+          value={
+            projectFormDetails?.address ||
+            props?.project?.deliveryAddress?.address
+          }
         />
       </Collapsible>
       <Collapsible title="Other Details">
         <LabelBadge
+          title="Additional notes"
+          value={
+            projectFormDetails?.additionalNotes ||
+            props?.project?.additionalNotes
+          }
+        />
+
+        <div className="flex items-center justify-between">
+          <p className="text-foreground-body text-sm">
+            Will buyer provide materials?
+          </p>
+          <p
+            className={cn(
+              "font-semibold",
+              projectFormDetails?.willProvideMaterials ||
+                props.project?.willProvideMaterials
+                ? "text-green-500"
+                : "text-red-600",
+            )}
+          >
+            {projectFormDetails?.willProvideMaterials ||
+            props.project?.willProvideMaterials
+              ? "Yes"
+              : "No"}
+            {/* {bid.project.willProvideMaterials 
+            ? <CheckCircle className="text-success" />
+            : <CircleX className="text-white" fill="red" color="currentColor" />
+            } */}
+          </p>
+        </div>
+
+        <LabelBadge
           title="Clothing type"
-          value={props?.project?.clothingTypes?.map?.((type) => type.name)}
+          value={
+            projectFormDetails?.clothingTypes?.map(
+              (id) => allClothingTypes?.find((type) => type.id === id)?.name,
+            ) || props?.project?.clothingTypes?.map?.((type) => type.name)
+          }
         />
         {/* <LabelBadge
           title="Specialist"
@@ -137,7 +230,12 @@ const ProjectReviewView = (props: {
           Designer
         </h3>
         <AvatarIconTag
-          disabled
+          disabled={!session?.user?.profileRole}
+          onClick={() => router.push(
+            isDesigner
+            ? '/settings/profile'
+            :`/designers/${uuidToBase62Safe(props?.project?.designer?.user?.id || "")}`
+          )}
           avatar={{
             src: props?.project?.designer?.user?.profilePhotoUri,
           }}

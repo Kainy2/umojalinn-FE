@@ -1,6 +1,13 @@
-import { EXPERIENCE_ENUMS_VALUES } from "@/section/form/project/edit/RequirementAndBudget";
+import { MAX_PROFILE_ABOUT_COUNT } from "@/constant";
 import { z } from "zod";
+
 // import { isPhoneValid } from "./utils";
+export const EXPERIENCE_ENUMS_VALUES = [
+  "ONE_TO_TWO_YEARS",
+  "THREE_TO_FIVE_YEARS",
+  "SIX_TO_EIGHT_YEARS",
+  "NINE_PLUS_YEARS",
+] as const;
 
 const passwordValidation = z
   .string()
@@ -83,13 +90,34 @@ export const onboardingDetailsFormSchema = z
 
 export const onboardingAddressFormSchema = z.object({
   address: z.string().optional(),
-  country: z.string().optional(),
+  country: z.string({ message: "Please provide valid country." }).min(1, "Country is required"),
   state: z.string().optional(),
   city: z.string().optional(),
   zipCode: z.string().optional(),
 });
 
-export const projectFormDetailsSchema = z.object({
+/** OTP to confirm wallet payment account connect/disconnect actions */
+export const paymentAccountOtpFormSchema = z.object({
+  otp: z
+    .string()
+    .min(4, "Enter the verification code")
+    .max(12, "Invalid code")
+    .regex(/^\d+$/, "Code should only contain digits"),
+});
+
+/** @deprecated use paymentAccountOtpFormSchema */
+export const stripeDisconnectOtpFormSchema = paymentAccountOtpFormSchema;
+
+/** Stripe payout / Connect onboarding address (matches payment settings Stripe Address fields) */
+export const stripeLinkAddressFormSchema = z.object({
+  country: z.string().min(1, "Country is required"),
+  state: z.string().min(1, "State / Province is required"),
+  city: z.string().min(1, "City is required"),
+  zipCode: z.string().min(1, "Zip / Postal code is required"),
+  address: z.string().min(1, "Address is required"),
+});
+
+const projectFormDetailsSchemaBase = z.object({
   firstName: z.string().optional(),
   lastName: z.string().optional(),
   designerId: z.string().optional(),
@@ -103,12 +131,32 @@ export const projectFormDetailsSchema = z.object({
   address: z.string().optional(),
   state: z.string().optional(),
   zipCode: z.string().optional(),
-  clothingTypes: z.array(z.string()).max(8).optional(),
+  clothingTypes: z.array(z.string()).max(8, "Maximum 8 categories can be selected").optional(),
   submit: z.string().optional(),
   sizingTemplateId: z.string().optional(),
+  willProvideMaterials: z.boolean().optional(),
+})
+
+export const projectFormDetailsSchema = projectFormDetailsSchemaBase.superRefine((data, ctx) => {
+  const fields = ["city", "address", "state", "zipCode"] as const;
+  const values = fields.map((f) => data[f]);
+  const anyFilled = values.some((v) => v && v.trim() !== "");
+  const allFilled = values.every((v) => v && v.trim() !== "");
+
+  if (anyFilled && !allFilled) {
+    fields.forEach((field) => {
+      if (!data[field] || data[field]?.trim() === "") {
+        ctx.addIssue({
+          path: [field],
+          code: z.ZodIssueCode.custom,
+          message: "This field is required when any address field is filled.",
+        });
+      }
+    });
+  }
 });
 
-export const projectFormDetailsKeys = projectFormDetailsSchema?.keyof().options;
+export const projectFormDetailsKeys = projectFormDetailsSchemaBase?.keyof().options;
 
 export const requirementsAndBugetSchema = z.object({
   currency: z.string().optional(),
@@ -131,17 +179,17 @@ export const languageProficiency = [
 ] as const;
 
 export const updateProfileSchema = z.object({
-  about: z.string().max(300, "Bio must be at most 300 characters").optional(),
+  about: z.string().max(MAX_PROFILE_ABOUT_COUNT, "Bio must be at most 1000 characters").optional(),
   firstName: z.string().min(1, "First Name is required").optional(),
   lastName: z.string().min(1, "Last Name is required").optional(),
   brandName: z.string().optional(),
   tag: z.string().min(1, "Tag is required").optional(),
-  gender: z.enum(["MALE", "FEMALE", "RATHER_NOT_SAY"]).nullable().optional(),
+  gender: z.enum(["MALE", "FEMALE", "RATHER_NOT_SAY"]).optional(),
   dateOfBirth: z.union([z.date(), z.string()]).optional(),
   email: z.string().email("Invalid email address").optional(),
   alternativeEmail: z.string().email("Invalid email address").nullable().optional(),
   specialistType: z.string().optional(),
-  clothingTypes: z.array(z.string()).max(8, "Select only up to 8 clothing types").optional(),
+  clothingTypes: z.array(z.string()).max(8, "Maximum 8 categories can be selected").optional(),
   experienceLevel: z.enum(EXPERIENCE_ENUMS_VALUES).nullable().optional(),
   // Uncomment and adjust if using languages:
   // languages: z
@@ -152,12 +200,27 @@ export const updateProfileSchema = z.object({
   //     }),
   //   )
   //   .optional(),
-  phoneNumber: z.string().min(10, "Invalid phone number").optional(),
-  country: z.string().min(1, "Country is required").optional(),
-  state: z.string().min(1, "State is required").optional(),
-  city: z.string().min(1, "City is required").optional(),
-  zipCode: z.string().min(1, "Zip/Postal code is required").optional(),
-  address: z.string().min(1, "Home address is required").optional(),
+  phoneNumber: z.string()
+    .transform(val => (val.trim().length < 5 ? undefined : val)) // <5 → undefined
+    .optional()
+    .refine(
+      val => val === undefined || val.length >= 12,
+      "Invalid phone number"
+    )
+    // .superRefine((val, ctx) => {
+    //   if (val !== undefined && val.length < 12) {
+    //     ctx.addIssue({
+    //       code: z.ZodIssueCode.custom,
+    //       message: "Invalid phone number", // your message
+    //     });
+    //   }
+    // })
+    ,
+  country: z.string().optional(),
+  state: z.string().optional(),
+  city: z.string().optional(),
+  zipCode: z.string().optional(),
+  address: z.string().optional(),
 });
 
 export const updateProfileKeys = updateProfileSchema?.keyof().options;
@@ -178,10 +241,13 @@ export const passwordUpdateSchema = z
 export const notificationSettingsSchema = z.object({
   tagPushNotifications: z.boolean(),
   tagEmailNotifications: z.boolean(),
+  tagWhatsAppNotifications: z.boolean(),
   reminderPushNotifications: z.boolean(),
   reminderEmailNotifications: z.boolean(),
+  reminderWhatsAppNotifications: z.boolean(),
   productUpdates: z.boolean(),
   productUpdatesEmail: z.boolean(),
+  productUpdatesWhatsApp: z.boolean(),
 });
 
 export const notificationSettingsKey =

@@ -1,5 +1,7 @@
 import {
   acceptOrRejectBid,
+  addVariableDeliveryMilestone,
+  approveOrRejectVariableDeliveryMilestone,
   createBid,
   createMilestone,
   deleteMilestone,
@@ -10,6 +12,7 @@ import {
   submitBid,
   updateBid,
   updateMilestone,
+  getProjectAccountConnectionStatus,
 } from "@/actions/bid";
 import { queryClient } from "@/components/provider/TanstackQueryClient";
 import useHandleError from "@/hooks/useHandleError";
@@ -26,7 +29,10 @@ import {
 import { ArrayApiResponse, SingleApiResponse } from "@/types/util";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
-import { BID, BUYER, DESIGNER } from "../keys";
+import { BID, BUYER, DESIGNER, MILESTONE, PROJECT } from "../keys";
+import { EDeliveryMileStoneType } from "@/types/enum";
+import { UmojaLinnSubmitBidResponse } from "@/types/project";
+
 
 export const useCreateBid = (
   options?: GenericUseMutationProps<SingleApiResponse<UmojaLinnBid>, string>
@@ -52,8 +58,8 @@ export const useGetDesignerBids = (
     limit: number;
     bidStatus: UmojaLinnBid["status"] | Array<UmojaLinnBid["status"]>;
     projectStatus:
-      | UmojaLinnProject["status"]
-      | Array<UmojaLinnProject["status"]>;
+    | UmojaLinnProject["status"]
+    | Array<UmojaLinnProject["status"]>;
   }>,
   options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnBid>>
 ) => {
@@ -72,8 +78,8 @@ export const useGetBuyerBids = (
     limit: number;
     bidStatus: UmojaLinnBid["status"] | Array<UmojaLinnBid["status"]>;
     projectStatus:
-      | UmojaLinnProject["status"]
-      | Array<UmojaLinnProject["status"]>;
+    | UmojaLinnProject["status"]
+    | Array<UmojaLinnProject["status"]>;
   }>,
   options?: GenericUseQueryProps<ArrayApiResponse<UmojaLinnBid>>
 ) => {
@@ -200,6 +206,7 @@ export const useUpdateBid = (
       additionalNote: string;
       deliveryMethod: UmojaLinnDeliveryMethod;
       deliveryAmount: number;
+      deliveryMileStoneType: EDeliveryMileStoneType;
     }>
   >
 ) => {
@@ -218,9 +225,64 @@ export const useUpdateBid = (
   });
 };
 
+export const useApproveOrRejectVariableDeliveryMilestone = (
+  id: string,
+  options?: GenericUseMutationProps<
+    SingleApiResponse<UmojaLinnMilestone>,
+    Partial<{
+      status: "APPROVED" | "REJECTED";
+      rejectionReason?: string;
+    }>
+  >
+) => {
+  const { handleError } = useHandleError("Update Bid");
+  return useMutation({
+    ...options,
+    mutationFn: (variables) =>
+      approveOrRejectVariableDeliveryMilestone(id, variables),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [BID] });
+      queryClient.invalidateQueries({ queryKey: [PROJECT, MILESTONE] });
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useAddVariableDeliveryMilestone = (
+  bidId: string,
+  options?: GenericUseMutationProps<
+    SingleApiResponse,
+    {
+      amount: number;
+      deliveryMethod: UmojaLinnDeliveryMethod;
+    }
+  >
+) => {
+  const { handleError } = useHandleError("Create Milestone");
+  return useMutation({
+    ...options,
+    mutationFn: (payload) =>
+      addVariableDeliveryMilestone(bidId, payload),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: [BID] });
+      queryClient.invalidateQueries({ queryKey: [PROJECT, MILESTONE] });
+
+      options?.onSuccess?.(data, variables, context);
+    },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
 export const useSubmitBid = (
   id: string,
-  options?: GenericUseMutationProps<SingleApiResponse>
+  options?: GenericUseMutationProps<SingleApiResponse<UmojaLinnSubmitBidResponse>>
 ) => {
   const { handleError } = useHandleError("Submit Bid");
   return useMutation({
@@ -255,6 +317,20 @@ export const useAcceptOrRejectBid = (
       queryClient.invalidateQueries({ queryKey: [BID] });
       options?.onSuccess?.(data, variables, context);
     },
+    onError: (error, variables, context) => {
+      handleError(error);
+      options?.onError?.(error, variables, context);
+    },
+  });
+};
+
+export const useGetProjectAccountConnectionStatus = (
+  options?: GenericUseMutationProps<SingleApiResponse<UmojaLinnSubmitBidResponse>, string>
+) => {
+  const { handleError } = useHandleError("Check Account Connection Status");
+  return useMutation({
+    ...options,
+    mutationFn: (projectId: string) => getProjectAccountConnectionStatus(projectId),
     onError: (error, variables, context) => {
       handleError(error);
       options?.onError?.(error, variables, context);

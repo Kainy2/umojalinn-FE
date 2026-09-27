@@ -21,13 +21,18 @@ const BUYER_HOME_TAB_NAV: CustomTabItemProps[] = [
     href: "/projects/ads",
     match: /^\/projects\/ads(\/[A-Za-z0-9]{20,25})?$/,
   },
-  { title: "Bids", href: "/projects/bids" },
+  { title: "Bids", href: "/projects/bids", tourTargetId: "tour-buyer-bids-tab" },
   {
     title: "Drafts",
     href: "/projects/drafts",
     match: /(^\/projects\/drafts$|^\/projects\/drafts\/[A-Za-z0-9]{20,25}$)/,
   },
   { title: "Completed", href: "/projects/completed" },
+  {
+    title: "Consultations",
+    href: "/consultations",
+    match: /^\/consultations(\/[A-Za-z0-9_-]+)?$/,
+  },
 ];
 
 const NavTab = (props: {
@@ -41,20 +46,22 @@ const NavTab = (props: {
 
   return (
     <>
-      <CustomTab
-        type="NAVIGATOR"
-        tabs={tabs}
-        className={props.className}
-        active={
-          tabs?.find(
-            (tab) =>
-              tab?.href?.toLocaleLowerCase() ===
-                pathName?.toLocaleLowerCase() ||
-              tab?.match?.test(pathName?.toLocaleLowerCase()),
-          )?.title || ""
-        }
-        mobileSelector
-      />
+      <div id="tour-buyer-projects-tabs">
+        <CustomTab
+          type="NAVIGATOR"
+          tabs={tabs}
+          className={props.className}
+          active={
+            tabs?.find(
+              (tab) =>
+                tab?.href?.toLocaleLowerCase() ===
+                  pathName?.toLocaleLowerCase() ||
+                tab?.match?.test(pathName?.toLocaleLowerCase()),
+            )?.title || ""
+          }
+          mobileSelector
+        />
+      </div>
     </>
   );
 };

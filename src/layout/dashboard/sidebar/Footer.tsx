@@ -6,6 +6,7 @@ import { useGetMe } from "@/tanstack/hooks/useUser";
 import { LogOut } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 
 export const DashbordSidebarFooterContent = (props: {
@@ -27,16 +28,20 @@ export const DashbordSidebarFooterContent = (props: {
       </>
     );
   }
-
+ 
   return (
     <>
+    <Link href="/settings/profile">
       <Image
         src={me?.profilePhotoUri || "/img/webp/user.webp"}
         alt=""
         height={40}
         width={40}
         className="object-cover object-center rounded-full shrink-0"
+        
       />
+    </Link>
+
       <div className="flex-1 truncate overflow-hidden">
         <h5 className="text-sm font-bold leading-normal truncate overflow-hidden">
           {me?.firstName} {me?.lastName}

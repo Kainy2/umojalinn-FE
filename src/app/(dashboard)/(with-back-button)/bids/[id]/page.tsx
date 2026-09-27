@@ -1,9 +1,19 @@
 "use client";
+/**
+ * IndividualBidPage - View bid details and accept/reject.
+ * 
+ * Accept Proposal Flow:
+ * 1. If sizing template already attached: Accept bid directly
+ * 2. If no template: Show sizing template selection modal
+ *    - Select existing template -> Open Height/Size modal with template values -> Accept bid
+ *    - Create new template -> Open Height/Size modal with defaults -> Create template -> Accept bid
+ */
+
 import Alert from "@/components/custom/Alert";
+import { VariableDeliverySelect } from "@/components/custom/bids/VariableDeliverySelect";
 import AcceptBidSizingTemplateInterrupt, {
   AcceptBidSizingTemplateInterruptConfirm,
 } from "@/components/custom/dialog/AcceptBidSizingTemplateInterrupt";
-import SizingTemplateDialog from "@/components/custom/dialog/SizingTemplate";
 import DeliveryMethodPicker from "@/components/custom/picker/DeliveryMethod";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -14,12 +24,20 @@ import { getCurrencySymbol } from "@/lib/string";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import RejectButton from "@/section/dashboard/project/bid/button/Reject";
 import { useAcceptOrRejectBid, useGetBidById } from "@/tanstack/hooks/useBid";
-import { useAddSizingTemplateToProject } from "@/tanstack/hooks/useSizingTemplates";
+import { useAddSizingTemplateToProject, useCreateSizingTemplate, useGetAllSizingTemplates, useUpdateSizingTemplate } from "@/tanstack/hooks/useSizingTemplates";
 import { useGetMe } from "@/tanstack/hooks/useUser";
+import { EDeliveryMileStoneType } from "@/types/enum";
 import { useSession } from "next-auth/react";
-
 import { useParams, useRouter } from "next/navigation";
 import React, { useState } from "react";
+import HeightAndSizeModal from "@/components/sizing-template/HeightAndSizeModal";
+import ReviewBidDesignerNotePlaceholder from "@/components/tour/ReviewBidDesignerNotePlaceholder";
+import { UmojaLinnSizingTemplate, UmojalinnStandardSize } from "@/types/project";
+import { DEFAULT_HEIGHT, DEFAULT_UNIT } from "@/constant";
+import {
+  getClearedSizingTemplatePayload,
+  isMatchingSizingGender,
+} from "@/lib/sizing-template-utils";
 
 const IndividualBidPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -29,39 +47,174 @@ const IndividualBidPage = () => {
   const router = useRouter();
   const { data: session } = useSession();
 
-  const note = session?.user?.profileRole === "BUYER" 
-  ? bid?.additionalNotesToClient
-  : bid?.rejectionReason
+  const isDesigner = session?.user.profileRole === "DESIGNER";
+  const note = session?.user?.profileRole === "BUYER" ? bid?.additionalNotesToClient : bid?.rejectionReason;
+  const myNote = session?.user?.profileRole === "BUYER" ? bid?.rejectionReason : bid?.additionalNotesToClient;
 
-  const myNote = session?.user?.profileRole === "BUYER" 
-  ? bid?.rejectionReason
-  : bid?.additionalNotesToClient
-  console.log("myNote", myNote);
-  
+  // Get all templates to find full template data when selecting
+  const { data: liveSizingTemplates } = useGetAllSizingTemplates({ sizingTemplateStatus: "LIVE" });
 
-  const { mutate: acceptOrReject } = useAcceptOrRejectBid(id, {
+
+  // Modal states
+  const [interruptOpen, setInterruptOpen] = useState<"INTERRUPT" | "SELECT" | null>(null);
+  const [showHeightModal, setShowHeightModal] = useState(false);
+  const [selectedTemplateForAccept, setSelectedTemplateForAccept] = useState<UmojaLinnSizingTemplate | null>(null);
+  const [shouldCreateNewTemplateAfterAcceptBid, setShouldCreateNewTemplateAfterAcceptBid] = useState(false);
+  // whether to trigger accepting bid after height/size submission/add to project
+  const [shouldSubmitSizeNavigate, setShouldSubmitSizeNavigate] = useState(false);
+
+  // Accept/Reject mutation
+  const { mutate: acceptOrReject, isPending } = useAcceptOrRejectBid(id, {
     onSuccess() {
+      setShouldSubmitSizeNavigate(false);
       router.push(`/projects/${uuidToBase62Safe(bid?.projectId || "")}`);
     },
   });
 
-  const [interruptOpen, setInterruptOpen] = useState<
-    "INTERRUPT" | "SELECT" | null
-  >(null);
-  const [createSizingTemplateOpen, setCreateSizingTemplateOpen] =
-    useState(false);
-
-  const {
-    mutate: addSizingTemplateToProject,
-    isPending: isAddingSizingTemplateToProject,
-  } = useAddSizingTemplateToProject({
+  // Add template to project - closes modal and accepts bid on success
+  const { mutate: addSizingTemplateToProject, isPending: isAddingSizingTemplateToProject } = useAddSizingTemplateToProject({
     onSuccess() {
       setInterruptOpen(null);
-      acceptOrReject({
-        status: "ACCEPTED",
-      });
+      setShowHeightModal(false);
+      setSelectedTemplateForAccept(null);
+      setShouldCreateNewTemplateAfterAcceptBid(false);
+      acceptOrReject({ status: "ACCEPTED" });
+      
+      // TODO: remove this after testing
+      if (shouldSubmitSizeNavigate) {
+      }
     },
   });
+
+  // Update template with height/ukStandardSize - then add to project
+  const { mutate: updateTemplate, isPending: isUpdatingTemplate } = useUpdateSizingTemplate(
+    selectedTemplateForAccept?.id,
+    {
+      onSuccess: () => {        
+        if (selectedTemplateForAccept && bid?.projectId) {
+          addSizingTemplateToProject({
+            projectId: bid.projectId,
+            sizingTemplateId: selectedTemplateForAccept.id,
+          });
+        }
+      },
+    }
+  );
+
+  // Create new template - then add to project
+  const { mutate: createTemplate, isPending: isCreatingTemplate } = useCreateSizingTemplate({
+    onSuccess: (data) => {
+      const newTemplateId = data?.data?.data?.id;
+      if (newTemplateId && bid?.projectId) {
+        addSizingTemplateToProject({
+          projectId: bid.projectId,
+          sizingTemplateId: newTemplateId,
+        });
+      }
+    },
+  });
+
+  const isHeightModalLoading = isAddingSizingTemplateToProject || isCreatingTemplate || isUpdatingTemplate;
+
+  // Handle template selection from modal - find full template data
+  const handleSelectTemplateForAccept = (templateId: string) => {
+    const fullTemplate = liveSizingTemplates?.data?.data?.find(t => t.id === templateId);
+    setSelectedTemplateForAccept(fullTemplate || { id: templateId } as UmojaLinnSizingTemplate);
+    setShouldCreateNewTemplateAfterAcceptBid(false);
+    setInterruptOpen(null);
+    setShowHeightModal(true);
+  };
+
+  // Handle create new template from modal - use defaults
+  const handleCreateNewForAccept = () => {
+    setSelectedTemplateForAccept(null);
+    setInterruptOpen(null);
+    setShowHeightModal(true);
+  };
+
+  // Handle height/size submission
+  // For existing templates: First update with height/ukSize, then add to project
+  // For new templates: Create with all values, then add to project
+  const handleHeightSubmit = (height: number, ukStandardSize: UmojalinnStandardSize, unit: UmojaLinnSizingTemplate["unit"]) => {
+    if (shouldCreateNewTemplateAfterAcceptBid) {
+      createTemplate({
+        name: bid?.project?.title || "Project",
+        gender: bid?.project?.gender || "MALE",
+        unit,
+        height,
+        ukStandardSize,
+      });
+    } else if (selectedTemplateForAccept && bid?.projectId) {
+      const projectGender = bid?.project?.gender;
+      const isGenderConversion = !!(
+        projectGender &&
+        selectedTemplateForAccept.gender &&
+        !isMatchingSizingGender(selectedTemplateForAccept.gender, projectGender)
+      );
+
+      updateTemplate({
+        ...(isGenderConversion && projectGender
+          ? getClearedSizingTemplatePayload(projectGender)
+          : {}),
+        height,
+        ukStandardSize,
+        unit,
+      });
+    }
+  };
+
+  // Handle modal close - only allow if not loading
+  const handleHeightModalChange = (open: boolean) => {
+    if (!isHeightModalLoading) {
+      setShowHeightModal(open);
+      if (!open) {
+        setSelectedTemplateForAccept(null);
+        setShouldCreateNewTemplateAfterAcceptBid(false);
+        setShouldSubmitSizeNavigate(false);
+      }
+    }
+  };
+
+  // Handle Accept Proposal click
+  const handleAcceptProposal = () => {
+    if (bid?.project?.sizingTemplateId) {
+      acceptOrReject({ status: "ACCEPTED" });
+    } else {
+      setShouldSubmitSizeNavigate(true);
+      setInterruptOpen("INTERRUPT");
+    }
+  };
+
+  // Get modal values based on selection mode
+  const getModalValues = () => {
+    if (shouldCreateNewTemplateAfterAcceptBid) {
+      return { height: DEFAULT_HEIGHT, unit: DEFAULT_UNIT, gender: bid?.project?.gender };
+    }
+
+    const projectGender = bid?.project?.gender;
+    const isGenderConversion = !!(
+      projectGender &&
+      selectedTemplateForAccept?.gender &&
+      !isMatchingSizingGender(selectedTemplateForAccept.gender, projectGender)
+    );
+
+    if (isGenderConversion) {
+      return {
+        height: DEFAULT_HEIGHT,
+        unit: selectedTemplateForAccept?.unit ?? DEFAULT_UNIT,
+        gender: projectGender,
+      };
+    }
+
+    return {
+      height: selectedTemplateForAccept?.height ?? DEFAULT_HEIGHT,
+      ukSize: selectedTemplateForAccept?.ukStandardSize,
+      unit: selectedTemplateForAccept?.unit ?? DEFAULT_UNIT,
+      gender: selectedTemplateForAccept?.gender ?? bid?.project?.gender,
+    };
+  };
+
+  const modalValues = getModalValues();
 
   if (isLoadingBid) {
     return (
@@ -73,121 +226,129 @@ const IndividualBidPage = () => {
     );
   }
 
+  const isBuyerAndPending = meData?.data?.data?.buyerProfile?.id === bid?.project?.buyerId && bid?.status === "PENDING";
+  const isProcessing = isPending || isAddingSizingTemplateToProject || isCreatingTemplate;
 
   return (
     <div className="flex flex-col gap-4">
-      {/* budget Alert here */}
-      {note && (
-        <Alert
-          title={session?.user?.profileRole === "BUYER" ? "Designer's Note" : "Buyer's  Note"}
-          message={ note || ""}
-          type="error"
-        />
-      )}
-      {bid?.milestones?.map((milestone, index) => (
-        <div className="card p-8" key={index}>
-          <div className="flex gap-1 items-center mb-2 text-subtitle-2">
-            <PragraphSpacing />
-            <h3 className="leading-none font-semibold">{milestone?.title}</h3>
-          </div>
-          <p className="text-sm mb-4">{milestone?.description}</p>
-          <div className="text-subtitle-2 font-semibold flex justify-between">
-            <p>Milestone payment</p>
-            <p>
-              {getCurrencySymbol(bid?.project?.currency)}
-              {formatCurrencyValue(milestone?.amount)}
-            </p>
-          </div>
+      {/* Designer/Buyer Notes */}
+      {note ? (
+        <div id="tour-review-bid-designer-note">
+          <Alert
+            title={session?.user?.profileRole === "BUYER" ? "Designer's Note" : "Buyer's Note"}
+            message={note || ""}
+            type="error"
+          />
         </div>
-      ))}
-      <div className="card p-8">
+      ) : (
+        <ReviewBidDesignerNotePlaceholder />
+      )}
+
+      {/* Milestones */}
+      <div id="tour-review-bid-milestones" className="flex flex-col gap-4">
+        {bid?.milestones?.map((milestone, index) => (
+          <div className="card p-8" key={index}>
+            <div className="flex gap-1 items-center mb-2 text-subtitle-2">
+              <PragraphSpacing />
+              <h3 className="leading-none font-semibold">{milestone?.title}</h3>
+            </div>
+            <p className="text-sm mb-4">{milestone?.description}</p>
+            <div className="text-subtitle-2 font-semibold flex justify-between">
+              <p>Milestone payment</p>
+              <p>
+                {getCurrencySymbol(bid?.project?.currency)}
+                {formatCurrencyValue(milestone?.amount)}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Delivery Milestone */}
+      <div className="card p-8" id="tour-review-bid-delivery-milestone">
         <div className="text-gray-400">
-          <h3 className="mb-2 font-semibold  text-subtitle-1">
-            Delivery Milestone
-          </h3>
+          <h3 className="mb-2 font-semibold text-subtitle-1">Delivery Milestone</h3>
           <h3 className="mb-2 font-semibold">
-            {[
-              bid?.project?.deliveryAddress?.state,
-              bid?.project?.deliveryAddress?.country,
-            ]
-              ?.filter((val) => !!val)
-              ?.join(", ")}
+            {[bid?.project?.deliveryAddress?.state, bid?.project?.deliveryAddress?.country]?.filter((val) => !!val)?.join(", ")}
           </h3>
           <p className="text-sm mb-4">
-            The complete location information of the client will be made
-            available at the commencement of the project.
+            {isDesigner
+              ? "The Client's full address will be shown once the project is Active"
+              : "Your full address will be shown to your designer once the project is active"}
           </p>
+          <VariableDeliverySelect selectedDeliveryType={bid?.deliveryMilestone.deliveryMileStoneType || EDeliveryMileStoneType.FIXED} />
         </div>
-        <DeliveryMethodPicker
-          value={bid?.deliveryMilestone?.deliveryMethod || ""}
-          disabled
-        />
+        <DeliveryMethodPicker value={bid?.deliveryMilestone?.deliveryMethod || ""} disabled />
         <div className="text-subtitle-2 font-semibold flex justify-between">
           <p>Milestone payment</p>
           <p>
-            {getCurrencySymbol(bid?.project?.currency)}{" "}
-            {formatCurrencyValue(bid?.deliveryMilestone?.amount)}
+            {getCurrencySymbol(bid?.project?.currency)} {formatCurrencyValue(bid?.deliveryMilestone?.amount)}
           </p>
         </div>
       </div>
-      <p className="text-subtitle-2 font-semibold text-foreground text-right mt-8">
-        <span className="text-foreground-body">Budget</span>{" "}
-        {getCurrencySymbol(bid?.project?.currency)}
+
+      {/* Budget */}
+      <p
+        id="tour-review-bid-budget"
+        className="text-subtitle-2 font-semibold text-foreground text-right mt-8"
+      >
+        <span className="text-foreground-body">Budget</span> {getCurrencySymbol(bid?.project?.currency)}
         {formatCurrencyValue(bid?.amount)}
       </p>
-      {meData?.data?.data?.buyerProfile?.id === bid?.project?.buyerId &&
-        bid?.status === "PENDING" && (
-          <>
-            <Separator />
-            <div className="flex gap-4 justify-end">
-              <RejectButton bidId={id} />
-              <Button
-                variant="success"
-                onClick={() => {
-                  if (bid?.project?.sizingTemplateId) {
-                    acceptOrReject({
-                      status: "ACCEPTED",
-                    });
-                  } else {
-                    setInterruptOpen("INTERRUPT");
-                  }
-                }}
-              >
-                Accept proposal
-              </Button>
-            </div>
-          </>
-        )}
 
-      {myNote && (
-        <Alert
-          title={"Your rationale"}
-          message={ myNote || ""}
-          type="error"
-        />
+      {/* Accept/Reject Buttons */}
+      {isBuyerAndPending && (
+        <>
+          <Separator />
+          <div id="tour-review-bid-accept" className="flex gap-4 justify-end">
+            <RejectButton bidId={id} />
+            <Button
+              variant="success"
+              loading={isProcessing}
+              onClick={handleAcceptProposal}
+            >
+              Accept proposal
+            </Button>
+          </div>
+        </>
       )}
 
+      {/* My rationale */}
+      {myNote && <Alert title="Your rationale" message={myNote || ""} type="error" />}
+
+      {/* Sizing Template Required Modal */}
       <AcceptBidSizingTemplateInterrupt
+        pendingConfirm={false}
         open={interruptOpen === "INTERRUPT"}
-        onConfirm={() => setInterruptOpen("SELECT")}
         onOpenChange={(value) => setInterruptOpen(value ? "INTERRUPT" : null)}
+        onConfirm={() => {   
+          setShouldCreateNewTemplateAfterAcceptBid(true);  
+          setInterruptOpen("SELECT");
+        }}
       />
+
+      {/* Select Sizing Template Modal */}
       <AcceptBidSizingTemplateInterruptConfirm
+        loadingCreate={isCreatingTemplate}
         open={interruptOpen === "SELECT"}
         loading={isAddingSizingTemplateToProject}
         onOpenChange={(value) => setInterruptOpen(value ? "SELECT" : null)}
-        handleCreateNewSizingTemplate={() => setCreateSizingTemplateOpen(true)}
-        handleAddSizingTemplateToProject={(templateId) => {
-          addSizingTemplateToProject({
-            projectId: bid?.projectId || "",
-            sizingTemplateId: templateId,
-          });
-        }}
+        handleCreateNewSizingTemplate={handleCreateNewForAccept}
+        handleAddSizingTemplateToProject={handleSelectTemplateForAccept}
+        projectGender={bid?.project?.gender}
       />
-      <SizingTemplateDialog
-        open={createSizingTemplateOpen}
-        onOpenChange={setCreateSizingTemplateOpen}
-        handleSuccess={() => setInterruptOpen("INTERRUPT")}
+
+      {/* Height and Size Modal - for accept proposal flow */}
+      <HeightAndSizeModal
+        height={modalValues.height}
+        ukSize={modalValues.ukSize}
+        unit={modalValues.unit}
+        onSubmit={handleHeightSubmit}
+        disabled={false}
+        triggerOpen={showHeightModal}
+        onOpenChange={handleHeightModalChange}
+        isLoading={isHeightModalLoading}
+        gender={modalValues.gender}
       />
     </div>
   );

@@ -3,11 +3,19 @@ import CustomCardHolder, {
   CustomCardHolderProps,
 } from "@/components/custom/card/Holder";
 import JobCard from "@/components/custom/card/Job";
-import { getCoverImage } from "@/lib/project";
+import {
+  getBidJobTileProgress,
+  getCoverImage,
+  getProjectJobTileProgress,
+} from "@/lib/project";
+// import { getCoverImage } from "@/lib/project";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { useGetDesignerBids } from "@/tanstack/hooks/useBid";
-import { useGetAllDesignerProject } from "@/tanstack/hooks/useProject";
+import { useGetInfiniteDesignerProjects } from "@/tanstack/hooks/useProject";
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { useInfiniteData } from "@/hooks/use-infinite-data";
 import { useCallback, useMemo, useState } from "react";
+import type { UmojaLinnBid } from "@/types/project";
 
 const options = [
   "MY_BIDS",
@@ -18,9 +26,32 @@ const options = [
 
 type OptionsType = (typeof options)[number];
 
+const SeeMoreButton = ({
+  hasNextPage,
+  isFetchingNextPage,
+  onClick,
+}: {
+  hasNextPage: boolean;
+  isFetchingNextPage: boolean;
+  onClick: () => void;
+}) => {
+  if (!hasNextPage) return null;
+
+  return (
+    <button
+      onClick={onClick}
+      disabled={isFetchingNextPage}
+      className="text-primary text-sm text-center block w-full mt-2 py-2 hover:text-primary/70 transition disabled:opacity-50"
+    >
+      {isFetchingNextPage ? "Loading more..." : "See more"}
+    </button>
+  );
+};
+
 const DashboardPage = () => {
   const [mobileSelection, setMobileSelection] =
-    useState<OptionsType>("MY_BIDS");
+    useState<OptionsType>("MY_ACTIVE_JOBS");
+  const isDesktop = useMediaQuery("md");
 
   // const { data: myBids, isPending: isLoadingMyBids } = useGetDesignerBids({
   //   bidStatus: ["PENDING", "REJECTED"],
@@ -41,17 +72,35 @@ const DashboardPage = () => {
     projectStatus: "ADS",
   });
 
-  const { data: liveProjectsData, isPending: isLoadingLiveProjectsData } =
-    useGetAllDesignerProject({
-      projectStatus: "LIVE",
-    });
+  const {
+    data: liveProjectsInfinite,
+    isPending: isLoadingLiveProjectsData,
+    isFetchingNextPage: isFetchingMoreLiveProjects,
+    fetchNextPage: fetchMoreLiveProjects,
+    hasNextPage: hasMoreLiveProjects,
+  } = useGetInfiniteDesignerProjects({
+    projectStatus: "LIVE",
+  });
 
   const {
-    data: completedProjectsData,
+    data: completedProjectsInfinite,
     isPending: isLoadingCompletedProjectsData,
-  } = useGetAllDesignerProject({
+    isFetchingNextPage: isFetchingMoreCompletedProjects,
+    fetchNextPage: fetchMoreCompletedProjects,
+    hasNextPage: hasMoreCompletedProjects,
+  } = useGetInfiniteDesignerProjects({
     projectStatus: ["COMPLETED"],
   });
+
+  const liveProjects = useInfiniteData(liveProjectsInfinite);
+  const completedProjects = useInfiniteData(completedProjectsInfinite);
+
+  const liveProjectsTotal =
+    liveProjectsInfinite?.pages?.[0]?.data?.total ?? liveProjects?.length ?? 0;
+  const completedProjectsTotal =
+    completedProjectsInfinite?.pages?.[0]?.data?.total ??
+    completedProjects?.length ??
+    0;
 
   const { data: closedBids, isPending: isLoadingClosedBidsData } =
     useGetDesignerBids({
@@ -59,14 +108,38 @@ const DashboardPage = () => {
       bidStatus: ["REJECTED", "PENDING"],
     });
 
-    const totalBids = useMemo(() => {
-      if (
-        myBidsDataWithoutDraft?.data?.data?.length === undefined 
-        || draftBidData?.data?.data?.length === undefined
-      ) return 0
+  const { data: acceptedBidsData } = useGetDesignerBids({
+    bidStatus: "ACCEPTED",
+    projectStatus: ["LIVE", "COMPLETED"],
+  });
 
-      return myBidsDataWithoutDraft?.data?.data?.length + draftBidData?.data?.data?.length;
-    }, [myBidsDataWithoutDraft?.data?.data?.length, draftBidData?.data?.data?.length]);
+  const acceptedBidByProjectId = useMemo(() => {
+    const map = new Map<string, UmojaLinnBid>();
+
+    acceptedBidsData?.data?.data?.forEach((bid) => {
+      if (bid.projectId) {
+        map.set(bid.projectId, bid);
+      }
+    });
+
+    return map;
+  }, [acceptedBidsData?.data?.data]);
+
+  const totalBids = useMemo(() => {
+    if (
+      myBidsDataWithoutDraft?.data?.data?.length === undefined ||
+      draftBidData?.data?.data?.length === undefined
+    )
+      return 0;
+
+    return (
+      myBidsDataWithoutDraft?.data?.data?.length +
+      draftBidData?.data?.data?.length
+    );
+  }, [
+    myBidsDataWithoutDraft?.data?.data?.length,
+    draftBidData?.data?.data?.length,
+  ]);
 
   const myBidsContent = useMemo(
     () => (
@@ -78,16 +151,23 @@ const DashboardPage = () => {
             isPrivate={bid.project?.projectType === "PRIVATE"}
             name={bid?.project?.title || "No title"}
             href={`/bids/${uuidToBase62Safe(bid?.id)}/edit`}
-            progress={{
-              value: 0,
-              total: 1,
-            }}
+            amount={bid?.amount}
+            currency={bid.project?.currency}
+            progress={getBidJobTileProgress(bid)}
+            // attachedFileCount={bid?.project?.cha}
             img={getCoverImage(bid.project)}
+            userImg={
+              bid.project.buyer?.user?.profilePhotoUri || "/img/webp/user.webp"
+            }
             dueDate={bid?.project?.dueDate}
-            status={bid?.status === "PENDING" || bid?.status === "REJECTED" ? {
-              color: bid?.status === "PENDING" ? "gold": "red",
-              value: bid?.status === "PENDING" ? "In Review" : "Rejected",
-            }: undefined}
+            status={
+              bid?.status === "PENDING" || bid?.status === "REJECTED"
+                ? {
+                    color: bid?.status === "PENDING" ? "gold" : "red",
+                    value: bid?.status === "PENDING" ? "In Review" : "Rejected",
+                  }
+                : undefined
+            }
           />
         ))}
         {!!draftBidData?.data?.data?.length && (
@@ -103,61 +183,99 @@ const DashboardPage = () => {
             isPrivate={bid.project?.projectType === "PRIVATE"}
             name={bid?.project?.title || "No title"}
             href={`/bids/${uuidToBase62Safe(bid?.id)}/edit`}
-            progress={{
-              value: 0,
-              total: 1,
-            }}
+            amount={bid?.amount}
+            currency={bid.project?.currency}
+            progress={getBidJobTileProgress(bid)}
             img={getCoverImage(bid.project)}
+            userImg={
+              bid.project.buyer?.user?.profilePhotoUri || "/img/webp/user.webp"
+            }
+            // img={getCoverImage(bid.project)}
             dueDate={bid?.project?.dueDate}
           />
         ))}
       </>
     ),
-    [draftBidData?.data?.data, myBidsDataWithoutDraft?.data?.data] 
+    [draftBidData?.data?.data, myBidsDataWithoutDraft?.data?.data],
   );
 
-  const myActiveJobsContent = useMemo(
-    () => (
+  const getMyActiveJobsContent = useCallback(
+    (withTourTarget: boolean) => (
       <>
-        {liveProjectsData?.data?.data?.map((job) => (
+        {liveProjects?.map((job, index) => (
           <JobCard
             key={job?.id}
+            id={
+              withTourTarget && index === 0
+                ? "tour-active-project-card"
+                : undefined
+            }
             isPrivate={job.projectType === "PRIVATE"}
             name={job?.title || "No title"}
             href={`/active-jobs/${uuidToBase62Safe(job?.id)}`}
-            progress={{
-              value: 0,
-              total: 1,
-            }}
+            amount={job.budget}
+            currency={job.currency}
+            progress={getProjectJobTileProgress(
+              job,
+              acceptedBidByProjectId.get(job.id),
+            )}
+            attachedFileCount={job.chatLinks?.length}
             img={getCoverImage(job)}
+            userImg={job.buyer.user?.profilePhotoUri || "/img/webp/user.webp"}
             dueDate={job.dueDate}
           />
         ))}
+        <SeeMoreButton
+          hasNextPage={!!hasMoreLiveProjects}
+          isFetchingNextPage={isFetchingMoreLiveProjects}
+          onClick={() => fetchMoreLiveProjects()}
+        />
       </>
     ),
-    [liveProjectsData?.data?.data]
+    [
+      acceptedBidByProjectId,
+      fetchMoreLiveProjects,
+      hasMoreLiveProjects,
+      isFetchingMoreLiveProjects,
+      liveProjects,
+    ],
   );
 
   const myCompleteJobsContent = useMemo(
     () => (
       <>
-        {completedProjectsData?.data?.data?.map((job) => (
+        {completedProjects?.map((job) => (
           <JobCard
             key={job?.id}
             isPrivate={job.projectType === "PRIVATE"}
             name={job?.title || "No title"}
             href={`/completed-jobs/${uuidToBase62Safe(job?.id)}`}
-            progress={{
-              value: 0,
-              total: 1,
-            }}
+            amount={job.budget}
+            currency={job.currency}
+            progress={getProjectJobTileProgress(
+              job,
+              acceptedBidByProjectId.get(job.id),
+            )}
+            attachedFileCount={job.chatLinks?.length}
             img={getCoverImage(job)}
+            userImg={job.buyer.user?.profilePhotoUri || "/img/webp/user.webp"}
             dueDate={job.dueDate}
           />
         ))}
+        <SeeMoreButton
+          hasNextPage={!!hasMoreCompletedProjects}
+          isFetchingNextPage={isFetchingMoreCompletedProjects}
+          onClick={() => fetchMoreCompletedProjects()}
+        />
       </>
     ),
-    [completedProjectsData?.data?.data]
+    [
+      acceptedBidByProjectId,
+      completedProjects,
+      fetchMoreCompletedProjects,
+      hasMoreCompletedProjects,
+      isFetchingMoreCompletedProjects,
+    ],
   );
 
   const closedBidsContent = useMemo(
@@ -169,17 +287,19 @@ const DashboardPage = () => {
             isPrivate={bid?.project?.projectType === "PRIVATE"}
             name={bid?.project?.title || "No title"}
             href={`/bids/${uuidToBase62Safe(bid?.id)}`}
-            progress={{
-              value: 0,
-              total: 1,
-            }}
+            amount={bid?.amount}
+            currency={bid.project?.currency}
+            progress={getBidJobTileProgress(bid)}
             img={getCoverImage(bid.project)}
+            userImg={
+              bid.project.buyer?.user?.profilePhotoUri || "/img/webp/user.webp"
+            }
             dueDate={bid.project?.dueDate}
           />
         ))}
       </>
     ),
-    [closedBids?.data?.data]
+    [closedBids?.data?.data],
   );
 
   const mobileSelectedContent = useMemo(() => {
@@ -187,7 +307,7 @@ const DashboardPage = () => {
       case "CLOSED_BIDS":
         return closedBidsContent;
       case "MY_ACTIVE_JOBS":
-        return myActiveJobsContent;
+        return getMyActiveJobsContent(!isDesktop);
       case "MY_COMPLETED_JOBS":
         return myCompleteJobsContent;
       case "MY_BIDS":
@@ -196,8 +316,9 @@ const DashboardPage = () => {
     }
   }, [
     closedBidsContent,
+    getMyActiveJobsContent,
+    isDesktop,
     mobileSelection,
-    myActiveJobsContent,
     myBidsContent,
     myCompleteJobsContent,
   ]);
@@ -208,18 +329,18 @@ const DashboardPage = () => {
         case "MY_ACTIVE_JOBS":
           return {
             colour: "primary",
-            count: liveProjectsData?.data?.data?.length || 0,
+            count: liveProjectsTotal,
             title: "My Active Jobs",
             loading: isLoadingLiveProjectsData,
-            empty: !liveProjectsData?.data?.data?.length,
+            empty: !liveProjects?.length,
           };
         case "MY_COMPLETED_JOBS":
           return {
             colour: "success",
-            count: completedProjectsData?.data?.data?.length,
+            count: completedProjectsTotal,
             title: "My Completed Jobs",
             loading: isLoadingCompletedProjectsData,
-            empty: !completedProjectsData?.data?.data?.length,
+            empty: !completedProjects?.length,
           };
         case "CLOSED_BIDS":
           return {
@@ -236,32 +357,39 @@ const DashboardPage = () => {
           return {
             title: "My Bids",
             count: totalBids,
-            loading:
-              isLoadingDraftBidData ||
-              isLoadingMyBidsWithoutDraftData,
+            loading: isLoadingDraftBidData || isLoadingMyBidsWithoutDraftData,
             empty: !totalBids,
           };
       }
     },
     [
-      completedProjectsData?.data?.data?.length,
+      completedProjects?.length,
+      completedProjectsTotal,
       isLoadingClosedBidsData,
       isLoadingCompletedProjectsData,
       isLoadingDraftBidData,
       isLoadingLiveProjectsData,
       isLoadingMyBidsWithoutDraftData,
-      liveProjectsData?.data?.data?.length,
+      liveProjects?.length,
+      liveProjectsTotal,
       totalBids,
-    ]
+    ],
   );
 
   return (
     <>
+      {/* TODO: REDO THE WAY THESE PROPS ARE PASSED */}
       <div className="block md:hidden">
         <CustomCardHolder
           {...holderProps(mobileSelection)}
-          options={options as unknown as string[]}
+          optionKeys={[...options]}
+          options={options.map((option) => holderProps(option))}
           onSelect={(tab) => setMobileSelection(tab as OptionsType)}
+          tourTargetId={
+            !isDesktop && mobileSelection === "MY_ACTIVE_JOBS"
+              ? "tour-active-project-jobs-column"
+              : undefined
+          }
         >
           {mobileSelectedContent}
         </CustomCardHolder>
@@ -270,8 +398,13 @@ const DashboardPage = () => {
         <CustomCardHolder {...holderProps("MY_BIDS")}>
           {myBidsContent}
         </CustomCardHolder>
-        <CustomCardHolder {...holderProps("MY_ACTIVE_JOBS")}>
-          {myActiveJobsContent}
+        <CustomCardHolder
+          {...holderProps("MY_ACTIVE_JOBS")}
+          tourTargetId={
+            isDesktop ? "tour-active-project-jobs-column" : undefined
+          }
+        >
+          {getMyActiveJobsContent(isDesktop)}
         </CustomCardHolder>
         <CustomCardHolder {...holderProps("MY_COMPLETED_JOBS")}>
           {myCompleteJobsContent}

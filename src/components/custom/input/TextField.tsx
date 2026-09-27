@@ -10,10 +10,12 @@ import {
 } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
 import { ClassValue } from "clsx";
+import { InfoIcon } from "lucide-react";
 
 export type FieldProps = Partial<{
   label: React.ComponentProps<"label"> | string;
   hint: string;
+  hinticon: boolean;
 }>;
 
 export type FormFieldProps = FieldProps &
@@ -26,7 +28,7 @@ export type TextFieldProps = InputProps & FieldProps;
 export type FormTextFieldProps = InputProps & FormFieldProps;
 
 const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
-  ({ label, hint, ...inputProps }, ref) => {
+  ({ label, hint, hinticon = false, ...inputProps }, ref) => {
     return (
       <div className={cn("grid w-full items-center gap-1.5")}>
         {label &&
@@ -35,11 +37,16 @@ const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
           ) : (
             <Label {...label} />
           ))}
+        {hint && (
+          <div className="flex gap-2">
+            {hinticon && <InfoIcon className="w-4 h-4 text-foreground-body" />}{" "}
+            <p className="text-sm text-foreground-body">{hint}</p>
+          </div>
+        )}
         <Input {...inputProps} ref={ref} />
-        {hint && <p className="text-sm text-foreground-body">{hint}</p>}
       </div>
     );
-  }
+  },
 );
 
 TextField.displayName = "TextField";
@@ -52,11 +59,12 @@ const FormTextField = React.forwardRef<HTMLInputElement, FormTextFieldProps>(
         <FormControl>
           <Input ref={ref} {...inputProps} />
         </FormControl>
+
         {hint && <FormDescription>{hint}</FormDescription>}
         <FormMessage className="pt-2" />
       </FormItem>
     );
-  }
+  },
 );
 
 FormTextField.displayName = "FormTextField";

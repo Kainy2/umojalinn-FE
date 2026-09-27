@@ -4,7 +4,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import ProjectReviewView from "@/section/dashboard/project/Review";
-import ProjectEditFooter from "@/section/form/project/edit/Footer";
+import ProjectEditFooter from "@/section/form/project/edit/ProjectEditFooter";
+// import ProjectEditFooter from "@/section/form/project/edit/Footer";
 import {
   useGetProjectById,
   usePostProjectLive,
@@ -26,6 +27,7 @@ const ReviewForm = (props: ProjectFormProps) => {
       });
     },
   });
+  const isAds = data?.data.data.status === 'ADS'
 
   if (projectLoading) {
     return (
@@ -53,11 +55,26 @@ const ReviewForm = (props: ProjectFormProps) => {
       </div>
       <Separator className="bg-gray-200" />
       <ProjectReviewView project={data?.data?.data} />
-      <ProjectEditFooter
+      {/* <ProjectEditFooter
         handleSave={async () => goLive(props?.id)}
         loading={isPending}
         handleDraft={() => router?.push("/projects")}
         saveText="Post"
+      /> */}
+      <ProjectEditFooter
+        rightSecondaryButtonProps={{
+          text: isAds ? "Cancel" : "Save & Exit", 
+          disabled: isPending,
+          onClick: () => 
+            router.push(isAds ? "/project/ads" : "/projects")
+        }}
+        rightPrimaryButtonProps={isAds 
+          ? undefined 
+          : {
+          text: "Post",
+          disabled: isPending,
+          onClick: () => goLive(props?.id),
+        }}
       />
     </div>
   );

@@ -16,10 +16,11 @@ export type BidCardProps = {
 
 export const BidCardFooterValues = (props: {
   value?: string | null | number;
-  label: string | null;
+  label: string | null
+  truncate?: boolean
 }) => {
   return (
-    <p>
+    <p title={`${props.value}`} className={props.truncate?"truncate":""}>
       {props.value || "None"}{" "}
       <span className="font-normal text-gray-400 hidden lg:inline">
         {props.label}
@@ -73,10 +74,11 @@ const BidCard = (props: BidCardProps) => {
         </div>
       </div>
       <p className="mb-4">{props.bid?.additionalNotesToClient}</p>
-      <div className="flex p-3 font-semibold justify-between items-center bg-gray-50">
+      <div className="flex gap-2 p-3 font-semibold justify-between items-center bg-gray-50">
         <BidCardFooterValues
           value={props.bid?.project?.title}
           label="Project"
+          truncate
         />
         <BidCardFooterValues
           value={(props.bid?.milestones?.length || 0) + 1}

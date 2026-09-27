@@ -18,6 +18,7 @@ export type CustomTabItemProps = {
   replace?: CustomTabProps["replace"];
   onClick?: React.ComponentProps<"button">["onClick"];
   value?: unknown;
+  tourTargetId?: string;
 };
 
 export type CustomTabProps = {
@@ -58,6 +59,7 @@ const CustomTabItemWrapper = (
         replace={props.replace}
         href={props.href || ""}
         passHref
+        id={props.tourTargetId}
         className={className}
       >
         {props.children}
@@ -68,6 +70,7 @@ const CustomTabItemWrapper = (
     <button
       disabled={props.disabled}
       onClick={props.onClick}
+      id={props.tourTargetId}
       className={className}
     >
       {props.children}

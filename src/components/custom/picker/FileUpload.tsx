@@ -2,13 +2,14 @@
 import useFilePicker, { FilePickerOptions } from "@/hooks/useFilePicker";
 import { cn } from "@/lib/utils";
 import { UploadCloud } from "lucide-react";
-import React from "react";
+import React, { memo } from "react";
 
 type FileUploadPickerProps = FilePickerOptions & {
   cta?: string;
   details?: React.ReactNode;
   rounded?: boolean;
   disabed?: boolean;
+  className?: string;
 };
 
 const FileUploadPicker = (props: FileUploadPickerProps) => {
@@ -23,7 +24,8 @@ const FileUploadPicker = (props: FileUploadPickerProps) => {
       className={cn(
         "border border-gray-300 p-12 flex flex-col items-center",
         props.rounded && "rounded-lg",
-        props.disabed && "pointer-events-none"
+        props.disabed && "pointer-events-none",
+        props.className,
       )}
     >
       <span className="icon-wrapper mb-2">
@@ -35,7 +37,7 @@ const FileUploadPicker = (props: FileUploadPickerProps) => {
         </span>{" "}
         {props.details || (
           <>
-            or drag and drop <br /> Pictures (max. 10mb)
+            or drag and drop <br /> Pictures (max. 50mb)
           </>
         )}
       </p>
@@ -44,4 +46,4 @@ const FileUploadPicker = (props: FileUploadPickerProps) => {
   );
 };
 
-export default FileUploadPicker;
+export default memo(FileUploadPicker);

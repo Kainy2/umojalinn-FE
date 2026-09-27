@@ -27,10 +27,15 @@ const ActiveJobsPage = () => {
     );
 
   return (
-    <div className="flex flex-col-reverse md:flex-row gap-12">
+    <div className="flex flex-col mt-8 md:mt-0  md:flex-row gap-12">
       <MilestoneTimeline
+        buyer={projectData?.data?.data?.buyer.user}
+        designer={projectData?.data?.data?.designer.user}
         projectId={projectData?.data?.data?.id}
+        projectName={projectData?.data?.data?.title ?? undefined}
+        projectStatus={projectData?.data?.data?.status}
         currency={projectData?.data?.data?.currency || null}
+        escrowBalance={projectData?.data?.data?.escrowBalance || 0}
         isDesigner={
           projectData?.data?.data?.designerId ===
           meData?.data?.data?.designerProfile?.id
@@ -42,7 +47,7 @@ const ActiveJobsPage = () => {
         <EscrowCard
           projectId={projectData?.data?.data?.id}
           milestones={projectMilestonesData?.data?.data || []}
-          paidOut={projectData?.data?.data?.amountFunded || 0}
+          // paidOut={projectData?.data?.data?.amountFunded || 0}
           currency={projectData?.data?.data?.currency}
           escrowBalance={projectData?.data?.data?.escrowBalance || 0}
           projectPrice={projectData?.data?.data?.approvedBudget || 0}

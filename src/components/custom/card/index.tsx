@@ -12,9 +12,11 @@ export type CustomCardProps = {
   preTitle?: React.ReactNode;
   img?: string;
   description?: string;
+  price?: React.ReactNode;
   preDescription?: React.ReactElement;
   action?: React.ReactElement;
   color?: string;
+  id?: string;
   onClick?:
     | ComponentProps<"button">["onClick"]
     | ComponentProps<"a">["onClick"];
@@ -30,12 +32,16 @@ const CustomCardWrapper = (props: {
   img?: string;
   blurred?: boolean;
   disabled?: boolean;
-  wrapperRef?: React.RefObject<HTMLAnchorElement> | React.RefObject<HTMLButtonElement>;
+  id?: string;
+  wrapperRef?:
+    | React.RefObject<HTMLAnchorElement>
+    | React.RefObject<HTMLButtonElement>;
 }) => {
   if (props.href && !props.disabled) {
     return (
       <Link
         ref={props.wrapperRef as React.RefObject<HTMLAnchorElement>}
+        id={props.id}
         style={
           props.img
             ? {
@@ -46,10 +52,7 @@ const CustomCardWrapper = (props: {
               }
             : undefined
         }
-      className={cn(
-        props.className, 
-        props.blurred && "opacity-50",
-      )}
+        className={cn(props.className, props.blurred && "opacity-50")}
         href={props.href}
         onClick={props.onClick as ComponentProps<"a">["onClick"]}
       >
@@ -60,6 +63,7 @@ const CustomCardWrapper = (props: {
   return (
     <button
       ref={props.wrapperRef as React.RefObject<HTMLButtonElement>}
+      id={props.id}
       style={
         props.img
           ? {
@@ -71,12 +75,16 @@ const CustomCardWrapper = (props: {
           : undefined
       }
       className={cn(
-        props.className, 
+        props.className,
         (props.blurred || props.disabled) && "opacity-50",
-        props.disabled && "cursor-not-allowed"    
-        )}      
+        props.disabled && "cursor-not-allowed",
+      )}
       type="button"
-      onClick={ props.disabled ? undefined : props.onClick as ComponentProps<"button">["onClick"]}
+      onClick={
+        props.disabled
+          ? undefined
+          : (props.onClick as ComponentProps<"button">["onClick"])
+      }
     >
       {props.children}
     </button>
@@ -84,7 +92,7 @@ const CustomCardWrapper = (props: {
 };
 
 const CustomCard = (props: CustomCardProps) => {
-  const ref = useRef<HTMLAnchorElement>(null)
+  const ref = useRef<HTMLAnchorElement>(null);
   useEffect(() => {
     if (props.color === "primary" && props.type === "PROJECT") {
       ref.current?.scrollIntoView({
@@ -93,7 +101,6 @@ const CustomCard = (props: CustomCardProps) => {
       });
     }
   }, [props.color, props.type]);
-  
 
   if (props.type === "PROJECT") {
     return (
@@ -103,13 +110,14 @@ const CustomCard = (props: CustomCardProps) => {
         disabled={props.disabled}
         img={props.img}
         href={props.href}
+        id={props.id}
         onClick={props.onClick as ComponentProps<"a">["onClick"]}
         className={cn(
           "relative h-28 min-w-80 flex p-12 items-center justify-center border-b-2 border-gray-400 bg-gray-100",
           props.color === "primary" && "border-primary",
           props.color === "blue" && "border-blue-500",
           props.color === "error" && "border-error",
-          props.color === "success" && "border-success"
+          props.color === "success" && "border-success",
         )}
       >
         {props.preTitle && (
@@ -129,6 +137,7 @@ const CustomCard = (props: CustomCardProps) => {
       blurred={props.blurred}
       disabled={props.disabled}
       href={props.href}
+      id={props.id}
       onClick={props.onClick}
       className="bg-white p-4 text-left"
     >
@@ -145,9 +154,31 @@ const CustomCard = (props: CustomCardProps) => {
         />
       </div>
       {props.preDescription}
-      <p className="text-sm leading-normal mb-2 text-foreground-body">
-        {props.description}
-      </p>
+      {(props.description || props.price) && (
+        <div
+          className={cn(
+            "mb-2 flex gap-2",
+            props.description && props.price && "items-end justify-between",
+            props.price && !props.description && "justify-end",
+          )}
+        >
+          {props.description ? (
+            <p
+              className={cn(
+                "text-sm leading-normal text-foreground-body",
+                props.price && "min-w-0 flex-1",
+              )}
+            >
+              {props.description}
+            </p>
+          ) : null}
+          {props.price ? (
+            <span className="text-sm font-semibold shrink-0 text-foreground">
+              {props.price}
+            </span>
+          ) : null}
+        </div>
+      )}
       {props.action}
     </CustomCardWrapper>
   );

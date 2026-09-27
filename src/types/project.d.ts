@@ -1,7 +1,47 @@
+import { EDeliveryMileStoneType, EMileStoneStatus } from "./enum";
 import { UmojaLinnUser, UmojaLinnUserRoleProfile } from "./user";
 import { UmojaLinnTimestamp } from "./util";
 
-export type UmojaLinnCurrency = "EURO" | "NAIRA";
+export type UmojaLinnCurrency = "EURO" | "NAIRA" | "USD" | "GBP" | "CAD";
+
+// Male standard sizes (letter-based)
+export type UmojalinnMaleStandardSize =
+  | "XXS"
+  | "XS"
+  | "S"
+  | "M"
+  | "L"
+  | "XL"
+  | "XXL"
+  | "3XL"
+  | "4XL"
+  | "5XL"
+  | "6XL";
+
+// Female standard sizes (UK number-based)
+export type UmojalinnFemaleStandardSize =
+  | "4"
+  | "6"
+  | "8"
+  | "10"
+  | "12"
+  | "14"
+  | "16"
+  | "18"
+  | "20"
+  | "22"
+  | "24"
+  | "26"
+  | "28"
+  | "30"
+  | "32";
+
+// Combined type for backward compatibility
+export type UmojalinnStandardSize =
+  | UmojalinnMaleStandardSize
+  | UmojalinnFemaleStandardSize;
+
+export type UmojaLinnSizingTemplateUnit = "CM" | "INCH";
 
 export type UmojaLinnProject = {
   id: string;
@@ -26,7 +66,14 @@ export type UmojaLinnProject = {
   percentageCompleted: number;
   draftPercentageCompleted: number;
   allReviewsSubmitted: boolean;
+  willProvideMaterials: boolean;
+  showDesignerReviews: boolean;
+  showBuyerReviews: boolean;
   reviews: Array<UmojaLinnProjectReview> | null;
+  chatLinks: Array<string> | null;
+  chatMedia: Array<string> | null;
+  requestedMeasurementPoints: string[];
+  sizingTemplatePdfUrl: string | null;
   deliveryAddress: {
     id: string;
     country: null | string;
@@ -90,6 +137,14 @@ export type UmojaLinnDeliveryMilestoneReviewProps = {
   trackingId?: string; // only required for TRACKED
 };
 
+export type VariableDeliveryMileStoneSubmissions = {
+  id: string;
+  deliveryMileStoneId: string;
+  amount: number;
+  status: UmojaLinnMilestoneSubmissionStatus;
+  deliveryMethod: UmojaLinnDeliveryMethod; // optional relation
+} & UmojaLinnTimestamp;
+
 export type UmojaLinnMilestone = {
   id: string;
   title?: string;
@@ -100,14 +155,27 @@ export type UmojaLinnMilestone = {
   city?: string;
   country?: string;
   deliveryMethod?: UmojaLinnDeliveryMethod;
-  status:
-    | "IN_ACTIVE"
-    | "PENDING"
-    | "ACTIVE"
-    | "IN_REVIEW"
-    | "REJECTED"
-    | "APPROVED";
+  variableSubmissions?: VariableDeliveryMileStoneSubmissions[];
+  deliveryMileStoneType: EDeliveryMileStoneType;
+  lastMilestoneApprovedAt: string | null;
+  currency: UmojaLinnCurrency;
+  status: EMileStoneStatus;
   transactionStatus: "AWAITING_FUND" | "PROCESSING" | "FUNDED" | "PAID";
+  project: {
+    fundStatus: "AWAITING_FUND" | "PROCESSING" | "FUNDED";
+    buyer: {
+      user: Pick<
+        UmojaLinnUser,
+        "firstName" | "lastName" | "profilePhotoUri" | "address"
+      >;
+    };
+    designer: {
+      user: Pick<
+        UmojaLinnUser,
+        "firstName" | "lastName" | "profilePhotoUri" | "address"
+      >;
+    };
+  };
   projectId: string | null;
   paidOutDate: string | null;
 } & UmojaLinnTimestamp;
@@ -125,6 +193,7 @@ export type UmojaLinnBid = {
   project: UmojaLinnProject;
   designer: UmojaLinnUserRoleProfile;
   milestones: UmojaLinnMilestone[];
+  requestedMeasurementPoints: string[];
   sizingTemplateRequested: boolean;
   history: Array<
     {
@@ -142,7 +211,12 @@ export type UmojaLinnBid = {
     country: string;
     amount: null | number;
     deliveryMethod: null | UmojaLinnDeliveryMethod;
+    deliveryMileStoneType: EDeliveryMileStoneType;
   } & UmojaLinnTimestamp;
+};
+export type UmojaLinnSubmitBidResponse = {
+  paymentAccountConnected: boolean;
+  paymentAccountOnboarded: boolean;
 };
 
 export type UmojaLinnMaleSizingTemplateProps = {
@@ -167,6 +241,7 @@ export type UmojaLinnMaleSizingTemplateProps = {
   waistToKneePoint: number | null;
   desiredTrouserOrSkirtLength: number | null;
   shoulderToFloor: number | null;
+  ukStandardSize: UmojalinnStandardSize | null;
   height: number | null;
   headCircumference: number | null;
 };
@@ -200,17 +275,24 @@ export type UmojaLinnFemaleSizingTemplateProps = {
   shoulderToFloor: number | null;
   height: number | null;
   headCircumference: number | null;
+  ukStandardSize: UmojalinnStandardSize | null;
 };
 
 export type UmojaLinnSizingTemplate = {
   id: string;
   buyerId: string;
   name: string;
-  unit: "CM" | "INCH";
+  unit: UmojaLinnSizingTemplateUnit;
   gender: "MALE" | "FEMALE";
   status: "DRAFT" | "LIVE" | "IN_USE";
   buyer?: UmojaLinnUserRoleProfile;
   projects: UmojaLinnProject[];
+  defaultFieldsLocked?: boolean;
+  requestedMeasurementPoints?: string[];
+  submittedMeasurementPoints?: string[];
+  lastReminderSentAt?: string;
+  lastReminderSentBy?: string;
+  isChangesUpdated?: boolean;
   metadata?: {
     reviews?: Record<
       keyof (UmojaLinnMaleSizingTemplateProps &
@@ -223,6 +305,11 @@ export type UmojaLinnSizingTemplate = {
 > &
   UmojaLinnTimestamp;
 
+export type UmojaLinnMilestoneSubmissionStatus =
+  | "PENDING"
+  | "APPROVED"
+  | "REJECTED";
+
 export type UmojaLinnMilestoneSubmission = {
   id: string;
   milestoneId: string;
@@ -230,9 +317,9 @@ export type UmojaLinnMilestoneSubmission = {
   images: Array<{
     url: string;
     meta: {
-      fileName: string // eg. "invite.png",
-      fileSize: string // eg. "46.31 KB"
-    }
+      fileName: string; // eg. "invite.png",
+      fileSize: string; // eg. "46.31 KB"
+    };
   }>;
   links: Array<string>;
   deliveryMilestoneId: null | string;
@@ -241,10 +328,10 @@ export type UmojaLinnMilestoneSubmission = {
   country: null | string;
   street: null | string;
   zipCode: null | string;
-  courierService: strinng | null;
+  courierService: string | null;
   courierServiceLink: string | null;
   trackingId: string | null;
-  status: "APPROVED" | "REJECTED" | "PENDING";
+  status: UmojaLinnMilestoneSubmissionStatus;
   rejectionReason?: null | string;
   milestone: {
     project: {
@@ -263,13 +350,21 @@ export type UmojaLinnMediaLink = {
   type: "link" | "media";
   url: string;
   meta: {
-    fileName: string // eg. "invite.png",
-    fileSize: string // eg. "46.31 KB"
-  }
+    fileName: string; // eg. "invite.png",
+    fileSize: string; // eg. "46.31 KB"
+  };
   createdAt: string;
 };
 
-export type UmojalinnPaymentChannels = "PAYPAL" | "DIRECT_TRANSFER"; //  | "STRIPE"
+export type UmojalinnKnownPaymentChannels =
+  | "PAYPAL"
+  | "DIRECT_TRANSFER"
+  | "STRIPE_CARD";
+
+export type UmojalinnPaymentChannels = UmojalinnKnownPaymentChannels | string;
+
+/** PSP on wallet transactions (withdrawals, etc.) */
+export type TPspProvider = TPaymentAccountProvider;
 
 export type UmojaLinnWithdrawalMethod = {
   id: string;
@@ -303,6 +398,11 @@ export type UmojalinnWalletTransaction = {
   projectId: string;
   walletId: null | string;
   project?: UmojaLinnProject;
+  pspProvider?: TPspProvider | null;
+  pspReference?: string | null;
+  pspFee?: number | null;
+  pspPayoutId?: string | null;
+  milestoneId?: string | null;
 } & UmojaLinnTimestamp;
 
 export type UmojalinnWallet = {
@@ -312,11 +412,20 @@ export type UmojalinnWallet = {
   ngnEscrowBalance: number;
   eurBalance: number;
   eurEscrowBalance: number;
+  usdBalance: number;
+  usdEscrowBalance: number;
+  gbpBalance: number;
+  gbpEscrowBalance: number;
+  cadBalance: number;
+  cadEscrowBalance: number;
   transactions: UmojalinnWalletTransaction[];
 } & UmojaLinnTimestamp;
 
 export type UmojaLinnChat = {
   message?: string;
+  sessionId?: string;
+  endedAt?: string | Date;
+  callDurationSeconds?: number;
   imageUrl?: string;
   imageMeta?: {
     fileName: string;
@@ -326,7 +435,7 @@ export type UmojaLinnChat = {
     UmojaLinnUser,
     "firstName" | "lastName" | "profilePhotoUri" | "id"
   >;
-  type: "MESSAGE" | "NOTIFICATION";
+  type: "MESSAGE" | "NOTIFICATION" | "CALL_JOIN" | "CALL_END";
   severity?: "ERROR" | "SUCCESS";
   createdAt: string | Date;
 };
@@ -348,10 +457,188 @@ export type UmojaLinnProjectReview = {
 export type NewUmojaLinnProjectReview = {
   projectId: string;
   projectTitle: string;
+  allReviewsSubmitted: boolean;
   reviews: Array<UmojaLinnProjectReview>;
-} 
+};
+
+export type WorkHistoryCounterparty = {
+  userId: string;
+  profileId: string;
+  firstName: string;
+  lastName: string;
+  profilePhotoUri: string | null;
+  tag: string;
+};
+
+export type WorkHistoryReview = {
+  id: string;
+  rating: number;
+  message: string;
+  images: string[];
+  reviewType: "EXPERIENCE" | "CLOTHING_QUALITY";
+  createdAt: string;
+};
+
+export type WorkHistoryEntry = {
+  projectId: string;
+  projectTitle: string;
+  allReviewsSubmitted: boolean;
+  currency?: UmojaLinnCurrency;
+  approvedBudget: number;
+  counterparty: WorkHistoryCounterparty;
+  reviews: WorkHistoryReview[];
+};
+
+export type WorkHistory = {
+  withBuyer: WorkHistoryEntry[];
+  other: WorkHistoryEntry[];
+};
 
 export type UmojaLinnSpecialistType = {
   id: string;
   name: string;
+} & UmojaLinnTimestamp;
+
+export type UmojaLinnPaymentFees = {
+  amount: number;
+  collectionFee: number;
+  totalCharge: number;
+  serviceFee: number;
+};
+
+export type UmojaLinnPayment = {
+  checkoutUrl: string;
+  amount: number;
+  currency: UmojaLinnCurrency;
+  fees?: UmojaLinnPaymentFees;
+};
+
+export type UmojaLinnNgnBank = {
+  id: string;
+  name: string;
+  code: string;
+};
+
+/** POST verify NGN bank account */
+export type TVerifyNgnAccountPayload = {
+  bankCode: string;
+  accountNumber: string;
+};
+
+/** POST add NGN bank account */
+export type TAddNgnBankAccountPayload = {
+  accountNumber: string;
+  bankCode: string;
+  accountName: string;
+  otp: string;
+};
+
+/** POST /wallet/connect-stripe-account */
+export type TConnectStripeAccountPayload = {
+  otp: string;
+};
+
+/** POST /wallet/verify-connect-payment-account-otp */
+export type TVerifyConnectPaymentAccountOtpPayload = {
+  otp: string;
+};
+
+export type TRequestWithdrawalPayload = {
+  currency: UmojaLinnCurrency;
+  amount: number;
+  otp: string;
+};
+
+/** POST /wallet/paystack/fee-estimate */
+export type TPaystackFeeEstimatePayload = {
+  amount: number;
+  type: "transfer";
+};
+
+export type TPaystackFeeEstimate = {
+  amount: number;
+  fee: number;
+  totalDebit: number;
+  netToRecipient: number;
+  currency: string;
+  type: "transfer";
+};
+
+/** Payout address on payment account from GET /wallet/payment-account-info */
+export type UmojaLinnPaymentAccountPayoutAddress = {
+  id: string;
+  userId: string | null;
+  address: string | null;
+  country: string | null;
+  city: string | null;
+  state: string | null;
+  zipCode: string | null;
+  projectId: string | null;
+  paymentAccountId: string | null;
+} & UmojaLinnTimestamp;
+
+export type UmojaLinnPaymentAccountInfo = {
+  id: string;
+  designerId: string;
+  stripeAccountId: string | null;
+  stripeStatus: string;
+  stripeOnboardingUrl: string | null;
+  stripePayoutsEnabled: boolean;
+  stripeChargesEnabled: boolean;
+  stripeDetailsSubmitted: boolean;
+  stripeRequirements: string | null;
+  stripeIban: string | null;
+  stripeBankName: string | null;
+  stripeBankCurrency: string | null;
+  paystackRecipientCode: string;
+  paystackStatus: string;
+  paystackBankCode: string;
+  paystackAccountNumber: string;
+  paystackAccountName: string;
+  address?: UmojaLinnPaymentAccountPayoutAddress | null;
+};
+
+export type UmojaLinnBankVerified = {
+  accountName: string;
+  accountNumber: string;
+};
+export type UmojaLinnConnectStripeAccount = {
+  onboardingUrl: string;
+  accountId: string;
+};
+
+/** POST /wallet/add-payment-address */
+export type TAddPaymentAddressPayload = {
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+  zipCode: string;
+};
+
+/** DELETE /wallet/stripe-connected-account */
+export type TPaymentAccountProvider = "STRIPE" | "PAYSTACK";
+
+/** DELETE /wallet/payment-account */
+export type TDeletePaymentAccountPayload = {
+  otp: string;
+  provider: TPaymentAccountProvider;
+};
+
+/** @deprecated use TDeletePaymentAccountPayload */
+export type TDeleteStripeConnectedAccountPayload = TDeletePaymentAccountPayload;
+
+export type UmojaLinnSharedWorkImage = {
+  id: string;
+  imageUrl: string;
+  description: string;
+  isCoverImage: boolean;
+};
+
+export type UmojaLinnSharedWork = {
+  id: string;
+  designerId: string;
+  description: string;
+  images: UmojaLinnSharedWorkImage[];
+  clothingTypes: Array<{ id: string; name: string } & UmojaLinnTimestamp>;
 } & UmojaLinnTimestamp;

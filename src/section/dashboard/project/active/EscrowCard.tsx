@@ -1,24 +1,19 @@
-import Alert from "@/components/custom/Alert";
-import ReviewDialog, {
-  ReviewRatingStars,
-} from "@/components/custom/dialog/Review";
 import { InvoiceButton } from "@/components/custom/Invoice";
 import MilestoneProgress from "@/components/custom/milestone/Progress";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
 import { formatCurrencyValue } from "@/lib/number";
 import { getCurrencySymbol } from "@/lib/string";
 import { cn } from "@/lib/utils";
 import { UmojaLinnMilestone, UmojaLinnProject } from "@/types/project";
+import { EMileStoneStatus } from "@/types/enum";
 import { CircleAlert, MoreVertical } from "lucide-react";
+import React, { useMemo } from "react";
+import EscrowCardReviews from "./EscrowCardReviews";
+import { Separator } from "@radix-ui/react-select";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
-import React from "react";
 
 type EscrowCardProps = {
   milestones: UmojaLinnMilestone[];
-  paidOut: number;
   escrowBalance: number;
   currency?: UmojaLinnProject["currency"];
   projectPrice: number;
@@ -28,50 +23,27 @@ type EscrowCardProps = {
 };
 
 const EscrowCard = (props: EscrowCardProps) => {
-  const [openExperience, setOpenExperience] = React.useState(false);
-  const [openClothingQuality, setOpenClothingQuality] = React.useState(false);
-
-  const { data: session } = useSession();
-  const isBuyer = session?.user?.profileRole === "BUYER";
-  const isDesigner = session?.user?.profileRole === "DESIGNER";
-  const hasDesignerDoneExperience = !!props?.reviews?.find?.(
-    (review) => review?.reviewType === "EXPERIENCE" && review?.designerId
+  const { data: me } = useSession();
+  const isDesigner = me?.user?.profileRole === "DESIGNER";
+  const isDesktop = useMediaQuery("md");
+  const totalReleased = useMemo(
+    () =>
+      props?.milestones?.reduce?.((acc, milestone) => {
+        if (milestone?.transactionStatus !== "PAID") return acc;
+        return acc + (Number(milestone?.amount) ?? 0);
+      }, 0),
+    [props?.milestones],
   );
-  const hasBuyerDoneExperience = !!props?.reviews?.find?.(
-    (review) => review?.reviewType === "EXPERIENCE" && review?.buyerId
-  );
-
-  const hasBuyerDoneClothingQuality = !!props?.reviews?.find?.(
-    (review) => review?.reviewType === "CLOTHING_QUALITY"
-  );
-
-  const isIncompleteMilestone = props?.milestones?.find?.(
-    (milestone) => milestone?.status !== "APPROVED"
-  );
-
-  const hasAllMilestoneCompleted = !isIncompleteMilestone;
-
-  const totalReleased = props?.milestones?.reduce?.(
-    (acc, milestone) => {
-      if (milestone?.transactionStatus!=="PAID") return acc;
-      return acc + (milestone?.amount || 0);
-    },
-    0
-  );
-
-
-
-
-
 
   return (
     <div
       className={cn(
-        "flex flex-col gap-4 bg-gray-50 rounded-md p-4 py-8",
-        !hasAllMilestoneCompleted && "hidden lg:flex"
+        "flex flex-col gap-4 bg-gray-50 rounded-md p-4 py-8 md:min-w-80",
+        // !hasAllMilestoneCompleted && "hidden lg:flex"
       )}
+      id="tour-active-project-escrow"
     >
-      <div className="hidden lg:block">
+      <div className="">
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-subtitle-2 font-bold">Project Escrow</h2>
           <button>
@@ -83,8 +55,8 @@ const EscrowCard = (props: EscrowCardProps) => {
           value={
             props?.milestones?.filter?.((milestone) =>
               ["PENDING", "ACTIVE", "IN_REVIEW", "APPROVED"].includes(
-                milestone?.status
-              )
+                milestone?.status,
+              ),
             )?.length
           }
         />
@@ -101,12 +73,13 @@ const EscrowCard = (props: EscrowCardProps) => {
               </p>
               <p
                 className={cn(
-                  ["FUNDED", "PAID"].includes(milestone?.transactionStatus) &&
-                    "line-through"
+                  (milestone?.transactionStatus === "PAID" ||
+                    milestone?.status === EMileStoneStatus.REFUNDED) &&
+                    "line-through",
                 )}
               >
                 {getCurrencySymbol(props?.currency)}
-                {formatCurrencyValue(milestone?.amount)}
+                {formatCurrencyValue(Number(milestone?.amount))}
               </p>
             </React.Fragment>
           ))}
@@ -115,16 +88,20 @@ const EscrowCard = (props: EscrowCardProps) => {
           <p className="text-md">Escrow Balance</p>
           <p className="text-md font-semibold">
             {getCurrencySymbol(props?.currency)}
-            {formatCurrencyValue(props.escrowBalance)}
+            {formatCurrencyValue(Number(props.escrowBalance))}
           </p>
           <p className="text-md">Project Price</p>
           <p className="text-md font-semibold">
             {getCurrencySymbol(props?.currency)}
-            {formatCurrencyValue(props.projectPrice)}
+            {formatCurrencyValue(Number(props.projectPrice))}
           </p>
         </div>
-        <InvoiceButton project={props.project} milestones={props.milestones} />
-        <div className="flex gap-2 items-center">
+        <InvoiceButton
+          project={props.project}
+          milestones={props.milestones}
+          isDesigner={isDesigner}
+        />
+        <div className="flex gap-2 items-center mt-2">
           <span className="h-6 w-6 shrink-0 bg-error-100 rounded-full flex items-center justify-center text-error">
             <CircleAlert className="h-4 w-4" />
           </span>
@@ -134,99 +111,38 @@ const EscrowCard = (props: EscrowCardProps) => {
           </span>
         </div>
       </div>
-      {!!props?.reviews?.length && <Separator className="my-4" />}
-      <div className="flex flex-col gap-8 text-sm">
-        {props.reviews?.map?.((review) => {
-          const isDesigner = session?.user?.profileRole === "DESIGNER";
 
-          if (isDesigner && review?.buyerId && !props?.project?.allReviewsSubmitted) return null;
-          if (!isDesigner && review?.designerId && !props?.project?.allReviewsSubmitted) return null;
+      {isDesktop && (
+        <div className="md:block hidden">
+          {!!props?.reviews?.length && <Separator className="my-4" />}
 
-          return (
-            <div
-              key={review?.id}
-              className="text-foreground-body flex flex-col gap-2"
-            >
-              {review?.reviewType === "EXPERIENCE" &&
-                ((review?.buyerId && session?.user?.profileRole === "BUYER") ||
-                (review?.designerId &&
-                  session?.user?.profileRole === "DESIGNER") ? (
-                  <p>Your Experience Feedback</p>
-                ) : (
-                  <div className="">
-                    <div className="flex items-center gap-2 mb-4">
-                      <Image
-                        src={
-                          review?.buyer?.user?.profilePhotoUri ||
-                          review?.designer?.user?.profilePhotoUri ||
-                          "/img/webp/user.webp"
-                        }
-                        alt=""
-                        height={100}
-                        width={100}
-                        className="object-cover rounded-full aspect-square shrink-0 size-12"
-                      />
-                      <h4 className="text-subtitle-2 font-semibold truncate">
-                        {(review?.buyer || review?.designer)?.user?.firstName}{" "}
-                        {(review?.buyer || review?.designer)?.user?.lastName}
-                      </h4>
-                    </div>
-                    <p>
-                      {review?.buyerId && "Client's"}{" "}
-                      {review?.designerId && "Designer's"} Experience feedback
-                    </p>
-                  </div>
-                ))}
-              {review?.reviewType === "CLOTHING_QUALITY" && (
-                <p>Clothing Quality feedback</p>
-              )}
-              <p className="p-2 bg-white border border-input rounded-sm text-foreground-body">
-                {review.message}
-              </p>
-              <ReviewRatingStars small rating={review.rating || 0} disabled />
-              <div className="flex gap-4 overflow-scroll">
-                {review.images?.map?.((image, i) => (
-                  <>
-                  {/* <Image
-                    key={image}
-                    src={image}
-                    alt=""
-                    height={100}
-                    width={100}
-                    className="object-cover"
-                  /> */}
+          <EscrowCardReviews
+            reviews={props.reviews || []}
+            projectId={props.projectId}
+            project={props.project}
+            milestones={props.milestones}
+          />
+        </div>
+      )}
+    </div>
+  );
+};
 
-                  <Dialog key={image}>
-									<DialogTrigger asChild>
-										<button
-											className={cn(
-												"relative w-28 h-28 rounded-md overflow-hidden"
-											)}
-										>
-											<Image
-												alt={`Review-${i}`}
-												src={image}
-												className="shrink-0 object-cover absolute"
-												fill
-											/>
-										</button>
-									</DialogTrigger>
-									<DialogContent className="h-full w-full max-w-[80vw] max-h-[80vh] p-0 border-0 bg-black/50 [&>button>svg]:text-white overflow-hidden">
-										<div className="relative">
-											<DialogTitle className="hidden">
-												Image
-											</DialogTitle>
-											<Image
-												src={image}
-												className="shrink-0 object-contain absolute"
-												fill
-												alt={`Review-${i}`}
-											/>
-										</div>
-									</DialogContent>
-								</Dialog>
-                  </>
-                ))}
+export default EscrowCard;
+
+{
+  /*
+
+
+                <GalleryImages
+                  height={100}
+                  width={100}
+                  images={review.images?.map?.((image, i) => ({
+                    imageUrl: image,
+                    // title: `Review-${i}`,
+                    id: `Review-${i}`,
+                  }))}
+                />
               </div>
             </div>
           );
@@ -295,9 +211,7 @@ const EscrowCard = (props: EscrowCardProps) => {
               </ReviewDialog>
             </div>
           )}
-      </div>
-    </div>
-  );
-};
+      </div>   
 
-export default EscrowCard;
+*/
+}

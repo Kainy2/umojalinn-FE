@@ -1,13 +1,20 @@
 "use client";
 import MilestoneTimeline from "@/components/custom/milestone/Timeline";
+import { MeasurementPointsReminderBanner } from "@/components/sizing-template";
 import EscrowCard from "@/section/dashboard/project/active/EscrowCard";
 import {
   useGetProjectById,
   useGetProjectMilestones,
 } from "@/tanstack/hooks/useProject";
-import { useGetMe } from "@/tanstack/hooks/useUser";
+import { useGetSizingTemplateById } from "@/tanstack/hooks/useSizingTemplates";
+// import { useGetMe } from "@/tanstack/hooks/useUser";
+import { uuidToBase62Safe } from "@/lib/uuid";
+import { shouldDisableDesignerMilestoneSubmission } from "@/lib/sizing-template-utils";
 import { redirect, useParams } from "next/navigation";
 import React from "react";
+import { useSession } from "next-auth/react";
+
+// MP - Measurement Points
 
 const ActiveProjectPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,46 +24,109 @@ const ActiveProjectPage = () => {
   const { data: projectData, isPending: isLoadingProject } =
     useGetProjectById(id);
 
-  const { data: meData, isPending: isLoadingMe } = useGetMe();
+  // const { data: meData, isPending: isLoadingMe } = useGetMe();
+  const { data: session } = useSession();
 
-  if (isLoadingProjectMilestones || isLoadingProject || isLoadingMe)
+  const project = projectData?.data?.data;
+  const sizingTemplateId = project?.sizingTemplateId;
+
+  // Fetch sizing template to check if measurement points have been requested
+  const { data: templateData, isPending: isLoadingSizingTemplate } =
+    useGetSizingTemplateById(
+      sizingTemplateId ? uuidToBase62Safe(sizingTemplateId) : undefined,
+      { enabled: !!sizingTemplateId },
+    );
+
+  const sizingTemplate = templateData?.data?.data;
+  const isDesigner = session?.user?.profileRole === "DESIGNER";
+
+  // Check if measurement points have NOT been requested (null or empty)
+  const hasMeasurementPointsRequested =
+    sizingTemplate?.requestedMeasurementPoints &&
+    sizingTemplate.requestedMeasurementPoints.length > 0;
+  // Check if measurement points have NOT been requested (null or empty)
+  const hasMeasurementPointsSubmitted =
+    sizingTemplate?.submittedMeasurementPoints &&
+    sizingTemplate.submittedMeasurementPoints.length > 0;
+
+  if (
+    isLoadingProjectMilestones ||
+    isLoadingProject ||
+    // isLoadingMe ||
+    isLoadingSizingTemplate
+  )
     return (
       <div className="h-[30vh] flex items-center justify-center text-muted-foreground text-sm">
         <span>Loading...</span>
       </div>
     );
-
-  if (projectData?.data?.data?.status) {
-    if (projectData?.data?.data?.status === "COMPLETED") {
+  if (project?.status) {
+    if (project.status === "COMPLETED") {
       return redirect("/projects/completed");
     }
-    if (projectData?.data?.data?.status !== "LIVE") return null;
+    if (project.status !== "LIVE") return null;
   }
 
+  // for buyer, Show reminder to buyer to tell designer to send measurement point fields
+  // for designer, Should go to send measurement points fields in sizing template page, if designer has not submitted measurement points values
+  const showRequestPointsBanner =
+    !!sizingTemplateId &&
+    !!sizingTemplate &&
+    !hasMeasurementPointsRequested &&
+    !hasMeasurementPointsSubmitted;
+  const disableDesignerMilestoneSubmission =
+    isDesigner &&
+    shouldDisableDesignerMilestoneSubmission(sizingTemplateId, sizingTemplate);
+
+  // Show reminder to designer to tell buyer to send measurement points values
+  const isAwaitingMeasurementPointsValues =
+    isDesigner &&
+    !!sizingTemplateId &&
+    !!sizingTemplate &&
+    hasMeasurementPointsRequested &&
+    !hasMeasurementPointsSubmitted;
+
   return (
-    <div className="flex flex-col-reverse md:flex-row gap-12">
-      <MilestoneTimeline
-        projectId={projectData?.data?.data?.id}
-        currency={projectData?.data?.data?.currency || null}
-        isBuyer={
-          projectData?.data?.data?.buyerId ===
-          meData?.data?.data?.buyerProfile?.id
-        }
-        milestones={projectMilestonesData?.data?.data || []}
-        className="flex-1"
-      />
-      <aside className="md:max-w-80 flex-1 w-full shrink-0">
-        <EscrowCard
-          projectId={projectData?.data?.data?.id}
-          milestones={projectMilestonesData?.data?.data || []}
-          paidOut={projectData?.data?.data?.amountFunded || 0}
-          currency={projectData?.data?.data?.currency}
-          escrowBalance={projectData?.data?.data?.escrowBalance || 0}
-          projectPrice={projectData?.data?.data?.approvedBudget || 0}
-          reviews={projectData?.data?.data?.reviews || []}
-          project={projectData?.data?.data}
+    <div className="flex flex-col">
+      {/* Reminder Banner - shown when measurement points haven't been requested */}
+      {(showRequestPointsBanner || isAwaitingMeasurementPointsValues) && (
+        <MeasurementPointsReminderBanner
+          templateId={sizingTemplateId}
+          projectId={project?.id || ""}
+          lastReminderSentAt={sizingTemplate?.lastReminderSentAt}
+          lastReminderSentBy={sizingTemplate?.lastReminderSentBy}
+          isBuyer={!isDesigner}
+          isProjectLive={project?.status === "LIVE"}
+          isAwaitingMeasurementPointsValues={isAwaitingMeasurementPointsValues}
+          className="mb-2"
         />
-      </aside>
+      )}
+      <div className="flex flex-col mt-8 md:mt-0  md:flex-row gap-12 pt-4 lg:pt-8">
+        <MilestoneTimeline
+          buyer={project?.buyer.user}
+          designer={project?.designer.user}
+          projectId={project?.id}
+          projectName={project?.title ?? undefined}
+          projectStatus={project?.status}
+          currency={project?.currency || null}
+          escrowBalance={project?.escrowBalance || 0}
+          isDesigner={session?.user?.profileRole === "DESIGNER"}
+          milestones={projectMilestonesData?.data?.data || []}
+          className="flex-1"
+          disableDesignerSubmission={disableDesignerMilestoneSubmission}
+        />
+        <aside className="md:max-w-80 flex-1 w-full shrink-0">
+          <EscrowCard
+            projectId={project?.id}
+            milestones={projectMilestonesData?.data?.data || []}
+            currency={project?.currency}
+            escrowBalance={project?.escrowBalance || 0}
+            projectPrice={project?.approvedBudget || 0}
+            reviews={project?.reviews || []}
+            project={project}
+          />
+        </aside>
+      </div>
     </div>
   );
 };

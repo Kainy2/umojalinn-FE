@@ -11,12 +11,11 @@ export const POST = async (
     await setBearerToken(req);
 
     const id = (await params)?.id;
-    const body = await req.formData();
 
     const response = await customAxios.post<
       unknown,
       AxiosResponse<SingleApiResponse, unknown>
-    >(`/project/fund-project/${id}`, body);
+    >(`/project/fund-project/${id}`);
 
     return NextResponse.json(response.data);
   } catch (error) {

@@ -1,6 +1,10 @@
 import { Button } from "@/components/ui/button";
+import {
+  TOUR_CREATE_BID_SAVE_MILESTONE_EVENT,
+  type TTourPersistEventDetail,
+} from "@/lib/tour";
 import { getCurrencySymbol } from "@/lib/string";
-import { parseStringToNumber } from "@/lib/utils";
+import { commaStringToNumber, numberToCommaString } from "@/lib/utils";
 import { UmojaLinnCurrency } from "@/types/project";
 import { Edit, Minus, Plus, Save, Trash2 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
@@ -15,24 +19,29 @@ type MileStoneCardProps = {
   view: boolean;
   title: string;
   description: string;
+  loadingSave: boolean;
   onSave: (props: {
     id?: string;
     title: string;
     description: string;
     price: number;
-  }) => void;
+  }) => void | Promise<void>;
   onEdit: React.ComponentProps<"button">["onClick"];
   onCancel: React.ComponentProps<"button">["onClick"];
   onDelete?: () => void;
+  loadingDelete: boolean;
   currency: UmojaLinnCurrency | null;
   price: number;
   hideActions: boolean;
+  tourMilestoneFieldsTargetId?: string;
+  tourPaymentTargetId?: string;
 };
 
 export const MileStoneCardFooter = (
   props: Pick<MileStoneCardProps, "view" | "price" | "currency"> & {
     label: string;
     onPriceChange: (value: number) => void;
+    tourTargetId?: string;
   }
 ) => {
   const { view, price, onPriceChange, label, currency } = props;
@@ -45,13 +54,17 @@ export const MileStoneCardFooter = (
   }, [content, price]);
 
   const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseStringToNumber(e?.target?.value)?.value || 0;
+    if (e.target.value.length > 27) return
+    const value = commaStringToNumber(e.target.value)
     setContent(value);
     onPriceChange(value);
   };
 
   return (
-    <div className="flex justify-between items-center text-subtitle-2 font-semibold">
+    <div
+      id={props.tourTargetId}
+      className="flex justify-between items-center text-subtitle-2 font-semibold"
+    >
       <h4>{label}</h4>
       <div className="flex w-fit gap-2 items-center [&>*>svg]:text-primary ">
         {view ? (
@@ -78,15 +91,15 @@ export const MileStoneCardFooter = (
                 className="absolute opacity-0 shrink-0 pointer-events-none"
                 ref={span}
               >
-                {price || content}
+                {numberToCommaString(price || content)}
               </span>
               <input
-                value={price || ""}
+                value={numberToCommaString(price || "")}
                 onChange={changeHandler}
-                className="pl-4 transition shrink-0 w-fit block disabled:bg-background ring-ring placeholder:text-subtitle-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="pl-4 ml-2.5 transition shrink-0 w-fit block disabled:bg-background ring-ring placeholder:text-subtitle-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 placeholder="0"
                 disabled={view}
-                type="number"
+                type="text"
                 min={0}
                 style={{ width: width ? `${width + 20}px` : "30px" }}
               />
@@ -117,6 +130,7 @@ const MileStoneCard = (props: MileStoneCardProps) => {
     onSave,
     onEdit,
     onDelete,
+    loadingDelete,
     onCancel,
   } = props;
 
@@ -125,6 +139,12 @@ const MileStoneCard = (props: MileStoneCardProps) => {
     description,
     price,
   });
+
+  const editedValuesRef = useRef(editedValues);
+  editedValuesRef.current = editedValues;
+
+  const onSaveRef = useRef(onSave);
+  onSaveRef.current = onSave;
 
   useEffect(() => {
     if (!view) {
@@ -136,20 +156,56 @@ const MileStoneCard = (props: MileStoneCardProps) => {
     }
   }, [description, price, title, view]);
 
+  useEffect(() => {
+    if (view || !props.tourMilestoneFieldsTargetId) {
+      return;
+    }
+
+    const handleTourSave = async (event: Event) => {
+      const detail = (event as CustomEvent<TTourPersistEventDetail>).detail;
+      const resolve = detail?.resolve ?? (() => undefined);
+      const values = editedValuesRef.current;
+      const hasDetails =
+        !!values.title.trim() ||
+        !!values.description.trim() ||
+        values.price > 0;
+
+      if (!hasDetails) {
+        resolve();
+        return;
+      }
+
+      try {
+        await onSaveRef.current({ ...values, id });
+      } finally {
+        resolve();
+      }
+    };
+
+    window.addEventListener(TOUR_CREATE_BID_SAVE_MILESTONE_EVENT, handleTourSave);
+
+    return () => {
+      window.removeEventListener(
+        TOUR_CREATE_BID_SAVE_MILESTONE_EVENT,
+        handleTourSave,
+      );
+    };
+  }, [view, props.tourMilestoneFieldsTargetId, id]);
+
   const handleEdit =
     (value: "title" | "description" | "price") =>
-    (
-      e:
-        | React.ChangeEvent<HTMLInputElement>
-        | React.ChangeEvent<HTMLTextAreaElement>
-        | number
-    ) => {
-      setEditedValues((prev) => ({
-        ...prev,
-        [value]:
-          value === "price" || typeof e === "number" ? e : e.target.value,
-      }));
-    };
+      (
+        e:
+          | React.ChangeEvent<HTMLInputElement>
+          | React.ChangeEvent<HTMLTextAreaElement>
+          | number
+      ) => {
+        setEditedValues((prev) => ({
+          ...prev,
+          [value]:
+            value === "price" || typeof e === "number" ? e : e.target.value,
+        }));
+      };
 
   const footer = (
     <MileStoneCardFooter
@@ -157,7 +213,8 @@ const MileStoneCard = (props: MileStoneCardProps) => {
       price={view ? price : editedValues.price}
       onPriceChange={handleEdit("price")}
       view={view}
-      label="Payment"
+      label="Milestone Payment"
+      tourTargetId={props.tourPaymentTargetId}
     />
   );
 
@@ -167,6 +224,7 @@ const MileStoneCard = (props: MileStoneCardProps) => {
         {!hideActions && !!id && (
           <VerifyDialog
             destructive
+            pendingConfirm={loadingDelete}
             onConfirm={onDelete}
             title="Delete Milestone?"
             description="Are you sure you want to delete this milestone? Please note that this is irreversible."
@@ -198,24 +256,30 @@ const MileStoneCard = (props: MileStoneCardProps) => {
     );
   }
   return (
-    <div className="card p-6 flex flex-col gap-4">
-      <TextField
-        label="Milestone name"
-        value={editedValues?.title}
-        onChange={handleEdit("title")}
-      />
-      <TextAreaField
-        label="Description"
-        value={editedValues?.description}
-        onChange={handleEdit("description")}
-        placeholder="Enter a description..."
-        rows={5}
-      />
+    <div
+      id={props.tourMilestoneFieldsTargetId}
+      className="card p-6 flex flex-col gap-4"
+    >
+      <div className="flex flex-col gap-4">
+        <TextField
+          label="Milestone name"
+          value={editedValues?.title}
+          onChange={handleEdit("title")}
+        />
+        <TextAreaField
+          label="Description"
+          value={editedValues?.description}
+          onChange={handleEdit("description")}
+          placeholder="Enter a description..."
+          rows={5}
+        />
+      </div>
       {footer}
       <div className="flex gap-4 items-center">
         <button
+          disabled={props.loadingSave}
           onClick={() => onSave({ ...editedValues, id })}
-          className="text-left items-center w-fit flex text-sm text-primary [&>svg]:size-5 gap-2"
+          className="text-left items-center w-fit flex text-sm text-primary [&>svg]:size-5 gap-2 disabled:opacity-50"
         >
           <Save />
           Save

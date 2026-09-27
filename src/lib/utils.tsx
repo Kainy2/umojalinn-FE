@@ -1,0 +1,382 @@
+import { StateType } from "@/layout/create-project/CreateProjectProvider";
+import { UmojaLinnProject } from "@/types/project";
+import { clsx, type ClassValue } from "clsx";
+import { PhoneNumberUtil } from "google-libphonenumber";
+import { ReactNode } from "react";
+import { twMerge } from "tailwind-merge";
+
+const allVideoTypes = [
+  "mp4",
+  "m4v",
+  "mov",
+  "wmv",
+  "avi",
+  "flv",
+  "f4v",
+  "webm",
+  "mkv",
+  "3gp",
+  "3g2",
+  "ogv",
+  "mpg",
+  "mpeg",
+  "ts",
+  "m2ts",
+  "vob",
+  "rm",
+  "rmvb",
+  "divx",
+  "asf",
+  "mxf"
+];
+
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+export function isPasswordField(name: string) {
+  return ["password", "confirmPassword"].includes(name);
+}
+
+const phoneUtil = PhoneNumberUtil.getInstance();
+
+export const isPhoneValid = (phone: string) => {
+  try {
+    return phoneUtil.isValidNumber(phoneUtil.parseAndKeepRawInput(phone));
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+};
+
+
+export const formDataHasFile = (formData: FormData) => {
+  for (const [, value] of formData.entries()) {
+    if (value instanceof Blob && value.size > 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
+
+
+/**
+ * Converts a JSON object to a FormData instance.
+ * @param jsonObject - The JSON object to convert.
+ * @returns A FormData instance containing the JSON object's data.
+ */
+export function jsonToFormData<T extends Record<string, unknown>>(
+  jsonObject: T
+): FormData {
+  const formData = new FormData();
+
+  const appendToFormData = (key: string, value: unknown) => {
+    if (value instanceof File) {
+      // Append File instances directly
+      formData.append(key, value);
+    } else if (value instanceof FileList) {
+      // Append File instances directly
+      for (let i = 0; i < value.length; i++) {
+        formData.append(key, value[i]);
+      }
+    } else if (Object.prototype.toString.call(value) === "[object Date]") {
+      // Append Date instances as strings
+      formData.append(key, (value as Date).toISOString());
+    } else if (Array.isArray(value)) {
+      // Handle arrays by appending each element as key[]
+      value.forEach((item, index) => {
+        const arrayKey = ["gallery-images", "images"].includes(key)
+          ? key
+          : `${key}[${index}]`;
+        appendToFormData(arrayKey, item);
+      });
+    } else if (typeof value === "object" && value !== null) {
+      // Handle nested objects recursively
+      Object.entries(value).forEach(([nestedKey, nestedValue]) => {
+        appendToFormData(`${key}[${nestedKey}]`, nestedValue);
+      });
+    } else if (value !== undefined && value !== null && value !== "") {
+      // Append primitive values
+      formData.append(key, String(value));
+    }
+  };
+
+  Object.entries(jsonObject).forEach(([key, value]) => {
+    appendToFormData(key, value);
+  });
+
+  return formData;
+}
+
+export const getProjectImageDetailUpdate = (
+  editedGallery: StateType["gallery"],
+  existingGallery: UmojaLinnProject["Gallery"] | undefined
+) => {
+  const gallery = editedGallery ?? [];
+
+  const existingIdList: string[] = [];
+  const toAdd: StateType["gallery"] = [];
+  const toUpdate: StateType["gallery"] = [];
+
+  // Precompute map for faster title comparisons
+  // const existingMap = new Map(
+  //   gallery.map((item) => [item.id, item.title])
+  // );
+
+  for (const item of gallery) {
+    if (typeof item.id === "string") {
+      existingIdList.push(item.id);
+    }
+
+    if (typeof item.image === "string") {
+      toUpdate.push(item);
+    } else {
+      toAdd.push(item);
+    }
+  }
+
+  return {
+    imagesMeta: toAdd.map(({ title, fileName, isCoverImage }) => ({
+      title,
+      fileName,
+      isCoverImage,
+    })),
+
+    imageToSetAsCover: toUpdate.find(({ isCoverImage }) => isCoverImage)?.id,
+
+    "gallery-images": toAdd.map(({ image }) => image),
+
+    // remove images in db that are not in the new/edited gallery
+    imagesToRemove: existingGallery
+      ?.filter((gallery) => !existingIdList.includes(gallery.id))
+      .map(({ id }) => id),
+
+    // Only update title if it has changed
+    inspoTitles: toUpdate
+      .filter(({ title, id }) => (id && title))
+      // .filter(({ title, id }) => title !== existingMap.get(id))
+      .map(({ title, id }) => ({ title, id })),
+  };
+};
+
+
+/**
+ * Converts a File to a preview URL.
+ *
+ * @param file - The file to be converted.
+ * @returns A string representing the preview URL or null if the input is invalid.
+ */
+export function fileToPreviewUrl(file: File | string): string | null {
+  if (!file) {
+    console.error("No file provided.");
+    return null;
+  }
+
+  if (typeof file === "string") {
+    return file;
+  }
+
+  try {
+    return URL.createObjectURL(file);
+  } catch (error) {
+    console.error("Error creating preview URL:", error);
+    return null;
+  }
+}
+
+/**
+ * Releases the memory allocated for a preview URL.
+ *
+ * @param url - The URL to be revoked.
+ */
+export function revokePreviewUrl(url: string): void {
+  if (url) {
+    URL.revokeObjectURL(url);
+    console.log("Preview URL revoked:", url);
+  } else {
+    console.error("No URL provided to revoke.");
+  }
+}
+
+export function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+type ParsedNumber = {
+  value: number | null;
+  type: "integer" | "float" | "partial" | "invalid";
+};
+
+/**
+ * Converts a string to an integer, float, or first few valid digits,
+ * while removing meaningless starting or trailing zeros.
+ * @param input - The string to parse.
+ * @returns An object indicating the parsed value and its type.
+ */
+export function parseStringToNumber(input: string): ParsedNumber {
+  const trimmedInput = input.trim();
+
+  // Remove meaningless leading zeros (e.g., "00123" => "123", but keep "0.123")
+  const normalizedInput = trimmedInput.replace(/^(-?)0+(?=\d)/, "$1");
+
+  // Check if the normalized input is a valid integer
+  if (/^-?\d+$/.test(normalizedInput)) {
+    return { value: parseInt(normalizedInput, 10), type: "integer" };
+  }
+
+  // Check if the normalized input is a valid float
+  if (/^-?\d+\.\d+$/.test(normalizedInput)) {
+    // Remove trailing zeros from decimals (e.g., "123.4500" => "123.45")
+    const normalizedFloat = normalizedInput
+      .replace(/(\.\d*?)0+$/, "$1")
+      .replace(/\.$/, "");
+    return { value: parseFloat(normalizedFloat), type: "float" };
+  }
+
+  // Extract the first valid digits, removing leading zeros
+  const match = normalizedInput.match(/-?\d+(\.\d+)?/);
+  if (match) {
+    const partialValue = parseFloat(
+      match[0]
+        .replace(/^(-?)0+(?=\d)/, "$1")
+        .replace(/(\.\d*?)0+$/, "$1")
+        .replace(/\.$/, "")
+    );
+    return { value: partialValue, type: "partial" };
+  }
+
+  // If no valid number is found
+  return { value: null, type: "invalid" };
+}
+
+export function formatFileSize(file: File): string {
+  const sizeInBytes = file.size;
+  return formatSize(sizeInBytes);
+}
+
+export function formatSize(sizeInBytes: number): string {
+  const units = ["Bytes", "KB", "MB", "GB", "TB"];
+  let unitIndex = 0;
+  let size = sizeInBytes;
+
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex++;
+  }
+
+  const formattedSize = parseFloat(size.toFixed(2)).toString();
+
+  return `${formattedSize} ${units[unitIndex]}`;
+}
+
+
+
+export const isLinks = (message: string) => {
+	const urlPattern =
+		/(?:(?:https?:\/\/|www\.)[^\s/$.?#].[^\s]*)|(?:\b(?:[a-z0-9-]+\.)+[a-z]{2,})(?:\/[^\s]*)?/gi;
+
+	return urlPattern.test(message);
+};
+
+export const normaliseLink = (url: string) => {
+  if (!url) return "#";
+  return url.startsWith("http://") || url.startsWith("https://") ? url : `https://${url}`
+}
+
+export const isVideoLink = (url: string) => {
+  const urlArr = url.split(".");
+  const lastInUrlArr = urlArr[urlArr.length - 1];
+  return allVideoTypes.includes(lastInUrlArr)
+}
+
+export const formatMessageWithLinks = (rawMessage: string) => {
+	let urlCount = 0;
+	// check if message contains a link
+	const hasLink = isLinks(rawMessage);
+
+	let message: ReactNode = rawMessage;
+	if (hasLink) {
+		message = rawMessage.split(/(\r\n|\n|\r|\s+)/).map((word, i) => {
+			if (/^\r\n|\n|\r$/.test(word)) {
+				// render line break
+				return <br key={`br-${i}`} />;
+			} else if (isLinks(word)) {
+				urlCount++;
+				return (
+					<a
+						key={word}
+						href={normaliseLink(word)}
+						target="_blank"
+						rel="noopener noreferrer"
+						className="text-blue-700 visited:text-blue-700 border-b border-inherit"
+					>
+						{word}
+					</a>
+				);
+			}
+			return <span key={`text-${i}`}>{word}</span>;
+		});
+	}
+
+	return { message, urlCount };
+};
+
+
+export const removeFileFromFileList = (fileList: FileList, index: number): FileList => {
+  const dataTransfer = new DataTransfer();
+
+  Array.from(fileList)
+    .filter(file => file !== fileList[index])
+    .forEach(file => dataTransfer.items.add(file));
+
+  return dataTransfer.files;
+};
+
+export const numberToCommaString = (number: number | string): string => {
+  return number
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    
+    // allow decimals
+    // .replace(/^(\d+)(\.\d+)?$/, (_, intPart, decimalPart) =>
+    //   intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + (decimalPart || "")
+    // );
+};
+
+export const removeNonDigits = (input: number | string) => {
+  return input
+    .toString()
+    // Remove all non-digits and non-dots
+    .replace(/[^\d]/g, '')
+
+    // Keep only the first dot, remove all others
+    // .replace(/^([^.]*)([^.]*)\.*/g, '$1.$2')
+
+};
+
+export const commaStringToNumber = (input: string): number => {
+  return Number(removeNonDigits(input));
+};
+
+export const mergeFiles = (
+  existing?: FileList | null,
+  incoming?: FileList | File | null
+): FileList => {
+  const dataTransfer = new DataTransfer();
+
+  // Add existing files if any
+  if (existing instanceof FileList) {
+    Array.from(existing).forEach(file => dataTransfer.items.add(file));
+  }
+
+  // Add incoming files if any
+  if (incoming instanceof FileList) {
+    Array.from(incoming).forEach(file => dataTransfer.items.add(file));
+  } else if (incoming instanceof File) {
+    dataTransfer.items.add(incoming);
+  }
+
+  return dataTransfer.files; // ✅ returns a proper FileList
+};

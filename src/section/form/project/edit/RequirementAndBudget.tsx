@@ -4,24 +4,28 @@ import { FormCustomSelectField } from "@/components/custom/Select";
 import { FormTextField } from "@/components/custom/input/TextField";
 import { Form, FormField } from "@/components/ui/form";
 import { requirementsAndBugetSchema } from "@/lib/schema";
-import { jsonToFormData } from "@/lib/utils";
+import { jsonToFormData, numberToCommaString, removeNonDigits } from "@/lib/utils";
 import {
   useGetProjectById,
   useUpdateProjectById,
 } from "@/tanstack/hooks/useProject";
 import { ProjectFormRequirementsAndBugetProps } from "@/types/form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Euro, Lock, Unlock } from "lucide-react";
+import { Euro, Lock, Unlock, DollarSign } from "lucide-react";
 import React, { useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import ProjectEditFooter from "./Footer";
+import ProjectEditFooter from "./ProjectEditFooter";
+// import ProjectEditFooter from "./Footer";
 import NairaSign from "@/icons/NairaSign";
+import GbpSign from "@/icons/GbpSign";
+import CadSign from "@/icons/CadSign";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { ProjectFormProps } from "./Description";
 import TabButtonSelect from "@/components/custom/tab/ButtonSelect";
 import CustomReactSelect from "@/components/custom/ReactSelect";
+import { useCreateProjectContext } from "@/hooks/create-project/useCreateProjectContext";
 
 export const EXPERIENCE_ENUMS = [
   "1 - 2 years",
@@ -30,12 +34,7 @@ export const EXPERIENCE_ENUMS = [
   "9+ years",
 ] as const;
 
-export const EXPERIENCE_ENUMS_VALUES = [
-  "ONE_TO_TWO_YEARS",
-  "THREE_TO_FIVE_YEARS",
-  "SIX_TO_EIGHT_YEARS",
-  "NINE_PLUS_YEARS",
-] as const;
+
 
 const RequirementsBudgetForm = (props: ProjectFormProps) => {
   const { data, isPending: loadingProject } = useGetProjectById(props?.id);
@@ -44,13 +43,26 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
   );
 
   const router = useRouter();
+  const { projectFormDetails, setProjectFormDetails } = useCreateProjectContext()
+  const isAds = data?.data.data.status === 'ADS'
 
   const form = useForm<ProjectFormRequirementsAndBugetProps>({
     resolver: zodResolver(requirementsAndBugetSchema),
     defaultValues: {},
   });
 
+
   useEffect(() => {
+    if (isAds && (
+      projectFormDetails.budget
+      || projectFormDetails.currency
+      || projectFormDetails.negotiable
+    )) {
+      form.reset(projectFormDetails)
+      return
+    }
+
+
     if (data?.data?.data?.budget) {
       form.setValue("budget", data?.data?.data?.budget);
     }
@@ -69,11 +81,18 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
     //   if (data?.data?.data?.experienceLevel) {
     //     form.setValue("experienceLevel", data?.data?.data?.experienceLevel);
     //   }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.data?.data, form]);
 
   const onSubmit = useCallback(
-    (mode: "SAVE" | "DRAFT") =>
+    (mode: "SAVE" | "DRAFT",) =>
       (values: ProjectFormRequirementsAndBugetProps) => {
+        if (isAds) {
+          setProjectFormDetails(prev => ({ ...prev, ...values }))
+          router.push(`/project/${uuidToBase62Safe(props?.id)}/review`)
+          return
+        }
+
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const val = jsonToFormData({
           ...values,
@@ -82,15 +101,14 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
           onSuccess() {
             router.push(
               mode === "DRAFT"
-                ? "/projects"
-                : `${
-                    !!props.isOnboarding ? "/onboard" : ""
-                  }/project/${uuidToBase62Safe(props?.id)}/review`
+                ? "/projects/drafts"
+                : `${!!props.isOnboarding ? "/onboard" : ""
+                }/project/${uuidToBase62Safe(props?.id)}/review`
             );
           },
         });
       },
-    [props?.id, props.isOnboarding, router, updateProject]
+    [props?.id, props.isOnboarding, router, updateProject, setProjectFormDetails, isAds]
   );
 
   if (loadingProject) {
@@ -145,10 +163,11 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
             </FormItemWrapper>
           </>
         )}
-        <FormItemWrapper
-          title="Budget"
-          description="Control your budget"
-          endAdornment={
+        <div id="tour-create-project-budget">
+          <FormItemWrapper
+            title="Budget"
+            description="Control your budget"
+            endAdornment={
             <FormField
               control={form.control}
               name="negotiable"
@@ -176,13 +195,25 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
                   <FormTextField
                     {...field}
                     placeholder="0"
-                    type="number"
+                    type="text"
+                    value={numberToCommaString(field.value || "")}
+                    onChange={(e) => {
+                      if (e.target.value.length > 20) return
+                      e.target.value = removeNonDigits(e.target.value)
+                      field.onChange(e)
+                    }}
                     startAdornment={
                       <span className="text-gray-500 [&>svg]:size-5">
                         {currencyField?.value === "EURO" ? (
                           <Euro />
                         ) : currencyField?.value === "NAIRA" ? (
                           <NairaSign />
+                        ) : currencyField?.value === "USD" ? (
+                          <DollarSign />
+                        ) : currencyField?.value === "GBP" ? (
+                          <GbpSign />
+                        ) : currencyField?.value === "CAD" ? (
+                          <CadSign />
                         ) : null}
                       </span>
                     }
@@ -192,14 +223,20 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
                         value={[
                           { value: "EURO", label: "EUR" },
                           { value: "NAIRA", label: "NGN" },
+                          { value: "USD", label: "USD" },
+                          { value: "GBP", label: "GBP" },
+                          { value: "CAD", label: "CAD" }
                         ]?.find(({ value }) => value === currencyField?.value)}
                         options={[
                           { value: "EURO", label: "EUR" },
                           { value: "NAIRA", label: "NGN" },
+                          { value: "USD", label: "USD" },
+                          { value: "GBP", label: "GBP" },
+                          { value: "CAD", label: "CAD" }
                         ]}
                         onChange={(newValue: unknown) => {
                           const typedValue = newValue as {
-                            value: "EURO" | "NAIRA";
+                            value: "EURO" | "NAIRA" | "USD" | "GBP" | "CAD";
                             label: string;
                           };
                           currencyField.onChange(typedValue?.value);
@@ -214,10 +251,34 @@ const RequirementsBudgetForm = (props: ProjectFormProps) => {
             )}
           />
         </FormItemWrapper>
-        <ProjectEditFooter
+        </div>
+        {/* <ProjectEditFooter
           handleSave={form.handleSubmit(onSubmit("SAVE"))}
           handleDraft={form.handleSubmit(onSubmit("DRAFT"))}
           loading={isUpdating}
+        /> */}
+
+        <ProjectEditFooter
+          leftButtonProps={{
+            onClick: (e) => {
+              if (isAds) form.handleSubmit(onSubmit("SAVE"))(e);
+              else form.handleSubmit(onSubmit("DRAFT"))(e);
+              router.back();
+            }
+          }}
+          rightSecondaryButtonProps={{
+            text: isAds ? "Cancel" : "Save & Exit",
+            disabled: isUpdating,
+            onClick: (e) => {
+              if (isAds) router.push(`/projects/ads/${uuidToBase62Safe(props?.id)}`);
+              else form.handleSubmit(onSubmit("DRAFT"))(e);
+            },
+          }}
+          rightPrimaryButtonProps={{
+            text: isAds ? "Next" : undefined,
+            disabled: isUpdating,
+            onClick: form.handleSubmit(onSubmit("SAVE")),
+          }}
         />
       </div>
     </Form>

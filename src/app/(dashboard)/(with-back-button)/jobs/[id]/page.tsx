@@ -1,15 +1,20 @@
 "use client";
 import GalleryImages from "@/components/custom/GalleryImages";
 import LabelValue from "@/components/custom/LabelValue";
+import SuggestConsultationModal from "@/components/consultation/modals/SuggestConsultationModal";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { getCurrencySymbol } from "@/lib/string";
+import { cn } from "@/lib/utils";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import { useCreateBid } from "@/tanstack/hooks/useBid";
 import { useGetProjectById } from "@/tanstack/hooks/useProject";
 import { formatDate } from "date-fns";
-import { CircleDollarSign, MoreVertical } from "lucide-react";
+import { MoreVertical, Euro, DollarSign } from "lucide-react";
+import NairaSign from "@/icons/NairaSign";
+import GbpSign from "@/icons/GbpSign";
+import CadSign from "@/icons/CadSign";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
@@ -21,8 +26,10 @@ const JobPage = () => {
   const project = data?.data?.data;
   const { toast } = useToast();
   const router = useRouter();
+  const [suggestModalOpen, setSuggestModalOpen] = React.useState(false);
 
   const { data: session } = useSession();
+  const isDesigner = session?.user?.profileRole === "DESIGNER";
 
   const { mutate: createBid, isPending: isCreatingBid } = useCreateBid({
     onSuccess(data) {
@@ -82,7 +89,21 @@ const JobPage = () => {
               {project?.title || "No title"}
             </h1>
             <div className="flex items-center gap-2 [&>svg]:size-6 [&>svg]:text-gray-300">
-              <CircleDollarSign />
+              {/* <CircleDollarSign />   */}
+              <div className="[&>svg]:size-6 [&>svg]:text-gray-300 border-2 rounded-full items-center  flex">
+                {project?.currency === "EURO" ? (
+                  <Euro />
+                ) : project?.currency === "NAIRA" ? (
+                  <NairaSign />
+                ) : project?.currency === "USD" ? (
+                  <DollarSign />
+                ) : project?.currency === "GBP" ? (
+                  <GbpSign />
+                ) : project?.currency === "CAD" ? (
+                  <CadSign />
+                ) : null}
+
+              </div>
               <p>
                 {getCurrencySymbol(project?.currency)}
                 {project?.budget || 0}
@@ -98,16 +119,25 @@ const JobPage = () => {
             <Button variant="outline">
               <MoreVertical />
             </Button>
-            {!project?.bids?.length &&
-              session?.user?.profileRole === "DESIGNER" && (
-                <Button
-                  variant="default"
-                  onClick={() => createBid(id)}
-                  loading={isCreatingBid}
-                >
-                  Create Bid
-                </Button>
-              )}
+            {isDesigner && (
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => setSuggestModalOpen(true)}
+              >
+                Suggest Consultation
+              </Button>
+            )}
+            {!project?.bids?.length && isDesigner && (
+              <Button
+                id="tour-create-bid-button"
+                variant="default"
+                onClick={() => createBid(id)}
+                loading={isCreatingBid}
+              >
+                Create Bid
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -122,18 +152,17 @@ const JobPage = () => {
           width={200}
           className="size-10 shrink-0 rounded-full object-cover"
         />
-        <div className="text-foreground-body">
+        <div className="text-foreground-body text-center">
           <h3 className="font-semibold mb-2 text-foreground">
-            {`${project?.buyer?.user?.firstName || ""} ${
-              project?.buyer?.user?.lastName || ""
-            }`.trim() || "No buyer"}
+            {`${project?.buyer?.user?.firstName || ""} ${project?.buyer?.user?.lastName || ""
+              }`.trim() || "No buyer"}
           </h3>
           <p>{project?.buyer?.user?.address?.country}</p>
         </div>
       </div>
       <div className="description-section">
         <h3>About Job</h3>
-        <p>{project?.about || "None"}</p>
+        <p className="break-words">{project?.about || "None"}</p>
       </div>
       <div className="bg-gray-50 p-8 gap-8 gap-y-12 grid grid-cols-1 md:grid-cols-3">
         <LabelValue
@@ -148,7 +177,25 @@ const JobPage = () => {
               : "None"
           }
         />
-        <LabelValue label="Years of experience" value={"None"} />
+
+        {/* Hide for now */}
+        {/* <LabelValue label="Years of experience" value={"None"} /> */}
+
+        <div>
+          <p className="text-foreground-body text-sm mb-2">
+            Will buyer provide materials?
+          </p>
+          <p className={cn("font-semibold",
+            project?.willProvideMaterials ? "text-green-500" : "text-red-600"
+          )}>
+            {project?.willProvideMaterials ? "Yes" : "No"}
+            {/* {bid.project.willProvideMaterials 
+            ? <CheckCircle className="text-success" />
+            : <CircleX className="text-white" fill="red" color="currentColor" />
+            } */}
+          </p>
+        </div>
+
         <LabelValue
           className="col-span-2"
           label="Categories"
@@ -163,26 +210,38 @@ const JobPage = () => {
         <h3 className="text-subtitle-2 font-bold mb-2">Styling inspiration</h3>
         <p className="text-sm text-foreground-body mb-8">Project images</p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {project?.Gallery?.map((gallery) => (
-            <GalleryImages
-              title={gallery?.title}
-              src={gallery?.imageUrl}
-              wrapperClassName="aspect-square w-full h-auto"
-              key={gallery.id}
-            />
-          )) || (
-            <Image
-              alt=""
-              src="/img/svg/null.svg"
-              height={500}
-              width={500}
-              className="object-cover aspect-square"
-            />
-          )}
-        </div>
+        {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"> */}
+        {project?.Gallery ? (
+          <GalleryImages
+            // title={gallery?.title}
+            // src={gallery?.imageUrl}
+            width={310}
+            height={170}
+            images={project.Gallery}
+
+            wrapperClassName="aspect-square w-full h-auto"
+          />
+        ) : (
+          <Image
+            alt=""
+            src="/img/svg/null.svg"
+            height={500}
+            width={500}
+            className="object-cover aspect-square"
+          />
+        )}
       </div>
+
+      {isDesigner && session?.user?.id && (
+        <SuggestConsultationModal
+          open={suggestModalOpen}
+          onClose={() => setSuggestModalOpen(false)}
+          buyerProjectId={id}
+          designerId={session.user.id}
+        />
+      )}
     </div>
+    // </div>
   );
 };
 

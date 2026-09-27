@@ -1,24 +1,23 @@
 "use client";
-import React from "react";
 import VerifyDialog, { VerifyDialogProps } from "./Verify";
 import Alert, { AlertProps } from "../Alert";
 import FileUploadPicker from "../picker/FileUpload";
 import TextAreaField from "../input/TextAreaField";
 import RatingStar from "@/icons/RatingStar";
-import { useFileSizeError } from "@/hooks/useFilePicker";
-import { useImagePreviewUrls } from "@/hooks/useImagePreviewUrls";
 import Image from "next/image";
-import { Trash2 } from "lucide-react";
+import { PlusCircle, Trash2 } from "lucide-react";
 import { useAddProjectReview } from "@/tanstack/hooks/useProject";
-import { cn, jsonToFormData } from "@/lib/utils";
+import { cn, jsonToFormData, removeFileFromFileList } from "@/lib/utils";
 import { useSession } from "next-auth/react";
-import { MAX_FILE_SIZE_FOR_FILE_UPLOAD } from "@/constant";
+import useNewFilePicker from "@/hooks/useNewFilePicker";
+import { useState } from "react";
 
 type CustomReviewDialogProps = Partial<VerifyDialogProps> & {
   alert?: AlertProps;
   reviewType?: "EXPERIENCE" | "CLOTHING_QUALITY";
   projectId: string;
   persist?: boolean;
+  noOfStars?: number;
 };
 
 type ReviewRatingStarsProps = {
@@ -26,11 +25,71 @@ type ReviewRatingStarsProps = {
   setRating?: (rating: number) => void;
   disabled?: boolean;
   small?: boolean;
+  smallValue?: boolean;
 };
+
+
+export const AverageRatingStars = (props: ReviewRatingStarsProps) => {
+  const MAX_RATING = 5;
+  const noOfStars = Math.ceil(props.rating);
+  const ratingPercent = props.rating / MAX_RATING * 100
+  
+  // const fraction = (noOfStars - props.rating ) / MAX_RATING * 100;
+
+  return (
+    <div className="flex items-center gap-3 w-48">
+      <div className="flex relative -ml-0.5">
+        <div className="flex">
+          {new Array(5).fill(0).map((_, index) => (
+            <button key={index} className={"focus:outline-none px-0.5"}>
+              <RatingStar
+                stroke="#FAC515"
+                className={cn(
+                  "size-6 text-transparent",
+                  props.small && "size-4",
+                )}
+              />
+            </button>
+          ))}
+        </div>
+
+        <div 
+        style={{ width: `${ratingPercent}%` }}
+        className="absolute z-10 top-0 left-0 flex overflow-hidden "
+        >
+          {new Array(noOfStars).fill(0).map((_, index) => (
+            <button key={index} className={"focus:outline-none px-0.5"}>
+              <RatingStar
+                stroke="#FAC515"
+                className={cn(
+                  "size-6 text-primary-600",
+                  props.small && "size-4"
+                )}
+              />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {props.rating != null && (
+        <p
+          className={cn(
+            "font-semibold",
+            props.small || props.smallValue ? "text-base" : "text-subtitle-1",
+          )}
+        >
+          {props.rating ? props.rating.toFixed(1) : "0"}
+        </p>
+      )}
+    </div>
+  );
+};
+
+
 
 export const ReviewRatingStars = (props: ReviewRatingStarsProps) => {
   return (
-    <div className="flex gap-2 items-center justify-between w-48">
+    <div className="flex items-center gap-3 w-48">
       <div className="flex gap-1.5">
         {new Array(5).fill(0).map((_, index) => (
           <button
@@ -39,32 +98,32 @@ export const ReviewRatingStars = (props: ReviewRatingStarsProps) => {
             onClick={() => props.setRating?.(index + 1)}
             disabled={props.disabled}
           >
-            {
-              <RatingStar
-                stroke="#FAC515"
-                className={cn(
-                  "size-6",
-                  props.small && "size-4",
-                  index < props.rating ? "text-primary-600" : "text-transparent"
-                )}
-              />
-            }
+            <RatingStar
+              stroke="#FAC515"
+              className={cn(
+                "size-6",
+                props.small && "size-4",
+                index < props.rating ? "text-primary-600" : "text-transparent"
+              )}
+            />
           </button>
         ))}
       </div>
-      {props.rating && (
+      {props.rating != null && (
         <p
           className={cn(
-            "text-subtitle-1 font-semibold",
-            props.small && "text-lg"
+            "font-semibold",
+            (props.small || props.smallValue) ? "text-base" : "text-subtitle-1",
           )}
         >
-          {props.rating || "0"}.0
+          {props.rating ? props.rating.toFixed(1) : "0"}
         </p>
       )}
     </div>
   );
 };
+
+
 
 const ReviewDialog = (props: CustomReviewDialogProps) => {
   const {
@@ -73,16 +132,38 @@ const ReviewDialog = (props: CustomReviewDialogProps) => {
     projectId,
     onOpenChange,
     persist,
+    noOfStars,
     ...verifyDialogProps
   } = props;
 
-  const [rating, setRating] = React.useState<number>(1);
-  const [message, setMessage] = React.useState<string>("");
-  const [images, setImages] = React.useState<File | FileList | null>(null);
-
+  const [rating, setRating] = useState<number>(noOfStars ?? 0);
+  const [message, setMessage] = useState<string>("");
   const hasFile = reviewType === "CLOTHING_QUALITY";
-  const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD);
-  const { previewUrls, getPreview } = useImagePreviewUrls();
+
+  // const [images, setImages] = React.useState<FileList | null>(null);
+  // const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES);
+  // const { previewUrls, getPreview } = useImagePreviewUrls();
+  //   const { Input, onClick } = useFilePicker({
+  //   onSelect: (files) => {
+  //     if (!files) return;
+  //     const combinedFiles = mergeFiles(images, files);
+
+  //     setImages(combinedFiles);
+  //     getPreview(combinedFiles);
+  //   },
+  //   accept: 'image/*,video/*',
+  //   multiple: true,
+  // });
+  const {
+    Input,
+    onClick,
+    images,
+    setImages,
+    previewMedia,
+    setPreviewMedia,
+    isFileSizeValid,
+  } = useNewFilePicker();
+
   const { data: session } = useSession();
 
   const [title, description] =
@@ -123,8 +204,8 @@ const ReviewDialog = (props: CustomReviewDialogProps) => {
               rating,
               message,
               reviewType,
-            }
-      )
+            },
+      ),
     );
   };
 
@@ -132,34 +213,73 @@ const ReviewDialog = (props: CustomReviewDialogProps) => {
 
   const fileComponent =
     hasFile &&
-    (images && previewUrls?.length ? (
-      <div className="flex gap-4 relative">
-        {previewUrls.map((url) => (
-          <Image
-            alt=""
-            key={url}
-            src={url}
-            height={150}
-            width={150}
-            className="object-cover rounded-md"
-          />
+    (images && previewMedia?.length ? (
+      <div className="flex flex-wrap gap-4">
+        {previewMedia.map(({ url, type }, index) => (
+          <div key={url} className="relative">
+            {type?.includes("video") ? (
+              <video
+                autoPlay
+                muted
+                src={url}
+                height={150}
+                width={150}
+                className="object-cover rounded-md"
+              />
+            ) : (
+              <Image
+                alt=""
+                key={url}
+                src={url}
+                height={150}
+                width={150}
+                className="object-cover rounded-md"
+              />
+            )}
+            <button
+              onClick={() => {
+                setImages((prev) => {
+                  if (!prev?.length) return null;
+                  const updatedFiles = removeFileFromFileList(prev, index);
+
+                  setPreviewMedia(
+                    Array.from(updatedFiles).map((file) => ({
+                      type: file.type,
+                      url: URL.createObjectURL(file),
+                    })),
+                  );
+                  return updatedFiles;
+                });
+              }}
+              className="bg-error text-white [&>svg]:size-4 p-1.5 rounded-full absolute -left-2 -top-2"
+            >
+              <Trash2 />
+            </button>
+          </div>
         ))}
+
         <button
-          onClick={() => setImages?.(null)}
-          className="bg-error text-white [&>svg]:size-4 p-1.5 rounded-full absolute -left-2 -top-2"
+          onClick={onClick}
+          className="h-20 w-20 rounded-full self-center flex items-center justify-center"
         >
-          <Trash2 />
+          <PlusCircle className="text-primary" />
+          <Input />
         </button>
       </div>
     ) : (
       <FileUploadPicker
         multiple
-        accept="image/*"
+        accept="image/*,video/*"
         onSelect={(files) => {
           const typedFile = files as FileList;
           if (isFileSizeValid(typedFile)) {
             setImages(typedFile);
-            getPreview(typedFile);
+            setPreviewMedia(
+              Array.from(typedFile).map((file) => ({
+                type: file.type,
+                url: URL.createObjectURL(file),
+              })),
+            );
           }
         }}
       />
@@ -188,11 +308,10 @@ const ReviewDialog = (props: CustomReviewDialogProps) => {
           {fileComponent}
         </div>
       }
+      pendingConfirm={isAddingProjectReview}
       onConfirm={handleSubmit}
       disableActions={
-        isAddingProjectReview ||
-        !message?.trim() ||
-        !rating 
+        isAddingProjectReview || !message?.trim() || !rating
         // || (reviewType === "CLOTHING_QUALITY" && !images)
       }
     />

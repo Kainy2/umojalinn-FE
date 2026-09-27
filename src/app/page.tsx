@@ -18,6 +18,7 @@ const HomePage = async () => {
       break;
   }
 
+
   redirect(url);
 };
 

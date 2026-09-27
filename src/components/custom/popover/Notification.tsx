@@ -5,54 +5,57 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-import { useGetInfiniteNotifications } from "@/tanstack/hooks/useUser";
 import { PopoverClose } from "@radix-ui/react-popover";
 import { Bell, X } from "lucide-react";
-import React, { useEffect, useMemo, useState } from "react";
+import React, {
+	useEffect,
+	useMemo, useState
+} from "react";
 import NotificationCard from "../card/Notification";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
-import { useInfiniteData } from "@/hooks/use-infinite-data";
+import { useGetFirebaseNotifications } from "@/hooks/use-get-firebase-notification";
+import { useMarkAllNotificationsAsRead } from "@/tanstack/hooks/useUser";
 
 const NotificationPopover = () => {
 	const [open, setOpen] = useState(false);
 
 	const {
-		data: infiniteNotificationData,
-		isPending: loadingNotification,
-		isFetchingNextPage,
-		fetchNextPage,
-		hasNextPage,
-	} = useGetInfiniteNotifications();
+		data: allNotifications,
+		// handleRead
+	} = useGetFirebaseNotifications();
+	const { mutate: markAllNotificationsRead } = useMarkAllNotificationsAsRead();
 
-
-	const allNotifications = useInfiniteData(infiniteNotificationData);
+	const loadingNotification = false
 
 	const unreadNotifications = useMemo(() => {
 		return allNotifications?.filter?.(
-			(notification) => !notification?.isRead
+			(notification) => (!notification?.isRead && notification.id)
 		);
 	}, [allNotifications]);
 
-	const loadMore = () => {
-		if (hasNextPage)
-			fetchNextPage()
-	};
-
 	useEffect(() => {
-		if (unreadNotifications?.length) {
-			setOpen(true);
+		if (open && unreadNotifications?.length) {
+			markAllNotificationsRead({
+				ids: unreadNotifications
+					.map((notification) => notification.id)
+			});
 		}
-	}, [unreadNotifications]);
+	}, [open, unreadNotifications, markAllNotificationsRead]);
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
 			<PopoverTrigger asChild onClick={() => setOpen(true)}>
-				<Button variant="ghost" className="font-normal">
+				<Button
+					id="tour-appbar-notification"
+					variant="ghost"
+					className="font-normal"
+					aria-label="Notifications"
+				>
 					<span className="relative">
 						<Bell className="icon-base" />
 						{!!unreadNotifications?.length && (
-							<span className="size-2.5 bg-success absolute top-0 right-0 border border-white rounded-full" />
+							<span className="size-2.5 bg-success animate-ping absolute top-0 right-0 border border-white rounded-full" />
 						)}
 					</span>
 				</Button>
@@ -84,8 +87,8 @@ const NotificationPopover = () => {
 								</div>
 							)}
 						<div className="flex flex-col max-h-[70vh] overflow-scroll">
-							{allNotifications?.map((notification) => (
-								<React.Fragment key={notification?.id}>
+							{allNotifications?.map((notification, i) => (
+								<React.Fragment key={notification?.id + i}>
 									<PopoverClose
 										asChild
 										onClick={() => setOpen(false)}
@@ -107,7 +110,7 @@ const NotificationPopover = () => {
 									<Separator className="bg-gray-200" />
 								</React.Fragment>
 							))}
-							{hasNextPage && (
+							{/* {hasNextPage && (
 								<button
 									onClick={loadMore}
 									className="text-primary text-sm text-center block w-full mt-4 py-2 hover:text-primary/70 transition"
@@ -116,7 +119,7 @@ const NotificationPopover = () => {
 										? "loading more..."
 										: "Show more"}
 								</button>
-							)}
+							)} */}
 						</div>
 					</div>
 				</div>

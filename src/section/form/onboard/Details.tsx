@@ -3,6 +3,7 @@ import { CustomDatePickerField } from "@/components/custom/picker/Date";
 import { CustomPhonePickerField } from "@/components/custom/picker/Phone";
 import { CustomSelectField } from "@/components/custom/Select";
 import { Form, FormField } from "@/components/ui/form";
+import { useStrictClientAxios } from "@/hooks/use-strict-client-axios";
 
 // import useStorage from "@/hooks/useStorage";
 import { onboardingDetailsFormSchema } from "@/lib/schema";
@@ -17,6 +18,7 @@ import { useForm } from "react-hook-form";
 
 const OnboardDetailsForm = (props: { role: UmojaLinnUserRole }) => {
   const router = useRouter();
+  useStrictClientAxios();
 
   const nextUrl = `/onboard/${props.role?.toLocaleLowerCase()}/address`;
 

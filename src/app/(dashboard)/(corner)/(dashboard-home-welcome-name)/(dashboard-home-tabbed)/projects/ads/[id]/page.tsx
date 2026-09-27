@@ -2,7 +2,7 @@
 import VerifyDialog from "@/components/custom/dialog/Verify";
 import PopoverMenu from "@/components/custom/PopoverMenu";
 import SectionTitle from "@/components/custom/SectionTitle";
-import SizingTemplateTag from "@/components/custom/tag/SizingTemplate";
+import { SizingTemplatePill } from "@/components/sizing-template";
 import { Button } from "@/components/ui/button";
 import { uuidToBase62Safe } from "@/lib/uuid";
 import ProjectReviewView from "@/section/dashboard/project/Review";
@@ -11,15 +11,15 @@ import {
   useGetProjectById,
 } from "@/tanstack/hooks/useProject";
 import { Edit, MoreVertical, Trash } from "lucide-react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import React from "react";
 
 const AdsProjectPage = () => {
   const params = useParams<{ id: string }>();
-
+  const router = useRouter();
   const { data, isPending } = useGetProjectById(params?.id);
 
-  const { mutate: deleteProjectById } = useDeleteProject();
+  const { mutate: deleteProjectById, isPending: isDeletePending } = useDeleteProject();
 
   const [verifyDelete, setVerifyDelete] = React.useState(false);
 
@@ -57,20 +57,25 @@ const AdsProjectPage = () => {
       <VerifyDialog
         onOpenChange={setVerifyDelete}
         open={verifyDelete}
-        title="Delete Draft Project"
-        description="Are you sure you want to delete your project? This action cannot be undone"
+        title="Delete Job ad"
+        description="Are you sure you want to delete your Ad? This action cannot be undone"
         destructive
         confirmText="Yes"
         cancelText="No"
+        pendingConfirm={isDeletePending}
         onConfirm={() => {
-          deleteProjectById(params.id);
+          deleteProjectById(params.id,{
+            onSuccess: () => {
+              router.push("/projects/ads");
+            }
+          });
           setVerifyDelete(false);
         }}
       />
 
       <div className="grid grid-cols-2 gap-4 max-w-screen-sm items-center justify-start">
         <span className="text-sm text-foreground-body">Sizing Template</span>
-        <SizingTemplateTag projectId={params?.id} />
+        <SizingTemplatePill projectId={params?.id} />
       </div>
 
       <ProjectReviewView loading={isPending} project={data?.data?.data} />

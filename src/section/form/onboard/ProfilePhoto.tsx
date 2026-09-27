@@ -1,6 +1,7 @@
 "use client";
 import ProfilePhotoPicker from "@/components/custom/picker/ProfilePhoto";
-import { MAX_FILE_SIZE_FOR_FILE_UPLOAD } from "@/constant";
+import { MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES } from "@/constant";
+import { useStrictClientAxios } from "@/hooks/use-strict-client-axios";
 import { useFileSizeError } from "@/hooks/useFilePicker";
 import useHandleError from "@/hooks/useHandleError";
 // import useStorage from "@/hooks/useStorage";
@@ -15,10 +16,11 @@ import React, { useMemo, useState } from "react";
 
 const OnboardProfilePhotoForm = (props: { role: UmojaLinnUserRole }) => {
   const { data } = useGetMe();
+  useStrictClientAxios();
 
   const { update } = useSession();
 
-  const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD);
+  const { isFileSizeValid } = useFileSizeError(MAX_FILE_SIZE_FOR_FILE_UPLOAD_BYTES);
 
   const { mutateAsync: onboard, isPending: loading } = useOnboard({
     onSuccess: async () => {

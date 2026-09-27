@@ -4,56 +4,108 @@ import { UmojaLinnUser } from "@/types/user";
 import Image from "next/image";
 import React from "react";
 import { MilestoneStatus, MilestoneTimelineItem } from "./Timeline";
-import { cn } from "@/lib/utils";
-import { Link2, Locate, MapPin, Truck } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { cn, isVideoLink } from "@/lib/utils";
+// import { Link2, Locate, MapPin, Truck } from "lucide-react";
+// import {
+//   Dialog,
+//   DialogContent,
+//   DialogTitle,
+//   DialogTrigger,
+// } from "@/components/ui/dialog";
+import GalleryImages from "../GalleryImages";
+import { DeliveryDetails, EmptyDeliveryDetails } from "./DeliveryDetails";
+import { UmojaLinnMilestone } from "@/types/project";
+import Link from "next/link";
+import { uuidToBase62Safe } from "@/lib/uuid";
+import { useSession } from "next-auth/react";
 
 type MilestoneSubmissionsPreviewProps = {
   milestoneId: string;
-  isBuyer?: boolean;
+  isFixedDelivery: boolean;
+  deliveryMethod?: UmojaLinnMilestone["deliveryMethod"];
+  isDeliveryMilestone?: boolean;
   isDesigner?: boolean;
   status?: MilestoneTimelineItem["status"];
+  designer: UmojaLinnUser | null | undefined;
+  buyer: UmojaLinnUser | null | undefined;
 };
 
 type MilestoneSubmissionsPreviewUserProps = {
-  user?: UmojaLinnUser;
+  user?: UmojaLinnUser | null;
   isMe?: boolean;
 };
 
 const MilestoneSubmissionsPreviewUser = (
   props: MilestoneSubmissionsPreviewUserProps,
 ) => {
+  const session  = useSession();
+  const isDesigner = session?.data?.user?.profileRole === "DESIGNER";
+  
   return (
-    <div className="flex items-center gap-2">
-      <Image
-        alt=""
-        src={props?.user?.profilePhotoUri || "/img/webp/user.webp"}
-        height={25}
-        width={25}
-        className="rounded-full shrink-0 relative"
-      />
-      <h5 className="whitespace-nowrap truncate font-semibold">
-        {props?.isMe
-          ? "You"
-          : `${props?.user?.firstName || ""} ${props?.user?.lastName || ""}`}
-      </h5>
-    </div>
+    <Link
+      className="w-fit"
+      href={
+        isDesigner
+          ? "/settings/profile"
+          : `/designers/${uuidToBase62Safe(props.user?.designerProfile?.userId || "")}`
+      }
+    >
+      <div className="flex items-center gap-2">
+        <Image
+          alt=""
+          src={props?.user?.profilePhotoUri || "/img/webp/user.webp"}
+          height={25}
+          width={25}
+          className="rounded-full shrink-0 relative"
+        />
+        <h5 className="whitespace-nowrap truncate font-semibold">
+          {props?.isMe
+            ? "You"
+            : `${props?.user?.firstName || ""} ${props?.user?.lastName || ""}`}
+        </h5>
+      </div>
+    </Link>
   );
 };
+
 
 const MilestoneSubmissionsPreview = (
   props: MilestoneSubmissionsPreviewProps,
 ) => {
-  const { milestoneId } = props;
+  const { 
+    milestoneId, 
+    isFixedDelivery,
+    isDeliveryMilestone,
+    isDesigner,
+    status,
+    deliveryMethod,
+   } = props;
+
   const { data: milestoneSubmissionsData } =
     useGetMilestoneSubmissions(milestoneId);
 
   const milestoneSubmissions = milestoneSubmissionsData?.data?.data;
+  const isAwaitingFunding = status === MilestoneStatus.AWAITING_FUND
+  const isMilestoneActive = status === MilestoneStatus.ACTIVE
+  const isMilestoneInactive = status === MilestoneStatus.INACTIVE 
+
+  // Show empty delivery details section to designer when designer is not yet in filling form stage
+  if (isFixedDelivery && isDeliveryMilestone && isDesigner && (isMilestoneInactive || isAwaitingFunding))
+    return (
+    <div className={cn("rounded-md border border-gray-300 bg-gray-50 py-2.5 px-5 md:py-5",
+      isMilestoneInactive && "opacity-50"
+    )}>
+      <EmptyDeliveryDetails currentDeliveryMethod={deliveryMethod} />
+    </div>
+  )
+
+  // Show awaiting delivery to buyer when designer is in filling form stage
+  if (isFixedDelivery && isDeliveryMilestone && !isDesigner && isMilestoneActive && !milestoneSubmissions?.length ) return (
+    <div className="rounded-md border border-gray-300 bg-gray-50 py-2.5 px-5 md:py-5">
+      <DeliveryDetails deliveryMethod={deliveryMethod} />
+    </div>
+  )
+
   return (
     <div
       className={cn(
@@ -64,96 +116,93 @@ const MilestoneSubmissionsPreview = (
       )}
     >
       {milestoneSubmissions?.map((submission) => {
-        const {
-          street,
-          state,
-          city,
-          country,
-          courierService,
-          courierServiceLink,
-          trackingId,
-        } = submission;
-        const address = [street, state, city, country]
-          .filter((place) => place)
-          .join(" ,");
+        // const {
+        //   street,
+        //   state,
+        //   city,
+        //   country,
+        //   courierService,
+        //   courierServiceLink,
+        //   trackingId,
+        //   zipCode
+        // } = submission;
+        // const address = [street, state, city, country]
+        //   .filter((place) => place)
+        //   .join(" ,");
         return (
           <div key={submission?.id} className="flex flex-col gap-2">
             <MilestoneSubmissionsPreviewUser
-              user={submission.milestone?.project?.designer?.user}
-              isMe={props?.isDesigner}
+              user={props.designer}
+              isMe={props.isDesigner}
             />
-            <p className=" text-sm">{submission.description}</p>
-            <div className="flex flex-wrap gap-2">
-              {[
-                {
-                  icon: <MapPin />,
-                  value: address,
-                },
-                {
-                  icon: <Truck />,
-                  value: courierService,
-                },
-                {
-                  icon: <Link2 />,
-                  value: courierServiceLink,
-                  link: true,
-                },
-                {
-                  icon: <Locate />,
-                  value: trackingId,
-                },
-              ]
-                .filter(({ value }) => value)
-                .map(({ value, icon, link }) => {
-                  const Comp: React.ElementType = link ? "a" : "span";
-                  return (
-                    <Comp
-                      href={value}
-                      target="_blank"
-                      className="flex gap-2 border border-gray-300  rounded-full [&>svg]:size-5 text-sm px-2 py-1 items-center leading-none text-foreground-body"
-                      key={value}
-                    >
-                      {icon} {value}
-                    </Comp>
-                  );
-                })}
-            </div>
+            {!props.isDeliveryMilestone && <p className=" text-sm">{submission.description}</p>}
+
+            {props.isDeliveryMilestone && (
+              <div className="rounded-md border border-gray-300 bg-gray-50 py-2.5 px-5 md:py-5">
+                <DeliveryDetails
+                  deliveryMethod={props.deliveryMethod}
+                  submission={submission}
+                />
+              </div>
+            )}
+            <>
+              {/* <div className="flex flex-wrap gap-2">
+                {[
+                  {
+                    icon: <MapPin />,
+                    value: address,
+                  },
+                  {
+                    icon: <MapPin />,
+                    value: zipCode,
+                  },
+                  {
+                    icon: <Truck />,
+                    value: courierService,
+                  },
+                  {
+                    icon: <Link2 />,
+                    value: courierServiceLink,
+                    link: true,
+                  },
+                  {
+                    icon: <Locate />,
+                    value: trackingId,
+                  },
+                ]
+                  .filter(({ value }) => value)
+                  .map(({ value, icon, link }) => {
+                    const Comp: React.ElementType = link ? "a" : "span";
+                    return (
+                      <Comp
+                        href={normaliseLink(value)}
+                        target="_blank"
+                        className="flex gap-2 border border-gray-300  rounded-full [&>svg]:size-5 text-sm px-2 py-1 items-center leading-none text-foreground-body"
+                        key={value}
+                      >
+                        {icon} {value}
+                      </Comp>
+                    );
+                  })}
+              </div> */}
+            </>
             <div className="flex gap-2">
-              {submission.images?.map(({url, meta}) => (
-                <Dialog key={url}>
-                  <DialogTrigger asChild>
-                    <button
-                      className={cn(
-                        "relative w-28 h-28 rounded-md overflow-hidden"
-                      )}
-                    >
-                      <Image
-                        alt={meta.fileName}
-                        src={url}
-                        className="shrink-0 object-cover absolute"
-                        fill
-                        />
-                    </button>
-                  </DialogTrigger>
-                  <DialogContent className="h-full w-full max-w-[80vw] max-h-[80vh] p-0 border-0 bg-black/50 [&>button>svg]:text-white overflow-hidden">
-                    <div className="relative">
-                      <DialogTitle className="hidden">Image</DialogTitle>
-                      <Image
-                        src={url}
-                        className="shrink-0 object-contain absolute"
-                        fill
-                        alt={meta.fileName}
-                         />
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              ))}
+              <GalleryImages
+                height={100}
+                width={100}
+                images={submission.images?.map?.((image, i) => ({
+                  imageUrl: image.url,
+                  // title: image.meta.fileName,
+                  type: isVideoLink(image.url) ? "video" : "image",
+                  id: `Review-${i}`,
+                }))}
+              />
             </div>
             {!!submission.rejectionReason && (
               <>
                 <MilestoneSubmissionsPreviewUser
-                  user={submission.milestone?.project?.buyer?.user}
-                  isMe={props?.isBuyer}
+                  user={props.buyer}
+                  isMe={!props.isDesigner}
                 />
                 <p className="text-sm">{submission.rejectionReason}</p>
               </>

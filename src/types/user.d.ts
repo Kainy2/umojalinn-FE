@@ -1,6 +1,7 @@
 import { languageProficiency } from "@/lib/schema";
 import { UmojaLinnTimestamp } from "./util";
-import { UmojaLinnProject } from "./project";
+import { UmojaLinnProject, UmojaLinnProjectReview, UmojaLinnSharedWork, WorkHistory } from "./project";
+import type { TGuidedTourStep } from "@/constant/tour/@types";
 
 export type UmojaLinnUserRole = "BUYER" | "DESIGNER";
 
@@ -22,6 +23,7 @@ export type UmojaLinnUserRoleProfile = {
   isAvailable: boolean;
   projectInvitations: UmojaLinnProjectInvitation[];
   user: null | UmojaLinnUser;
+  numberOfTemplates?: number;
 } & UmojaLinnTimestamp;
 
 export type UmojaLinnUserDesignerAddonProfile = {
@@ -39,7 +41,12 @@ export type UmojaLinnUserDesignerAddonProfile = {
     name: string;
     languageProficiency: (typeof languageProficiency)[number];
   }[];
-  specialistType: null | string;
+  specialistType: null | {
+    createdAt: string;
+    id: string;
+    name: string;
+    updatedAt: string;
+  };
 };
 
 export type UmojaLinnUser = {
@@ -67,11 +74,72 @@ export type UmojaLinnUser = {
     | null
     | (UmojaLinnUserRoleProfile & UmojaLinnUserDesignerAddonProfile);
   verified: boolean;
+  guidedTourCompletedAt: null | string;
+  guidedTourProgress: null | {
+    designer?: Partial<Record<TGuidedTourStep, string>>;
+    buyer?: Partial<Record<TGuidedTourStep, string>>;
+  };
 } & UmojaLinnTimestamp;
 
 export type UmojaLinnLoginResponse = {
   authToken: string;
   user: UmojaLinnUser;
+};
+
+export type UmojaLinnDesignerProfile = {
+  id: string;
+  userId: string;
+  brandName: string | null;
+  isAvailable: boolean;
+  about: string | null;
+  experienceLevel: string | null;
+  averageRating: number;
+  profileStrength: number;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    tag?: string;
+    profilePhotoUri: string | null;
+    address: { country?: string; city?: string; state?: string } | null;
+  };
+  clothingTypes: Array<{ id: string; name: string } & UmojaLinnTimestamp>;
+  specialistType: { id: string; name: string } | null;
+  designerSharedWork: UmojaLinnSharedWork[];
+  reviews?: UmojaLinnProjectReview[];
+  workHistory?: WorkHistory;
+  projectInvitations: unknown[];
+  projects: UmojaLinnProject[];
+  bids: UmojaLinnBid[];
+  languages: unknown[];
+  inviterTag?: string;
+};
+
+export type UmojaLinnPreviousHire = {
+  id: string;
+  userId: string;
+  experienceLevel: string | null;
+  about: string | null;
+  brandName: string | null;
+  specialistTypeId: string | null;
+  profileStrength: number;
+  isAvailable: boolean;
+  tier: number;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    id: string;
+    tag: string;
+    firstName: string;
+    lastName: string;
+    profilePhotoUri: string | null;
+    address: { country?: string; city?: string; state?: string } | null;
+  };
+  clothingTypes: Array<{ id: string; name: string }>;
+  specialistType: { id: string; name: string } | null;
+  portfolioCoverImages?: string[];
 };
 
 export type UmojaLinnNotification = {

@@ -1,18 +1,42 @@
 "use client";
+import { useMediaQuery } from '@/hooks/use-media-query';
+import EscrowCardReviews from '@/section/dashboard/project/active/EscrowCardReviews';
 import ActiveProjectSummary from '@/section/dashboard/project/active/Summary';
 import ActiveProjectTab from '@/section/dashboard/project/active/Tab';
-import { useGetAllDesignerProject } from '@/tanstack/hooks/useProject';
+import { useGetAllDesignerProject, useGetProjectById, useGetProjectMilestones } from '@/tanstack/hooks/useProject';
+import { useParams } from 'next/navigation';
 import React from 'react';
 
 const Layout = ({ children }: LayoutProps) => {
 	const { data: designerProjects } = useGetAllDesignerProject({
 		projectStatus: 'LIVE',
 	});
+	const { id } = useParams<{ id: string }>();
+  const isDesktop = useMediaQuery('md');
+
+	const { data: projectMilestonesData } = useGetProjectMilestones(id);
+	const { data: projectData, isPending: isLoadingProject } =
+		useGetProjectById(id);
+
 	return designerProjects?.data.data.length ? (
 		<>
 			<ActiveProjectSummary isDesigner />
-			<ActiveProjectTab baseUrlSlug="active-jobs" />
-			{children}
+
+      {!isLoadingProject && !isDesktop && (
+				<div className="md:hidden -mt-8">
+					<EscrowCardReviews
+						reviews={projectData?.data?.data?.reviews || []}
+						projectId={projectData?.data?.data?.id}
+						milestones={projectMilestonesData?.data?.data || []}
+						project={projectData?.data?.data}
+					/>
+				</div>
+			)}
+
+			<div>
+				<ActiveProjectTab baseUrlSlug="active-jobs" />
+				{children}
+			</div>
 		</>
 	) : null;
 };

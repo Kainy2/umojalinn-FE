@@ -1,68 +1,251 @@
 "use client";
-import WalletCard, { EscrowCard } from "@/components/custom/card/Wallet";
+import WalletCard, {
+  EscrowCard,
+  CurrencyCard,
+} from "@/components/custom/card/Wallet";
+import { CurrencyCarousel } from "@/components/custom/card/CurrencyCarousel";
 import { Separator } from "@/components/ui/separator";
-import { useGetInfiniteTransactions, useGetWallet } from "@/tanstack/hooks/useProject";
-import React from "react";
-
+import {
+  useGetInfiniteTransactions,
+  useGetWallet,
+  useGetPaymentAccountInfo,
+  useConnectStripeAccount,
+} from "@/tanstack/hooks/useProject";
+import {
+  useGetWalletDisputeSummary,
+  useGetWalletDisputes,
+} from "@/tanstack/hooks/useDispute";
+import { useGetMe } from "@/tanstack/hooks/useUser";
+import { uuidToBase62Safe } from "@/lib/uuid";
+import React, { useState, useEffect, useRef } from "react";
+import { useSession } from "next-auth/react";
 import { capitalizeFirstLetter, getCurrencySymbol } from "@/lib/string";
 import { formatCurrencyValue } from "@/lib/number";
+import WalletPageSkeleton from "@/components/custom/wallet/WalletPageSkeleton";
 import { formatDate } from "date-fns";
-import { useSession } from "next-auth/react";
 import {
   getTransactionIcon,
   getTransactionStatus,
+  getDefaultCurrencyFromCountry,
+  getCurrencyCarouselOrder,
+  paymentAccountHasStoredPayoutAddress,
+  getAvailableWalletBalanceForCurrency,
 } from "@/components/util/wallet";
 import { cn } from "@/lib/utils";
 import { useInfiniteData } from "@/hooks/use-infinite-data";
-
+import { UmojaLinnCurrency } from "@/types/project";
+import LinkStripeAddressDialog from "@/components/custom/dialog/LinkStripeAddressDialog";
+import ConnectPaymentAccountOtpDialog from "@/components/custom/dialog/ConnectPaymentAccountOtpDialog";
+import WalletDisputesSection from "@/components/custom/wallet/WalletDisputesSection";
+import TourReadyMarker from "@/components/tour/TourReadyMarker";
 const WithdrawalPage = () => {
   const { data: session } = useSession();
-  const { data: walletData } = useGetWallet();
+  const { data: walletData, isPending: isWalletPending } = useGetWallet();
+  const secondaryQueriesEnabled = !isWalletPending;
+
+  const { data: userData } = useGetMe({ enabled: secondaryQueriesEnabled });
+  const { data: disputeSummaryResponse } = useGetWalletDisputeSummary({
+    enabled: secondaryQueriesEnabled,
+  });
+  const { data: disputesResponse } = useGetWalletDisputes({
+    enabled: secondaryQueriesEnabled,
+  });
+  const { data: paymentAccountData, isPending: isPaymentAccountPending } =
+    useGetPaymentAccountInfo({ enabled: secondaryQueriesEnabled });
+
+  const user = userData?.data?.data;
+  const defaultCurrency = getDefaultCurrencyFromCountry(user?.address?.country);
+
+  const [selectedCurrency, setSelectedCurrency] =
+    useState<UmojaLinnCurrency>("EURO");
+  const [hideBalance, setHideBalance] = useState(true);
+  const [linkStripeAddressOpen, setLinkStripeAddressOpen] = useState(false);
+  const [connectOtpDialogOpen, setConnectOtpDialogOpen] = useState(false);
+
+  const { mutate: connectStripeAccount, isPending: isConnectingStripe } =
+    useConnectStripeAccount({
+      onSuccess: (data) => {
+        setConnectOtpDialogOpen(false);
+        const onboardingUrl = data?.data?.data?.onboardingUrl;
+        if (onboardingUrl) {
+          window.open(onboardingUrl, "_blank", "noopener,noreferrer");
+        }
+      },
+    });
+
+  const hasSetDefault = useRef(false);
+  useEffect(() => {
+    if (!hasSetDefault.current && user) {
+      setSelectedCurrency(defaultCurrency);
+      hasSetDefault.current = true;
+    }
+  }, [user, defaultCurrency]);
+
+  const currencyOrder = getCurrencyCarouselOrder(defaultCurrency);
+
   const {
     data: allTransactions,
     isPending,
-		isFetchingNextPage,
-		fetchNextPage,
-		hasNextPage,
-   } = useGetInfiniteTransactions();
-   const transactions = useInfiniteData(allTransactions)
-  
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+  } = useGetInfiniteTransactions(undefined, {
+    enabled: secondaryQueriesEnabled,
+  });
+  const transactions = useInfiniteData(allTransactions);
+
   const wallet = walletData?.data?.data;
+  const paymentAccount = paymentAccountData?.data?.data?.[0];
+  const disputeSummary = disputeSummaryResponse?.data?.data;
+  const selectedCurrencyDisputeSummary = disputeSummary?.[selectedCurrency];
+
+  const disputes = disputesResponse?.data?.data ?? [];
+  const selectedCurrencyDisputes = disputes.filter(
+    (dispute) => dispute.currency === selectedCurrency,
+  );
+  const activeDispute = selectedCurrencyDisputes.find(
+    (d) => d.status !== "RESOLVED",
+  ) || selectedCurrencyDisputes[0];
+
+  const payNowUrl = activeDispute?.project?.id
+    ? `/active-jobs/refund/${uuidToBase62Safe(activeDispute.project.id)}/insufficient-balance?disputeId=${activeDispute.id}&amount=${activeDispute.totalDisputed}&currency=${selectedCurrency}`
+    : undefined;
 
   const isDesigner = session?.user?.profileRole === "DESIGNER";
 
+  const openConnectStripeOtpDialog = () => {
+    setConnectOtpDialogOpen(true);
+  };
+
+  const handleConnectStripeOtpConfirm = (otp: string) => {
+    connectStripeAccount({ otp });
+  };
+
+  const handleLinkStripe = () => {
+    if (!paymentAccountHasStoredPayoutAddress(paymentAccount)) {
+      setLinkStripeAddressOpen(true);
+      return;
+    }
+    const url = paymentAccount?.stripeOnboardingUrl;
+    if (url) {
+      window.open(url, "_blank", "noopener,noreferrer");
+      return;
+    }
+    openConnectStripeOtpDialog();
+  };
+
+  const getActionLabel = (currency: UmojaLinnCurrency): string | null => {
+    if (disputeSummary?.[currency]?.restricted) {
+      return "Withdrawals restricted";
+    }
+    if (isPaymentAccountPending || !paymentAccount) {
+      return null;
+    }
+    if (currency === "NAIRA") {
+      return paymentAccount.paystackStatus !== "ENABLED"
+        ? "Action required"
+        : null;
+    }
+    switch (paymentAccount.stripeStatus) {
+      case "NOT_CONNECTED":
+        return "Not connected";
+      case "ONBOARDING_STARTED":
+        return "Setup incomplete";
+      case "ACTION_REQUIRED":
+        return "Action required";
+      case "BANK_DETAILS_MISSING":
+        return "Bank details missing";
+      case "RESTRICTED":
+        return "Action required";
+      case "ENABLED":
+        return null;
+      default:
+        return "Action required";
+    }
+  };
+
+  const isPageLoading = isWalletPending;
+
+  if (isPageLoading) {
+    return (
+      <>
+        <TourReadyMarker ready={false} />
+        <WalletPageSkeleton showEscrow={isDesigner} />
+      </>
+    );
+  }
+
   return (
     <>
+      <TourReadyMarker ready />
+      <LinkStripeAddressDialog
+        open={linkStripeAddressOpen}
+        onOpenChange={setLinkStripeAddressOpen}
+        onAddressSaved={openConnectStripeOtpDialog}
+      />
+
+      <ConnectPaymentAccountOtpDialog
+        open={connectOtpDialogOpen}
+        onOpenChange={setConnectOtpDialogOpen}
+        intent="stripe"
+        onConfirm={handleConnectStripeOtpConfirm}
+        isConfirming={isConnectingStripe}
+      />
+
       <h1 className="text-subtitle-1 font-bold mb-8">Wallet</h1>
-      <div className="flex h-full flex-col lg:flex-row">
-        <div className="flex-1 shrink-0">
-          <div className="flex flex-col gap-4">
-            <WalletCard
-              title="Naira balance"
-              subtitle="Current balance"
-              currency="NAIRA"
-              value={wallet?.ngnBalance || 0}
-              href="/wallet/withdraw/naira"
-            />
-            <WalletCard
-              title="Euro balance"
-              subtitle="Current balance"
-              currency="EURO"
-              value={wallet?.eurBalance || 0}
-              href="/wallet/withdraw/euro"
-            />
-            {isDesigner && (
-              <EscrowCard
-                subtitle="Money in Escrow"
-                value={{
-                  EURO: wallet?.eurEscrowBalance || 0,
-                  NAIRA: wallet?.ngnEscrowBalance || 0,
-                }}
+      <div className="flex h-full flex-col lg:flex-row gap-4">
+        <div className="shrink-0 w-full lg:w-8/12">
+          <div className="flex flex-col gap-4 ">
+            <div className="flex flex-col gap-4">
+              <WalletCard
+                wallet={wallet}
+                stripeStatus={paymentAccount?.stripeStatus}
+                paystackStatus={paymentAccount?.paystackStatus}
+                onLinkStripe={handleLinkStripe}
+                isLinkingStripe={isConnectingStripe}
+                hideBalance={hideBalance}
+                onToggleBalance={() => setHideBalance((prev) => !prev)}
+                currency={selectedCurrency}
+                onCurrencyChange={setSelectedCurrency}
+                currencyDisputeSummary={selectedCurrencyDisputeSummary}
+                payNowUrl={payNowUrl}
               />
-            )}
+              <div id="tour-wallet-currency-carousel">
+                <CurrencyCarousel>
+                {currencyOrder.map((currency) => {
+                  const lockedAmount = disputeSummary?.[currency]?.locked ?? 0;
+                  const availableAmount = getAvailableWalletBalanceForCurrency(
+                    wallet,
+                    currency,
+                    lockedAmount,
+                  );
+                  return (
+                    <CurrencyCard
+                      key={currency}
+                      currency={currency}
+                      amount={availableAmount}
+                      hideBalance={hideBalance}
+                      isSelected={selectedCurrency === currency}
+                      stripeStatusLabel={getActionLabel(currency)}
+                      disputeHeldAmount={lockedAmount}
+                      onClick={() => setSelectedCurrency(currency)}
+                    />
+                  );
+                })}
+                </CurrencyCarousel>
+              </div>
+              <WalletDisputesSection
+                currency={selectedCurrency}
+                hideBalance={hideBalance}
+              />
+            </div>
+            {isDesigner && <EscrowCard wallet={wallet!} />}
           </div>
         </div>
-        <div className="flex-1 shrink-0  lg:max-w-[500px] max-h-[80vh] overflow-h-scroll p-8 border border-border/50">
+        <div
+          id="tour-wallet-recent-transactions"
+          className="flex-1 shrink-0  max-h-[80vh] overflow-y-scroll p-8 border border-border w-full lg:w-3/12"
+        >
           <h2 className="font-semibold mb-2">Recent transactions</h2>
           <Separator className="bg-border/50" />
           {transactions?.map?.((trans) => {
@@ -70,10 +253,10 @@ const WithdrawalPage = () => {
               !!session?.user?.profileRole &&
               getTransactionStatus(
                 trans?.transactionType,
-                session?.user?.profileRole
-              );    
-            const transactionSign= isCredit? "+": "-"
-            const getColorClass = () => { 
+                session?.user?.profileRole,
+              );
+            const transactionSign = isCredit ? "+" : "-";
+            const getColorClass = () => {
               if (trans?.transactionType === "MILESTONE_COMPLETED") {
                 return "text-success";
               } else if (trans?.transactionType === "WITHDRAWAL_REQUEST") {
@@ -81,77 +264,75 @@ const WithdrawalPage = () => {
                   return "text-error";
                 } else {
                   return "text-warning";
-                } 
+                }
               } else {
                 return "text-warning";
               }
-            }
+            };
 
-             const getTrxStatusText = () => {
-                switch (trans?.status) {
-                  case "FAILED":
-                    return "rejected";
-                  case "PENDING":
-                    return "submitted";
-                  case "SUCCESS":
-                    return "approved";
-                  default:
-                    return "submitted";
-                }
-              };
-
-              // trans?.transactionType?.replaceAll("_", " ")?.replaceAll("REQUEST", " ")?.replaceAll("COMPLETED", "approved ")
+            const getTrxStatusText = () => {
+              switch (trans?.status) {
+                case "FAILED":
+                  return "rejected";
+                case "PENDING":
+                  return "submitted";
+                case "SUCCESS":
+                  return "approved";
+                default:
+                  return "submitted";
+              }
+            };
 
             return (
               <div
                 className="flex items-center text-foreground-body gap-3 border-b border-border/50 py-2"
                 key={trans?.id}
               >
-                {trans?.paymentChannel && (
-                  <div className="w-10">
-                    {getTransactionIcon(trans?.paymentChannel)}
-                  </div>
-                )}
+                <div className="w-10 shrink-0">
+                  {getTransactionIcon(trans)}
+                </div>
                 <div className="flex-1">
                   <div className="flex justify-between items-center">
                     <p className="font-semibold">
                       {capitalizeFirstLetter(
-                        trans?.transactionType
-                        ?.replace(/_|REQUEST|COMPLETED/g, match =>
-                          match === '_' ? ' ' :
-                          match === 'REQUEST' ? '' :
-                          match === 'COMPLETED' ? 'approved ' :
-                          match
-                        )
-                      )}  
-                      {
-                        trans?.transactionType ===
-                        "WITHDRAWAL_REQUEST"
+                        trans?.transactionType?.replace(
+                          /_|REQUEST|COMPLETED/g,
+                          (match) =>
+                            match === "_"
+                              ? " "
+                              : match === "REQUEST"
+                                ? ""
+                                : match === "COMPLETED"
+                                  ? "approved "
+                                  : match,
+                        ),
+                      )}
+                      {trans?.transactionType === "WITHDRAWAL_REQUEST"
                         ? getTrxStatusText()
-                        :""          
-                      }
+                        : ""}
                     </p>
                     <p className={getColorClass()}>
                       {`${
-                        trans?.transactionType !==
-                        "WITHDRAWAL_REQUEST"
+                        trans?.transactionType !== "WITHDRAWAL_REQUEST"
                           ? transactionSign
                           : ""
                       }                
                       ${getCurrencySymbol(
-                        trans?.currency
+                        trans?.currency,
                       )}${formatCurrencyValue(trans?.amount)}`}
                     </p>
                   </div>
                   <div className="flex justify-between">
-                    <p className={cn(
-                      "text-sm text-foreground-body",
-                      !trans.withdrawalMethod?.paypalEmail && "capitalize"
-                    )}>
-                      {trans.withdrawalMethod?.paypalEmail 
-                      || trans?.project?.title 
-                      || trans?.paymentChannel.replace("_", " ").toLowerCase() 
-                      || ""}
+                    <p
+                      className={cn(
+                        "text-sm text-foreground-body",
+                        !trans.withdrawalMethod?.paypalEmail && "capitalize",
+                      )}
+                    >
+                      {trans.withdrawalMethod?.paypalEmail ||
+                        trans?.project?.title ||
+                        trans?.paymentChannel.replace("_", " ").toLowerCase() ||
+                        ""}
                     </p>
                     <p className="text-sm">
                       {formatDate(trans?.createdAt, "dd/MM/yy")}
@@ -164,12 +345,10 @@ const WithdrawalPage = () => {
 
           {hasNextPage && (
             <button
-              onClick={()=> hasNextPage && fetchNextPage()}
+              onClick={() => hasNextPage && fetchNextPage()}
               className="text-primary text-sm text-right block w-full mt-4 py-2 hover:text-primary/70 transition"
             >
-              {isFetchingNextPage
-                ? "loading more..."
-                : "Show more"}
+              {isFetchingNextPage ? "loading more..." : "Show more"}
             </button>
           )}
 

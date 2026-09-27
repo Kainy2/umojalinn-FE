@@ -1,11 +1,8 @@
 "use client";
 import React from "react";
 import TextField from "../input/TextField";
-import FileUploadPicker from "../picker/FileUpload";
 import { MilestoneStatus, MilestoneTimelineItem } from "./Timeline";
-import { useImagePreviewUrls } from "@/hooks/useImagePreviewUrls";
-import Image from "next/image";
-import { Link2, Locate, Trash2 } from "lucide-react";
+import { Link2, Locate } from "lucide-react";
 import {
   UmojaLinnDeliveryMilestoneReviewProps,
   UmojaLinnMilestone,
@@ -14,6 +11,7 @@ import TextAreaField from "../input/TextAreaField";
 import CustomSelectCountry from "../SelectCountry";
 import { useGetMilestoneSubmissions } from "@/tanstack/hooks/useProject";
 import { Textarea } from "@/components/ui/textarea";
+import MilestoneInputSectionImageUpload from "../picker/MilestoneInputSectionImageUpload";
 
 type MilestoneInputSectionProps = {
   id?: string;
@@ -34,75 +32,6 @@ type MilestoneInputSectionProps = {
 };
 
 
-const removeFileFromFileList = (fileList: FileList, index: number): FileList => {
-  const dataTransfer = new DataTransfer();
-
-  Array.from(fileList)
-    .filter(file => file !== fileList[index])
-    .forEach(file => dataTransfer.items.add(file));
-
-  return dataTransfer.files;
-};
-
-
-const MilestoneInputSectionImageUpload = (
-  props: Pick<MilestoneInputSectionProps, "files" | "onFilesChange"> & {
-    disabled?: boolean;
-  }
-) => {
-  const { previewUrls, getPreview } = useImagePreviewUrls();
-
-
-  if (props?.files?.length) {
-    return (
-      <div className="flex gap-4 relative">
-        {previewUrls?.map((url, index) => (
-				<div 
-        key={url}
-        className="relative border border-gray-100"
-        >
-					<button
-						className="bg-error text-white [&>svg]:size-4 p-1.5 rounded-full absolute -left-2 -top-2"
-						onClick={() => {
-							if (!props?.files) return;
-							const updatedFiles = removeFileFromFileList(props.files, index);
-              
-							props?.onFilesChange?.(updatedFiles);
-              getPreview(updatedFiles);
-						}}
-					>
-						<Trash2 />
-					</button>
-
-					<Image
-						alt=""
-						src={url}
-						height={150}
-						width={150}
-						className="object-contain rounded-md"
-					/>
-				</div>
-			))}
-      </div>
-    );
-  }
-
-  return (
-    <FileUploadPicker
-      cta="Click to Upload"
-      details="or drag and drop"
-      accept="image/*"
-      multiple
-      onSelect={(files) => {
-        console.log(files);
-        if (files && files instanceof FileList) {
-          props?.onFilesChange?.(files);
-          getPreview(files);
-        }
-      }}
-    />
-  );
-};
 
 const MilestoneInputSection = (props: MilestoneInputSectionProps) => {
   const { data: milestoneSubmissions } = useGetMilestoneSubmissions(props.id);
@@ -134,6 +63,9 @@ const MilestoneInputSection = (props: MilestoneInputSectionProps) => {
       (isDeliveryMilestoneEditable ? editedDeliveryDetails : lastSubmission) ||
       {};
 
+    console.log(props?.deliveryMethod, "<<< DELIVERY METHOD");
+
+
     const handleChange =
       (prop: keyof UmojaLinnDeliveryMilestoneReviewProps) =>
       (
@@ -164,7 +96,7 @@ const MilestoneInputSection = (props: MilestoneInputSectionProps) => {
               onChange={handleChange("courierService")}
               value={courierService || ""}
               disabled={!isDeliveryMilestoneEditable}
-              placeholder="Enter courier service"
+              placeholder="Courier Name e.g. DHL"
             />
             <TextAreaField
               onChange={handleChange("description")}
@@ -182,13 +114,13 @@ const MilestoneInputSection = (props: MilestoneInputSectionProps) => {
               onChange={handleChange("courierService")}
               value={courierService || ""}
               disabled={!isDeliveryMilestoneEditable}
-              placeholder="Enter courier service"
+              placeholder="Courier Name e.g. DHL"
             />
             <TextField
               onChange={handleChange("courierServiceLink")}
               value={courierServiceLink || ""}
               disabled={!isDeliveryMilestoneEditable}
-              placeholder="Tracking link"
+              placeholder="Tracking Link or Courier Website e.g. www.dhl.com"
               startAdornment={<Link2 className="size-5 text-gray-600" />}
             />
             <TextField

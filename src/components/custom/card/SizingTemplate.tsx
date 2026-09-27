@@ -1,16 +1,51 @@
 "use client";
 import { UmojaLinnSizingTemplate } from "@/types/project";
-import React from "react";
+import React, { useState } from "react";
 import SizingTemplateDialog from "../dialog/SizingTemplate";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
+// import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
-import { Eye } from "lucide-react";
-import Link from "next/link";
+import { Eye, Loader2, Trash2 } from "lucide-react";
 import { uuidToBase62Safe } from "@/lib/uuid";
+import { useDeleteSizingTemplate } from "@/tanstack/hooks/useSizingTemplates";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import TemplateStatusPill from "@/components/sizing-template/TemplateStatusPill";
+import type { TTourTargetId } from "@/constant/tour/@types";
+import { getSizingGenderLabel } from "@/lib/sizing-template-utils";
 
-const SizingTemplateCard = (props: { template: UmojaLinnSizingTemplate }) => {
-	const { template } = props;
+const SIZING_TEMPLATE_CARD_IMAGES = {
+	MALE: "/img/png/male.png",
+	FEMALE: "/img/png/female.png",
+} as const;
+
+const getTemplateCardImage = (
+	gender: UmojaLinnSizingTemplate["gender"] | undefined
+) =>
+	gender === "MALE" || gender === "FEMALE"
+		? SIZING_TEMPLATE_CARD_IMAGES[gender]
+		: "/img/png/buy-template.png";
+
+const getTemplateCardAlt = (
+	gender: UmojaLinnSizingTemplate["gender"] | undefined
+) => {
+	if (gender === "MALE") return "Male sizing template silhouette";
+	if (gender === "FEMALE") return "Female sizing template silhouette";
+	return "Sizing template";
+};
+
+const SizingTemplateCard = (props: {
+  template: UmojaLinnSizingTemplate;
+  tourTargetId?: TTourTargetId;
+}) => {
+	const { template, tourTargetId } = props;
 	const { data: session } = useSession();
 
 	const isBuyer = session?.user?.profileRole === "BUYER";
@@ -20,8 +55,30 @@ const SizingTemplateCard = (props: { template: UmojaLinnSizingTemplate }) => {
 	const projectInUse = template?.projects?.find(
 		(project) => project?.status !== "COMPLETED"
 	);
-	// console.log({inUse, projectInUse, template });
+	const liveProjectInUse = template?.projects?.find(
+		(project) => project?.status === "LIVE"
+	);
+	const activeProjectForNavigation = liveProjectInUse || projectInUse;
 
+	// Delete confirmation modal state
+	const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+	// Delete mutation
+	const { mutate: deleteSizingTemplate, isPending: isDeleting } = useDeleteSizingTemplate({
+		onSuccess: () => {
+			setShowDeleteModal(false);
+		},
+	});
+
+	const handleDeleteClick = (e: React.MouseEvent) => {
+		e.stopPropagation();
+		e.preventDefault();
+		setShowDeleteModal(true);
+	};
+
+	const handleConfirmDelete = () => {
+		deleteSizingTemplate(template.id);
+	};
 
 	const getProjectUrl = () => {
 		let projectHref: string;
@@ -57,84 +114,116 @@ const SizingTemplateCard = (props: { template: UmojaLinnSizingTemplate }) => {
 	};
 
 	return (
-		<SizingTemplateDialog
-			id={template?.id}
-		>
-			<button className="relative h-52">
-				<Image
-					src={
-						isBuyer
-							? "/img/webp/sizing-template-card.webp"
-							: "/img/webp/sizing-template-designer-card.webp"
-					}
-					alt=""
-					className="absolute object-center object-cover"
-					fill
-				/>
-				<div
-					className={cn(
-						"absolute bottom-0 p-4 backdrop-blur-md bg-white/30 border-t-1 border-white/50 w-full",
-						isBuyer &&
-							inUse &&
-							"h-full border-none flex flex-col items-center justify-center "
-					)}
-				>
-					{isBuyer ? (
-						<>
-							<h2 className="text-subtitle-2 font-bold text-center truncate w-full">
+		<>
+			<SizingTemplateDialog
+				id={template?.id}
+				projectId={activeProjectForNavigation?.id}
+			>
+				<button
+          id={tourTargetId}
+          className="flex flex-col p-2 border  border-gray-200 gap-2 rounded-[16px]  text-left bg-white transition-shadow  group relative w-full lg:w-[300px]"
+        >
+					{/* Top Image Section */}
+					<div className="relative h-52 w-full border border-gray-200 rounded-[8px] overflow-hidden bg-[#f8f9fa] shrink-0">
+						<Image
+							src={getTemplateCardImage(template?.gender)}
+							alt={getTemplateCardAlt(template?.gender)}
+							className="object-cover object-center"
+							fill
+						/>
+
+						{/* Status Pill */}
+						<div className="absolute top-3 left-3 z-10">
+							<TemplateStatusPill
+								template={template}
+								isBuyer={isBuyer}
+								getProjectUrl={getProjectUrl}
+								inUse={inUse}
+								projectInUse={projectInUse}
+							/>
+						</div>
+
+						{/* Delete button for draft templates (buyer only) */}
+						{isBuyer && isDraft && (
+							<div
+								onClick={handleDeleteClick}
+								className="absolute top-3 right-3 p-2 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 z-20"
+								title="Delete template"
+							>
+								<Trash2 className="size-4" />
+							</div>
+						)}
+					</div>
+
+					{/* Bottom Info Section */}
+					<div className="flex gap-3 items-center  w-full mt-1 px-1 pb-1">
+						<Image
+							alt="Profile"
+							src={
+								template?.buyer?.user?.profilePhotoUri ||
+								session?.user?.profilePhotoUri ||
+
+								"/img/webp/user.webp"
+							}
+							height={36}
+							width={36}
+							className="object-cover object-center rounded-full shrink-0 size-9"
+						/>
+						<div className="flex flex-col flex-1 min-w-0">
+							<h2
+								title={template?.name}
+								className="text-sm font-semibold truncate text-[#374151]"
+							>
 								{template?.name}
 							</h2>
-							{(inUse || isDraft) && (
-								<p className="text-primary font-semibold">
-									{isDraft ? "Draft" : "In use"}
-								</p>
-							)}
-						</>
-					) : (
-						<div className="flex gap-2 text-left items-center w-full justify-between">
-              <div className="w-fit">
-                <Image
-                  alt=""
-                  src={
-                    template?.buyer?.user?.profilePhotoUri ||
-                    "/img/webp/user.webp"
-                  }
-                  height={150}
-                  width={150}
-                  className="object-cover object-center rounded-full aspect-square shrink-0 size-12"
-                />
-             </div>
-
-							<div className="flex flex-col gap-1 flex-1 min-w-0">
-								<h2 
-                  title={template?.name} 
-                  className="text-subtitle-2 font-bold truncate "
-                >
-									{template?.name}
-								</h2>
-								{projectInUse?.title && (
-									<p className="text-foreground-body text-sm truncate w-full">
-										{projectInUse?.title}
-									</p>
-								)}
-							</div>
-							<div className="w-fit bg-primary-50 text-primary p-1.5 rounded-full aspect-square shrink-0">
-								<Eye />
-							</div>
+							<p className="text-[13px] text-[#4B5563] truncate w-full">
+								{getSizingGenderLabel(template.gender)}
+							</p>
 						</div>
-					)}
-				</div>
-				{inUse && !!projectInUse && (
-					<Link
-            onClick={e=> e.stopPropagation()}
-            href={getProjectUrl()}
-            className="absolute top-2 left-2 px-2 py-1 bg-primary rounded-full text-sm max-w-[50%] truncate text-white"
-           >
-						{projectInUse?.title}
-					</Link>
-				)}
-			</button>
-		</SizingTemplateDialog>
+						{!isBuyer && (
+							<div className="w-fit bg-primary-50 text-primary p-1.5 rounded-full aspect-square shrink-0">
+								<Eye className="size-4" />
+							</div>
+						)}
+					</div>
+				</button>
+			</SizingTemplateDialog>
+
+			{/* Delete Confirmation Modal */}
+			<Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+				<DialogContent className="sm:max-w-[425px]">
+					<DialogHeader>
+						<DialogTitle>Delete Sizing Template</DialogTitle>
+						<DialogDescription>
+							Are you sure you want to delete &quot;{template?.name}&quot;? This action cannot be undone.
+						</DialogDescription>
+					</DialogHeader>
+					<DialogFooter className="flex gap-2">
+						<Button
+							variant="outline"
+							onClick={() => setShowDeleteModal(false)}
+							disabled={isDeleting}
+						>
+							Cancel
+						</Button>
+						<Button
+							variant="destructive"
+							onClick={handleConfirmDelete}
+							disabled={isDeleting}
+						>
+							{isDeleting ? (
+								<>
+									<Loader2 className="size-4 animate-spin mr-2" />
+									Deleting...
+								</>
+							) : (
+								"Delete"
+							)}
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+		</>
 	);
 };
 

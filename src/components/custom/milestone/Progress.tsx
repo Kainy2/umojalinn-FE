@@ -3,10 +3,12 @@ import React from "react";
 type MilestoneProgressProps = {
   value: number;
   total: number;
-  className?: string
+  className?: string;
 };
 
 const MilestoneProgress = (props: MilestoneProgressProps) => {
+  if (!props.total) return null;
+
   return (
     <div className={cn("flex gap-2", props.className)}>
       {new Array(props.total).fill("").map((_, index) => (
@@ -14,7 +16,7 @@ const MilestoneProgress = (props: MilestoneProgressProps) => {
           key={index}
           className={cn(
             "h-1.5 bg-gray-100 rounded-full w-full",
-            index < (props.value || 0) && "bg-success"
+            index < (props.value || 0) && "bg-success",
           )}
         />
       ))}

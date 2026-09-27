@@ -29,7 +29,7 @@ const TabButtonSelect = (props: CustomTabButtonSelectprops) => {
   return (
     <div
       className={cn(
-        "p-1 bg-gray-100 flex gap-1",
+        "p-1 bg-gray-50 flex gap-1",
         type === "DEFAULT" && "rounded",
         props.className,
       )}

@@ -1,6 +1,7 @@
 import { clientAxios, getServerAxiosWithToken } from "@/lib/axios";
 import { convertApiParams } from "@/lib/request";
 import { base62ToUuidSafe } from "@/lib/uuid";
+import { EDeliveryMileStoneType } from "@/types/enum";
 import {
   UmojaLinnBid,
   UmojaLinnDeliveryMethod,
@@ -13,6 +14,7 @@ import {
   SingleApiResponse,
 } from "@/types/util";
 import { AxiosResponse } from "axios";
+import { UmojaLinnSubmitBidResponse } from "@/types/project";
 
 export const createBid = async (
   projectId: string,
@@ -142,6 +144,7 @@ export const updateBid = async (
     additionalNote: string;
     deliveryMethod: UmojaLinnDeliveryMethod;
     deliveryAmount: number;
+    deliveryMileStoneType: EDeliveryMileStoneType;
   }>,
   options?: ServerActionOption
 ) => {
@@ -155,12 +158,50 @@ export const updateBid = async (
   );
 };
 
+export const approveOrRejectVariableDeliveryMilestone = async (
+  id: string,
+  body: Partial<{
+    status: "APPROVED" | "REJECTED";
+    rejectionReason?: string;
+  }>,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+
+  return axios.post<unknown, AxiosResponse<SingleApiResponse<UmojaLinnMilestone>>>(
+    `/project/approve-or-reject-variable-delivery-mile-stone/${base62ToUuidSafe(id)}`,
+    body
+  );
+};
+
+export const addVariableDeliveryMilestone = async (
+  milestoneId: string,
+  body: {
+    amount: number;
+    deliveryMethod: UmojaLinnDeliveryMethod;
+  },
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/project/add-variable-delivery-mile-stone/${base62ToUuidSafe(milestoneId)}`,
+    body
+  );
+};
+
 export const submitBid = async (id: string, options?: ServerActionOption) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
     axios = await getServerAxiosWithToken();
   }
-  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+  return axios.post<unknown, AxiosResponse<SingleApiResponse<UmojaLinnSubmitBidResponse>>>(
     `/project/submit-bid/${base62ToUuidSafe(id)}`
   );
 };
@@ -180,5 +221,17 @@ export const acceptOrRejectBid = async (
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
     `/project/accept-or-reject-bid/${base62ToUuidSafe(id)}`,
     body
+  );
+};
+export const getProjectAccountConnectionStatus = async (
+  projectId: string,
+  options?: ServerActionOption
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.get<unknown, AxiosResponse<SingleApiResponse<UmojaLinnSubmitBidResponse>>>(
+    `/project/account-connection-status/${base62ToUuidSafe(projectId)}`
   );
 };

@@ -1,8 +1,9 @@
-import { clientAxios, getServerAxiosWithToken } from "@/lib/axios";
+import { clientAxios, getAxiosToBeUsed, getServerAxiosWithToken } from "@/lib/axios";
 import { convertApiParams } from "@/lib/request";
 import { base62ToUuidSafe } from "@/lib/uuid";
+import type { TCompleteGuidedTourBody } from "@/constant/tour/@types";
 import { NotificationSettingsProps, PasswordUpdateProps } from "@/types/form";
-import { NewUmojaLinnProjectReview } from "@/types/project";
+import { WorkHistoryEntry } from "@/types/project";
 import { UmojaLinnUser, UmojaLinnUserRole } from "@/types/user";
 import {
   ArrayApiResponse,
@@ -10,6 +11,17 @@ import {
   SingleApiResponse,
 } from "@/types/util";
 import { AxiosResponse } from "axios";
+import { TAppConfig } from "@/types/app-config";
+
+export const getAppConfig = async (options?: ServerActionOption) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.get<unknown, AxiosResponse<SingleApiResponse<TAppConfig>>>(
+    "/user/app-config",
+  );
+};
 
 export const getMe = async (options?: ServerActionOption) => {
   let axios = clientAxios;
@@ -22,10 +34,11 @@ export const getMe = async (options?: ServerActionOption) => {
 };
 
 export const onboard = async (body: FormData, options?: ServerActionOption) => {
-  let axios = clientAxios;
-  if (options?.isServerAction) {
-    axios = await getServerAxiosWithToken();
-  }
+  const axios = await getAxiosToBeUsed({
+    body,
+    isServerAction: options?.isServerAction
+  })
+
   return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
     "/user/onboard",
     body,
@@ -36,10 +49,11 @@ export const updateUserDetails = async (
   body: FormData,
   options?: ServerActionOption,
 ) => {
-  let axios = clientAxios;
-  if (options?.isServerAction) {
-    axios = await getServerAxiosWithToken();
-  }
+  const axios = await getAxiosToBeUsed({
+    body,
+    isServerAction: options?.isServerAction
+  })
+  
   return axios.put<unknown, AxiosResponse<SingleApiResponse>>(
     "/user/update-user-profile",
     body,
@@ -74,6 +88,20 @@ export const updateNotificationSettings = async (
   );
 };
 
+export const completeGuidedTour = async (
+  body: TCompleteGuidedTourBody,
+  options?: ServerActionOption,
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.put<unknown, AxiosResponse<SingleApiResponse>>(
+    "/user/complete-guided-tour",
+    body,
+  );
+};
+
 export const getNotificationSettings = async (options?: ServerActionOption) => {
   let axios = clientAxios;
   if (options?.isServerAction) {
@@ -100,7 +128,7 @@ export const getUserReviews = async (
   }
   return axios.get<
     unknown,
-    AxiosResponse<ArrayApiResponse<NewUmojaLinnProjectReview>>
+    AxiosResponse<ArrayApiResponse<WorkHistoryEntry>>
   >(`/user/reviews${convertApiParams(apiParams)}`);
 };
 
@@ -114,5 +142,33 @@ export const deleteProjectInvitationById = async (
   }
   return axios.delete<unknown, AxiosResponse<SingleApiResponse>>(
     `/user/remove-project-invitation/${base62ToUuidSafe(id)}`,
+  );
+};
+
+export const verifyWalletPassword = async (
+  body: { email: string; password: string },
+  options?: ServerActionOption,
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    `/wallet/verify-access`,
+    body,
+  );
+};
+
+export const sendCallNotification = async (
+  body: { receiverId: string; callId: string },
+  options?: ServerActionOption,
+) => {
+  let axios = clientAxios;
+  if (options?.isServerAction) {
+    axios = await getServerAxiosWithToken();
+  }
+  return axios.post<unknown, AxiosResponse<SingleApiResponse>>(
+    "/user/send-call-notification",
+    body,
   );
 };

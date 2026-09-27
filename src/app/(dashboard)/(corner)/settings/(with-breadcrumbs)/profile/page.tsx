@@ -6,26 +6,28 @@ import { FormTextField } from "@/components/custom/input/TextField";
 import { FormCustomDatePickerField } from "@/components/custom/picker/Date";
 import CustomPhonePicker from "@/components/custom/picker/Phone";
 import { FormCustomSelectField } from "@/components/custom/Select";
-import CustomSelectCountry from "@/components/custom/SelectCountry";
+import CustomSelectCountry, {
+  normalizeCountryName,
+} from "@/components/custom/SelectCountry";
 import { FormTabButtonSelect } from "@/components/custom/tab/ButtonSelect";
 import { FormCustomTagSelectField } from "@/components/custom/tag/Select";
 import { Button } from "@/components/ui/button";
 import { Form, FormField } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
-// import { LANGUAGES } from "@/constant";
+
 import { useToast } from "@/hooks/use-toast";
 import useClipboard from "@/hooks/useClipboard";
-import { updateProfileKeys, updateProfileSchema } from "@/lib/schema";
+import { EXPERIENCE_ENUMS_VALUES, updateProfileKeys, updateProfileSchema } from "@/lib/schema";
 import { jsonToFormData } from "@/lib/utils";
 import {
   EXPERIENCE_ENUMS,
-  EXPERIENCE_ENUMS_VALUES,
 } from "@/section/form/project/edit/RequirementAndBudget";
 import {
   useGetClothingTypes,
   useGetSpecialistTypes,
 } from "@/tanstack/hooks/useProject";
 import { useGetMe, useUpdateUserDetails } from "@/tanstack/hooks/useUser";
+import { MAX_PROFILE_ABOUT_COUNT } from "@/constant";
 import { UpdateProfileProps } from "@/types/form";
 import { UmojaLinnUser } from "@/types/user";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,26 +35,64 @@ import { subYears } from "date-fns";
 import { Copy, Mail, MailPlus } from "lucide-react";
 import { useSession } from "next-auth/react";
 
+import AvailabilityModal from "@/components/consultation/modals/AvailabilityModal";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+
+// ─── Consultation availability section ───────────────────────────────────────
+
+const ConsultationAvailabilitySection = ({
+  meData,
+}: {
+  meData: UmojaLinnUser | undefined;
+}) => {
+  const [modalOpen, setModalOpen] = useState(false);
+  const designerId = meData?.designerProfile?.id;
+
+  return (
+    <div className="flex items-center justify-between py-4">
+      <div>
+        <p className="text-sm font-semibold">Consultation Availability</p>
+        <p className="text-xs text-foreground-body mt-0.5">
+          Set your available days, hours and pricing for consultations
+        </p>
+      </div>
+      <Button
+        type="button"
+        variant="outline"
+        onClick={() => setModalOpen(true)}
+        disabled={!designerId}
+      >
+        Edit Availability
+      </Button>
+      {designerId && (
+        <AvailabilityModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          designerId={designerId}
+        />
+      )}
+    </div>
+  );
+};
 
 const getDefaultValues = (data:UmojaLinnUser | undefined ): UpdateProfileProps => {
   return {
     firstName: data?.firstName,
     lastName: data?.lastName,
-    phoneNumber: data?.phoneNumber ?? "",
+    phoneNumber: data?.phoneNumber ?? undefined,
     email: data?.email,
     alternativeEmail: data?.alternativeEmail,
     address: data?.address?.address,
     city: data?.address?.city,
     state: data?.address?.state,
-    country: data?.address?.country,
+    country: normalizeCountryName(data?.address?.country),
     zipCode: data?.address?.zipCode,
-    specialistType: data?.designerProfile?.specialistType ?? "",
+    specialistType: data?.designerProfile?.specialistType?.id ?? "",
     clothingTypes: data?.designerProfile?.clothingTypes?.map(({id}) => id) ?? [],
     experienceLevel: data?.designerProfile?.experienceLevel as "ONE_TO_TWO_YEARS" | "THREE_TO_FIVE_YEARS" | "SIX_TO_EIGHT_YEARS" | "NINE_PLUS_YEARS" | undefined,
     about: data?.designerProfile?.about ?? "",
-    gender: data?.gender as "MALE" | "FEMALE" | "RATHER_NOT_SAY" | null | undefined,
+    gender: (data?.gender || undefined) as "MALE" | "FEMALE" | "RATHER_NOT_SAY" | undefined,
     dateOfBirth: data?.dateOfBirth ?? "",
     tag: data?.tag,
     brandName: data?.designerProfile?.brandName ?? "",
@@ -66,7 +106,7 @@ const SettingsProfilePage = () => {
   const [editMode, setEditMode] = useState(false);
   const { toast } = useToast();
 
-  const { data: meData, isPending: isGettingMyData } = useGetMe();
+  const { data: meData, isLoading: isGettingMyData } = useGetMe();
 
   const { mutate: updateMe, isPending: isUpdatingMe } = useUpdateUserDetails({
     onSuccess() {
@@ -80,17 +120,19 @@ const SettingsProfilePage = () => {
   const { data: session } = useSession();
   const { handleCopy } = useClipboard();
 
-  const isDesigner = session?.user?.profileRole === "DESIGNER";
-  const defaultValues = useMemo(() => getDefaultValues(meData?.data?.data) , [meData?.data?.data]);
-
-
   const form = useForm<UpdateProfileProps>({
     resolver: zodResolver(updateProfileSchema)
   });
 
-  useEffect(() => {
-    form.reset(defaultValues)
-  }, [form, defaultValues]);
+  const isDesigner = session?.user?.profileRole === "DESIGNER";
+
+  const defaultValues = useMemo(() => {
+    
+    const newVal = getDefaultValues(meData?.data?.data)
+    form.reset(newVal)
+    
+    return newVal;
+  } , [form, meData?.data?.data]);
 
   const disableForm = isUpdatingMe || !editMode;
 
@@ -110,11 +152,16 @@ const SettingsProfilePage = () => {
         specialistType,
         email,
         tag,
+        phoneNumber,
         ...others
       } = values;
+
+      const phoneNumberObject = meData?.data?.data.phoneNumber !== phoneNumber && { phoneNumber }
+
       updateMe(
         jsonToFormData({
           ...others,
+          ...phoneNumberObject,
           designerProfile: {
             about,
             brandName,
@@ -133,7 +180,7 @@ const SettingsProfilePage = () => {
         }),
       );
     },
-    [updateMe],
+    [updateMe, meData?.data?.data.phoneNumber],
   );
 
   return (
@@ -150,8 +197,10 @@ const SettingsProfilePage = () => {
               render={({ field }) => (
                 <FormTextAreaField
                   placeholder="Bio"
-                  maxLength={300}
-                  hint="300 characters max"
+                  
+                  maxLength={MAX_PROFILE_ABOUT_COUNT}
+                  hint={`${field.value?.length || 0}/${MAX_PROFILE_ABOUT_COUNT}`}
+                  // hint={MAX_PROFILE_ABOUT_COUNT + " characters max"}
                   disabled={disableForm}
                   {...field}
                   value={field?.value || ""}
@@ -239,7 +288,7 @@ const SettingsProfilePage = () => {
             name="gender"
             render={({ field }) => (
               <FormCustomSelectField
-                value={field?.value || ""}
+                value={field?.value}
                 onValueChange={(value) => field?.onChange(value)}
                 disabled={disableForm}
                 options={[
@@ -472,16 +521,17 @@ const SettingsProfilePage = () => {
               />
             </FormItemWrapper> */}
             </>
-            <FormItemWrapper title="Phone number">
-              <FormField
-                control={form.control}
-                name="phoneNumber"
-                disabled={disableForm}
-                render={({ field }) => <CustomPhonePicker {...field} />}
-              />
-            </FormItemWrapper>
           </>
         )}
+
+        <FormItemWrapper title="Phone number">
+          <FormField
+            control={form.control}
+            name="phoneNumber"
+            disabled={disableForm}
+            render={({ field }) => <CustomPhonePicker {...field} />}
+          />
+        </FormItemWrapper>
         <Separator className="bg-border/50" />
         <FormItemWrapper title="Country">
           <FormField
@@ -544,12 +594,15 @@ const SettingsProfilePage = () => {
           />
         </FormItemWrapper>
         <Separator className="bg-border/50 " />
+        {isDesigner && <ConsultationAvailabilitySection meData={meData?.data?.data} />}
+        <Separator className="bg-border/50 " />
         <div className="flex gap-4 justify-end">
           {!editMode ? (
             <Button
               variant="outline"
               type="button"
               onClick={() => setEditMode(true)}
+              loading={isGettingMyData}
               disabled={isGettingMyData}
             >
               Edit
@@ -560,6 +613,7 @@ const SettingsProfilePage = () => {
                 variant="outline"
                 type="button"
                 disabled={disableForm}
+                loading={isUpdatingMe}
                 onClick={() => {
                   form.clearErrors();
                   form.reset(defaultValues)
@@ -568,7 +622,7 @@ const SettingsProfilePage = () => {
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={disableForm}>
+              <Button type="submit" disabled={disableForm} loading={isUpdatingMe}>
                 Save
               </Button>
             </>
