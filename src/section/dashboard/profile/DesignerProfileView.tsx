@@ -6,6 +6,8 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import BookingCalendarModal from "@/components/consultation/modals/BookingCalendarModal";
+import { MOCK_BUYER_CONSULTATIONS } from "@/lib/consultation-mock";
 import { AverageRatingStars } from "@/components/custom/dialog/Review";
 import TabButtonSelect from "@/components/custom/tab/ButtonSelect";
 // import { formatCurrencyValue } from "@/lib/number";
@@ -34,9 +36,32 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
     "work-history",
   );
   const [aboutExpanded, setAboutExpanded] = useState(false);
+  const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const session = useSession();
 
   const isDesigner = session.data?.user?.profileRole === "DESIGNER";
+  const isBuyer = session.data?.user?.profileRole === "BUYER";
+
+  // Stub consultation object for instant book — buyer books directly from profile
+  const instantBookConsultation = {
+    ...MOCK_BUYER_CONSULTATIONS[1],
+    designer: {
+      id: designer.id,
+      firstName: designer.user.firstName,
+      lastName: designer.user.lastName,
+      profilePhotoUri: designer.user.profilePhotoUri,
+      tag: designer.user.tag ?? "",
+      about: designer.about,
+      location: [designer.user.address?.city, designer.user.address?.country].filter(Boolean).join(", "),
+      totalEarnings: null,
+      totalJobs: designer.projects.length,
+      successRate: null,
+      averageRating: designer.averageRating,
+      specialistType: designer.specialistType?.name ?? null,
+      brandName: designer.brandName,
+      summaryAcceptanceRate: null,
+    },
+  };
 
   const fullName = `${designer.user.firstName} ${designer.user.lastName}`;
   const location =
@@ -132,6 +157,16 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
           {/* <Button disabled variant="outline" size="sm">
             <Heart className="h-4 w-4 text-primary" />
           </Button> */}
+          {isBuyer && (
+            <Button
+              variant="outline"
+              size="sm"
+              type="button"
+              onClick={() => setBookingModalOpen(true)}
+            >
+              Book Consultation
+            </Button>
+          )}
           <Button
             className={isDesigner ? "cursor-not-allowed" : ""}
             size="sm"
@@ -152,6 +187,12 @@ const DesignerProfileView = ({ designer }: DesignerProfileViewProps) => {
             )}
           </Button>
         </div>
+
+        <BookingCalendarModal
+          open={bookingModalOpen}
+          onClose={() => setBookingModalOpen(false)}
+          consultation={instantBookConsultation}
+        />
       </div>
 
       <Separator className="bg-border/50" />

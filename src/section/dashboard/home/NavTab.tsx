@@ -28,6 +28,11 @@ const BUYER_HOME_TAB_NAV: CustomTabItemProps[] = [
     match: /(^\/projects\/drafts$|^\/projects\/drafts\/[A-Za-z0-9]{20,25}$)/,
   },
   { title: "Completed", href: "/projects/completed" },
+  {
+    title: "Consultations",
+    href: "/consultations",
+    match: /^\/consultations(\/[A-Za-z0-9_-]+)?$/,
+  },
 ];
 
 const NavTab = (props: {

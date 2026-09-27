@@ -35,8 +35,46 @@ import { subYears } from "date-fns";
 import { Copy, Mail, MailPlus } from "lucide-react";
 import { useSession } from "next-auth/react";
 
+import AvailabilityModal from "@/components/consultation/modals/AvailabilityModal";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+
+// ─── Consultation availability section ───────────────────────────────────────
+
+const ConsultationAvailabilitySection = ({
+  meData,
+}: {
+  meData: UmojaLinnUser | undefined;
+}) => {
+  const [modalOpen, setModalOpen] = useState(false);
+  const designerId = meData?.designerProfile?.id;
+
+  return (
+    <div className="flex items-center justify-between py-4">
+      <div>
+        <p className="text-sm font-semibold">Consultation Availability</p>
+        <p className="text-xs text-foreground-body mt-0.5">
+          Set your available days, hours and pricing for consultations
+        </p>
+      </div>
+      <Button
+        type="button"
+        variant="outline"
+        onClick={() => setModalOpen(true)}
+        disabled={!designerId}
+      >
+        Edit Availability
+      </Button>
+      {designerId && (
+        <AvailabilityModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          designerId={designerId}
+        />
+      )}
+    </div>
+  );
+};
 
 const getDefaultValues = (data:UmojaLinnUser | undefined ): UpdateProfileProps => {
   return {
@@ -555,6 +593,8 @@ const SettingsProfilePage = () => {
             )}
           />
         </FormItemWrapper>
+        <Separator className="bg-border/50 " />
+        {isDesigner && <ConsultationAvailabilitySection meData={meData?.data?.data} />}
         <Separator className="bg-border/50 " />
         <div className="flex gap-4 justify-end">
           {!editMode ? (

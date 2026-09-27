@@ -1,6 +1,7 @@
 "use client";
 import GalleryImages from "@/components/custom/GalleryImages";
 import LabelValue from "@/components/custom/LabelValue";
+import SuggestConsultationModal from "@/components/consultation/modals/SuggestConsultationModal";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
@@ -25,8 +26,10 @@ const JobPage = () => {
   const project = data?.data?.data;
   const { toast } = useToast();
   const router = useRouter();
+  const [suggestModalOpen, setSuggestModalOpen] = React.useState(false);
 
   const { data: session } = useSession();
+  const isDesigner = session?.user?.profileRole === "DESIGNER";
 
   const { mutate: createBid, isPending: isCreatingBid } = useCreateBid({
     onSuccess(data) {
@@ -116,17 +119,25 @@ const JobPage = () => {
             <Button variant="outline">
               <MoreVertical />
             </Button>
-            {!project?.bids?.length &&
-              session?.user?.profileRole === "DESIGNER" && (
-                <Button
-                  id="tour-create-bid-button"
-                  variant="default"
-                  onClick={() => createBid(id)}
-                  loading={isCreatingBid}
-                >
-                  Create Bid
-                </Button>
-              )}
+            {isDesigner && (
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => setSuggestModalOpen(true)}
+              >
+                Suggest Consultation
+              </Button>
+            )}
+            {!project?.bids?.length && isDesigner && (
+              <Button
+                id="tour-create-bid-button"
+                variant="default"
+                onClick={() => createBid(id)}
+                loading={isCreatingBid}
+              >
+                Create Bid
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -220,6 +231,15 @@ const JobPage = () => {
           />
         )}
       </div>
+
+      {isDesigner && session?.user?.id && (
+        <SuggestConsultationModal
+          open={suggestModalOpen}
+          onClose={() => setSuggestModalOpen(false)}
+          buyerProjectId={id}
+          designerId={session.user.id}
+        />
+      )}
     </div>
     // </div>
   );
